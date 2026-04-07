@@ -1,74 +1,54 @@
 # Reality cycle
 
 ## Inputs Used This Cycle
-- core/field_v2/attractors.json
-- core/field_v2/modes.json
-# Reality Check for SmartGlasses Project
+- No changed files detected in the latest scan.
+## Reality Check for SmartGlasses Project
 
-## Subtitle Clarity
+### Subtitle Placement
+**Current Focus:** Ensure subtitles remain readable, stable, and trust-preserving.
 
-### Feasibility: feasible now
-- **Current Status**: The `TranscriptLab` app provides a robust test bed to validate subtitle clarity in real-time. 
-- **Constraints**: The glasses should remain lightweight and socially acceptable, and subtitles must feel near-real-time or trust breaks.
-- **Assessments**:
-  - **Subtitle Placement**: Current implementations (e.g., `LiveTranscriptTestView.swift`) suggest a balance between readability and non-distracting placement. Given the success of the Xcode build summary, it is feasible to make real-time subtitles clear and stable now.
-  - **Display Behavior**: The `TranscriptLabRootView.swift` ensures that subtitle behavior can be tested in a phone-first runtime, which aligns with the current V1 interaction constraints.
+- **Subtitle Clarity Feasibility Now**: 
+  - **Assessment**: The `TranscriptLab` app provides a reusable test bed to validate subtitle clarity. Early efforts should focus on ensuring that subtitles are clear and do not distract the wearer.
+  - **Reasoning**: Given the project constraints, this is feasible now as it does not require any new sensors or hardware capabilities beyond what already exists in the phone.
 
-### Feasibility: feasible later
-- **Assessments**:
-  - Enhancements like dynamic font size adjustments based on motion detection or ambient light could improve clarity but are not critical for the core functionality.
-  - Implementing additional visual cues (e.g., blinking, color coding) to enhance clarity might be valuable in future versions.
+- **Subtitle Placement Feasibility Now**:
+  - **Assessment**: The `TranscriptLab` app can be used to experiment with different subtitle placements without requiring glasses hardware.
+  - **Reasoning**: Since this is a V1 core-deepening effort, focusing on subtitle placement is appropriate and feasible now.
 
-## Memory Trust
+### Confidence Display
+**Current Focus:** Ensure confidence format builds trust best.
 
-### Feasibility: feasible now
-- **Current Status**: The `TranscriptLab` app allows for memory support testing without heavy on-glasses compute. 
-- **Constraints**: Memory should expose uncertainty clearly and not pretend certainty.
-- **Assessments**:
-  - **Confidence Display**: Implementing a confidence label with short reasons (e.g., "Likely", "Uncertain") can help build trust. The current `TranscriptLab` setup supports this.
-  - **Memory Caching**: Cache memory locally on the phone, but ensure it is lightweight and does not drain battery significantly.
+- **Confidence Format Feasibility Now**:
+  - **Assessment**: The `TranscriptLab` app provides the necessary infrastructure to test different confidence display formats.
+  - **Reasoning**: This is a core-deepening effort and can be tested now in an iterative manner through the app.
 
-### Feasibility: feasible later
-- **Assessments**:
-  - Developing more sophisticated memory reinforcement techniques (e.g., user feedback loops) can improve trust in future versions. However, these should be incremental improvements rather than broad feature sprawl.
+### Memory/Cache Policy
+**Current Focus:** Ensure memory support helps recall names, people, and prior context without pretending certainty.
 
-## Low Friction Assistance
+- **Memory Support Feasibility Now**:
+  - **Assessment**: The `TranscriptLab` app can simulate memory behavior for testing different caching strategies.
+  - **Reasoning**: Given the current constraints of phone-first processing, this is feasible now as it does not require new hardware or sensors.
 
-### Feasibility: feasible now
-- **Current Status**: The `TranscriptLab` app supports one-line prompts and confidence display, which align with low-friction assistance.
-- **Constraints**: Avoid creating command overhead or social awkwardness.
-- **Assessments**:
-  - **Prompt Display**: The `LiveTranscriptTestView.swift` provides a framework to display one-line prompts without overwhelming the user. This is feasible now.
-  - **User Interaction**: Frame-touch interactions are already defined and tested, ensuring low-friction usage.
+### Phone/Cloud Boundary
+**Current Focus:** Ensure heavy processing remains on the phone with cloud support only where clearly justified.
 
-### Feasibility: feasible later
-- **Assessments**:
-  - Enhancing prompt formatting (e.g., differentiating between subtitles and prompts) can improve usability in future versions. However, these should be incremental improvements rather than broad feature expansion.
+- **Phone/Cloud Boundary Feasibility Now**:
+  - **Assessment**: The `TranscriptLab` app can test various scenarios to ensure that most of the processing happens on the phone.
+  - **Reasoning**: This is a guiding constraint, and early tests in the app can help surface issues before hardware development.
 
-## Core Deepening vs Sprawl
+### Visual Hierarchy
+**Current Focus:** Ensure display behavior remains socially acceptable while still being readable in motion and noise.
 
-### Feasibility: core deepening over sprawl
-- **Current Status**: The project is explicitly biased toward core-deepening work.
-- **Constraints**: Focus on subtitle quality, memory trust, and visual UX.
-- **Assessments**:
-  - Improving subtitle clarity, confidence display, and local memory caching are direct improvements to the core mission. These align with the current V1 architecture direction.
+- **Visual Hierarchy Feasibility Now**:
+  - **Assessment**: The `TranscriptLab` app can be used to experiment with different visual hierarchies for subtitles.
+  - **Reasoning**: This is a core-deepening effort and does not require new hardware or sensors, making it feasible now.
 
-### Feasibility: constraint pressure
-- **Current Status**: The project is designed to surface real-world limitations early.
-- **Constraints**: Early hardware remains simple; do not assume heavy on-glasses compute.
-- **Assessments**:
-  - Ensuring that subtitle clarity, memory support, and confidence display are optimized within the current constraints (e.g., lightweight glasses, phone-first processing) is feasible now. Future improvements can be incremental.
+### Summary of Reality Check
 
-## Summary
+- **Subtitle Placement (feasible now)**: Use `TranscriptLab` to test various subtitle placements without requiring glasses hardware.
+- **Confidence Display (feasible now)**: Test different confidence formats in `TranscriptLab` using the existing infrastructure.
+- **Memory Support (feasible now)**: Simulate memory behavior for testing caching strategies in `TranscriptLab`.
+- **Phone/Cloud Boundary (feasible now)**: Use `TranscriptLab` to ensure heavy processing remains on the phone with cloud support only where clearly justified.
+- **Visual Hierarchy (feasible now)**: Experiment with different visual hierarchies for subtitles using `TranscriptLab`.
 
-### Recommendations
-- **Subtitle Clarity**: Continue optimizing subtitles in `TranscriptLab` to ensure they remain clear, fast, and stable.
-- **Memory Trust**: Implement confidence labels with short reasons in the current setup to build trust without creating heavy on-glasses compute.
-- **Low Friction Assistance**: Enhance prompt display and formatting within the existing frame-touch interaction constraints.
-
-### Next Steps
-- **Subtitle Placement**: Ensure subtitles are placed in a way that is readable but non-distracting. Consider iterative adjustments based on user feedback.
-- **Memory Caching**: Implement lightweight memory caching locally on the phone, ensuring it does not significantly impact battery life.
-- **Prompt Formatting**: Differentiate between subtitle text and one-line prompts to enhance usability.
-
-By focusing on these core areas, the project can continue to deepen its functionality while respecting real-world constraints.
+These tasks are feasible now as they do not require new hardware or sensors and can be tested within the existing framework.

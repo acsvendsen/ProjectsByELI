@@ -1,4 +1,3 @@
-
 version: 1
 
 specialists:
@@ -20,6 +19,8 @@ specialists:
       - systemd
       - embedded_python
       - device_integration
+      - edge_runtime
+      - device_services
 
     input_types:
       - text
@@ -32,17 +33,21 @@ specialists:
       - code
       - setup_steps
       - debugging_plan
+      - subsystem_diagram
+      - interface_map
 
     strengths:
       - hardware bring_up
       - linux integration
       - on_device debugging
       - service configuration
+      - subsystem mapping
+      - interface definition
 
     weaknesses:
       - investor writing
       - industrial design
-      - high level product strategy
+      - high_level_product_strategy
 
     consultation_modes:
       - advisory
@@ -54,7 +59,7 @@ specialists:
       implementation_specificity: 0.83
       constraint_fidelity: 0.76
       hallucination_risk: 0.28
-      artifact_quality: 0.61
+      artifact_quality: 0.67
 
     cost_class: medium
     latency_class: medium
@@ -75,6 +80,8 @@ specialists:
       - parameter_estimation
       - loop_tuning
       - encoder_validation
+      - control_stability
+      - actuator_behavior
 
     input_types:
       - text
@@ -87,17 +94,21 @@ specialists:
       - code
       - plots
       - tuning_steps
+      - signal_flow_diagram
+      - component_shortlist
 
     strengths:
-      - control loop structure
-      - telemetry interpretation
-      - tuning workflow
-      - fault logic review
+      - control_loop_structure
+      - telemetry_interpretation
+      - tuning_workflow
+      - fault_logic_review
+      - signal_path_reasoning
+      - practical_tuning_guidance
 
     weaknesses:
-      - industrial design
-      - broad product strategy
-      - polished report writing
+      - industrial_design
+      - broad_product_strategy
+      - polished_report_writing
 
     consultation_modes:
       - advisory
@@ -110,7 +121,7 @@ specialists:
       implementation_specificity: 0.76
       constraint_fidelity: 0.73
       hallucination_risk: 0.31
-      artifact_quality: 0.73
+      artifact_quality: 0.76
 
     cost_class: medium
     latency_class: medium
@@ -129,6 +140,8 @@ specialists:
       - diagrams
       - invention_rendering
       - explanatory_visuals
+      - subsystem_breakdowns
+      - physical_layout_sketches
 
     input_types:
       - text
@@ -139,16 +152,20 @@ specialists:
       - image
       - diagram
       - annotated_visual
+      - subsystem_diagram
+      - layout_sketch
 
     strengths:
-      - visual explanation
-      - concept rendering
-      - fast ideation visuals
+      - visual_explanation
+      - concept_rendering
+      - fast_ideation_visuals
+      - subsystem_breakdowns
+      - implementation_facing_sketches
 
     weaknesses:
-      - deep control theory
-      - firmware correctness
-      - system architecture authority
+      - deep_control_theory
+      - firmware_correctness
+      - system_architecture_authority
 
     consultation_modes:
       - delegated_drafting
@@ -178,6 +195,8 @@ specialists:
       - structured_docs
       - visual_explanation
       - document_packaging
+      - build_summaries
+      - engineering_writeups
 
     input_types:
       - text
@@ -191,17 +210,20 @@ specialists:
       - docx
       - markdown
       - charts
+      - build_summary
+      - component_table
 
     strengths:
-      - structured reporting
-      - artifact finishing
-      - explanatory visuals
-      - formatting consistency
+      - structured_reporting
+      - artifact_finishing
+      - explanatory_visuals
+      - formatting_consistency
+      - engineering_summaries
 
     weaknesses:
-      - original engineering judgment
-      - domain prioritization
-      - long horizon project steering
+      - original_engineering_judgment
+      - domain_prioritization
+      - long_horizon_project_steering
 
     consultation_modes:
       - delegated_drafting
@@ -231,6 +253,8 @@ specialists:
       - agent_workflows
       - schema_design
       - state_management
+      - runtime_flow
+      - evaluation_plumbing
 
     input_types:
       - text
@@ -242,17 +266,19 @@ specialists:
       - code
       - refactor_plan
       - schema
+      - flow_diagram
 
     strengths:
-      - structural refactors
-      - interface design
-      - system decomposition
-      - code hygiene
+      - structural_refactors
+      - interface_design
+      - system_decomposition
+      - code_hygiene
+      - state_flow_clarity
 
     weaknesses:
-      - deep hardware tuning
-      - visual rendering
-      - product aesthetics
+      - deep_hardware_tuning
+      - visual_rendering
+      - product_aesthetics
 
     consultation_modes:
       - advisory
@@ -265,6 +291,64 @@ specialists:
       constraint_fidelity: 0.77
       hallucination_risk: 0.24
       artifact_quality: 0.68
+
+    cost_class: medium
+    latency_class: medium
+
+  - id: hardware_implementation_specialist_v1
+    label: Hardware Implementation Specialist
+    class: hardware_implementation_specialist
+    endpoint_type: api
+    endpoint_ref: hardware_implementation_specialist_v1
+    enabled: true
+
+    domains:
+      - electronics_architecture
+      - wiring_schematics
+      - component_selection
+      - sensor_interfaces
+      - power_distribution
+      - signal_integrity
+      - prototyping
+      - embedded_hardware
+
+    input_types:
+      - text
+      - code
+      - image
+      - structured_brief
+
+    output_types:
+      - analysis
+      - schematic
+      - wiring_map
+      - component_shortlist
+      - subsystem_diagram
+      - interface_map
+
+    strengths:
+      - buildable_hardware_breakdown
+      - concrete_component_selection
+      - wiring_structure
+      - power_and_signal_path_mapping
+      - practical_prototyping_guidance
+
+    weaknesses:
+      - investor_writing
+      - high_level_brand_strategy
+      - abstract_product_positioning
+
+    consultation_modes:
+      - advisory
+      - delegated_drafting
+      - competitive
+
+    trust_defaults:
+      domain_reasoning: 0.77
+      implementation_specificity: 0.84
+      constraint_fidelity: 0.79
+      hallucination_risk: 0.27
+      artifact_quality: 0.82
 
     cost_class: medium
     latency_class: medium

@@ -1,3 +1,3 @@
 # reflect error
 
-timed out
+Remote end closed connection without response

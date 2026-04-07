@@ -22,8 +22,8 @@ signals:
 thresholds:
   minimum_expected_gain: 0.12
   high_uncertainty: 0.65
-  competitive_consultation: 0.35
-  minimum_constraint_fidelity: 0.60
+  competitive_consultation: 0.46
+  minimum_constraint_fidelity: 0.72
   max_hallucination_risk_for_primary_use: 0.45
   minimum_semantic_match: 0.45
 
@@ -35,6 +35,10 @@ consultation_mode_rules:
       - critique
       - sanity_check
       - domain_analysis
+      - implementation_review
+      - component_selection_review
+      - architecture_fork
+      - component_tradeoff
 
   delegated_drafting:
     allowed_for:
@@ -42,6 +46,12 @@ consultation_mode_rules:
       - report_draft
       - diagram_draft
       - artifact_assembly
+      - schematic_draft
+      - interface_map
+      - subsystem_breakdown
+      - component_shortlist
+      - diagram_packaging
+      - report_packaging
 
   competitive:
     allowed_for:
@@ -49,6 +59,8 @@ consultation_mode_rules:
       - conflicting_options
       - persistent_uncertainty
       - unresolved_tradeoff
+      - architecture_fork
+      - component_tradeoff
 
   instrumental:
     allowed_for:
@@ -57,6 +69,45 @@ consultation_mode_rules:
       - format_conversion
       - simulation
       - pdf_packaging
+      - diagram_packaging
+      - report_packaging
+
+build_artifact_bias:
+  diagrams:
+    preferred_mode: delegated_drafting
+    preferred_specialists:
+      - visualization_specialist_v1
+      - report_specialist_v1
+
+  schematics:
+    preferred_mode: delegated_drafting
+    preferred_specialists:
+      - hardware_implementation_specialist_v1
+      - visualization_specialist_v1
+
+  component_shortlists:
+    preferred_mode: advisory
+    preferred_specialists:
+      - hardware_implementation_specialist_v1
+      - code_architecture_specialist_v1
+
+  interface_maps:
+    preferred_mode: delegated_drafting
+    preferred_specialists:
+      - code_architecture_specialist_v1
+      - visualization_specialist_v1
+
+  subsystem_breakdowns:
+    preferred_mode: delegated_drafting
+    preferred_specialists:
+      - code_architecture_specialist_v1
+      - hardware_implementation_specialist_v1
+
+  report_packaging:
+    preferred_mode: delegated_drafting
+    preferred_specialists:
+      - report_specialist_v1
+      - visualization_specialist_v1
 
 safeguards:
   do_not_override_field_logic: true
@@ -65,3 +116,9 @@ safeguards:
   do_not_reframe_project_identity: true
   require_auditable_consultation_history: true
   require_partial_accept_or_reject_path: true
+  require_high_uncertainty_for_competitive: true
+  require_runner_up_for_competitive: true
+  minimum_expected_gain_margin_for_competitive: 0.06
+  max_top_runner_gap_for_competitive: 0.12
+  artifact_generation_not_authoritative_reasoning: true
+  artifact_generation_requires_eli_evaluation: true

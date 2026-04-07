@@ -1,58 +1,365 @@
+# Codex Handoff — SmartGlasses / ELI Architecture Brief
 
-Before making changes, read and follow `Codex_handoff.md` as the authoritative architectural brief for this work.
+## Purpose
 
-Important constraints:
-- ELI must remain the authoritative synthesizer and long-horizon judge.
-- Specialist endpoints are subordinate consultable instruments.
-- Specialist outputs must not directly mutate field logic, action judgment, project memory, or reflect authority.
-- Repo-diff interpretation must ground ELI judgment, not replace it.
-- Preserve the current narrow, conservative, typed, and auditable structure.
+This document defines the architectural constraints and intended behavior for extending ELI within the SmartGlasses project.
 
-For this pass, please implement the next conservative step for:
-1. specialist consultation support
-2. Phase 7 repo-grounded alignment
+Its purpose is to preserve ELI’s core structure and fundamentals while allowing careful expansion of capability.
 
-Scope:
-- load and use the project specialist registry
-- load and use the specialist routing policy
-- load and update specialist trust memory
-- create consultation decision objects and history logging
-- add post-consultation evaluation with accept / partial_accept / reject / defer_for_competitive_review
-- add repo-change candidate extraction
-- add semantic repo alignment classification
-- enrich reflect with specialist and repo-grounded signals
-- keep all new consequences conservative and explicitly typed
+This is not a generic multi-agent router design.
+This is an ELI-directed cognition extension.
 
-Please do not let specialist outputs or diff interpretations become direct state-mutation bypasses.
+---
 
-Please keep implementation generic where possible, project-shaped where necessary, and do not modify the Phase 6 bridge except where needed to attach conservative typed inputs into existing audited flows.
+## Canonical project path
 
-phase7_repo_alignment:
-  enabled: true
+For SmartGlasses runtime and project-shaped cognition work, the canonical project path is:
 
-  diff_alignment:
-    align_weight: 1.0
-    productive_resistance_weight: 0.75
-    misalignment_weight: -0.85
-    neglect_weight: -0.65
-    cosmetic_only_weight: -0.30
+`/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses`
 
-  action_coupling:
-    reward_diff_backed_actions: true
-    damp_talk_without_change: true
-    enable_dormant_return_on_structural_progress: true
+Do not write parallel copies under:
+- `/Users/acs/Development/ProjectsByELI/ProjectELI/projects/smart_glasses`
+- `/Users/acs/Development/ProjectsByELI/SmartGlasses`
 
-  reflect_grounding:
-    require_diff_summary: true
-    require_alignment_observations: true
-    require_resistance_observations: true
+unless explicitly instructed.
 
-  safeguards:
-    do_not_equate_any_diff_with_progress: true
-    do_not_penalize_valid_design_pause_too_early: true
-    require_semantic_interpretation_of_diffs: true
-    
-At the end, briefly explain:
-- which parts of `Codex_handoff.md` you followed most directly
-- how your implementation preserves ELI authority
-- where specialist and repo-alignment signals enter the flow
+---
+
+## Non-negotiable principles
+
+### 1. ELI remains the authoritative synthesizer
+ELI must remain the primary project mind, continuity-bearing intelligence, and long-horizon judge.
+
+Specialists may be consulted, but they must not replace:
+- field logic
+- project memory
+- action judgment
+- reflect authority
+- project identity
+- long-horizon direction
+
+### 2. Specialist endpoints are subordinate instruments
+Specialist endpoints are consultable instruments, not final authorities.
+
+They may provide:
+- domain analysis
+- code suggestions
+- drafts
+- visualizations
+- reports
+- simulations
+- alternative perspectives
+
+They do not define project meaning.
+
+### 3. No direct specialist state mutation
+A specialist response must never directly mutate:
+- field state
+- action state
+- reflect authority
+- project-shaping values
+- long-horizon project priorities
+
+All specialist outputs must pass through explicit ELI evaluation before becoming consequential.
+
+### 4. ELI must preserve authorship
+ELI may:
+- accept specialist input
+- partially accept specialist input
+- reject specialist input
+- defer for competitive review
+
+ELI must not become over-deferential to specialists.
+
+### 5. All specialist consultations must be auditable
+Every consultation should be recorded with:
+- why it was triggered
+- which specialist was selected
+- what context was provided
+- what output was requested
+- how ELI evaluated the result
+- what was accepted or rejected
+
+### 6. Repo-grounded evidence must inform, not replace, judgment
+Repo-diff interpretation must ground ELI judgment, not replace it.
+
+Actual code/config/content change is important, but it must enter as typed, conservative, semantically interpreted evidence.
+
+Raw churn is not progress.
+
+---
+
+## Core architectural model
+
+Preferred conceptual flow:
+
+User -> ELI core cognition -> optional specialist consultation -> ELI synthesis -> output
+
+Not:
+
+User -> router -> specialist -> final answer
+
+ELI is the central intelligence.
+Specialists are optional extensions of reach.
+
+---
+
+## Specialist consultation model
+
+### Specialist consultation exists to:
+- reduce uncertainty
+- improve artifact quality
+- obtain domain-specific critique
+- support structured drafting
+- ground difficult subproblems
+
+### Specialist consultation must not:
+- redefine project goals
+- override field tensions
+- bypass action judgment
+- bypass reflect authority
+- reshape project identity without explicit ELI judgment
+
+---
+
+## Consultation modes
+
+### Advisory
+Use for:
+- design critique
+- architecture critique
+- domain reasoning
+- sanity checks
+- tradeoff review
+
+ELI remains the main author.
+
+### Delegated drafting
+Use for:
+- code scaffolds
+- diagrams
+- structured reports
+- artifact drafts
+- document packaging
+
+ELI still evaluates the output before adoption.
+
+### Competitive
+Use for:
+- persistent uncertainty
+- high-risk decisions
+- conflicting design paths
+- unclear tradeoffs
+
+This should be a meaningful escalation, not a default behavior.
+
+### Instrumental
+Use for:
+- plotting
+- rendering
+- simulation
+- PDF packaging
+- format conversion
+
+Instrumental use is tool-like, not authority-like.
+
+---
+
+## Specialist selection principles
+
+ELI should only consult a specialist when the expected gain is meaningfully positive.
+
+Selection should consider:
+- semantic match to the subproblem
+- current ELI uncertainty
+- trust memory from prior outcomes
+- artifact/output requirements
+- constraint fidelity
+- contradiction risk
+- hallucination risk
+
+Specialists that do not respect project constraints should be disfavored even if they appear otherwise capable.
+
+---
+
+## Trust memory
+
+ELI should gradually learn specialist usefulness from lived outcomes rather than relying on brand assumptions.
+
+Trust memory should track:
+- task-family usefulness
+- specificity
+- constraint fidelity
+- hallucination risk
+- artifact quality
+- recent outcomes
+
+This allows ELI to become more selective over time.
+
+---
+
+## Integration rules
+
+After receiving a specialist response, ELI must explicitly evaluate:
+- project fit
+- constraint fidelity
+- specificity
+- novelty
+- overreach
+- contradiction with current project structure
+
+Integration status should be explicitly typed:
+- accept
+- partial_accept
+- reject
+- defer_for_competitive_review
+
+Partial acceptance is important.
+ELI should be able to keep useful fragments while rejecting misaligned parts.
+
+---
+
+## Repo-grounded alignment (Phase 7)
+
+### Goal
+Phase 7 introduces diff-grounded reality pressure.
+
+ELI should compare:
+- current field pressures
+- active action momentum
+- actual code/config/content diffs
+
+This prevents the system from remaining too discourse-level.
+
+### Repo change interpretation must be semantic
+Raw file churn is not progress.
+
+Each meaningful repo change should be interpreted in terms of:
+- which tensions it relates to
+- which actions it supports or resists
+- whether it materially advances implementation
+- whether it productively reveals constraints
+- whether it is merely cosmetic
+
+### Recommended classifications
+Use typed classifications such as:
+- aligned
+- productive_resistance
+- misaligned
+- field_neglecting
+- cosmetic_only
+
+### Meaning of productive resistance
+Not all resistance is bad.
+A repo change may reveal that the field’s current direction needs correction or realism.
+That should be representable without collapsing into simple good/bad.
+
+---
+
+## How Phase 7 should affect cognition
+
+Phase 7 should inform:
+- action judgment
+- dormant-idea return legitimacy
+- reflect enrichment
+- field interpretation
+
+Phase 7 should not become a bypass around ELI’s audited consequence path.
+
+No diff should directly mutate important project state without typed and conservative interpretation.
+
+---
+
+## Relationship between specialists and Phase 7
+
+Both specialist consultation and repo-grounded alignment are inputs into ELI judgment.
+
+Neither should become a replacement judgment layer.
+
+Specialist outputs and repo changes are evidence.
+ELI remains the evaluator.
+
+---
+
+## Build-oriented output preference
+
+When a task involves hardware, embedded systems, controls, optics, or physical implementation, ELI should prefer build-oriented outputs where they would materially improve progress.
+
+These may include:
+- system diagrams
+- wiring schematics
+- signal and power flow diagrams
+- subsystem breakdowns
+- interface maps
+- concrete component recommendations
+- practical implementation sketches
+
+Explanation alone should not be treated as sufficient when a more buildable output would better support the project.
+
+Prefer the most build-relevant diagram type for the task:
+- block diagram for system structure
+- schematic for wiring/electronics
+- flow diagram for signal/control paths
+- layout sketch for physical arrangement
+- component shortlist when part selection is still open
+
+---
+
+## Implementation guidance
+
+### Preferred implementation order
+1. Add specialist registry loading
+2. Add specialist routing policy loading
+3. Add specialist trust-memory loading/writing
+4. Add specialist consultation decision objects
+5. Add consultation history logging
+6. Add post-consultation evaluation
+7. Add repo-change candidate extraction
+8. Add semantic repo alignment classification
+9. Add reflect enrichment
+10. Add conservative action-coupling signals
+
+### Keep implementation generic where possible
+Engine mechanics should stay generic.
+Project-specific shaping should remain in project-level schema and configuration.
+
+### Preserve current narrowness
+Do not broaden the system too quickly.
+The intended direction is conservative, typed, auditable, and authority-preserving.
+
+---
+
+## Anti-patterns to avoid
+
+Do not:
+- turn ELI into a generic agent router
+- let specialists directly update field/action/reflect state
+- treat raw repo churn as progress
+- reward cosmetic change as meaningful progress
+- escalate to competitive consultation too easily
+- let specialists reframe project identity
+- replace project-shaped logic with generic orchestration logic
+
+---
+
+## Structural warning
+
+Do not let specialist consultation or repo-diff interpretation become bypass channels around ELI cognition.
+
+Their purpose is to extend ELI’s reach and ground ELI’s judgment, not to replace ELI’s judgment.
+
+If an implementation makes specialists or repo-diff classifiers the primary source of project direction, the implementation is structurally wrong.
+
+---
+
+## Current tuning posture
+
+The intended posture is:
+- conservative
+- auditable
+- typed
+- authority-preserving
+- project-shaped
+- resistant to architectural drift
+
+ELI should think first, consult selectively, and retain authorship.

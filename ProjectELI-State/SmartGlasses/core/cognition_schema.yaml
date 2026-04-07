@@ -73,6 +73,24 @@ specialist_consultation:
     require_consultation_audit_trail: true
     require_partial_accept_or_reject_path: true
 
+artifact_preferences:
+  prefer_working_diagrams_for_engineering_tasks: true
+  prefer_schematics_for_hardware_tasks: true
+  prefer_component_selection_guidance: true
+  prefer_buildable_outputs_over_pure_discussion: true
+  prefer_subsystem_breakdowns_for_complex_systems: true
+  prefer_interface_maps_for_multi_part_designs: true
+  prefer_component_shortlists_when_part_selection_is_open: true
+
+  diagram_expectations:
+    include_signal_flow: true
+    include_power_paths: true
+    include_key_interfaces: true
+    include_named_components: true
+    include_candidate_part_choices: true
+    include_subsystem_breakdowns: true
+    include_interface_maps_when_relevant: true
+
 phase7_repo_alignment:
   enabled: true
 

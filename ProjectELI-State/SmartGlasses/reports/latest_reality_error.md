@@ -1,3 +1,3 @@
 # reality error
 
-timed out
+<urlopen error [Errno 61] Connection refused>

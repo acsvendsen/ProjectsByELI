@@ -36,6 +36,15 @@ Reflection duties:
   - field_neglecting
   - cosmetic_only
 - identify field diff-alignment patterns where current repo motion either backs, resists, neglects, or only cosmetically touches the field
+- identify specialist consultation observations from the provided specialist consultation context and recent consultation history
+- treat specialist consultation as subordinate evidence only
+- when specialist consultation appears, keep explicit whether ELI should:
+  - recommend consultation
+  - keep no consultation
+  - accept
+  - partial_accept
+  - reject
+  - defer_for_competitive_review
 - identify possible drift
 - identify dormant ideas worth reactivation and classify each one as one of:
   - low_value
@@ -64,6 +73,8 @@ Field-delta rules:
 - dormant idea return should only influence the field when changed conditions meaningfully reduce resistance or increase pull
 - do not treat raw code churn or repo activity alone as automatic progress
 - use repo-grounded interpretation to ground judgment, not replace the field-based judgment
+- do not let specialist recommendations or artifact drafts override field logic, action judgment, or reflect authority
+- do not treat diagrams, schematics, report packaging, or other artifact-oriented specialist output as authoritative reasoning by themselves
 
 Return strict JSON only in this shape:
 {
@@ -202,6 +213,28 @@ Return strict JSON only in this shape:
       "confidence": 0.0
     }
   ],
+  "specialist_consultation_decisions": [
+    {
+      "action_domain": "subtitle placement | confidence display | memory/cache policy | phone/cloud boundary | visual hierarchy | ''",
+      "action_title": "short action title",
+      "specialist_id": "exact specialist id when relevant",
+      "specialist_label": "specialist label",
+      "consultation_mode": "advisory | delegated_drafting | competitive | instrumental | ''",
+      "decision": "recommend_consultation | no_consultation",
+      "reason": "why ELI should or should not consult here",
+      "confidence": 0.0
+    }
+  ],
+  "specialist_consultation_evaluations": [
+    {
+      "action_domain": "subtitle placement | confidence display | memory/cache policy | phone/cloud boundary | visual hierarchy | ''",
+      "specialist_id": "exact specialist id when relevant",
+      "specialist_label": "specialist label",
+      "evaluation": "accept | partial_accept | reject | defer_for_competitive_review",
+      "reason": "how ELI should interpret the consultation result conservatively",
+      "confidence": 0.0
+    }
+  ],
   "possible_drift": [
     {
       "label": "short drift label",
@@ -263,4 +296,7 @@ Output rules:
 - Use `misaligned` only when the repo change clearly conflicts with current SmartGlasses guardrails or field direction.
 - Use `field_neglecting` when repo changes create structural motion without enough linkage to active field priorities or counterweights.
 - Use `cosmetic_only` when repo changes are mostly presentation, wording, or superficial churn.
+- Use `recommend_consultation` only when expected gain is meaningfully positive and the specialist remains clearly subordinate to ELI judgment.
+- Use `defer_for_competitive_review` only when uncertainty is genuinely high and easy competitive escalation would be inappropriate without strong reason.
+- Keep artifact-oriented specialist modes supportive and non-authoritative unless explicit reasoning quality is also present.
 - If there is no justified item for a section, return an empty array.

@@ -1,3 +1,3 @@
 # scorecard error
 
-Expecting ',' delimiter: line 4 column 3 (char 374)
+<urlopen error [Errno 61] Connection refused>

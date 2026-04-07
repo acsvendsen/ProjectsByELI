@@ -63,6 +63,51 @@ REPO_ALIGNMENT_CLASSIFICATIONS = (
     'field_neglecting',
     'cosmetic_only',
 )
+SPECIALIST_EVALUATION_VALUES = (
+    'accept',
+    'partial_accept',
+    'reject',
+    'defer_for_competitive_review',
+)
+SPECIALIST_TEXT_PATTERNS = {
+    'embedded_linux_specialist_v1': [
+        r'embedded', r'linux', r'raspberry', r'systemd', r'camera', r'device', r'gpio', r'i2c', r'spi', r'uart',
+    ],
+    'controls_specialist_v1': [
+        r'bldc', r'foc', r'pid', r'dq', r'encoder', r'telemetry', r'loop tuning', r'parameter estimation', r'fault logic',
+    ],
+    'visualization_specialist_v1': [
+        r'visual', r'ui', r'ux', r'display', r'placement', r'layout', r'hierarchy', r'overlay', r'prominence', r'render',
+    ],
+    'report_specialist_v1': [
+        r'report', r'pdf', r'document', r'chart', r'markdown', r'explanation', r'packaging',
+    ],
+    'code_architecture_specialist_v1': [
+        r'architecture', r'orchestration', r'refactor', r'state', r'schema', r'policy', r'boundary', r'cache', r'workflow',
+    ],
+}
+ACTION_SPECIALIST_HINTS = {
+    'subtitle placement': {
+        'visualization_specialist_v1': 0.74,
+        'code_architecture_specialist_v1': 0.28,
+    },
+    'confidence display': {
+        'visualization_specialist_v1': 0.78,
+        'code_architecture_specialist_v1': 0.24,
+    },
+    'memory/cache policy': {
+        'code_architecture_specialist_v1': 0.76,
+        'embedded_linux_specialist_v1': 0.16,
+    },
+    'phone/cloud boundary': {
+        'code_architecture_specialist_v1': 0.8,
+        'embedded_linux_specialist_v1': 0.18,
+    },
+    'visual hierarchy': {
+        'visualization_specialist_v1': 0.82,
+        'code_architecture_specialist_v1': 0.2,
+    },
+}
 DOMAIN_TARGET_PATTERNS = {
     "subtitle placement": {
         "subtitle position rule": [r'fixed position', r'position rule', r'bottom', r'top center', r'placement rule', r'placement mode'],
@@ -333,8 +378,12 @@ LINKS_DIR = PROJECT_DIR / "links"
 REPO_LINK_DIR = LINKS_DIR / "repo"
 REPO_ELI_DIR = REPO_LINK_DIR / "ELI"
 COGNITION_SCHEMA_PATH = CORE_DIR / "cognition_schema.yaml"
+SPECIALIST_REGISTRY_PATH = CORE_DIR / "specialist_registry.yaml"
+SPECIALIST_ROUTING_POLICY_PATH = CORE_DIR / "specialist_routing_policy.yaml"
 BUILD_SUMMARY_PATH = ENGINE_STATE_DIR / str(CFG.get('build_summary_filename', 'transcriptlab_xcode_build_summary.md'))
 BUILD_CAPTURE_SCRIPT_PATH = cfg_path_value('build_capture_script', 'scripts/capture_transcriptlab_build.py')
+SPECIALIST_TRUST_MEMORY_PATH = PROJECT_STATE_DIR / "specialist_trust_memory.json"
+SPECIALIST_CONSULTATION_HISTORY_PATH = PROJECT_STATE_DIR / "specialist_consultation_history.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -370,6 +419,37 @@ FIELD_V2_FILES = {
 }
 
 DEFAULT_COGNITION_SCHEMA = {
+    'specialist_consultation': {
+        'enabled': True,
+        'authority': {
+            'eli_remains_primary_judge': True,
+            'specialist_outputs_advisory_by_default': True,
+            'require_eli_evaluation_before_integration': True,
+            'forbid_direct_specialist_state_mutation': True,
+        },
+        'selection': {
+            'minimum_expected_gain': 0.12,
+            'high_uncertainty_threshold': 0.65,
+            'competitive_consultation_threshold': 0.46,
+            'minimum_semantic_match': 0.45,
+            'minimum_constraint_fidelity': 0.72,
+            'max_hallucination_risk_for_primary_use': 0.45,
+        },
+        'modes': {
+            'advisory': True,
+            'delegated_drafting': True,
+            'competitive': True,
+            'instrumental': True,
+        },
+        'safeguards': {
+            'do_not_override_field_logic': True,
+            'do_not_override_reflect_authority': True,
+            'do_not_override_action_judgment': True,
+            'do_not_reframe_project_identity': True,
+            'require_consultation_audit_trail': True,
+            'require_partial_accept_or_reject_path': True,
+        },
+    },
     'control': {
         'attractor_saturation': {
             'soft_start_score': 0.82,
@@ -463,7 +543,33 @@ DEFAULT_COGNITION_SCHEMA = {
     }
 }
 
-DEFAULT_COGNITION_SCHEMA_TEXT = """control:
+DEFAULT_COGNITION_SCHEMA_TEXT = """specialist_consultation:
+  enabled: true
+  authority:
+    eli_remains_primary_judge: true
+    specialist_outputs_advisory_by_default: true
+    require_eli_evaluation_before_integration: true
+    forbid_direct_specialist_state_mutation: true
+  selection:
+    minimum_expected_gain: 0.12
+    high_uncertainty_threshold: 0.65
+    competitive_consultation_threshold: 0.46
+    minimum_semantic_match: 0.45
+    minimum_constraint_fidelity: 0.72
+    max_hallucination_risk_for_primary_use: 0.45
+  modes:
+    advisory: true
+    delegated_drafting: true
+    competitive: true
+    instrumental: true
+  safeguards:
+    do_not_override_field_logic: true
+    do_not_override_reflect_authority: true
+    do_not_override_action_judgment: true
+    do_not_reframe_project_identity: true
+    require_consultation_audit_trail: true
+    require_partial_accept_or_reject_path: true
+control:
   attractor_saturation:
     soft_start_score: 0.82
     strong_start_score: 0.92
@@ -660,9 +766,209 @@ def cognition_control_config(section):
     return load_cognition_schema().get('control', {}).get(section, {})
 
 
+def specialist_consultation_config(schema):
+    return schema.get('specialist_consultation', {})
+
+
+def parse_specialist_registry(path):
+    if not path.exists():
+        return {'version': 1, 'specialists': []}
+    version = 1
+    specialists = []
+    current = None
+    current_section = ''
+    for raw in path.read_text(encoding='utf-8').splitlines():
+        line = raw.rstrip()
+        stripped = line.strip()
+        if not stripped or stripped.startswith('#'):
+            continue
+        indent = len(line) - len(line.lstrip(' '))
+        if indent == 0 and stripped.startswith('version:'):
+            version = safe_int(parse_scalar_value(stripped.split(':', 1)[1]), 1)
+            continue
+        if indent == 0 and stripped == 'specialists:':
+            continue
+        if indent == 2 and stripped.startswith('- id:'):
+            if current:
+                specialists.append(current)
+            current = {'id': parse_scalar_value(stripped.split(':', 1)[1])}
+            current_section = ''
+            continue
+        if current is None:
+            continue
+        if indent == 4:
+            if stripped.endswith(':'):
+                key = stripped[:-1].strip()
+                current[key] = {} if key == 'trust_defaults' else []
+                current_section = key
+            elif ':' in stripped:
+                key, value = stripped.split(':', 1)
+                current[key.strip()] = parse_scalar_value(value)
+                current_section = ''
+            continue
+        if indent == 6 and current_section:
+            bucket = current.get(current_section)
+            if isinstance(bucket, list) and stripped.startswith('- '):
+                bucket.append(parse_scalar_value(stripped[2:]))
+            elif isinstance(bucket, dict) and ':' in stripped:
+                key, value = stripped.split(':', 1)
+                bucket[key.strip()] = parse_scalar_value(value)
+    if current:
+        specialists.append(current)
+    for specialist in specialists:
+        for key in ('domains', 'input_types', 'output_types', 'strengths', 'weaknesses', 'consultation_modes'):
+            values = specialist.get(key, [])
+            if not isinstance(values, list):
+                specialist[key] = [values] if values else []
+        if not isinstance(specialist.get('trust_defaults'), dict):
+            specialist['trust_defaults'] = {}
+        specialist['enabled'] = bool(specialist.get('enabled', True))
+    return {'version': version, 'specialists': specialists}
+
+
+def load_specialist_registry():
+    return parse_specialist_registry(SPECIALIST_REGISTRY_PATH)
+
+
+def load_specialist_routing_policy():
+    default = {
+        'version': 1,
+        'selection_policy': {
+            'preserve_eli_authority': True,
+            'consultation_requires_positive_expected_gain': True,
+            'default_mode': 'advisory',
+            'allow_no_consultation': True,
+            'reject_specialist_if_conflicts_with_project_constraints': True,
+            'require_eli_post_consultation_evaluation': True,
+            'specialist_outputs_are_advisory_by_default': True,
+        },
+        'signals': {
+            'semantic_match_weight': 0.25,
+            'trust_memory_weight': 0.2,
+            'current_uncertainty_weight': 0.2,
+            'artifact_requirement_weight': 0.15,
+            'historical_success_weight': 0.1,
+            'constraint_fidelity_weight': 0.1,
+            'contradiction_risk_weight': -0.1,
+            'hallucination_risk_weight': -0.1,
+        },
+        'thresholds': {
+            'minimum_expected_gain': 0.12,
+            'high_uncertainty': 0.65,
+            'competitive_consultation': 0.46,
+            'minimum_constraint_fidelity': 0.72,
+            'max_hallucination_risk_for_primary_use': 0.45,
+            'minimum_semantic_match': 0.45,
+        },
+        'consultation_mode_rules': {
+            'advisory': {
+                'allowed_for': [
+                    'architecture_questions',
+                    'design_tradeoffs',
+                    'critique',
+                    'sanity_check',
+                    'domain_analysis',
+                    'implementation_review',
+                    'component_selection_review',
+                    'architecture_fork',
+                    'component_tradeoff',
+                ],
+            },
+            'delegated_drafting': {
+                'allowed_for': [
+                    'code_scaffold',
+                    'report_draft',
+                    'diagram_draft',
+                    'artifact_assembly',
+                    'schematic_draft',
+                    'interface_map',
+                    'subsystem_breakdown',
+                    'component_shortlist',
+                    'diagram_packaging',
+                    'report_packaging',
+                ],
+            },
+            'competitive': {
+                'allowed_for': [
+                    'high_risk_decision',
+                    'conflicting_options',
+                    'persistent_uncertainty',
+                    'unresolved_tradeoff',
+                    'architecture_fork',
+                    'component_tradeoff',
+                ],
+            },
+            'instrumental': {
+                'allowed_for': [
+                    'plotting',
+                    'rendering',
+                    'format_conversion',
+                    'simulation',
+                    'pdf_packaging',
+                    'diagram_packaging',
+                    'report_packaging',
+                ],
+            },
+        },
+        'build_artifact_bias': {
+            'diagrams': {
+                'preferred_mode': 'delegated_drafting',
+                'preferred_specialists': ['visualization_specialist_v1', 'report_specialist_v1'],
+            },
+            'schematics': {
+                'preferred_mode': 'delegated_drafting',
+                'preferred_specialists': ['hardware_implementation_specialist_v1', 'visualization_specialist_v1'],
+            },
+            'component_shortlists': {
+                'preferred_mode': 'advisory',
+                'preferred_specialists': ['hardware_implementation_specialist_v1', 'code_architecture_specialist_v1'],
+            },
+            'interface_maps': {
+                'preferred_mode': 'delegated_drafting',
+                'preferred_specialists': ['code_architecture_specialist_v1', 'visualization_specialist_v1'],
+            },
+            'subsystem_breakdowns': {
+                'preferred_mode': 'delegated_drafting',
+                'preferred_specialists': ['code_architecture_specialist_v1', 'hardware_implementation_specialist_v1'],
+            },
+            'report_packaging': {
+                'preferred_mode': 'delegated_drafting',
+                'preferred_specialists': ['report_specialist_v1', 'visualization_specialist_v1'],
+            },
+        },
+        'safeguards': {
+            'do_not_override_field_logic': True,
+            'do_not_override_reflect_authority': True,
+            'do_not_override_action_judgment': True,
+            'do_not_reframe_project_identity': True,
+            'require_auditable_consultation_history': True,
+            'require_partial_accept_or_reject_path': True,
+            'require_high_uncertainty_for_competitive': True,
+            'require_runner_up_for_competitive': True,
+            'minimum_expected_gain_margin_for_competitive': 0.06,
+            'max_top_runner_gap_for_competitive': 0.12,
+            'artifact_generation_not_authoritative_reasoning': True,
+            'artifact_generation_requires_eli_evaluation': True,
+        },
+    }
+    if not SPECIALIST_ROUTING_POLICY_PATH.exists():
+        return default
+    try:
+        raw = parse_simple_yaml_tree(SPECIALIST_ROUTING_POLICY_PATH.read_text(encoding='utf-8'))
+    except Exception:
+        raw = {}
+    return deep_merge_dict(default, raw)
+
+
 def render_cognition_schema_context(schema):
     control = schema.get('control', {})
     lines = ['# Cognition Control Schema']
+    specialist = schema.get('specialist_consultation', {})
+    specialist_selection = specialist.get('selection', {})
+    lines.append('## Specialist Consultation')
+    lines.append(
+        f"- enabled: {specialist.get('enabled')} | minimum_expected_gain: {specialist_selection.get('minimum_expected_gain')} | high_uncertainty_threshold: {specialist_selection.get('high_uncertainty_threshold')} | competitive_consultation_threshold: {specialist_selection.get('competitive_consultation_threshold')}"
+    )
     saturation = control.get('attractor_saturation', {})
     lines.append('## Attractor Saturation')
     lines.append(
@@ -698,6 +1004,51 @@ def render_cognition_schema_context(schema):
     lines.append(
         f"- enabled: {repo_alignment.get('enabled')} | align_weight: {diff_alignment.get('align_weight')} | productive_resistance_weight: {diff_alignment.get('productive_resistance_weight')} | misalignment_weight: {diff_alignment.get('misalignment_weight')}"
     )
+    return '\n'.join(lines) + '\n'
+
+
+def render_specialist_consultation_context():
+    registry = load_specialist_registry()
+    policy = load_specialist_routing_policy()
+    trust = load_specialist_trust_memory()
+    history = load_specialist_consultation_history()
+    thresholds = policy.get('thresholds', {})
+    artifact_bias = policy.get('build_artifact_bias', {})
+    recent_entries = history.get('entries', [])[-4:]
+    lines = ['# Specialist Consultation Context']
+    lines.append(f"- registry_path: {SPECIALIST_REGISTRY_PATH}")
+    lines.append(f"- routing_policy_path: {SPECIALIST_ROUTING_POLICY_PATH}")
+    lines.append(f"- trust_memory_path: {SPECIALIST_TRUST_MEMORY_PATH}")
+    lines.append(f"- consultation_history_path: {SPECIALIST_CONSULTATION_HISTORY_PATH}")
+    lines.append(
+        f"- specialists_enabled: {len([item for item in registry.get('specialists', []) if item.get('enabled', True)])} | minimum_expected_gain: {thresholds.get('minimum_expected_gain')} | competitive_consultation: {thresholds.get('competitive_consultation')} | minimum_constraint_fidelity: {thresholds.get('minimum_constraint_fidelity')}"
+    )
+    if artifact_bias:
+        lines.append('- build_artifact_bias:')
+        for key, item in artifact_bias.items():
+            if not isinstance(item, dict):
+                continue
+            lines.append(
+                f"  - {key}: mode {item.get('preferred_mode', '')} | specialists {', '.join(item.get('preferred_specialists', [])) or 'none'}"
+            )
+    else:
+        lines.append('- build_artifact_bias: none')
+    if not recent_entries:
+        lines.append('- recent_consultation_history: none')
+    else:
+        lines.append('- recent_consultation_history:')
+        for entry in recent_entries:
+            label = entry.get('specialist_label') or entry.get('specialist_id', 'specialist')
+            decision = entry.get('decision') or entry.get('eli_evaluation') or entry.get('kind', 'entry')
+            lines.append(
+                f"  - {entry.get('action_domain', '') or entry.get('action_title', 'unknown')}: {label} | {decision} | mode {entry.get('consultation_mode', '') or 'n/a'}"
+            )
+    if trust.get('specialists'):
+        lines.append('- trust_memory_snapshot:')
+        for specialist_id, profile in list(trust.get('specialists', {}).items())[:4]:
+            lines.append(
+                f"  - {specialist_id}: trust_score {profile.get('trust_score', 0.0)} | historical_success {profile.get('historical_success', 0.5)} | constraint_fidelity {profile.get('constraint_fidelity', 0.0)}"
+            )
     return '\n'.join(lines) + '\n'
 
 
@@ -2233,10 +2584,11 @@ def historical_action_influence(item, resurfacing_state):
     }
 
 
-def build_action_direction_judgment(item, analysis):
+def build_action_direction_judgment(item, analysis, specialist_signal=None):
     snapshot = analysis.get('snapshot') or field_layer_snapshot()
     links = candidate_domain_links(item.get('domain', ''))
     repo_grounding = analysis.get('action_repo_grounding', {}).get(item.get('domain', ''), empty_action_repo_grounding())
+    specialist_signal = specialist_signal or empty_specialist_signal()
     attractors_by_id = field_item_index(snapshot.get('attractors', {}))
     tensions_by_id = field_item_index(snapshot.get('tensions', {}))
     modes_by_id = field_item_index(snapshot.get('modes', {}))
@@ -2355,6 +2707,21 @@ def build_action_direction_judgment(item, analysis):
         0.0,
         1.0,
     ), 3)
+    alignment_score = round(clamp_number(
+        alignment_score + safe_float(specialist_signal.get('specialist_alignment_adjustment', 0.0), 0.0),
+        0.0,
+        1.0,
+    ), 3)
+    resistance_score = round(clamp_number(
+        resistance_score + safe_float(specialist_signal.get('specialist_resistance_adjustment', 0.0), 0.0),
+        0.0,
+        1.0,
+    ), 3)
+    architectural_pull_score = round(clamp_number(
+        architectural_pull_score + safe_float(specialist_signal.get('specialist_pull_adjustment', 0.0), 0.0),
+        0.0,
+        1.0,
+    ), 3)
 
     if resistance_score >= 0.82 and architectural_pull_score <= 0.22:
         direction_judgment = 'kill'
@@ -2381,6 +2748,10 @@ def build_action_direction_judgment(item, analysis):
         reason_parts.append(f"needs counterweight discipline on {', '.join(dict.fromkeys(counterweight_labels))}")
     if repo_grounding.get('repo_grounding_reason'):
         reason_parts.append(repo_grounding.get('repo_grounding_reason'))
+    if specialist_signal.get('specialist_signal_reason'):
+        reason_parts.append(specialist_signal.get('specialist_signal_reason'))
+    elif specialist_signal.get('specialist_consultation_reason') and specialist_signal.get('specialist_consultation_decision') == 'recommend_consultation':
+        reason_parts.append(specialist_signal.get('specialist_consultation_reason'))
     if not reason_parts:
         reason_parts.append('has limited field evidence either for or against it')
 
@@ -2408,6 +2779,22 @@ def build_action_direction_judgment(item, analysis):
         'repo_alignment_adjustment': repo_grounding.get('repo_alignment_adjustment', 0.0),
         'repo_resistance_adjustment': repo_grounding.get('repo_resistance_adjustment', 0.0),
         'repo_pull_adjustment': repo_grounding.get('repo_pull_adjustment', 0.0),
+        'specialist_signal_score': specialist_signal.get('specialist_signal_score', 0.0),
+        'specialist_alignment_adjustment': specialist_signal.get('specialist_alignment_adjustment', 0.0),
+        'specialist_resistance_adjustment': specialist_signal.get('specialist_resistance_adjustment', 0.0),
+        'specialist_pull_adjustment': specialist_signal.get('specialist_pull_adjustment', 0.0),
+        'specialist_signal_reason': specialist_signal.get('specialist_signal_reason', ''),
+        'specialist_consultation_decision': specialist_signal.get('specialist_consultation_decision', 'no_consultation'),
+        'specialist_consultation_status': specialist_signal.get('specialist_consultation_status', 'not_invoked'),
+        'specialist_evaluation': specialist_signal.get('specialist_evaluation', ''),
+        'specialist_recommended_specialist_id': specialist_signal.get('specialist_recommended_specialist_id', ''),
+        'specialist_recommended_specialist_label': specialist_signal.get('specialist_recommended_specialist_label', ''),
+        'specialist_consultation_mode': specialist_signal.get('specialist_consultation_mode', ''),
+        'specialist_expected_gain': specialist_signal.get('specialist_expected_gain', 0.0),
+        'specialist_current_uncertainty': specialist_signal.get('specialist_current_uncertainty', 0.0),
+        'specialist_consultation_reason': specialist_signal.get('specialist_consultation_reason', ''),
+        'specialist_competitive_alternative_id': specialist_signal.get('specialist_competitive_alternative_id', ''),
+        'specialist_competitive_alternative_label': specialist_signal.get('specialist_competitive_alternative_label', ''),
         'appearance_count': resurfacing_state.get('appearance_count', 1),
         'consecutive_appearances': resurfacing_state.get('consecutive_appearances', 1),
         'resurfacing_despite_resistance': resurfacing_state.get('resurfacing_despite_resistance', False),
@@ -2424,6 +2811,641 @@ def build_action_direction_judgment(item, analysis):
     }
 
 
+def empty_specialist_signal():
+    return {
+        'specialist_signal_score': 0.0,
+        'specialist_alignment_adjustment': 0.0,
+        'specialist_resistance_adjustment': 0.0,
+        'specialist_pull_adjustment': 0.0,
+        'specialist_signal_reason': '',
+        'specialist_consultation_decision': 'no_consultation',
+        'specialist_consultation_status': 'not_invoked',
+        'specialist_evaluation': '',
+        'specialist_recommended_specialist_id': '',
+        'specialist_recommended_specialist_label': '',
+        'specialist_consultation_mode': '',
+        'specialist_expected_gain': 0.0,
+        'specialist_current_uncertainty': 0.0,
+        'specialist_consultation_reason': '',
+        'specialist_competitive_alternative_id': '',
+        'specialist_competitive_alternative_label': '',
+    }
+
+
+def specialist_registry_by_id(registry):
+    return {
+        item.get('id'): item
+        for item in registry.get('specialists', [])
+        if isinstance(item, dict) and item.get('id')
+    }
+
+
+def default_specialist_trust_profile(specialist):
+    defaults = specialist.get('trust_defaults', {})
+    return {
+        'specialist_id': specialist.get('id', ''),
+        'label': specialist.get('label', specialist.get('id', '')),
+        'domain_reasoning': clamp_number(safe_float(defaults.get('domain_reasoning', 0.6), 0.6), 0.0, 1.0),
+        'implementation_specificity': clamp_number(safe_float(defaults.get('implementation_specificity', 0.6), 0.6), 0.0, 1.0),
+        'constraint_fidelity': clamp_number(safe_float(defaults.get('constraint_fidelity', 0.6), 0.6), 0.0, 1.0),
+        'hallucination_risk': clamp_number(safe_float(defaults.get('hallucination_risk', 0.3), 0.3), 0.0, 1.0),
+        'artifact_quality': clamp_number(safe_float(defaults.get('artifact_quality', 0.6), 0.6), 0.0, 1.0),
+        'consultation_count': 0,
+        'evaluated_consultations': 0,
+        'accepted_count': 0,
+        'partial_accept_count': 0,
+        'rejected_count': 0,
+        'deferred_count': 0,
+        'historical_success': 0.5,
+        'trust_score': 0.0,
+    }
+
+
+def specialist_trust_score(profile):
+    positive = average_score([
+        profile.get('domain_reasoning', 0.0),
+        profile.get('implementation_specificity', 0.0),
+        profile.get('constraint_fidelity', 0.0),
+        profile.get('artifact_quality', 0.0),
+        profile.get('historical_success', 0.5),
+    ])
+    hallucination_risk = safe_float(profile.get('hallucination_risk', 0.3), 0.3)
+    return round(clamp_number(positive - (hallucination_risk * 0.35), 0.0, 1.0), 3)
+
+
+def rebuild_specialist_trust_memory(registry, history, prior_memory=None):
+    prior_profiles = {}
+    if isinstance(prior_memory, dict) and isinstance(prior_memory.get('specialists'), dict):
+        prior_profiles = prior_memory.get('specialists', {})
+    memory = {'specialists': {}}
+    registry_map = specialist_registry_by_id(registry)
+    for specialist_id, specialist in registry_map.items():
+        profile = default_specialist_trust_profile(specialist)
+        prior_profile = prior_profiles.get(specialist_id, {})
+        if isinstance(prior_profile, dict):
+            for key in ('domain_reasoning', 'implementation_specificity', 'constraint_fidelity', 'hallucination_risk', 'artifact_quality'):
+                if key in prior_profile:
+                    profile[key] = clamp_number(safe_float(prior_profile.get(key, profile[key]), profile[key]), 0.0, 1.0)
+        memory['specialists'][specialist_id] = profile
+    for entry in history.get('entries', []):
+        specialist_id = entry.get('specialist_id', '')
+        evaluation = entry.get('eli_evaluation', '')
+        profile = memory['specialists'].get(specialist_id)
+        if not profile or evaluation not in SPECIALIST_EVALUATION_VALUES:
+            continue
+        profile['consultation_count'] += 1
+        profile['evaluated_consultations'] += 1
+        if evaluation == 'accept':
+            profile['accepted_count'] += 1
+            profile['domain_reasoning'] = clamp_number(profile['domain_reasoning'] + 0.012, 0.0, 1.0)
+            profile['implementation_specificity'] = clamp_number(profile['implementation_specificity'] + 0.01, 0.0, 1.0)
+            profile['constraint_fidelity'] = clamp_number(profile['constraint_fidelity'] + 0.012, 0.0, 1.0)
+            profile['artifact_quality'] = clamp_number(profile['artifact_quality'] + 0.008, 0.0, 1.0)
+            profile['hallucination_risk'] = clamp_number(profile['hallucination_risk'] - 0.01, 0.0, 1.0)
+        elif evaluation == 'partial_accept':
+            profile['partial_accept_count'] += 1
+            profile['domain_reasoning'] = clamp_number(profile['domain_reasoning'] + 0.004, 0.0, 1.0)
+            profile['constraint_fidelity'] = clamp_number(profile['constraint_fidelity'] + 0.004, 0.0, 1.0)
+            profile['hallucination_risk'] = clamp_number(profile['hallucination_risk'] - 0.003, 0.0, 1.0)
+        elif evaluation == 'reject':
+            profile['rejected_count'] += 1
+            profile['domain_reasoning'] = clamp_number(profile['domain_reasoning'] - 0.014, 0.0, 1.0)
+            profile['constraint_fidelity'] = clamp_number(profile['constraint_fidelity'] - 0.012, 0.0, 1.0)
+            profile['hallucination_risk'] = clamp_number(profile['hallucination_risk'] + 0.014, 0.0, 1.0)
+        elif evaluation == 'defer_for_competitive_review':
+            profile['deferred_count'] += 1
+        evaluated = max(1, safe_int(profile.get('evaluated_consultations', 0), 0))
+        profile['historical_success'] = round(clamp_number(
+            (profile.get('accepted_count', 0) + (profile.get('partial_accept_count', 0) * 0.6)) / evaluated,
+            0.0,
+            1.0,
+        ), 3)
+    for profile in memory.get('specialists', {}).values():
+        if not profile.get('evaluated_consultations'):
+            profile['historical_success'] = 0.5
+        profile['trust_score'] = specialist_trust_score(profile)
+    memory['updated_at'] = now_iso()
+    return memory
+
+
+def action_uncertainty_score(item):
+    alignment_score = safe_float(item.get('alignment_score', 0.0), 0.0)
+    resistance_score = safe_float(item.get('resistance_score', 0.0), 0.0)
+    pull_score = safe_float(item.get('architectural_pull_score', 0.0), 0.0)
+    uncertainty = (1.0 - abs(alignment_score - resistance_score)) * 0.45
+    if item.get('direction_judgment') == 'pause':
+        uncertainty += 0.2
+    if 0.35 <= pull_score <= 0.65:
+        uncertainty += 0.14
+    if item.get('repo_alignment_classification') == 'productive_resistance':
+        uncertainty += 0.08
+    if item.get('resurfacing_classification') in ('genuine_reemergence', 'noisy_repetition'):
+        uncertainty += 0.08
+    return round(clamp_number(uncertainty, 0.0, 1.0), 3)
+
+
+def action_contradiction_risk(item):
+    resistance_score = safe_float(item.get('resistance_score', 0.0), 0.0)
+    risk = resistance_score * 0.7
+    repo_classification = item.get('repo_alignment_classification', '')
+    if repo_classification == 'misaligned':
+        risk += 0.16
+    elif repo_classification == 'field_neglecting':
+        risk += 0.1
+    elif repo_classification == 'productive_resistance':
+        risk += 0.05
+    return round(clamp_number(risk, 0.0, 1.0), 3)
+
+
+def specialist_semantic_match(item, specialist):
+    specialist_id = specialist.get('id', '')
+    domain = item.get('domain', '')
+    text = lower_text(' '.join([
+        domain,
+        item.get('title', ''),
+        item.get('summary', ''),
+        item.get('probe', ''),
+        item.get('judgment_reason', ''),
+        item.get('repo_grounding_reason', ''),
+    ]))
+    score = ACTION_SPECIALIST_HINTS.get(domain, {}).get(specialist_id, 0.0)
+    for token in specialist.get('domains', []) + specialist.get('strengths', []):
+        normalized = lower_text(str(token).replace('_', ' '))
+        if normalized and normalized in text:
+            score += 0.05
+    pattern_hits = 0
+    for pattern in SPECIALIST_TEXT_PATTERNS.get(specialist_id, []):
+        if re.search(pattern, text):
+            pattern_hits += 1
+    score += min(0.24, pattern_hits * 0.06)
+    repo_paths = item.get('repo_grounding_paths', [])
+    repo_text = lower_text(' '.join(repo_paths))
+    if specialist_id == 'code_architecture_specialist_v1' and any(path.endswith(('.py', '.swift', '.json', '.yaml', '.yml')) for path in repo_paths):
+        score += 0.08
+    if specialist_id == 'visualization_specialist_v1' and any(token in repo_text for token in ('view', 'display', 'visual', 'layout', 'confidence')):
+        score += 0.08
+    if specialist_id == 'report_specialist_v1' and any(path.endswith('.md') or '/docs/' in path for path in repo_paths):
+        score += 0.06
+    if specialist_id == 'embedded_linux_specialist_v1' and any(token in repo_text for token in ('linux', 'device', 'camera', 'systemd')):
+        score += 0.08
+    if specialist_id == 'controls_specialist_v1' and any(token in repo_text for token in ('bldc', 'foc', 'telemetry', 'encoder')):
+        score += 0.1
+    return round(clamp_number(score, 0.0, 1.0), 3)
+
+
+def specialist_artifact_requirement(item, specialist_id):
+    domain = item.get('domain', '')
+    repo_paths = item.get('repo_grounding_paths', [])
+    if specialist_id == 'visualization_specialist_v1' and domain in ('subtitle placement', 'confidence display', 'visual hierarchy'):
+        return 0.76
+    if specialist_id == 'code_architecture_specialist_v1' and domain in ('memory/cache policy', 'phone/cloud boundary'):
+        return 0.78
+    if specialist_id == 'report_specialist_v1' and any(path.endswith('.md') for path in repo_paths):
+        return 0.66
+    if specialist_id == 'embedded_linux_specialist_v1' and any(token in lower_text(' '.join(repo_paths)) for token in ('device', 'linux', 'camera')):
+        return 0.62
+    if specialist_id == 'controls_specialist_v1' and any(token in lower_text(' '.join(repo_paths)) for token in ('bldc', 'foc', 'telemetry', 'encoder')):
+        return 0.68
+    return 0.18
+
+
+def consultation_artifact_key(item, purpose):
+    repo_paths = item.get('repo_grounding_paths', [])
+    repo_text = lower_text(' '.join(repo_paths) + ' ' + item.get('title', '') + ' ' + item.get('summary', ''))
+    if any(token in repo_text for token in ('schematic', 'wiring', 'sensor', 'power', 'connector', 'signal')):
+        return 'schematics'
+    if purpose == 'component_selection_review':
+        return 'component_shortlists'
+    if purpose in ('implementation_review', 'architecture_fork'):
+        return 'subsystem_breakdowns'
+    if purpose == 'interface_map':
+        return 'interface_maps'
+    if purpose == 'diagram_packaging' or any(path.endswith('.md') or '/docs/' in path for path in repo_paths):
+        return 'report_packaging'
+    if item.get('domain') in ('subtitle placement', 'confidence display', 'visual hierarchy'):
+        return 'diagrams'
+    return ''
+
+
+def specialist_artifact_requirement_with_policy(item, specialist_id, routing_policy, purpose):
+    score = specialist_artifact_requirement(item, specialist_id)
+    artifact_key = consultation_artifact_key(item, purpose)
+    artifact_cfg = routing_policy.get('build_artifact_bias', {}).get(artifact_key, {})
+    preferred = artifact_cfg.get('preferred_specialists', [])
+    if specialist_id in preferred:
+        score = max(score, 0.76 if artifact_key in ('schematics', 'component_shortlists', 'subsystem_breakdowns') else 0.72)
+    elif artifact_key and preferred:
+        score = max(score, 0.28)
+    return round(clamp_number(score, 0.0, 1.0), 3), artifact_key
+
+
+def consultation_purpose(item, uncertainty_score):
+    repo_paths = item.get('repo_grounding_paths', [])
+    repo_text = lower_text(' '.join(repo_paths) + ' ' + item.get('title', '') + ' ' + item.get('summary', ''))
+    if any(token in repo_text for token in ('schematic', 'wiring', 'connector', 'sensor', 'power')):
+        return 'schematic_draft'
+    if any(token in repo_text for token in ('component', 'bom', 'shortlist', 'part number')):
+        return 'component_selection_review'
+    if item.get('domain') in ('memory/cache policy', 'phone/cloud boundary'):
+        if uncertainty_score >= 0.72 and item.get('repo_change_count', 0):
+            return 'architecture_fork'
+        return 'implementation_review'
+    if item.get('domain') in ('subtitle placement', 'confidence display', 'visual hierarchy'):
+        if any(path.endswith('.md') or '/docs/' in path for path in repo_paths):
+            return 'diagram_packaging'
+        return 'interface_map'
+    if uncertainty_score >= 0.7 and item.get('direction_judgment') == 'pause':
+        return 'persistent_uncertainty'
+    if item.get('repo_alignment_classification') == 'productive_resistance' or safe_float(item.get('resistance_score', 0.0), 0.0) >= 0.72:
+        return 'component_tradeoff'
+    if item.get('repo_change_count', 0):
+        return 'sanity_check'
+    return 'domain_analysis'
+
+
+def consultation_mode_allowed(policy, mode, purpose):
+    rules = policy.get('consultation_mode_rules', {}).get(mode, {})
+    allowed = rules.get('allowed_for', [])
+    if not allowed:
+        return True
+    return purpose in allowed
+
+
+def build_specialist_consultation_decisions(judged_items, analysis, registry, routing_policy, trust_memory):
+    schema = analysis.get('schema', load_cognition_schema())
+    config = specialist_consultation_config(schema)
+    if not config.get('enabled', True):
+        return []
+    signals_cfg = routing_policy.get('signals', {})
+    thresholds = routing_policy.get('thresholds', {})
+    selection_cfg = config.get('selection', {})
+    min_expected_gain = max(
+        safe_float(thresholds.get('minimum_expected_gain', 0.12), 0.12),
+        safe_float(selection_cfg.get('minimum_expected_gain', 0.12), 0.12),
+    )
+    min_semantic_match = max(
+        safe_float(thresholds.get('minimum_semantic_match', 0.45), 0.45),
+        safe_float(selection_cfg.get('minimum_semantic_match', 0.45), 0.45),
+    )
+    min_constraint_fidelity = max(
+        safe_float(thresholds.get('minimum_constraint_fidelity', 0.6), 0.6),
+        safe_float(selection_cfg.get('minimum_constraint_fidelity', 0.72), 0.72),
+    )
+    max_hallucination_risk = min(
+        safe_float(thresholds.get('max_hallucination_risk_for_primary_use', 0.45), 0.45),
+        safe_float(selection_cfg.get('max_hallucination_risk_for_primary_use', 0.45), 0.45),
+    )
+    high_uncertainty = max(
+        safe_float(thresholds.get('high_uncertainty', 0.65), 0.65),
+        safe_float(selection_cfg.get('high_uncertainty_threshold', 0.65), 0.65),
+    )
+    competitive_threshold = max(
+        safe_float(thresholds.get('competitive_consultation', 0.46), 0.46),
+        safe_float(selection_cfg.get('competitive_consultation_threshold', 0.46), 0.46),
+    )
+    safeguards = routing_policy.get('safeguards', {})
+    min_gain_margin_for_competitive = safe_float(safeguards.get('minimum_expected_gain_margin_for_competitive', 0.06), 0.06)
+    max_top_runner_gap_for_competitive = safe_float(safeguards.get('max_top_runner_gap_for_competitive', 0.12), 0.12)
+    registry_profiles = specialist_registry_by_id(registry)
+    trust_profiles = trust_memory.get('specialists', {})
+    decisions = []
+    for item in judged_items:
+        if not isinstance(item, dict):
+            continue
+        uncertainty_score = action_uncertainty_score(item)
+        contradiction_risk = action_contradiction_risk(item)
+        purpose = consultation_purpose(item, uncertainty_score)
+        candidates = []
+        for specialist in registry.get('specialists', []):
+            if not isinstance(specialist, dict) or not specialist.get('enabled', True):
+                continue
+            specialist_id = specialist.get('id', '')
+            trust_profile = trust_profiles.get(specialist_id, default_specialist_trust_profile(specialist))
+            semantic_match = specialist_semantic_match(item, specialist)
+            historical_success = safe_float(trust_profile.get('historical_success', 0.5), 0.5)
+            trust_score = safe_float(trust_profile.get('trust_score', specialist_trust_score(trust_profile)), 0.5)
+            constraint_fidelity = safe_float(trust_profile.get('constraint_fidelity', 0.6), 0.6)
+            hallucination_risk = safe_float(trust_profile.get('hallucination_risk', 0.3), 0.3)
+            artifact_requirement, artifact_key = specialist_artifact_requirement_with_policy(item, specialist_id, routing_policy, purpose)
+            expected_gain = (
+                semantic_match * safe_float(signals_cfg.get('semantic_match_weight', 0.25), 0.25)
+                + trust_score * safe_float(signals_cfg.get('trust_memory_weight', 0.2), 0.2)
+                + uncertainty_score * safe_float(signals_cfg.get('current_uncertainty_weight', 0.2), 0.2)
+                + artifact_requirement * safe_float(signals_cfg.get('artifact_requirement_weight', 0.15), 0.15)
+                + historical_success * safe_float(signals_cfg.get('historical_success_weight', 0.1), 0.1)
+                + constraint_fidelity * safe_float(signals_cfg.get('constraint_fidelity_weight', 0.1), 0.1)
+                + contradiction_risk * safe_float(signals_cfg.get('contradiction_risk_weight', -0.1), -0.1)
+                + hallucination_risk * safe_float(signals_cfg.get('hallucination_risk_weight', -0.1), -0.1)
+            )
+            candidates.append({
+                'specialist_id': specialist_id,
+                'specialist_label': specialist.get('label', specialist_id),
+                'consultation_modes': specialist.get('consultation_modes', []),
+                'semantic_match': round(clamp_number(semantic_match, 0.0, 1.0), 3),
+                'historical_success': round(clamp_number(historical_success, 0.0, 1.0), 3),
+                'trust_score': round(clamp_number(trust_score, 0.0, 1.0), 3),
+                'constraint_fidelity': round(clamp_number(constraint_fidelity, 0.0, 1.0), 3),
+                'hallucination_risk': round(clamp_number(hallucination_risk, 0.0, 1.0), 3),
+                'artifact_requirement': round(clamp_number(artifact_requirement, 0.0, 1.0), 3),
+                'artifact_key': artifact_key,
+                'expected_gain': round(clamp_number(expected_gain, -1.0, 1.0), 3),
+            })
+        candidates.sort(key=lambda entry: entry.get('expected_gain', 0.0), reverse=True)
+        top = candidates[0] if candidates else None
+        runner_up = candidates[1] if len(candidates) > 1 else None
+        decision = {
+            'decision_id': sha256_text(f"{item.get('id', '')}|{item.get('domain', '')}|{item.get('title', '')}|specialist")[:16],
+            'action_id': item.get('id', ''),
+            'action_domain': item.get('domain', ''),
+            'action_title': item.get('title', item.get('domain', 'candidate')),
+            'consultation_purpose': purpose,
+            'current_uncertainty': uncertainty_score,
+            'contradiction_risk': contradiction_risk,
+            'decision': 'no_consultation',
+            'status': 'not_invoked',
+            'specialist_id': '',
+            'specialist_label': '',
+            'consultation_mode': '',
+            'expected_gain': 0.0,
+            'semantic_match': 0.0,
+            'trust_score': 0.0,
+            'historical_success': 0.0,
+            'constraint_fidelity': 0.0,
+            'hallucination_risk': 0.0,
+            'related_repo_paths': item.get('repo_grounding_paths', [])[:4],
+            'reason': 'No specialist cleared the minimum expected-gain and semantic-match thresholds.',
+            'competitive_alternative_id': '',
+            'competitive_alternative_label': '',
+            'confidence': 0.48,
+        }
+        if top:
+            recommend = (
+                top.get('expected_gain', 0.0) >= min_expected_gain
+                and top.get('semantic_match', 0.0) >= min_semantic_match
+                and top.get('constraint_fidelity', 0.0) >= min_constraint_fidelity
+                and top.get('hallucination_risk', 1.0) <= max_hallucination_risk
+            )
+            decision.update({
+                'specialist_id': top.get('specialist_id', ''),
+                'specialist_label': top.get('specialist_label', ''),
+                'expected_gain': top.get('expected_gain', 0.0),
+                'semantic_match': top.get('semantic_match', 0.0),
+                'trust_score': top.get('trust_score', 0.0),
+                'historical_success': top.get('historical_success', 0.0),
+                'constraint_fidelity': top.get('constraint_fidelity', 0.0),
+                'hallucination_risk': top.get('hallucination_risk', 0.0),
+            })
+            recommended_mode = routing_policy.get('selection_policy', {}).get('default_mode', 'advisory')
+            artifact_cfg = routing_policy.get('build_artifact_bias', {}).get(top.get('artifact_key', ''), {})
+            artifact_mode = artifact_cfg.get('preferred_mode', '')
+            if artifact_mode and artifact_mode in top.get('consultation_modes', []) and consultation_mode_allowed(routing_policy, artifact_mode, purpose):
+                recommended_mode = artifact_mode
+            competitive_purpose = purpose if consultation_mode_allowed(routing_policy, 'competitive', purpose) else 'persistent_uncertainty'
+            if (
+                uncertainty_score >= high_uncertainty
+                and runner_up
+                and runner_up.get('expected_gain', 0.0) >= competitive_threshold
+                and top.get('expected_gain', 0.0) >= (min_expected_gain + min_gain_margin_for_competitive)
+                and abs(top.get('expected_gain', 0.0) - runner_up.get('expected_gain', 0.0)) <= max_top_runner_gap_for_competitive
+                and (not safeguards.get('require_high_uncertainty_for_competitive', True) or uncertainty_score >= high_uncertainty)
+                and (not safeguards.get('require_runner_up_for_competitive', True) or bool(runner_up))
+            ):
+                if 'competitive' in top.get('consultation_modes', []) and consultation_mode_allowed(routing_policy, 'competitive', competitive_purpose):
+                    recommended_mode = 'competitive'
+                    decision['competitive_alternative_id'] = runner_up.get('specialist_id', '')
+                    decision['competitive_alternative_label'] = runner_up.get('specialist_label', '')
+            elif recommended_mode not in top.get('consultation_modes', []) or not consultation_mode_allowed(routing_policy, recommended_mode, purpose):
+                if 'advisory' in top.get('consultation_modes', []) and consultation_mode_allowed(routing_policy, 'advisory', purpose):
+                    recommended_mode = 'advisory'
+                elif top.get('consultation_modes'):
+                    recommended_mode = top.get('consultation_modes', ['advisory'])[0]
+            decision['consultation_mode'] = recommended_mode
+            if recommend:
+                decision['decision'] = 'recommend_consultation'
+                if recommended_mode == 'competitive' and decision.get('competitive_alternative_id'):
+                    decision['reason'] = (
+                        f"{top.get('specialist_label', '')} is a strong fit, but uncertainty remains high enough to defer toward competitive review with "
+                        f"{decision.get('competitive_alternative_label', '') or decision.get('competitive_alternative_id', '')}."
+                    )
+                else:
+                    decision['reason'] = (
+                        f"{top.get('specialist_label', '')} can advise on {purpose.replace('_', ' ')} without overriding ELI judgment."
+                    )
+                decision['confidence'] = round(clamp_number(0.5 + (top.get('expected_gain', 0.0) * 0.35), 0.45, 0.88), 3)
+            else:
+                decision['reason'] = (
+                    f"{top.get('specialist_label', '')} is the closest match, but expected gain {top.get('expected_gain', 0.0)} is still too weak for consultation."
+                )
+                decision['confidence'] = round(clamp_number(0.42 + (top.get('semantic_match', 0.0) * 0.2), 0.38, 0.72), 3)
+        decisions.append(decision)
+    return decisions
+
+
+def record_specialist_consultation_decisions(history, decisions, timestamp):
+    entries = history.setdefault('entries', [])
+    for decision in decisions:
+        entries.append({
+            'kind': 'decision',
+            'timestamp': timestamp,
+            'decision_id': decision.get('decision_id', ''),
+            'action_id': decision.get('action_id', ''),
+            'action_domain': decision.get('action_domain', ''),
+            'action_title': decision.get('action_title', ''),
+            'consultation_purpose': decision.get('consultation_purpose', ''),
+            'specialist_id': decision.get('specialist_id', ''),
+            'specialist_label': decision.get('specialist_label', ''),
+            'consultation_mode': decision.get('consultation_mode', ''),
+            'decision': decision.get('decision', 'no_consultation'),
+            'status': decision.get('status', 'not_invoked'),
+            'expected_gain': decision.get('expected_gain', 0.0),
+            'semantic_match': decision.get('semantic_match', 0.0),
+            'trust_score': decision.get('trust_score', 0.0),
+            'historical_success': decision.get('historical_success', 0.0),
+            'constraint_fidelity': decision.get('constraint_fidelity', 0.0),
+            'hallucination_risk': decision.get('hallucination_risk', 0.0),
+            'reason': decision.get('reason', ''),
+            'related_repo_paths': decision.get('related_repo_paths', []),
+            'confidence': decision.get('confidence', 0.5),
+        })
+    return history
+
+
+def infer_specialist_effect_direction(entry):
+    effect = lower_text(entry.get('effect_direction', ''))
+    if effect in ('support', 'caution', 'oppose', 'mixed'):
+        return effect
+    text = lower_text(' '.join([
+        entry.get('output_summary', ''),
+        entry.get('summary', ''),
+        entry.get('reason', ''),
+    ]))
+    if any(token in text for token in ('avoid', 'oppose', 'conflict', 'reject', 'block')):
+        return 'oppose'
+    if any(token in text for token in ('risk', 'caution', 'limit', 'defer', 'careful')):
+        return 'caution'
+    if any(token in text for token in ('support', 'prefer', 'adopt', 'proceed', 'use', 'implement')):
+        return 'support'
+    return 'mixed'
+
+
+def evaluate_specialist_consultations(history, judged_items, analysis, routing_policy, trust_memory):
+    action_by_id = {item.get('id'): item for item in judged_items if item.get('id')}
+    action_by_domain = {item.get('domain'): item for item in judged_items if item.get('domain')}
+    thresholds = routing_policy.get('thresholds', {})
+    safeguards = routing_policy.get('safeguards', {})
+    high_uncertainty = safe_float(thresholds.get('high_uncertainty', 0.65), 0.65)
+    min_constraint_fidelity = safe_float(thresholds.get('minimum_constraint_fidelity', 0.6), 0.6)
+    max_hallucination_risk = safe_float(thresholds.get('max_hallucination_risk_for_primary_use', 0.45), 0.45)
+    evaluations = []
+    for entry in history.get('entries', []):
+        kind = entry.get('kind', '')
+        has_output = bool(entry.get('output_summary') or entry.get('artifact_paths') or entry.get('artifact_path'))
+        if kind not in ('consultation', 'consultation_result') and entry.get('status') != 'consulted':
+            continue
+        if not has_output:
+            continue
+        action = action_by_id.get(entry.get('action_id', '')) or action_by_domain.get(entry.get('action_domain', ''))
+        trust_profile = trust_memory.get('specialists', {}).get(entry.get('specialist_id', ''), {})
+        effect_direction = infer_specialist_effect_direction(entry)
+        constraint_conflict = bool(entry.get('constraint_conflict', False) or entry.get('project_guardrail_conflict', False))
+        constraint_fidelity = safe_float(entry.get('constraint_fidelity', trust_profile.get('constraint_fidelity', 0.6)), trust_profile.get('constraint_fidelity', 0.6))
+        implementation_specificity = safe_float(entry.get('implementation_specificity', trust_profile.get('implementation_specificity', 0.6)), trust_profile.get('implementation_specificity', 0.6))
+        hallucination_risk = safe_float(entry.get('hallucination_risk', trust_profile.get('hallucination_risk', 0.3)), trust_profile.get('hallucination_risk', 0.3))
+        artifact_mode = entry.get('consultation_mode', '') in ('delegated_drafting', 'instrumental')
+        has_reasoning_output = bool(entry.get('reasoning_evidence', False) or entry.get('output_type') == 'analysis')
+        support_signal = safe_float(entry.get('observed_gain', 0.0), 0.0)
+        if action and support_signal <= 0.0:
+            if effect_direction == 'support':
+                support_signal = average_score([action.get('alignment_score', 0.0), action.get('architectural_pull_score', 0.0)])
+            elif effect_direction in ('caution', 'oppose'):
+                support_signal = safe_float(action.get('resistance_score', 0.0), 0.0)
+            else:
+                support_signal = average_score([action.get('alignment_score', 0.0), 1.0 - safe_float(action.get('resistance_score', 0.0), 0.0)])
+        uncertainty_score = action_uncertainty_score(action or {})
+        evaluation = entry.get('eli_evaluation', '')
+        reason = entry.get('eli_evaluation_reason', '')
+        if evaluation not in SPECIALIST_EVALUATION_VALUES:
+            if constraint_conflict or constraint_fidelity < min_constraint_fidelity or hallucination_risk > max_hallucination_risk:
+                evaluation = 'reject'
+                reason = 'ELI rejected the consultation because it conflicts with project constraints or trust thresholds.'
+            elif entry.get('consultation_mode') == 'competitive' and uncertainty_score >= high_uncertainty and effect_direction == 'mixed':
+                evaluation = 'defer_for_competitive_review'
+                reason = 'ELI deferred this result for competitive review because the consultation remains unresolved at high uncertainty.'
+            elif effect_direction == 'support' and support_signal >= 0.66 and implementation_specificity >= 0.62:
+                evaluation = 'accept'
+                reason = 'ELI accepted the consultation as supportive, specific, and constraint-compatible.'
+            elif support_signal >= 0.42 or implementation_specificity >= 0.7:
+                evaluation = 'partial_accept'
+                reason = 'ELI accepted only the usable portion of the consultation and kept it advisory.'
+            else:
+                evaluation = 'reject'
+                reason = 'ELI rejected the consultation because it did not add enough trustworthy, specific value.'
+            if safeguards.get('artifact_generation_not_authoritative_reasoning', True) and artifact_mode and not has_reasoning_output and evaluation == 'accept':
+                evaluation = 'partial_accept'
+                reason = 'ELI kept artifact-oriented output subordinate by downgrading it to partial acceptance pending explicit reasoning review.'
+            entry['eli_evaluation'] = evaluation
+            entry['eli_evaluation_reason'] = reason
+            entry['eli_evaluated_at'] = now_iso()
+            entry['effect_direction'] = effect_direction
+        evaluations.append({
+            'action_id': entry.get('action_id', ''),
+            'action_domain': entry.get('action_domain', ''),
+            'specialist_id': entry.get('specialist_id', ''),
+            'specialist_label': entry.get('specialist_label', entry.get('specialist_id', '')),
+            'consultation_mode': entry.get('consultation_mode', ''),
+            'evaluation': entry.get('eli_evaluation', ''),
+            'effect_direction': entry.get('effect_direction', effect_direction),
+            'reason': entry.get('eli_evaluation_reason', reason),
+            'confidence': round(clamp_number(0.48 + (support_signal * 0.28), 0.4, 0.86), 3),
+        })
+    return evaluations
+
+
+def build_specialist_action_signals(judged_items, decisions, evaluations):
+    decisions_by_action = {item.get('action_id'): item for item in decisions if item.get('action_id')}
+    decisions_by_domain = {item.get('action_domain'): item for item in decisions if item.get('action_domain')}
+    evaluations_by_action = {}
+    evaluations_by_domain = {}
+    for item in evaluations:
+        if item.get('action_id'):
+            evaluations_by_action[item.get('action_id')] = item
+        elif item.get('action_domain'):
+            evaluations_by_domain[item.get('action_domain')] = item
+    signals = {}
+    for item in judged_items:
+        signal = empty_specialist_signal()
+        decision = decisions_by_action.get(item.get('id', '')) or decisions_by_domain.get(item.get('domain', ''))
+        evaluation = evaluations_by_action.get(item.get('id', '')) or evaluations_by_domain.get(item.get('domain', ''))
+        if decision:
+            signal.update({
+                'specialist_consultation_decision': decision.get('decision', 'no_consultation'),
+                'specialist_consultation_status': decision.get('status', 'not_invoked'),
+                'specialist_consultation_reason': decision.get('reason', ''),
+            })
+            if decision.get('decision') == 'recommend_consultation':
+                signal.update({
+                    'specialist_recommended_specialist_id': decision.get('specialist_id', ''),
+                    'specialist_recommended_specialist_label': decision.get('specialist_label', ''),
+                    'specialist_consultation_mode': decision.get('consultation_mode', ''),
+                    'specialist_expected_gain': decision.get('expected_gain', 0.0),
+                    'specialist_current_uncertainty': decision.get('current_uncertainty', 0.0),
+                    'specialist_competitive_alternative_id': decision.get('competitive_alternative_id', ''),
+                    'specialist_competitive_alternative_label': decision.get('competitive_alternative_label', ''),
+                })
+        if evaluation:
+            effect_direction = evaluation.get('effect_direction', '')
+            evaluation_kind = evaluation.get('evaluation', '')
+            signal['specialist_evaluation'] = evaluation_kind
+            signal['specialist_signal_reason'] = evaluation.get('reason', '')
+            signal['specialist_consultation_status'] = 'evaluated'
+            if evaluation_kind == 'accept':
+                signal['specialist_signal_score'] = 0.68
+                if effect_direction == 'support':
+                    signal['specialist_alignment_adjustment'] = 0.018
+                    signal['specialist_pull_adjustment'] = 0.024
+                elif effect_direction in ('caution', 'oppose'):
+                    signal['specialist_resistance_adjustment'] = 0.02
+                    signal['specialist_pull_adjustment'] = -0.014
+            elif evaluation_kind == 'partial_accept':
+                signal['specialist_signal_score'] = 0.42
+                if effect_direction == 'support':
+                    signal['specialist_alignment_adjustment'] = 0.008
+                    signal['specialist_pull_adjustment'] = 0.012
+                elif effect_direction in ('caution', 'oppose'):
+                    signal['specialist_resistance_adjustment'] = 0.01
+                    signal['specialist_pull_adjustment'] = -0.008
+            elif evaluation_kind == 'defer_for_competitive_review':
+                signal['specialist_signal_reason'] = evaluation.get('reason', '')
+            else:
+                signal['specialist_signal_reason'] = evaluation.get('reason', '')
+        signals[item.get('id') or item.get('domain', '')] = signal
+    return signals
+
+
+def build_specialist_consultation_context(judged_items, analysis, timestamp):
+    registry = load_specialist_registry()
+    routing_policy = load_specialist_routing_policy()
+    history = load_specialist_consultation_history()
+    prior_memory = load_specialist_trust_memory()
+    trust_memory = rebuild_specialist_trust_memory(registry, history, prior_memory)
+    decisions = build_specialist_consultation_decisions(judged_items, analysis, registry, routing_policy, trust_memory)
+    history = record_specialist_consultation_decisions(history, decisions, timestamp)
+    evaluations = evaluate_specialist_consultations(history, judged_items, analysis, routing_policy, trust_memory)
+    trust_memory = rebuild_specialist_trust_memory(registry, history, trust_memory)
+    save_specialist_consultation_history(history)
+    save_specialist_trust_memory(trust_memory)
+    signals = build_specialist_action_signals(judged_items, decisions, evaluations)
+    return {
+        'registry': registry,
+        'routing_policy': routing_policy,
+        'trust_memory': trust_memory,
+        'history': history,
+        'decisions': decisions,
+        'evaluations': evaluations,
+        'signals': signals,
+    }
+
+
 def enrich_action_inbox_with_reflection(analysis):
     data = load_action_inbox()
     action_memory = load_action_memory()
@@ -2436,15 +3458,37 @@ def enrich_action_inbox_with_reflection(analysis):
         merged.update(item)
         items.append(merged)
     if not items:
-        return [], data
+        empty_context = {
+            'registry': {'specialists': []},
+            'routing_policy': {},
+            'trust_memory': {'specialists': {}},
+            'history': {'entries': []},
+            'decisions': [],
+            'evaluations': [],
+            'signals': {},
+        }
+        return [], data, empty_context
     judged_at = now_iso()
+
+    provisional_items = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        provisional = dict(item)
+        provisional.update(build_action_direction_judgment(item, analysis))
+        provisional['last_judged_at'] = judged_at
+        provisional_items.append(provisional)
+
+    specialist_context = build_specialist_consultation_context(provisional_items, analysis, judged_at)
+    specialist_signals = specialist_context.get('signals', {})
 
     ranked_items = []
     for item in items:
         if not isinstance(item, dict):
             continue
+        signal = specialist_signals.get(item.get('id', '')) or specialist_signals.get(item.get('domain', '')) or empty_specialist_signal()
         enriched = dict(item)
-        enriched.update(build_action_direction_judgment(item, analysis))
+        enriched.update(build_action_direction_judgment(item, analysis, signal))
         enriched['last_judged_at'] = judged_at
         ranked_items.append(enriched)
 
@@ -2478,6 +3522,11 @@ def enrich_action_inbox_with_reflection(analysis):
             'repo_grounding_score': enriched.get('repo_grounding_score', 0.0),
             'repo_alignment_classification': enriched.get('repo_alignment_classification', ''),
             'repo_change_count': enriched.get('repo_change_count', 0),
+            'specialist_consultation_decision': enriched.get('specialist_consultation_decision', 'no_consultation'),
+            'specialist_recommended_specialist_label': enriched.get('specialist_recommended_specialist_label', ''),
+            'specialist_consultation_mode': enriched.get('specialist_consultation_mode', ''),
+            'specialist_evaluation': enriched.get('specialist_evaluation', ''),
+            'specialist_signal_score': enriched.get('specialist_signal_score', 0.0),
             'reason': '; '.join(part for part in [
                 enriched.get('judgment_reason', ''),
                 enriched.get('influence_reason', ''),
@@ -2500,13 +3549,18 @@ def enrich_action_inbox_with_reflection(analysis):
     judgment_rows.sort(key=lambda entry: entry.get('rank', 0) or 999)
     data['items'] = updated_items
     data['judged_at'] = judged_at
+    data['specialist_consultation'] = {
+        'generated_at': judged_at,
+        'decisions': specialist_context.get('decisions', []),
+        'evaluations': specialist_context.get('evaluations', []),
+    }
     save_action_inbox(data)
     save_action_memory({
         'source': 'reflect_action_memory',
         'judged_at': judged_at,
         'items': updated_items,
     })
-    return judgment_rows, data
+    return judgment_rows, data, specialist_context
 
 
 def render_reflection_analysis_context(analysis):
@@ -2828,6 +3882,39 @@ def save_action_memory(data):
     ACTION_MEMORY_PATH.write_text(json.dumps(data, indent=2), encoding='utf-8')
 
 
+def load_specialist_consultation_history():
+    data = load_json_file(SPECIALIST_CONSULTATION_HISTORY_PATH, {'entries': []})
+    if not isinstance(data, dict):
+        data = {'entries': []}
+    if not isinstance(data.get('entries'), list):
+        data['entries'] = []
+    return data
+
+
+def save_specialist_consultation_history(data):
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    data['updated_at'] = now_iso()
+    data['entries'] = data.get('entries', [])[-600:]
+    SPECIALIST_CONSULTATION_HISTORY_PATH.write_text(json.dumps(data, indent=2), encoding='utf-8')
+
+
+def load_specialist_trust_memory():
+    data = load_json_file(SPECIALIST_TRUST_MEMORY_PATH, {'specialists': {}})
+    if not isinstance(data, dict):
+        data = {'specialists': {}}
+    specialists = data.get('specialists', {})
+    if not isinstance(specialists, dict):
+        specialists = {}
+    data['specialists'] = specialists
+    return data
+
+
+def save_specialist_trust_memory(data):
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    data['updated_at'] = now_iso()
+    SPECIALIST_TRUST_MEMORY_PATH.write_text(json.dumps(data, indent=2), encoding='utf-8')
+
+
 def load_json_file(path, fallback):
     try:
         return json.loads(path.read_text(encoding='utf-8'))
@@ -3078,6 +4165,7 @@ def reflect_context(changes, prior_reports, analysis):
     pieces = [context_with_inputs(changes)]
     pieces.append(render_recent_field_delta_context())
     pieces.append(render_cognition_schema_context(analysis.get('schema', {})))
+    pieces.append(render_specialist_consultation_context())
     pieces.append(render_reflection_analysis_context(analysis))
     pieces.append('\n# Current Field Snapshot JSON\n')
     pieces.append(json.dumps(field_layer_snapshot(), indent=2))
@@ -3238,6 +4326,24 @@ def normalize_reflect_output(payload):
             'target_id': '',
             'label': '',
             'related_paths': [],
+            'reason': '',
+            'confidence': 0.5,
+        }),
+        'specialist_consultation_decisions': normalize_reflect_entries(payload.get('specialist_consultation_decisions'), {
+            'action_domain': '',
+            'action_title': '',
+            'specialist_id': '',
+            'specialist_label': '',
+            'consultation_mode': '',
+            'decision': '',
+            'reason': '',
+            'confidence': 0.5,
+        }),
+        'specialist_consultation_evaluations': normalize_reflect_entries(payload.get('specialist_consultation_evaluations'), {
+            'action_domain': '',
+            'specialist_id': '',
+            'specialist_label': '',
+            'evaluation': '',
             'reason': '',
             'confidence': 0.5,
         }),
@@ -3695,6 +4801,35 @@ def enrich_phase7_reflect_output(reflect_data, analysis, action_inbox):
     return reflect_data
 
 
+def enrich_specialist_reflect_output(reflect_data, specialist_context):
+    reflect_data['specialist_consultation_decisions'] = [
+        {
+            'action_domain': item.get('action_domain', ''),
+            'action_title': item.get('action_title', ''),
+            'specialist_id': item.get('specialist_id', ''),
+            'specialist_label': item.get('specialist_label', ''),
+            'consultation_mode': item.get('consultation_mode', ''),
+            'decision': item.get('decision', ''),
+            'reason': item.get('reason', ''),
+            'confidence': item.get('confidence', 0.5),
+        }
+        for item in specialist_context.get('decisions', [])
+        if item.get('decision') == 'recommend_consultation'
+    ][:5]
+    reflect_data['specialist_consultation_evaluations'] = [
+        {
+            'action_domain': item.get('action_domain', ''),
+            'specialist_id': item.get('specialist_id', ''),
+            'specialist_label': item.get('specialist_label', ''),
+            'evaluation': item.get('evaluation', ''),
+            'reason': item.get('reason', ''),
+            'confidence': item.get('confidence', 0.5),
+        }
+        for item in specialist_context.get('evaluations', [])
+    ][:5]
+    return reflect_data
+
+
 def apply_reflect_field_deltas(reflect_data, source_report_paths, analysis):
     schema = analysis.get('schema', load_cognition_schema())
     snapshot = field_layer_snapshot()
@@ -3841,6 +4976,8 @@ def render_reflect_markdown(reflect_data, applied_entries):
         ('Repo Change Candidates', reflect_data.get('repo_change_candidates', []), 'relative_path'),
         ('Repo Alignment Observations', reflect_data.get('repo_alignment_observations', []), 'label'),
         ('Field Diff Alignment Patterns', reflect_data.get('field_diff_alignment_patterns', []), 'label'),
+        ('Specialist Consultation Decisions', reflect_data.get('specialist_consultation_decisions', []), 'specialist_label'),
+        ('Specialist Consultation Evaluations', reflect_data.get('specialist_consultation_evaluations', []), 'specialist_label'),
         ('Action Direction Judgments', reflect_data.get('action_direction_judgments', []), 'title'),
         ('Possible Drift', reflect_data.get('possible_drift', []), None),
         ('Dormant Ideas Worth Reactivation', reflect_data.get('dormant_ideas_worth_reactivation', []), None),
@@ -3891,6 +5028,17 @@ def render_reflect_markdown(reflect_data, applied_entries):
                     extra += f" | target {target}"
                 if item.get('related_paths'):
                     extra += f" | paths {', '.join(item.get('related_paths', []))}"
+            elif heading == 'Specialist Consultation Decisions':
+                extra = (
+                    f" | action {item.get('action_domain', '') or item.get('action_title', '')}"
+                    f" | mode {item.get('consultation_mode', '')}"
+                    f" | decision {item.get('decision', '')}"
+                )
+            elif heading == 'Specialist Consultation Evaluations':
+                extra = (
+                    f" | action {item.get('action_domain', '')}"
+                    f" | evaluation {item.get('evaluation', '')}"
+                )
             elif heading == 'Action Direction Judgments':
                 extra = (
                     f" | rank {item.get('rank', '')}"
@@ -3906,6 +5054,15 @@ def render_reflect_markdown(reflect_data, applied_entries):
                         f" | repo {item.get('repo_alignment_classification', '')}"
                         f" | repo_score {item.get('repo_grounding_score', '')}"
                     )
+                if item.get('specialist_recommended_specialist_label'):
+                    extra += (
+                        f" | specialist {item.get('specialist_recommended_specialist_label', '')}"
+                        f" | consult {item.get('specialist_consultation_decision', '')}"
+                    )
+                    if item.get('specialist_consultation_mode'):
+                        extra += f" | mode {item.get('specialist_consultation_mode', '')}"
+                if item.get('specialist_evaluation'):
+                    extra += f" | specialist_eval {item.get('specialist_evaluation', '')}"
             elif heading == 'Dormant Ideas Worth Reactivation':
                 extra = f" | type {item.get('type', '')}"
             elif heading == 'Dormant Idea Returns':
@@ -3956,10 +5113,11 @@ def generate_reflect_cycle(changes, prior_reports):
     raw = ollama_generate(system, context)
     reflect_data = normalize_reflect_output(extract_json_payload(raw))
     reflect_data = enrich_reflect_output(reflect_data, analysis)
-    action_direction_judgments, action_inbox = enrich_action_inbox_with_reflection(analysis)
+    action_direction_judgments, action_inbox, specialist_context = enrich_action_inbox_with_reflection(analysis)
     reflect_data['action_direction_judgments'] = action_direction_judgments
     reflect_data = enrich_phase6_reflect_output(reflect_data, analysis, action_inbox)
     reflect_data = enrich_phase7_reflect_output(reflect_data, analysis, action_inbox)
+    reflect_data = enrich_specialist_reflect_output(reflect_data, specialist_context)
     source_report_paths = [str(path) for name, path in prior_reports.items() if name in ('sleep', 'dream', 'reality') and path]
     applied_entries, updated_snapshot = apply_reflect_field_deltas(reflect_data, source_report_paths, analysis)
     reflect_state = {
@@ -3982,6 +5140,9 @@ def generate_reflect_cycle(changes, prior_reports):
             'repo_alignment_observations': analysis.get('repo_alignment_observations', []),
             'field_diff_alignment_patterns': analysis.get('field_diff_alignment_patterns', []),
             'action_repo_grounding': analysis.get('action_repo_grounding', {}),
+            'specialist_consultation_decisions': specialist_context.get('decisions', []),
+            'specialist_consultation_evaluations': specialist_context.get('evaluations', []),
+            'specialist_trust_memory': specialist_context.get('trust_memory', {}),
             'action_direction_judgments': action_direction_judgments,
             'dormant_idea_returns': reflect_data.get('dormant_idea_returns', []),
             'source_weighting': analysis.get('source_weighting', {}),

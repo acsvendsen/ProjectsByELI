@@ -3,3 +3,14 @@ __pycache__/
 .DS_Store
 state/*.db
 state/*.json
+# SmartGlasses generated reports
+ProjectELI-State/SmartGlasses/reports/*.md
+
+# SmartGlasses volatile runtime state
+ProjectELI-State/SmartGlasses/state/runtime_state.json
+ProjectELI-State/SmartGlasses/state/reflect_state.json
+ProjectELI-State/SmartGlasses/state/action_inbox.json
+ProjectELI-State/SmartGlasses/state/action_memory.json
+ProjectELI-State/SmartGlasses/state/specialist_consultation_history.json
+ProjectELI-State/SmartGlasses/state/specialist_trust_memory.json
+ProjectELI-State/SmartGlasses/state/field_delta_history.json
