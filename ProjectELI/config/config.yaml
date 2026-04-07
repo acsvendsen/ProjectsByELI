@@ -1,0 +1,43 @@
+project_name: smart_glasses
+project_display_name: SmartGlasses
+project_root: /Users/acs/Development/SmartGlasses
+project_source_root: /Users/acs/Development/SmartGlasses
+project_runtime_root: /Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses
+launch_agent_label: com.projectcognition.smartglasses
+scan_extensions:
+  - .md
+  - .txt
+  - .swift
+  - .py
+  - .js
+  - .ts
+  - .json
+  - .yaml
+  - .yml
+  - .html
+  - .css
+ignore_dirs:
+  - .git
+  - node_modules
+  - build
+  - dist
+  - DerivedData
+  - .venv
+  - venv
+  - Pods
+  - .idea
+  - .vscode
+build_capture_script: scripts/capture_transcriptlab_build.py
+build_summary_filename: transcriptlab_xcode_build_summary.md
+ollama:
+  base_url: http://127.0.0.1:11434
+  model: qwen2.5:7b-instruct
+cycles:
+  continuous: true
+  pause_seconds_between_runs: 5
+  interval_minutes: 60
+  max_files_per_scan: 80
+  max_chars_per_file: 10000
+notifications:
+  enabled: true
+  min_priority: 8

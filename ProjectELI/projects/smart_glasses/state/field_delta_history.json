@@ -1,0 +1,466 @@
+{
+  "entries": [
+    {
+      "timestamp": "2026-04-06T16:53:43",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.82,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0053,
+      "new_value": 0.8253,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_165041_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_165254_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_165322_reality.md"
+      ],
+      "support_count": 0,
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:01:54",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.8253,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0115,
+      "new_value": 0.8368,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_170020_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_170114_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_170132_reality.md"
+      ],
+      "support_count": 1,
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:05:05",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.8368,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0149,
+      "new_value": 0.8517,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_170327_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_170425_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_170445_reality.md"
+      ],
+      "support_count": 2,
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:07:29",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.8517,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0182,
+      "new_value": 0.8699,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_170554_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_170650_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_170708_reality.md"
+      ],
+      "support_count": 3,
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:09:56",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.8699,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0197,
+      "new_value": 0.8896,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_170810_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_170904_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_170933_reality.md"
+      ],
+      "support_count": 4,
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:12:20",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.8896,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0197,
+      "new_value": 0.9093,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_171036_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_171131_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_171157_reality.md"
+      ],
+      "support_count": 5,
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:14:35",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.9093,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0197,
+      "new_value": 0.929,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_171256_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_171354_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_171414_reality.md"
+      ],
+      "support_count": 6,
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:16:54",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.929,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0197,
+      "new_value": 0.9487,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_171514_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_171615_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_171632_reality.md"
+      ],
+      "support_count": 7,
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:22:45",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.9487,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0244,
+      "new_value": 0.9731,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_171840_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_172113_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_172149_reality.md"
+      ],
+      "support_count": 8,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 7.0,
+      "resonance_kind": "cross_source_resonance",
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:24:58",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.9731,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0197,
+      "new_value": 0.9928,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_172044_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_172412_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_172433_reality.md"
+      ],
+      "support_count": 9,
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:26:51",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.9928,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0244,
+      "new_value": 1.0,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_172338_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_172539_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_172613_reality.md"
+      ],
+      "support_count": 10,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "code_config",
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 8.25,
+      "resonance_kind": "cross_source_resonance",
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:29:01",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 1.0,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0244,
+      "new_value": 1.0,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_172705_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_172815_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_172831_reality.md"
+      ],
+      "support_count": 11,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 7.0,
+      "resonance_kind": "cross_source_resonance",
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:31:34",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 1.0,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0244,
+      "new_value": 1.0,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_172952_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_173045_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_173103_reality.md"
+      ],
+      "support_count": 12,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 7.0,
+      "resonance_kind": "cross_source_resonance",
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:33:54",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 1.0,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0244,
+      "new_value": 1.0,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_173214_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_173304_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_173325_reality.md"
+      ],
+      "support_count": 13,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 7.0,
+      "resonance_kind": "cross_source_resonance",
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:35:57",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 1.0,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0244,
+      "new_value": 1.0,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_173428_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_173512_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_173528_reality.md"
+      ],
+      "support_count": 14,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 7.0,
+      "resonance_kind": "cross_source_resonance",
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:38:14",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 1.0,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0244,
+      "new_value": 1.0,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_173640_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_173728_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_173745_reality.md"
+      ],
+      "support_count": 15,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 7.0,
+      "resonance_kind": "cross_source_resonance",
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:40:23",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 1.0,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0244,
+      "new_value": 1.0,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_173844_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_173934_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_173954_reality.md"
+      ],
+      "support_count": 16,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 7.0,
+      "resonance_kind": "cross_source_resonance",
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:42:33",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 1.0,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0244,
+      "new_value": 1.0,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_174055_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_174148_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_174204_reality.md"
+      ],
+      "support_count": 16,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 7.0,
+      "resonance_kind": "cross_source_resonance",
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-06T17:44:52",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 1.0,
+      "requested_delta": 0.03,
+      "applied_delta": 0.0244,
+      "new_value": 1.0,
+      "reason": "Refine subtitle clarity to ensure they remain readable and trust-preserving in noisy environments.",
+      "confidence": 0.8,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_174304_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_174400_dream.md",
+        "/Users/acs/Development/ProjectsByELI/SmartGlasses/smartglasses_project_cognition/projects/smart_glasses/reports/20260406_174421_reality.md"
+      ],
+      "support_count": 16,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 7.0,
+      "resonance_kind": "cross_source_resonance",
+      "change_type": "score_update"
+    }
+  ],
+  "updated_at": "2026-04-06T17:44:52"
+}

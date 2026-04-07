@@ -1,0 +1,68 @@
+control:
+  attractor_saturation:
+    soft_start_score: 0.82
+    strong_start_score: 0.92
+    soft_damping: 0.72
+    strong_damping: 0.38
+    floor_multiplier: 0.08
+    min_source_types_above_soft_start: 2
+    min_source_types_above_strong_start: 3
+    high_score_missing_runtime_or_code_penalty: 0.6
+  diversity_gating:
+    recent_history_window: 16
+    same_pattern_penalty: 0.7
+    low_source_type_penalty: 0.78
+    low_semantic_variation_penalty: 0.82
+    low_time_separation_penalty: 0.82
+    minimum_minutes_between_reinforcement: 45
+    minimum_distinct_reasons: 2
+  recurrence_thresholds:
+    contradiction_resurfacing_min: 2
+    overdominant_attractor_score: 0.9
+    under_attended_recurring_tension_score: 3.0
+    reinforcement_loop_support_min: 4
+    reinforcement_loop_weighted_score_min: 4.0
+  counterweights:
+    attention_tension_score: 0.72
+    attention_resonance_score: 2.2
+    persistence_levels:
+      - medium
+      - high
+    links:
+      subtitle_clarity:
+        - latency_vs_richness
+        - discreet_ux_vs_visual_clarity
+      memory_trust:
+        - privacy_vs_usefulness
+        - latency_vs_richness
+      low_friction_assistance:
+        - discreet_ux_vs_visual_clarity
+        - privacy_vs_usefulness
+  controlled_decay:
+    cooling_score_threshold: 0.92
+    low_diversity_max_source_types: 1
+    stale_reinforcement_support_min: 4
+    stale_reason_variant_max: 1
+    stale_source_pattern_max: 1
+    healthy_reinforcement_min_source_types: 2
+    healthy_reinforcement_min_weighted_score: 3.2
+    cooling_delta: -0.012
+  rebalancing:
+    neglected_tension_score_threshold: 0.72
+    neglected_tension_weighted_score_min: 3.0
+    neglected_tension_delta: 0.012
+    neglected_update_cap: 1
+    max_rebalancing_deltas_per_cycle: 2
+    imbalance_attractor_score_threshold: 0.84
+    imbalance_support_min: 4
+    imbalance_persistence_levels:
+      - medium
+      - high
+  dormant_returns:
+    promising_evidence_min: 0.72
+    promising_pull_min: 0.58
+    constraint_release_resistance_max: 0.62
+    mode_return_modes:
+      - core_deepening
+    return_delta: 0.01
+    max_target_score_for_return_delta: 0.78

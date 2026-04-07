@@ -1,0 +1,121 @@
+{
+  "source": "latest_dream",
+  "items": [
+    {
+      "id": "subtitle-placement",
+      "domain": "subtitle placement",
+      "title": "Subtitle Placement",
+      "summary": "A well-defined and consistent subtitle placement will reduce visual distraction, improve readability, and maintain user trust in the system\u2019s accuracy without overwhelming the wearer with too much information at once.",
+      "probe": "Define one fixed subtitle position rule for V1: keep subtitles at the bottom center of the display.",
+      "choices": [
+        {
+          "id": "stable_default",
+          "label": "Stable Default",
+          "description": "Prefer fixed conservative subtitle placement."
+        },
+        {
+          "id": "more_prominent",
+          "label": "More Prominent",
+          "description": "Bias toward easier visibility over subtlety."
+        }
+      ],
+      "selected_choice_id": null,
+      "selected_choice_label": "",
+      "status": "pending",
+      "selected_at": ""
+    },
+    {
+      "id": "confidence-display",
+      "domain": "confidence display",
+      "title": "Confidence Display",
+      "summary": "By providing clear and transparent confidence indicators, the wearer can better trust the subtitles and memory support, leading to improved overall usability and acceptance.",
+      "probe": "Choose one confidence display format for V1: label only or label plus short reason.",
+      "choices": [
+        {
+          "id": "label_only",
+          "label": "Label Only",
+          "description": "Keep certainty display minimal and fast to parse."
+        },
+        {
+          "id": "label_plus_reason",
+          "label": "Label + Reason",
+          "description": "Expose a short reason to improve trust."
+        }
+      ],
+      "selected_choice_id": null,
+      "selected_choice_label": "",
+      "status": "pending",
+      "selected_at": ""
+    },
+    {
+      "id": "memory-cache-policy",
+      "domain": "memory/cache policy",
+      "title": "Memory/Cache Policy",
+      "summary": "By limiting the local cache to a reasonable number of entities, we can improve the system's responsiveness and accuracy in name recall during live conversations. This will enhance trust and reduce the risk of overheating or draining the battery unnecessarily.",
+      "probe": "Define one local-cache size limit for face/name memory objects between 10-15 entries to balance memory retention with resource constraints.",
+      "choices": [
+        {
+          "id": "smaller_cache",
+          "label": "Smaller Cache",
+          "description": "Bias toward tighter local memory and lower load."
+        },
+        {
+          "id": "recency_cache",
+          "label": "Recency First",
+          "description": "Bias toward recent names and conversations."
+        }
+      ],
+      "selected_choice_id": null,
+      "selected_choice_label": "",
+      "status": "pending",
+      "selected_at": ""
+    },
+    {
+      "id": "phone-cloud-boundary",
+      "domain": "phone/cloud boundary",
+      "title": "Phone/Cloud Boundary",
+      "summary": "This will ensure that subtitles remain clear, stable, and fast, maintaining trust with the wearer. Simultaneously, it will allow for more robust memory support without overloading the glasses, ensuring a balanced experience.",
+      "probe": "Define one phone/cloud fallback boundary for exactly one task such as live subtitle processing.",
+      "choices": [
+        {
+          "id": "phone_first",
+          "label": "Phone First",
+          "description": "Keep critical work local unless clearly necessary."
+        },
+        {
+          "id": "balanced_fallback",
+          "label": "Balanced Fallback",
+          "description": "Allow cloud assist for slower or richer lookups."
+        }
+      ],
+      "selected_choice_id": null,
+      "selected_choice_label": "",
+      "status": "pending",
+      "selected_at": ""
+    },
+    {
+      "id": "visual-hierarchy",
+      "domain": "visual hierarchy",
+      "title": "Visual Hierarchy",
+      "summary": "By ensuring that subtitles remain clear and unobtrusive, while one-line support is reserved for critical moments, this approach maximizes the wearer's trust in the system's ability to provide relevant information without distraction. This balance will lead to a more effective and user-friendly experience.",
+      "probe": "Define one visual priority rule between subtitles and one-line support in V1.",
+      "choices": [
+        {
+          "id": "subtitles_dominate",
+          "label": "Subtitles Dominate",
+          "description": "Keep subtitles above all other overlays."
+        },
+        {
+          "id": "balanced_overlay",
+          "label": "Balanced Overlay",
+          "description": "Allow prompts to share attention more evenly."
+        }
+      ],
+      "selected_choice_id": null,
+      "selected_choice_label": "",
+      "status": "pending",
+      "selected_at": ""
+    }
+  ],
+  "updated_at": "2026-04-07T21:49:43"
+}

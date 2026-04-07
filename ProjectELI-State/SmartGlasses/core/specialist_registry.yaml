@@ -1,0 +1,270 @@
+
+version: 1
+
+specialists:
+  - id: embedded_linux_specialist_v1
+    label: Embedded Linux Specialist
+    class: embedded_systems_specialist
+    endpoint_type: api
+    endpoint_ref: embedded_linux_specialist_v1
+    enabled: true
+
+    domains:
+      - raspberry_pi
+      - linux_device_setup
+      - gpio
+      - i2c
+      - spi
+      - uart
+      - camera_stack
+      - systemd
+      - embedded_python
+      - device_integration
+
+    input_types:
+      - text
+      - code
+      - config
+      - logs
+
+    output_types:
+      - analysis
+      - code
+      - setup_steps
+      - debugging_plan
+
+    strengths:
+      - hardware bring_up
+      - linux integration
+      - on_device debugging
+      - service configuration
+
+    weaknesses:
+      - investor writing
+      - industrial design
+      - high level product strategy
+
+    consultation_modes:
+      - advisory
+      - delegated_drafting
+      - competitive
+
+    trust_defaults:
+      domain_reasoning: 0.78
+      implementation_specificity: 0.83
+      constraint_fidelity: 0.76
+      hallucination_risk: 0.28
+      artifact_quality: 0.61
+
+    cost_class: medium
+    latency_class: medium
+
+  - id: controls_specialist_v1
+    label: Controls Specialist
+    class: controls_specialist
+    endpoint_type: api
+    endpoint_ref: controls_specialist_v1
+    enabled: true
+
+    domains:
+      - bldc
+      - foc
+      - pid
+      - dq_control
+      - telemetry_analysis
+      - parameter_estimation
+      - loop_tuning
+      - encoder_validation
+
+    input_types:
+      - text
+      - code
+      - logs
+      - csv
+
+    output_types:
+      - analysis
+      - code
+      - plots
+      - tuning_steps
+
+    strengths:
+      - control loop structure
+      - telemetry interpretation
+      - tuning workflow
+      - fault logic review
+
+    weaknesses:
+      - industrial design
+      - broad product strategy
+      - polished report writing
+
+    consultation_modes:
+      - advisory
+      - delegated_drafting
+      - competitive
+      - instrumental
+
+    trust_defaults:
+      domain_reasoning: 0.81
+      implementation_specificity: 0.76
+      constraint_fidelity: 0.73
+      hallucination_risk: 0.31
+      artifact_quality: 0.73
+
+    cost_class: medium
+    latency_class: medium
+
+  - id: visualization_specialist_v1
+    label: Visualization Specialist
+    class: visualization_specialist
+    endpoint_type: api
+    endpoint_ref: visualization_specialist_v1
+    enabled: true
+
+    domains:
+      - concept_visualization
+      - interface_mockups
+      - mechanism_sketches
+      - diagrams
+      - invention_rendering
+      - explanatory_visuals
+
+    input_types:
+      - text
+      - image
+      - structured_brief
+
+    output_types:
+      - image
+      - diagram
+      - annotated_visual
+
+    strengths:
+      - visual explanation
+      - concept rendering
+      - fast ideation visuals
+
+    weaknesses:
+      - deep control theory
+      - firmware correctness
+      - system architecture authority
+
+    consultation_modes:
+      - delegated_drafting
+      - instrumental
+
+    trust_defaults:
+      domain_reasoning: 0.54
+      implementation_specificity: 0.42
+      constraint_fidelity: 0.58
+      hallucination_risk: 0.35
+      artifact_quality: 0.87
+
+    cost_class: medium
+    latency_class: fast
+
+  - id: report_specialist_v1
+    label: Report Specialist
+    class: artifact_assembly_specialist
+    endpoint_type: api
+    endpoint_ref: report_specialist_v1
+    enabled: true
+
+    domains:
+      - technical_reports
+      - pdf_assembly
+      - charts
+      - structured_docs
+      - visual_explanation
+      - document_packaging
+
+    input_types:
+      - text
+      - markdown
+      - csv
+      - json
+      - image
+
+    output_types:
+      - pdf
+      - docx
+      - markdown
+      - charts
+
+    strengths:
+      - structured reporting
+      - artifact finishing
+      - explanatory visuals
+      - formatting consistency
+
+    weaknesses:
+      - original engineering judgment
+      - domain prioritization
+      - long horizon project steering
+
+    consultation_modes:
+      - delegated_drafting
+      - instrumental
+
+    trust_defaults:
+      domain_reasoning: 0.49
+      implementation_specificity: 0.52
+      constraint_fidelity: 0.69
+      hallucination_risk: 0.22
+      artifact_quality: 0.91
+
+    cost_class: medium
+    latency_class: medium
+
+  - id: code_architecture_specialist_v1
+    label: Code Architecture Specialist
+    class: code_architecture_specialist
+    endpoint_type: api
+    endpoint_ref: code_architecture_specialist_v1
+    enabled: true
+
+    domains:
+      - python_architecture
+      - orchestration
+      - refactoring
+      - agent_workflows
+      - schema_design
+      - state_management
+
+    input_types:
+      - text
+      - code
+      - config
+
+    output_types:
+      - analysis
+      - code
+      - refactor_plan
+      - schema
+
+    strengths:
+      - structural refactors
+      - interface design
+      - system decomposition
+      - code hygiene
+
+    weaknesses:
+      - deep hardware tuning
+      - visual rendering
+      - product aesthetics
+
+    consultation_modes:
+      - advisory
+      - delegated_drafting
+      - competitive
+
+    trust_defaults:
+      domain_reasoning: 0.79
+      implementation_specificity: 0.80
+      constraint_fidelity: 0.77
+      hallucination_risk: 0.24
+      artifact_quality: 0.68
+
+    cost_class: medium
+    latency_class: medium

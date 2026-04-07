@@ -1,0 +1,75 @@
+{
+  "dimensions": [
+    {
+      "id": "hardware_stack",
+      "label": "Hardware Stack",
+      "goal": "Keep V1 lightweight, discreet, socially acceptable, and dependent on minimal on-glasses compute.",
+      "limitations": [
+        "battery",
+        "thermal pressure",
+        "weight",
+        "social acceptability"
+      ]
+    },
+    {
+      "id": "software_stack",
+      "label": "Software Stack",
+      "goal": "Keep the cognition stack practical, maintainable, and centered on subtitle quality, memory trust, and low-friction assistive behavior.",
+      "limitations": [
+        "complexity drift",
+        "latency",
+        "trust"
+      ]
+    },
+    {
+      "id": "wireless_interface",
+      "label": "Wireless Interface",
+      "goal": "Keep the glasses-phone link reliable enough for phone-first processing without making V1 fragile.",
+      "limitations": [
+        "connection stability",
+        "latency",
+        "battery cost"
+      ]
+    },
+    {
+      "id": "firmware",
+      "label": "Firmware",
+      "goal": "Keep firmware simple, robust, and aligned with touch-first input and lightweight display behavior.",
+      "limitations": [
+        "embedded complexity",
+        "power draw",
+        "debugging overhead"
+      ]
+    },
+    {
+      "id": "subtitle_system",
+      "label": "Subtitle System",
+      "goal": "Deliver near-real-time, readable subtitles with trust-preserving visual behavior.",
+      "limitations": [
+        "latency",
+        "readability",
+        "visual distraction"
+      ]
+    },
+    {
+      "id": "memory_system",
+      "label": "Memory System",
+      "goal": "Support fast, trustworthy face/name recall and conversation memory without storing too much low-value information.",
+      "limitations": [
+        "privacy perception",
+        "lookup speed",
+        "false confidence"
+      ]
+    },
+    {
+      "id": "privacy_trust",
+      "label": "Privacy And Trust",
+      "goal": "Help the wearer understand better without faking understanding, while keeping privacy and consent pressure visible.",
+      "limitations": [
+        "consent",
+        "data handling",
+        "confidence clarity"
+      ]
+    }
+  ]
+}

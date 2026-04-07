@@ -1,0 +1,100 @@
+
+{
+  "version": 1,
+  "specialists": {
+    "embedded_linux_specialist_v1": {
+      "task_family_scores": {},
+      "style_traits": {
+        "specificity": 0.5,
+        "verbosity": 0.5,
+        "constraint_fidelity": 0.5
+      },
+      "risk_traits": {
+        "hallucination_risk": 0.28,
+        "overreach_risk": 0.3,
+        "generic_advice_risk": 0.35
+      },
+      "artifact_quality": {
+        "code": 0.5,
+        "reports": 0.4,
+        "plans": 0.5
+      },
+      "recent_outcomes": []
+    },
+    "controls_specialist_v1": {
+      "task_family_scores": {},
+      "style_traits": {
+        "specificity": 0.5,
+        "verbosity": 0.5,
+        "constraint_fidelity": 0.5
+      },
+      "risk_traits": {
+        "hallucination_risk": 0.31,
+        "overreach_risk": 0.35,
+        "generic_advice_risk": 0.28
+      },
+      "artifact_quality": {
+        "plots": 0.5,
+        "code": 0.5,
+        "reports": 0.4
+      },
+      "recent_outcomes": []
+    },
+    "visualization_specialist_v1": {
+      "task_family_scores": {},
+      "style_traits": {
+        "specificity": 0.45,
+        "verbosity": 0.45,
+        "constraint_fidelity": 0.5
+      },
+      "risk_traits": {
+        "hallucination_risk": 0.35,
+        "overreach_risk": 0.3,
+        "generic_advice_risk": 0.2
+      },
+      "artifact_quality": {
+        "images": 0.5,
+        "diagrams": 0.5
+      },
+      "recent_outcomes": []
+    },
+    "report_specialist_v1": {
+      "task_family_scores": {},
+      "style_traits": {
+        "specificity": 0.5,
+        "verbosity": 0.5,
+        "constraint_fidelity": 0.55
+      },
+      "risk_traits": {
+        "hallucination_risk": 0.22,
+        "overreach_risk": 0.2,
+        "generic_advice_risk": 0.25
+      },
+      "artifact_quality": {
+        "pdf": 0.5,
+        "docx": 0.5,
+        "charts": 0.5
+      },
+      "recent_outcomes": []
+    },
+    "code_architecture_specialist_v1": {
+      "task_family_scores": {},
+      "style_traits": {
+        "specificity": 0.5,
+        "verbosity": 0.5,
+        "constraint_fidelity": 0.5
+      },
+      "risk_traits": {
+        "hallucination_risk": 0.24,
+        "overreach_risk": 0.25,
+        "generic_advice_risk": 0.25
+      },
+      "artifact_quality": {
+        "code": 0.5,
+        "plans": 0.5,
+        "schemas": 0.5
+      },
+      "recent_outcomes": []
+    }
+  }
+}

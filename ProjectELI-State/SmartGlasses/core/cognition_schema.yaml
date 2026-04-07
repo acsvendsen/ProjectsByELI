@@ -1,0 +1,105 @@
+schema_version: 1
+project_instance: smart_glasses
+
+control:
+  attractor_saturation:
+    soft_start_score: 0.82
+    strong_start_score: 0.92
+    soft_damping: 0.72
+    strong_damping: 0.38
+    floor_multiplier: 0.08
+    min_source_types_above_soft_start: 2
+    min_source_types_above_strong_start: 3
+    high_score_missing_runtime_or_code_penalty: 0.6
+  diversity_gating:
+    recent_history_window: 16
+    same_pattern_penalty: 0.7
+    low_source_type_penalty: 0.78
+    low_semantic_variation_penalty: 0.82
+    low_time_separation_penalty: 0.82
+    minimum_minutes_between_reinforcement: 45
+    minimum_distinct_reasons: 2
+  recurrence_thresholds:
+    contradiction_resurfacing_min: 2
+    overdominant_attractor_score: 0.9
+    under_attended_recurring_tension_score: 3.0
+    reinforcement_loop_support_min: 4
+    reinforcement_loop_weighted_score_min: 4.0
+  counterweights:
+    attention_tension_score: 0.72
+    attention_resonance_score: 2.2
+    persistence_levels:
+      - medium
+      - high
+    links:
+      subtitle_clarity:
+        - latency_vs_richness
+        - discreet_ux_vs_visual_clarity
+      memory_trust:
+        - privacy_vs_usefulness
+        - latency_vs_richness
+      low_friction_assistance:
+        - discreet_ux_vs_visual_clarity
+        - privacy_vs_usefulness
+
+specialist_consultation:
+  enabled: true
+
+  authority:
+    eli_remains_primary_judge: true
+    specialist_outputs_advisory_by_default: true
+    require_eli_evaluation_before_integration: true
+    forbid_direct_specialist_state_mutation: true
+
+  selection:
+    minimum_expected_gain: 0.12
+    high_uncertainty_threshold: 0.65
+    competitive_consultation_threshold: 0.46
+    minimum_semantic_match: 0.45
+    minimum_constraint_fidelity: 0.72
+    max_hallucination_risk_for_primary_use: 0.45
+
+  modes:
+    advisory: true
+    delegated_drafting: true
+    competitive: true
+    instrumental: true
+
+  safeguards:
+    do_not_override_field_logic: true
+    do_not_override_reflect_authority: true
+    do_not_override_action_judgment: true
+    do_not_reframe_project_identity: true
+    require_consultation_audit_trail: true
+    require_partial_accept_or_reject_path: true
+
+phase7_repo_alignment:
+  enabled: true
+
+  diff_alignment:
+    align_weight: 1.0
+    productive_resistance_weight: 0.75
+    misalignment_weight: -0.85
+    neglect_weight: -0.65
+    cosmetic_only_weight: -0.30
+
+  action_coupling:
+    reward_diff_backed_actions: true
+    damp_talk_without_change: true
+    enable_dormant_return_on_structural_progress: true
+
+  reflect_grounding:
+    require_diff_summary: true
+    require_alignment_observations: true
+    require_resistance_observations: true
+
+  safeguards:
+    do_not_equate_any_diff_with_progress: true
+    do_not_penalize_valid_design_pause_too_early: true
+    require_semantic_interpretation_of_diffs: true
+    
+notes:
+  - Keep engine mechanics generic; keep SmartGlasses-specific control shaping here.
+  - Prefer conservative reinforcement over rapid convergence.
+  - Stronger attractors should require more varied evidence before further amplification.
+  - Reflection should surface neglected counterweights before recommending stronger amplification.

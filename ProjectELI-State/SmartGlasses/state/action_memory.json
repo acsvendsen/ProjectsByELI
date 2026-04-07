@@ -1,0 +1,380 @@
+{
+  "source": "reflect_action_memory",
+  "judged_at": "2026-04-07T16:39:32",
+  "items": [
+    {
+      "id": "subtitle-placement",
+      "domain": "subtitle placement",
+      "title": "Subtitle Placement",
+      "summary": "This change will improve the overall user experience by ensuring that critical information is more prominent and less likely to be missed, while still maintaining a low-friction interface that does not overwhelm the wearer in real-time interactions.",
+      "probe": "Define one fixed subtitle position rule for V1: keep subtitles at the bottom center of the display.",
+      "choices": [
+        {
+          "id": "stable_default",
+          "label": "Stable Default",
+          "description": "Prefer fixed conservative subtitle placement."
+        },
+        {
+          "id": "more_prominent",
+          "label": "More Prominent",
+          "description": "Bias toward easier visibility over subtlety."
+        }
+      ],
+      "selected_choice_id": null,
+      "selected_choice_label": "",
+      "status": "pending",
+      "selected_at": "",
+      "candidate_signature": "306281a03e34bb72",
+      "appearance_count": 6,
+      "consecutive_appearances": 1,
+      "first_seen_at": "2026-04-06T22:26:09",
+      "last_seen_at": "2026-04-07T16:37:52",
+      "last_judged_at": "2026-04-07T16:39:32",
+      "alignment_score": 0.469,
+      "resistance_score": 0.938,
+      "architectural_pull_score": 0.213,
+      "direction_judgment": "kill",
+      "judgment_reason": "aligns with Real-time subtitle clarity; also addresses under-attended pressure in Latency vs richness, Discreet UX vs visual clarity; meets resistance from Latency vs richness, Discreet UX vs visual clarity; needs counterweight discipline on Latency vs richness, Discreet UX vs visual clarity",
+      "judgment_rank": 5,
+      "field_evidence_score": 0.596,
+      "influence_state": "reinforced",
+      "influence_reason": "Prior continue judgment allows modest reinforcement.",
+      "resurfacing_despite_resistance": false,
+      "resurfacing_classification": "steady_reinforcement",
+      "resurfacing_reason": "Recurring with an existing continue judgment, so modest reinforcement is allowed.",
+      "base_alignment_score": 0.449,
+      "base_resistance_score": 0.938,
+      "base_architectural_pull_score": 0.173,
+      "alignment_adjustment": 0.02,
+      "resistance_adjustment": 0.0,
+      "pull_adjustment": 0.04,
+      "repo_grounding_score": 0.0,
+      "repo_alignment_classification": "",
+      "repo_grounding_reason": "",
+      "repo_change_count": 0,
+      "repo_grounding_paths": [],
+      "repo_structural_progress": false,
+      "repo_alignment_adjustment": 0.0,
+      "repo_resistance_adjustment": 0.0,
+      "repo_pull_adjustment": 0.0,
+      "evidence_delta": -0.331,
+      "pull_delta": -0.503,
+      "judgment_inputs": {
+        "attractors": [
+          "subtitle_clarity"
+        ],
+        "tensions": [
+          "latency_vs_richness",
+          "discreet_ux_vs_visual_clarity"
+        ],
+        "modes": [
+          "core_deepening",
+          "implementation_grounding"
+        ],
+        "constraints": [
+          "core_deepening_over_sprawl"
+        ]
+      }
+    },
+    {
+      "id": "confidence-display",
+      "domain": "confidence display",
+      "title": "Confidence Display",
+      "summary": "Implementing a clear and concise confidence display will help the wearer trust the subtitles more, reducing cognitive load and increasing their engagement with the product. This can lead to better overall usage and satisfaction.",
+      "probe": "Choose one confidence display format for V1: label only or label plus short reason.",
+      "choices": [
+        {
+          "id": "label_only",
+          "label": "Label Only",
+          "description": "Keep certainty display minimal and fast to parse."
+        },
+        {
+          "id": "label_plus_reason",
+          "label": "Label + Reason",
+          "description": "Expose a short reason to improve trust."
+        }
+      ],
+      "selected_choice_id": null,
+      "selected_choice_label": "",
+      "status": "pending",
+      "selected_at": "",
+      "candidate_signature": "18754e04e78a9af9",
+      "appearance_count": 6,
+      "consecutive_appearances": 1,
+      "first_seen_at": "2026-04-06T22:26:09",
+      "last_seen_at": "2026-04-07T16:37:52",
+      "last_judged_at": "2026-04-07T16:39:32",
+      "alignment_score": 0.65,
+      "resistance_score": 1.0,
+      "architectural_pull_score": 0.3,
+      "direction_judgment": "pause",
+      "judgment_reason": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Discreet UX vs visual clarity, Latency vs richness; meets resistance from Discreet UX vs visual clarity, Latency vs richness; needs counterweight discipline on Latency vs richness, Discreet UX vs visual clarity",
+      "judgment_rank": 2,
+      "field_evidence_score": 0.733,
+      "influence_state": "damped",
+      "influence_reason": "Repeated pause without new evidence is softly damped.",
+      "resurfacing_despite_resistance": true,
+      "resurfacing_classification": "noisy_repetition",
+      "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
+      "base_alignment_score": 0.65,
+      "base_resistance_score": 1.0,
+      "base_architectural_pull_score": 0.34,
+      "alignment_adjustment": 0.0,
+      "resistance_adjustment": 0.03,
+      "pull_adjustment": -0.04,
+      "repo_grounding_score": 0.0,
+      "repo_alignment_classification": "",
+      "repo_grounding_reason": "",
+      "repo_change_count": 0,
+      "repo_grounding_paths": [],
+      "repo_structural_progress": false,
+      "repo_alignment_adjustment": 0.0,
+      "repo_resistance_adjustment": 0.0,
+      "repo_pull_adjustment": 0.0,
+      "evidence_delta": -0.165,
+      "pull_delta": -0.209,
+      "judgment_inputs": {
+        "attractors": [
+          "subtitle_clarity",
+          "memory_trust"
+        ],
+        "tensions": [
+          "discreet_ux_vs_visual_clarity",
+          "latency_vs_richness"
+        ],
+        "modes": [
+          "core_deepening",
+          "implementation_grounding"
+        ],
+        "constraints": [
+          "core_deepening_over_sprawl"
+        ]
+      }
+    },
+    {
+      "id": "memory-cache-policy",
+      "domain": "memory/cache policy",
+      "title": "Memory/Cache Policy",
+      "summary": "This change will reduce battery usage by minimizing the amount of data stored on the phone and improve lookup performance by prioritizing recent interactions. It also ensures that memory reinforcement is focused on the most relevant entities, enhancing trust through stable behavior and fast retrieval.",
+      "probe": "Set one local cache eviction rule for face/name memory in V1.",
+      "choices": [
+        {
+          "id": "smaller_cache",
+          "label": "Smaller Cache",
+          "description": "Bias toward tighter local memory and lower load."
+        },
+        {
+          "id": "recency_cache",
+          "label": "Recency First",
+          "description": "Bias toward recent names and conversations."
+        }
+      ],
+      "selected_choice_id": null,
+      "selected_choice_label": "",
+      "status": "pending",
+      "selected_at": "",
+      "candidate_signature": "6bafda35ab5a5de5",
+      "appearance_count": 6,
+      "consecutive_appearances": 1,
+      "first_seen_at": "2026-04-06T22:26:09",
+      "last_seen_at": "2026-04-07T16:37:52",
+      "last_judged_at": "2026-04-07T16:39:32",
+      "alignment_score": 0.839,
+      "resistance_score": 1.0,
+      "architectural_pull_score": 0.505,
+      "direction_judgment": "pause",
+      "judgment_reason": "aligns with Trustworthy memory support; also addresses under-attended pressure in Privacy vs usefulness, Latency vs richness; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs usefulness, Latency vs richness",
+      "judgment_rank": 1,
+      "field_evidence_score": 0.856,
+      "influence_state": "damped",
+      "influence_reason": "Repeated pause without new evidence is softly damped.",
+      "resurfacing_despite_resistance": true,
+      "resurfacing_classification": "noisy_repetition",
+      "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
+      "base_alignment_score": 0.839,
+      "base_resistance_score": 0.97,
+      "base_architectural_pull_score": 0.545,
+      "alignment_adjustment": 0.0,
+      "resistance_adjustment": 0.03,
+      "pull_adjustment": -0.04,
+      "repo_grounding_score": 0.0,
+      "repo_alignment_classification": "",
+      "repo_grounding_reason": "",
+      "repo_change_count": 0,
+      "repo_grounding_paths": [],
+      "repo_structural_progress": false,
+      "repo_alignment_adjustment": 0.0,
+      "repo_resistance_adjustment": 0.0,
+      "repo_pull_adjustment": 0.0,
+      "evidence_delta": 0.0,
+      "pull_delta": 0.038,
+      "judgment_inputs": {
+        "attractors": [
+          "memory_trust"
+        ],
+        "tensions": [
+          "privacy_vs_usefulness",
+          "latency_vs_richness"
+        ],
+        "modes": [
+          "core_deepening",
+          "implementation_grounding"
+        ],
+        "constraints": [
+          "phone_first_runtime",
+          "core_deepening_over_sprawl"
+        ]
+      }
+    },
+    {
+      "id": "phone-cloud-boundary",
+      "domain": "phone/cloud boundary",
+      "title": "Phone/Cloud Boundary",
+      "summary": "This ensures that the wearer's understanding is not disrupted by momentary internet issues, maintaining trust and reliability in critical real-time interactions.",
+      "probe": "Choose one phone-local versus cloud fallback boundary for face/name recall lookup in V1.",
+      "choices": [
+        {
+          "id": "phone_first",
+          "label": "Phone First",
+          "description": "Keep critical work local unless clearly necessary."
+        },
+        {
+          "id": "balanced_fallback",
+          "label": "Balanced Fallback",
+          "description": "Allow cloud assist for slower or richer lookups."
+        }
+      ],
+      "selected_choice_id": null,
+      "selected_choice_label": "",
+      "status": "pending",
+      "selected_at": "",
+      "candidate_signature": "5be4bef20f8fdeff",
+      "appearance_count": 6,
+      "consecutive_appearances": 1,
+      "first_seen_at": "2026-04-06T22:26:09",
+      "last_seen_at": "2026-04-07T16:37:52",
+      "last_judged_at": "2026-04-07T16:39:32",
+      "alignment_score": 0.627,
+      "resistance_score": 1.0,
+      "architectural_pull_score": 0.277,
+      "direction_judgment": "pause",
+      "judgment_reason": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Latency vs richness, Privacy vs usefulness; meets resistance from Latency vs richness, Privacy vs usefulness; needs counterweight discipline on Latency vs richness, Privacy vs usefulness",
+      "judgment_rank": 3,
+      "field_evidence_score": 0.683,
+      "influence_state": "damped",
+      "influence_reason": "Repeated pause without new evidence is softly damped.",
+      "resurfacing_despite_resistance": true,
+      "resurfacing_classification": "noisy_repetition",
+      "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
+      "base_alignment_score": 0.627,
+      "base_resistance_score": 1.0,
+      "base_architectural_pull_score": 0.317,
+      "alignment_adjustment": 0.0,
+      "resistance_adjustment": 0.03,
+      "pull_adjustment": -0.04,
+      "repo_grounding_score": 0.0,
+      "repo_alignment_classification": "",
+      "repo_grounding_reason": "",
+      "repo_change_count": 0,
+      "repo_grounding_paths": [],
+      "repo_structural_progress": false,
+      "repo_alignment_adjustment": 0.0,
+      "repo_resistance_adjustment": 0.0,
+      "repo_pull_adjustment": 0.0,
+      "evidence_delta": -0.166,
+      "pull_delta": -0.208,
+      "judgment_inputs": {
+        "attractors": [
+          "subtitle_clarity",
+          "memory_trust"
+        ],
+        "tensions": [
+          "latency_vs_richness",
+          "privacy_vs_usefulness"
+        ],
+        "modes": [
+          "constraint_pressure",
+          "implementation_grounding"
+        ],
+        "constraints": [
+          "phone_first_runtime",
+          "core_deepening_over_sprawl"
+        ]
+      }
+    },
+    {
+      "id": "visual-hierarchy",
+      "domain": "visual hierarchy",
+      "title": "Visual Hierarchy",
+      "summary": "By prioritizing subtitles over one-line prompts visually, users can focus on critical information without being overwhelmed by too much text at once. This will enhance real-time subtitle clarity and low-friction assistance, making the glasses more useful in noisy environments and dense conversations.",
+      "probe": "Define a visual priority rule between subtitles and one-line support where subtitles always appear above one-line prompts when space allows.",
+      "choices": [
+        {
+          "id": "subtitles_dominate",
+          "label": "Subtitles Dominate",
+          "description": "Keep subtitles above all other overlays."
+        },
+        {
+          "id": "balanced_overlay",
+          "label": "Balanced Overlay",
+          "description": "Allow prompts to share attention more evenly."
+        }
+      ],
+      "selected_choice_id": null,
+      "selected_choice_label": "",
+      "status": "pending",
+      "selected_at": "",
+      "candidate_signature": "3ea0b626a6c96eb2",
+      "appearance_count": 6,
+      "consecutive_appearances": 1,
+      "first_seen_at": "2026-04-06T22:26:09",
+      "last_seen_at": "2026-04-07T16:37:52",
+      "last_judged_at": "2026-04-07T16:39:32",
+      "alignment_score": 0.645,
+      "resistance_score": 0.886,
+      "architectural_pull_score": 0.254,
+      "direction_judgment": "pause",
+      "judgment_reason": "aligns with Real-time subtitle clarity, Low-friction assistance; also addresses under-attended pressure in Discreet UX vs visual clarity; meets resistance from Discreet UX vs visual clarity; needs counterweight discipline on Discreet UX vs visual clarity",
+      "judgment_rank": 4,
+      "field_evidence_score": 0.752,
+      "influence_state": "damped",
+      "influence_reason": "Repeated pause without new evidence is softly damped.",
+      "resurfacing_despite_resistance": true,
+      "resurfacing_classification": "noisy_repetition",
+      "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
+      "base_alignment_score": 0.645,
+      "base_resistance_score": 0.856,
+      "base_architectural_pull_score": 0.294,
+      "alignment_adjustment": 0.0,
+      "resistance_adjustment": 0.03,
+      "pull_adjustment": -0.04,
+      "repo_grounding_score": 0.0,
+      "repo_alignment_classification": "",
+      "repo_grounding_reason": "",
+      "repo_change_count": 0,
+      "repo_grounding_paths": [],
+      "repo_structural_progress": false,
+      "repo_alignment_adjustment": 0.0,
+      "repo_resistance_adjustment": 0.0,
+      "repo_pull_adjustment": 0.0,
+      "evidence_delta": -0.166,
+      "pull_delta": -0.129,
+      "judgment_inputs": {
+        "attractors": [
+          "subtitle_clarity",
+          "low_friction_assistance"
+        ],
+        "tensions": [
+          "discreet_ux_vs_visual_clarity"
+        ],
+        "modes": [
+          "core_deepening"
+        ],
+        "constraints": [
+          "core_deepening_over_sprawl"
+        ]
+      }
+    }
+  ],
+  "updated_at": "2026-04-07T16:39:32"
+}

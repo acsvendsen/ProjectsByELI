@@ -1,0 +1,67 @@
+version: 1
+
+selection_policy:
+  preserve_eli_authority: true
+  consultation_requires_positive_expected_gain: true
+  default_mode: advisory
+  allow_no_consultation: true
+  reject_specialist_if_conflicts_with_project_constraints: true
+  require_eli_post_consultation_evaluation: true
+  specialist_outputs_are_advisory_by_default: true
+
+signals:
+  semantic_match_weight: 0.25
+  trust_memory_weight: 0.20
+  current_uncertainty_weight: 0.20
+  artifact_requirement_weight: 0.15
+  historical_success_weight: 0.10
+  constraint_fidelity_weight: 0.10
+  contradiction_risk_weight: -0.10
+  hallucination_risk_weight: -0.10
+
+thresholds:
+  minimum_expected_gain: 0.12
+  high_uncertainty: 0.65
+  competitive_consultation: 0.35
+  minimum_constraint_fidelity: 0.60
+  max_hallucination_risk_for_primary_use: 0.45
+  minimum_semantic_match: 0.45
+
+consultation_mode_rules:
+  advisory:
+    allowed_for:
+      - architecture_questions
+      - design_tradeoffs
+      - critique
+      - sanity_check
+      - domain_analysis
+
+  delegated_drafting:
+    allowed_for:
+      - code_scaffold
+      - report_draft
+      - diagram_draft
+      - artifact_assembly
+
+  competitive:
+    allowed_for:
+      - high_risk_decision
+      - conflicting_options
+      - persistent_uncertainty
+      - unresolved_tradeoff
+
+  instrumental:
+    allowed_for:
+      - plotting
+      - rendering
+      - format_conversion
+      - simulation
+      - pdf_packaging
+
+safeguards:
+  do_not_override_field_logic: true
+  do_not_override_reflect_authority: true
+  do_not_override_action_judgment: true
+  do_not_reframe_project_identity: true
+  require_auditable_consultation_history: true
+  require_partial_accept_or_reject_path: true

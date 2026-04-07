@@ -1,0 +1,26 @@
+{
+  "field": "modes",
+  "version": "eli_v2_phase1",
+  "updated_at": "2026-04-06T00:00:00",
+  "current_mode": "core_deepening",
+  "items": [
+    {
+      "id": "core_deepening",
+      "label": "Core Deepening",
+      "summary": "Bias toward subtitle, memory, confidence, and architecture improvements that increase daily-use value.",
+      "score": 0.84
+    },
+    {
+      "id": "constraint_pressure",
+      "label": "Constraint Pressure",
+      "summary": "Surface battery, latency, privacy, and usability limits early so weak directions are killed quickly.",
+      "score": 0.58
+    },
+    {
+      "id": "implementation_grounding",
+      "label": "Implementation Grounding",
+      "summary": "Reason from actual repo files, app docs, and build truth instead of generic ideation.",
+      "score": 0.74
+    }
+  ]
+}

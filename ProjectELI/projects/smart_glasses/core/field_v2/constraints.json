@@ -1,0 +1,25 @@
+{
+  "field": "constraints",
+  "version": "eli_v2_phase1",
+  "updated_at": "2026-04-06T00:00:00",
+  "items": [
+    {
+      "id": "frame_touch_only_v1",
+      "label": "Frame-touch-only V1",
+      "summary": "V1 explicit interaction should happen through frame touches, not voice commands.",
+      "type": "hard"
+    },
+    {
+      "id": "phone_first_runtime",
+      "label": "Phone-first runtime",
+      "summary": "Heavy processing should primarily happen on the phone, with cloud optional where clearly justified.",
+      "type": "hard"
+    },
+    {
+      "id": "core_deepening_over_sprawl",
+      "label": "Core-deepening over sprawl",
+      "summary": "Prefer work that improves subtitle quality, memory trust, and visual UX over broad feature expansion.",
+      "type": "guiding"
+    }
+  ]
+}
