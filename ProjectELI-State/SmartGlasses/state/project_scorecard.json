@@ -1,14 +1,14 @@
 {
-  "project_summary": "The current phase of the SmartGlasses project is focused on improving subtitle clarity and ensuring low-friction assistance while maintaining core functionality. The hardware stack remains lightweight to avoid battery and thermal constraints, but some software and memory system improvements are needed for V1.",
+  "project_summary": "The current project is making good progress on subtitle clarity and memory support while focusing on the core mission of real-time assistance without overcomplicating interactions. However, there are ongoing tensions around privacy vs usefulness and latency vs richness that need balanced attention to avoid drift.",
   "dimensions": [
     {
       "id": "hardware_stack",
       "label": "Hardware Stack",
       "status": "on_track",
       "goal": "Keep V1 lightweight, discreet, socially acceptable, and dependent on minimal on-glasses compute.",
-      "limitation_pressure": "battery and thermal pressure, social acceptability",
-      "progress_summary": "The project is maintaining the focus on keeping the glasses lightweight and socially acceptable. The recent build of `TranscriptLab` indicates that real-time subtitle clarity is feasible with current hardware.",
-      "next_focus": "Continuing to refine subtitle placement rules and optimize visual hierarchy to ensure clear, non-distracting subtitles.",
+      "limitation_pressure": "battery and social acceptability",
+      "progress_summary": "The glasses remain simple and focused, with no hardware assumptions beyond basic display capabilities. The interaction remains frame-touch only, adhering to the constraint pressure.",
+      "next_focus": "Define a fixed subtitle position rule for V1: keep subtitles at the bottom center of the display to ensure readability without distraction.",
       "confidence": 0.9
     },
     {
@@ -72,6 +72,6 @@
       "confidence": 0.25
     }
   ],
-  "generated_at": "2026-04-07T21:50:57",
+  "generated_at": "2026-04-07T22:05:51",
   "project_name": "smart_glasses"
 }

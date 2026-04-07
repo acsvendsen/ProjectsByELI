@@ -1,71 +1,45 @@
 # Sleep cycle
 
 ## Inputs Used This Cycle
-- core/field_v2/attractors.json
-- core/field_v2/modes.json
-# Recent Signals Consolidation
+- No changed files detected in the latest scan.
+## Consolidation of Key Signals for SmartGlasses Project
 
-## Strengthening Signals
-1. **Subtitle Clarity (Subtitle Clarity Attractor)**
-   - The importance of clear, fast, and stable subtitles is becoming more true.
-2. **Memory Trust (Memory Trust Attractor)**
-   - The necessity for memory support that does not create false certainty or corrupted recall remains strong.
+### Strengthening Signals
+1. **Subtitle Clarity**: Continue improving subtitle quality to ensure they remain clear, stable, and trustworthy during live conversations (High strength).
+2. **Memory Support Trustworthiness**: Enhance the reliability of name and context recall without compromising privacy or creating inaccurate memories (Score: 0.78; High strength).
+3. **Low-Friction Assistance**: Ensure one-line prompts are effective yet unobtrusive, supporting wearers without introducing complex interactions (Score: 0.68; Medium strength).
 
-## Weakening Signals
-1. **Low-Friction Assistance (Low-Friction Assistance Attractor)**
-   - The emphasis on low-friction assistance is becoming less true as the project progresses towards more focused core improvements.
+### Weakening Signals
+1. **Privacy vs Usefulness Balance**: Reduce the risk of invasive data capture while maintaining helpful assistive behavior.
+2. **Latency vs Richness Tradeoff**: Prioritize timely responses over richer but slower processing to avoid breaking trust.
 
-## Contradictions That Must Stay Alive
-1. **Privacy vs Usefulness (Tension)**
-   - The trade-off between privacy and usefulness remains a critical balance.
-2. **Latency vs Richness (Tension)**
-   - The tension between providing timely help versus richer, but slower processing needs to be managed.
+### Contradictions That Must Stay Alive
+1. **Frame-Touch-Only V1 Interaction**: Persist the constraint that early interactions should be frame-based, not voice commands.
+2. **Phone-First Processing**: Ensure heavy processing remains on the phone initially, with cloud support used sparingly where justified by clear value and acceptable latency.
 
-## Dormant Ideas Worth Reactivating
-1. **Subtitle Placement & Visual Hierarchy (Open Questions in Current Unknowns)**
-   - The need for optimized subtitle placement and visual hierarchy remains relevant.
-2. **Confidence Display Formats (Open Questions in Current Unknowns)**
-   - Determining the best confidence display format to build trust is still important.
+### Dormant Ideas Worth Reactivating
+1. **Subtitle Placement and Visual Hierarchy**: Revisit and refine subtitle placement to ensure readability in motion while minimizing distraction.
+2. **Confidence Display Format**: Evaluate different confidence display methods (label only, label + short reason, score + label) for their effectiveness in building trust.
 
-## Concrete Tensions Around Core Areas
-1. **Subtitle Quality & Memory Trust (Core Deepening Mode)**
-   - Improving subtitle quality and memory trust should be prioritized over broad feature expansion.
-2. **Discreet UX vs Visual Clarity (Current Constraints)**
-   - The balance between a discreet user experience and ensuring visual clarity needs careful management.
+### Concrete Tensions Around Core Mission
+1. **Privacy vs Usefulness**:
+    - Maintain a balance where assistive behavior does not inadvertently infringe on user privacy.
+2. **Latency vs Richness**:
+    - Optimize for timely responses over richer but slower processing to maintain real-time effectiveness.
+3. **Discreet UX vs Visual Clarity**:
+    - Ensure the display remains socially acceptable while providing clear and readable subtitles.
 
-## Recent Project Inputs
-1. **Subtitle Placement & Visual Hierarchy**
-   - No operator choice selected; focus on best effort within `subtitle placement` and `visual hierarchy`.
-2. **Confidence Display Format**
-   - No operator choice selected; consider the best format for confidence display.
-3. **Memory/Cache Policy**
-   - No operator choice selected; work towards efficient memory caching strategies.
+### Open Questions Requiring Attention
+1. **Subtitle Placement**: Determine the most usable subtitle placement without becoming distracting.
+2. **Confidence Display Format**: Decide on a confidence format that builds trust best.
+3. **Face/Name Memory Cache Policy**: Define how much face/name memory should be cached locally for fast lookup.
 
-## Recent Build Summary
-- The `TranscriptLab` Xcode build was successful, indicating stability in real-time transcript behavior and confidence displays.
+### No Fluff and Concrete Decisions
+1. **Subtitle Clarity**: Focus on real-time clarity, ensuring subtitles remain readable and stable in live conversation.
+2. **Memory Support Trustworthiness**: Ensure names and context are remembered accurately without creating false certainty or privacy risks.
+3. **Low-Friction Assistance**: Design one-line prompts that are helpful yet unobtrusive.
 
-## Recent Core Field V2 Signals
-1. **Subtitle Clarity (High Strength)**
-   - Focus on clarity to ensure trust in live conversations.
-2. **Memory Trust (Moderate Strength)**
-   - Ensure memory support is reliable without overconfidence.
-3. **Low-Friction Assistance (Medium Strength)**
-   - Shift focus towards core improvements rather than broad feature expansion.
-
-## Core Tensions and Constraints
-1. **Privacy vs Usefulness**
-   - Continue to manage the balance between providing helpful assistance and respecting user privacy.
-2. **Latency vs Richness**
-   - Prioritize timely responses while considering the limitations of richer processing capabilities.
-3. **Discreet UX vs Visual Clarity**
-   - Balance the need for a discreet experience with clear visibility in noisy environments.
-
-## Open Questions
-1. **Subtitle Placement & Visual Hierarchy**
-   - Determine the most effective subtitle placement and visual hierarchy without becoming distracting.
-2. **Confidence Display Formats**
-   - Decide on the best confidence display format to enhance trust while maintaining usability.
-
-## Recent Architectural Direction
-- Glasses should remain lightweight, with early versions relying heavily on phone processing for heavy computation.
-- The `TranscriptLab` app remains a critical test bed for validating real-time transcript behavior.
+### Next Steps
+- Refine subtitle placement to ensure clarity and readability.
+- Evaluate different confidence display formats for their impact on trust.
+- Define local memory cache policies for optimal performance while respecting user privacy.

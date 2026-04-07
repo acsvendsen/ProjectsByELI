@@ -1,370 +1,6 @@
 {
   "entries": [
     {
-      "timestamp": "2026-04-07T05:06:53",
-      "cycle": "reflect",
-      "field": "attractors",
-      "target_id": "subtitle_clarity",
-      "target_label": "Real-time subtitle clarity",
-      "previous_value": 0.0,
-      "requested_delta": -0.02,
-      "applied_delta": -0.0143,
-      "new_value": 0.0,
-      "reason": "Cooling the attractor to avoid overemphasis and ensure balanced focus.",
-      "confidence": 0.7,
-      "linked_source_reports": [
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_050510_sleep.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_050555_dream.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_050616_reality.md"
-      ],
-      "support_count": 9,
-      "evidence_weight": 1.24,
-      "evidence_sources": [
-        "eli_docs",
-        "reports",
-        "runtime_truth"
-      ],
-      "weighted_evidence_score": 7.0,
-      "resonance_kind": "cross_source_resonance",
-      "diversity_multiplier": 1.0,
-      "diversity_notes": [],
-      "saturation_multiplier": 1.0,
-      "saturation_notes": [],
-      "change_type": "score_update",
-      "counterweight_tensions": [
-        "latency_vs_richness",
-        "discreet_ux_vs_visual_clarity"
-      ],
-      "counterweight_reason": "Strengthening Real-time subtitle clarity also keeps pressure on Latency vs richness, Discreet UX vs visual clarity."
-    },
-    {
-      "timestamp": "2026-04-07T05:09:05",
-      "cycle": "reflect",
-      "field": "attractors",
-      "target_id": "subtitle_clarity",
-      "target_label": "Real-time subtitle clarity",
-      "previous_value": 0.0,
-      "requested_delta": -0.02,
-      "applied_delta": -0.0143,
-      "new_value": 0.0,
-      "reason": "Cooling the attractor to avoid overemphasis and ensure balanced focus.",
-      "confidence": 0.7,
-      "linked_source_reports": [
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_050725_sleep.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_050815_dream.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_050830_reality.md"
-      ],
-      "support_count": 10,
-      "evidence_weight": 1.24,
-      "evidence_sources": [
-        "eli_docs",
-        "reports",
-        "runtime_truth"
-      ],
-      "weighted_evidence_score": 7.0,
-      "resonance_kind": "cross_source_resonance",
-      "diversity_multiplier": 1.0,
-      "diversity_notes": [],
-      "saturation_multiplier": 1.0,
-      "saturation_notes": [],
-      "change_type": "score_update",
-      "counterweight_tensions": [
-        "latency_vs_richness",
-        "discreet_ux_vs_visual_clarity"
-      ],
-      "counterweight_reason": "Strengthening Real-time subtitle clarity also keeps pressure on Latency vs richness, Discreet UX vs visual clarity."
-    },
-    {
-      "timestamp": "2026-04-07T05:11:12",
-      "cycle": "reflect",
-      "field": "attractors",
-      "target_id": "subtitle_clarity",
-      "target_label": "Real-time subtitle clarity",
-      "previous_value": 0.0,
-      "requested_delta": -0.02,
-      "applied_delta": -0.0143,
-      "new_value": 0.0,
-      "reason": "Cooling the attractor to avoid overemphasis and ensure balanced focus.",
-      "confidence": 0.7,
-      "linked_source_reports": [
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_050934_sleep.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051021_dream.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051040_reality.md"
-      ],
-      "support_count": 10,
-      "evidence_weight": 1.24,
-      "evidence_sources": [
-        "eli_docs",
-        "reports",
-        "runtime_truth"
-      ],
-      "weighted_evidence_score": 7.0,
-      "resonance_kind": "cross_source_resonance",
-      "diversity_multiplier": 1.0,
-      "diversity_notes": [],
-      "saturation_multiplier": 1.0,
-      "saturation_notes": [],
-      "change_type": "score_update",
-      "counterweight_tensions": [
-        "latency_vs_richness",
-        "discreet_ux_vs_visual_clarity"
-      ],
-      "counterweight_reason": "Strengthening Real-time subtitle clarity also keeps pressure on Latency vs richness, Discreet UX vs visual clarity."
-    },
-    {
-      "timestamp": "2026-04-07T05:13:27",
-      "cycle": "reflect",
-      "field": "attractors",
-      "target_id": "subtitle_clarity",
-      "target_label": "Real-time subtitle clarity",
-      "previous_value": 0.0,
-      "requested_delta": -0.02,
-      "applied_delta": -0.0143,
-      "new_value": 0.0,
-      "reason": "Cooling the attractor to avoid overemphasis and ensure balanced focus.",
-      "confidence": 0.7,
-      "linked_source_reports": [
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051145_sleep.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051235_dream.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051251_reality.md"
-      ],
-      "support_count": 11,
-      "evidence_weight": 1.24,
-      "evidence_sources": [
-        "eli_docs",
-        "reports",
-        "runtime_truth"
-      ],
-      "weighted_evidence_score": 7.0,
-      "resonance_kind": "cross_source_resonance",
-      "diversity_multiplier": 1.0,
-      "diversity_notes": [],
-      "saturation_multiplier": 1.0,
-      "saturation_notes": [],
-      "change_type": "score_update",
-      "counterweight_tensions": [
-        "latency_vs_richness",
-        "discreet_ux_vs_visual_clarity"
-      ],
-      "counterweight_reason": "Strengthening Real-time subtitle clarity also keeps pressure on Latency vs richness, Discreet UX vs visual clarity."
-    },
-    {
-      "timestamp": "2026-04-07T05:13:27",
-      "cycle": "reflect",
-      "field": "modes",
-      "target_id": "core_deepening",
-      "target_label": "Core Deepening",
-      "previous_value": 1.0,
-      "requested_delta": 0.04,
-      "applied_delta": 0.0108,
-      "new_value": 1.0,
-      "reason": "Continuing to focus on core improvements like subtitle quality, memory trust, and low-friction assistance will ensure the project stays aligned with its mission.",
-      "confidence": 0.7,
-      "linked_source_reports": [
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051145_sleep.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051235_dream.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051251_reality.md"
-      ],
-      "support_count": 5,
-      "evidence_weight": 1.0,
-      "evidence_sources": [
-        "eli_docs",
-        "reports"
-      ],
-      "weighted_evidence_score": 3.0,
-      "resonance_kind": "cross_source_resonance",
-      "diversity_multiplier": 0.471,
-      "diversity_notes": [
-        "repeated same-pattern reinforcement (5 recent hits)",
-        "semantic variation is still low",
-        "time separation is short (15.6 min)"
-      ],
-      "saturation_multiplier": 1.0,
-      "saturation_notes": [],
-      "change_type": "score_update"
-    },
-    {
-      "timestamp": "2026-04-07T05:15:39",
-      "cycle": "reflect",
-      "field": "attractors",
-      "target_id": "subtitle_clarity",
-      "target_label": "Real-time subtitle clarity",
-      "previous_value": 0.0,
-      "requested_delta": -0.02,
-      "applied_delta": -0.0143,
-      "new_value": 0.0,
-      "reason": "Cooling the attractor to avoid overemphasis and ensure balanced focus.",
-      "confidence": 0.7,
-      "linked_source_reports": [
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051358_sleep.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051449_dream.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051503_reality.md"
-      ],
-      "support_count": 11,
-      "evidence_weight": 1.24,
-      "evidence_sources": [
-        "eli_docs",
-        "reports",
-        "runtime_truth"
-      ],
-      "weighted_evidence_score": 7.0,
-      "resonance_kind": "cross_source_resonance",
-      "diversity_multiplier": 1.0,
-      "diversity_notes": [],
-      "saturation_multiplier": 1.0,
-      "saturation_notes": [],
-      "change_type": "score_update",
-      "counterweight_tensions": [
-        "latency_vs_richness",
-        "discreet_ux_vs_visual_clarity"
-      ],
-      "counterweight_reason": "Strengthening Real-time subtitle clarity also keeps pressure on Latency vs richness, Discreet UX vs visual clarity."
-    },
-    {
-      "timestamp": "2026-04-07T05:15:39",
-      "cycle": "reflect",
-      "field": "modes",
-      "target_id": "core_deepening",
-      "target_label": "Core Deepening",
-      "previous_value": 1.0,
-      "requested_delta": 0.04,
-      "applied_delta": 0.0108,
-      "new_value": 1.0,
-      "reason": "Continuing to focus on core improvements like subtitle quality, memory trust, and low-friction assistance will ensure the project stays aligned with its mission.",
-      "confidence": 0.7,
-      "linked_source_reports": [
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051358_sleep.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051449_dream.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051503_reality.md"
-      ],
-      "support_count": 5,
-      "evidence_weight": 1.0,
-      "evidence_sources": [
-        "eli_docs",
-        "reports"
-      ],
-      "weighted_evidence_score": 3.0,
-      "resonance_kind": "cross_source_resonance",
-      "diversity_multiplier": 0.471,
-      "diversity_notes": [
-        "repeated same-pattern reinforcement (5 recent hits)",
-        "semantic variation is still low",
-        "time separation is short (2.2 min)"
-      ],
-      "saturation_multiplier": 1.0,
-      "saturation_notes": [],
-      "change_type": "score_update"
-    },
-    {
-      "timestamp": "2026-04-07T05:18:01",
-      "cycle": "reflect",
-      "field": "attractors",
-      "target_id": "subtitle_clarity",
-      "target_label": "Real-time subtitle clarity",
-      "previous_value": 0.0,
-      "requested_delta": -0.02,
-      "applied_delta": -0.0143,
-      "new_value": 0.0,
-      "reason": "Cooling the attractor to avoid overemphasis and ensure balanced focus.",
-      "confidence": 0.7,
-      "linked_source_reports": [
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051610_sleep.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051707_dream.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051724_reality.md"
-      ],
-      "support_count": 11,
-      "evidence_weight": 1.24,
-      "evidence_sources": [
-        "eli_docs",
-        "reports",
-        "runtime_truth"
-      ],
-      "weighted_evidence_score": 7.0,
-      "resonance_kind": "cross_source_resonance",
-      "diversity_multiplier": 1.0,
-      "diversity_notes": [],
-      "saturation_multiplier": 1.0,
-      "saturation_notes": [],
-      "change_type": "score_update",
-      "counterweight_tensions": [
-        "latency_vs_richness",
-        "discreet_ux_vs_visual_clarity"
-      ],
-      "counterweight_reason": "Strengthening Real-time subtitle clarity also keeps pressure on Latency vs richness, Discreet UX vs visual clarity."
-    },
-    {
-      "timestamp": "2026-04-07T05:18:01",
-      "cycle": "reflect",
-      "field": "modes",
-      "target_id": "core_deepening",
-      "target_label": "Core Deepening",
-      "previous_value": 1.0,
-      "requested_delta": 0.04,
-      "applied_delta": 0.0108,
-      "new_value": 1.0,
-      "reason": "Continuing to focus on core improvements like subtitle quality, memory trust, and low-friction assistance will ensure the project stays aligned with its mission.",
-      "confidence": 0.7,
-      "linked_source_reports": [
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051610_sleep.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051707_dream.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051724_reality.md"
-      ],
-      "support_count": 5,
-      "evidence_weight": 1.0,
-      "evidence_sources": [
-        "eli_docs",
-        "reports"
-      ],
-      "weighted_evidence_score": 3.0,
-      "resonance_kind": "cross_source_resonance",
-      "diversity_multiplier": 0.471,
-      "diversity_notes": [
-        "repeated same-pattern reinforcement (5 recent hits)",
-        "semantic variation is still low",
-        "time separation is short (2.4 min)"
-      ],
-      "saturation_multiplier": 1.0,
-      "saturation_notes": [],
-      "change_type": "score_update"
-    },
-    {
-      "timestamp": "2026-04-07T05:20:18",
-      "cycle": "reflect",
-      "field": "attractors",
-      "target_id": "subtitle_clarity",
-      "target_label": "Real-time subtitle clarity",
-      "previous_value": 0.0,
-      "requested_delta": -0.02,
-      "applied_delta": -0.0143,
-      "new_value": 0.0,
-      "reason": "Cooling the attractor to avoid overemphasis and ensure balanced focus.",
-      "confidence": 0.7,
-      "linked_source_reports": [
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051835_sleep.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051927_dream.md",
-        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_051943_reality.md"
-      ],
-      "support_count": 11,
-      "evidence_weight": 1.24,
-      "evidence_sources": [
-        "eli_docs",
-        "reports",
-        "runtime_truth"
-      ],
-      "weighted_evidence_score": 7.0,
-      "resonance_kind": "cross_source_resonance",
-      "diversity_multiplier": 1.0,
-      "diversity_notes": [],
-      "saturation_multiplier": 1.0,
-      "saturation_notes": [],
-      "change_type": "score_update",
-      "counterweight_tensions": [
-        "latency_vs_richness",
-        "discreet_ux_vs_visual_clarity"
-      ],
-      "counterweight_reason": "Strengthening Real-time subtitle clarity also keeps pressure on Latency vs richness, Discreet UX vs visual clarity."
-    },
-    {
       "timestamp": "2026-04-07T05:20:18",
       "cycle": "reflect",
       "field": "modes",
@@ -14445,7 +14081,367 @@
       "saturation_multiplier": 1.0,
       "saturation_notes": [],
       "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-07T21:53:19",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.0,
+      "requested_delta": -0.03,
+      "applied_delta": -0.0213,
+      "new_value": 0.0,
+      "reason": "Cooling the attractor to avoid overemphasis and ensure balanced focus.",
+      "confidence": 0.7,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215115_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215211_dream.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215230_reality.md"
+      ],
+      "support_count": 8,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 7.0,
+      "resonance_kind": "cross_source_resonance",
+      "diversity_multiplier": 1.0,
+      "diversity_notes": [],
+      "saturation_multiplier": 1.0,
+      "saturation_notes": [],
+      "change_type": "score_update",
+      "counterweight_tensions": [
+        "latency_vs_richness",
+        "discreet_ux_vs_visual_clarity"
+      ],
+      "counterweight_reason": "Strengthening Real-time subtitle clarity also keeps pressure on Latency vs richness, Discreet UX vs visual clarity."
+    },
+    {
+      "timestamp": "2026-04-07T21:53:19",
+      "cycle": "reflect",
+      "field": "modes",
+      "target_id": "core_deepening",
+      "target_label": "Core Deepening",
+      "previous_value": 1.0,
+      "requested_delta": 0.04,
+      "applied_delta": 0.0108,
+      "new_value": 1.0,
+      "reason": "Continuing to focus on core improvements like subtitle quality, memory trust, and low-friction assistance will ensure the project stays aligned with its mission.",
+      "confidence": 0.7,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215115_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215211_dream.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215230_reality.md"
+      ],
+      "support_count": 8,
+      "evidence_weight": 1.0,
+      "evidence_sources": [
+        "eli_docs",
+        "reports"
+      ],
+      "weighted_evidence_score": 3.0,
+      "resonance_kind": "cross_source_resonance",
+      "diversity_multiplier": 0.471,
+      "diversity_notes": [
+        "repeated same-pattern reinforcement (8 recent hits)",
+        "semantic variation is still low",
+        "time separation is short (2.6 min)"
+      ],
+      "saturation_multiplier": 1.0,
+      "saturation_notes": [],
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-07T21:55:45",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.0,
+      "requested_delta": -0.03,
+      "applied_delta": -0.0213,
+      "new_value": 0.0,
+      "reason": "Cooling the attractor to avoid overemphasis and ensure balanced focus.",
+      "confidence": 0.7,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215353_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215442_dream.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215457_reality.md"
+      ],
+      "support_count": 8,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 7.0,
+      "resonance_kind": "cross_source_resonance",
+      "diversity_multiplier": 1.0,
+      "diversity_notes": [],
+      "saturation_multiplier": 1.0,
+      "saturation_notes": [],
+      "change_type": "score_update",
+      "counterweight_tensions": [
+        "latency_vs_richness",
+        "discreet_ux_vs_visual_clarity"
+      ],
+      "counterweight_reason": "Strengthening Real-time subtitle clarity also keeps pressure on Latency vs richness, Discreet UX vs visual clarity."
+    },
+    {
+      "timestamp": "2026-04-07T21:55:45",
+      "cycle": "reflect",
+      "field": "modes",
+      "target_id": "core_deepening",
+      "target_label": "Core Deepening",
+      "previous_value": 1.0,
+      "requested_delta": 0.04,
+      "applied_delta": 0.0108,
+      "new_value": 1.0,
+      "reason": "Continuing to focus on core improvements like subtitle quality, memory trust, and low-friction assistance will ensure the project stays aligned with its mission.",
+      "confidence": 0.7,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215353_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215442_dream.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215457_reality.md"
+      ],
+      "support_count": 8,
+      "evidence_weight": 1.0,
+      "evidence_sources": [
+        "eli_docs",
+        "reports"
+      ],
+      "weighted_evidence_score": 3.0,
+      "resonance_kind": "cross_source_resonance",
+      "diversity_multiplier": 0.471,
+      "diversity_notes": [
+        "repeated same-pattern reinforcement (8 recent hits)",
+        "semantic variation is still low",
+        "time separation is short (2.4 min)"
+      ],
+      "saturation_multiplier": 1.0,
+      "saturation_notes": [],
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-07T21:58:09",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.0,
+      "requested_delta": -0.03,
+      "applied_delta": -0.0213,
+      "new_value": 0.0,
+      "reason": "Cooling the attractor to avoid overemphasis and ensure balanced focus.",
+      "confidence": 0.7,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215616_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215705_dream.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215722_reality.md"
+      ],
+      "support_count": 8,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 7.0,
+      "resonance_kind": "cross_source_resonance",
+      "diversity_multiplier": 1.0,
+      "diversity_notes": [],
+      "saturation_multiplier": 1.0,
+      "saturation_notes": [],
+      "change_type": "score_update",
+      "counterweight_tensions": [
+        "latency_vs_richness",
+        "discreet_ux_vs_visual_clarity"
+      ],
+      "counterweight_reason": "Strengthening Real-time subtitle clarity also keeps pressure on Latency vs richness, Discreet UX vs visual clarity."
+    },
+    {
+      "timestamp": "2026-04-07T21:58:09",
+      "cycle": "reflect",
+      "field": "modes",
+      "target_id": "core_deepening",
+      "target_label": "Core Deepening",
+      "previous_value": 1.0,
+      "requested_delta": 0.04,
+      "applied_delta": 0.0108,
+      "new_value": 1.0,
+      "reason": "Continuing to focus on core improvements like subtitle quality, memory trust, and low-friction assistance will ensure the project stays aligned with its mission.",
+      "confidence": 0.7,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215616_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215705_dream.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215722_reality.md"
+      ],
+      "support_count": 8,
+      "evidence_weight": 1.0,
+      "evidence_sources": [
+        "eli_docs",
+        "reports"
+      ],
+      "weighted_evidence_score": 3.0,
+      "resonance_kind": "cross_source_resonance",
+      "diversity_multiplier": 0.471,
+      "diversity_notes": [
+        "repeated same-pattern reinforcement (8 recent hits)",
+        "semantic variation is still low",
+        "time separation is short (2.4 min)"
+      ],
+      "saturation_multiplier": 1.0,
+      "saturation_notes": [],
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-07T22:00:36",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.0,
+      "requested_delta": -0.03,
+      "applied_delta": -0.0213,
+      "new_value": 0.0,
+      "reason": "Cooling the attractor to avoid overemphasis and ensure balanced focus.",
+      "confidence": 0.7,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215841_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215934_dream.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215949_reality.md"
+      ],
+      "support_count": 8,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 7.0,
+      "resonance_kind": "cross_source_resonance",
+      "diversity_multiplier": 1.0,
+      "diversity_notes": [],
+      "saturation_multiplier": 1.0,
+      "saturation_notes": [],
+      "change_type": "score_update",
+      "counterweight_tensions": [
+        "latency_vs_richness",
+        "discreet_ux_vs_visual_clarity"
+      ],
+      "counterweight_reason": "Strengthening Real-time subtitle clarity also keeps pressure on Latency vs richness, Discreet UX vs visual clarity."
+    },
+    {
+      "timestamp": "2026-04-07T22:00:36",
+      "cycle": "reflect",
+      "field": "modes",
+      "target_id": "core_deepening",
+      "target_label": "Core Deepening",
+      "previous_value": 1.0,
+      "requested_delta": 0.04,
+      "applied_delta": 0.0108,
+      "new_value": 1.0,
+      "reason": "Continuing to focus on core improvements like subtitle quality, memory trust, and low-friction assistance will ensure the project stays aligned with its mission.",
+      "confidence": 0.7,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215841_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215934_dream.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_215949_reality.md"
+      ],
+      "support_count": 8,
+      "evidence_weight": 1.0,
+      "evidence_sources": [
+        "eli_docs",
+        "reports"
+      ],
+      "weighted_evidence_score": 3.0,
+      "resonance_kind": "cross_source_resonance",
+      "diversity_multiplier": 0.471,
+      "diversity_notes": [
+        "repeated same-pattern reinforcement (8 recent hits)",
+        "semantic variation is still low",
+        "time separation is short (2.5 min)"
+      ],
+      "saturation_multiplier": 1.0,
+      "saturation_notes": [],
+      "change_type": "score_update"
+    },
+    {
+      "timestamp": "2026-04-07T22:03:11",
+      "cycle": "reflect",
+      "field": "attractors",
+      "target_id": "subtitle_clarity",
+      "target_label": "Real-time subtitle clarity",
+      "previous_value": 0.0,
+      "requested_delta": -0.03,
+      "applied_delta": -0.0213,
+      "new_value": 0.0,
+      "reason": "Cooling the attractor to avoid overemphasis and ensure balanced focus.",
+      "confidence": 0.7,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_220109_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_220203_dream.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_220222_reality.md"
+      ],
+      "support_count": 8,
+      "evidence_weight": 1.24,
+      "evidence_sources": [
+        "eli_docs",
+        "reports",
+        "runtime_truth"
+      ],
+      "weighted_evidence_score": 7.0,
+      "resonance_kind": "cross_source_resonance",
+      "diversity_multiplier": 1.0,
+      "diversity_notes": [],
+      "saturation_multiplier": 1.0,
+      "saturation_notes": [],
+      "change_type": "score_update",
+      "counterweight_tensions": [
+        "latency_vs_richness",
+        "discreet_ux_vs_visual_clarity"
+      ],
+      "counterweight_reason": "Strengthening Real-time subtitle clarity also keeps pressure on Latency vs richness, Discreet UX vs visual clarity."
+    },
+    {
+      "timestamp": "2026-04-07T22:03:11",
+      "cycle": "reflect",
+      "field": "modes",
+      "target_id": "core_deepening",
+      "target_label": "Core Deepening",
+      "previous_value": 1.0,
+      "requested_delta": 0.04,
+      "applied_delta": 0.0108,
+      "new_value": 1.0,
+      "reason": "Continuing to focus on core improvements like subtitle quality, memory trust, and low-friction assistance will ensure the project stays aligned with its mission.",
+      "confidence": 0.7,
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_220109_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_220203_dream.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260407_220222_reality.md"
+      ],
+      "support_count": 8,
+      "evidence_weight": 1.0,
+      "evidence_sources": [
+        "eli_docs",
+        "reports"
+      ],
+      "weighted_evidence_score": 3.0,
+      "resonance_kind": "cross_source_resonance",
+      "diversity_multiplier": 0.471,
+      "diversity_notes": [
+        "repeated same-pattern reinforcement (8 recent hits)",
+        "semantic variation is still low",
+        "time separation is short (2.6 min)"
+      ],
+      "saturation_multiplier": 1.0,
+      "saturation_notes": [],
+      "change_type": "score_update"
     }
   ],
-  "updated_at": "2026-04-07T21:50:43"
+  "updated_at": "2026-04-07T22:05:38"
 }

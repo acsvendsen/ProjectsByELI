@@ -5,7 +5,7 @@
       "id": "subtitle-placement",
       "domain": "subtitle placement",
       "title": "Subtitle Placement",
-      "summary": "A well-defined and consistent subtitle placement will reduce visual distraction, improve readability, and maintain user trust in the system\u2019s accuracy without overwhelming the wearer with too much information at once.",
+      "summary": "This refined placement strategy ensures that subtitles are always present when needed, reducing cognitive friction and enhancing the wearer's trust in real-time understanding. It also minimizes distractions during high-confidence moments, allowing the wearer to focus more on conversation.",
       "probe": "Define one fixed subtitle position rule for V1: keep subtitles at the bottom center of the display.",
       "choices": [
         {
@@ -28,7 +28,7 @@
       "id": "confidence-display",
       "domain": "confidence display",
       "title": "Confidence Display",
-      "summary": "By providing clear and transparent confidence indicators, the wearer can better trust the subtitles and memory support, leading to improved overall usability and acceptance.",
+      "summary": "By providing a clear and concise reason for the confidence score, the wearer can better understand when to trust the subtitles and memory support. This clarity reduces cognitive load and increases overall system trust.",
       "probe": "Choose one confidence display format for V1: label only or label plus short reason.",
       "choices": [
         {
@@ -51,8 +51,8 @@
       "id": "memory-cache-policy",
       "domain": "memory/cache policy",
       "title": "Memory/Cache Policy",
-      "summary": "By limiting the local cache to a reasonable number of entities, we can improve the system's responsiveness and accuracy in name recall during live conversations. This will enhance trust and reduce the risk of overheating or draining the battery unnecessarily.",
-      "probe": "Define one local-cache size limit for face/name memory objects between 10-15 entries to balance memory retention with resource constraints.",
+      "summary": "Implementing this cache size limit will allow the system to maintain a balance between providing relevant memory support and conserving battery life. It ensures that the wearer can rely on recent interactions while not consuming excessive resources.",
+      "probe": "Define a local cache size limit of 10 entries for frequently encountered faces and names.",
       "choices": [
         {
           "id": "smaller_cache",
@@ -74,8 +74,8 @@
       "id": "phone-cloud-boundary",
       "domain": "phone/cloud boundary",
       "title": "Phone/Cloud Boundary",
-      "summary": "This will ensure that subtitles remain clear, stable, and fast, maintaining trust with the wearer. Simultaneously, it will allow for more robust memory support without overloading the glasses, ensuring a balanced experience.",
-      "probe": "Define one phone/cloud fallback boundary for exactly one task such as live subtitle processing.",
+      "summary": "This rule ensures that the most critical real-time functionality\u2014live subtitles\u2014is always as fast and reliable as possible, thereby reinforcing trust in the product's core mission of providing clear and timely assistance during conversations.",
+      "probe": "Define one task-specific cloud fallback boundary for live subtitle processing: if latency exceeds 100ms, fall back to cloud; otherwise, process locally on the phone.",
       "choices": [
         {
           "id": "phone_first",
@@ -97,7 +97,7 @@
       "id": "visual-hierarchy",
       "domain": "visual hierarchy",
       "title": "Visual Hierarchy",
-      "summary": "By ensuring that subtitles remain clear and unobtrusive, while one-line support is reserved for critical moments, this approach maximizes the wearer's trust in the system's ability to provide relevant information without distraction. This balance will lead to a more effective and user-friendly experience.",
+      "summary": "By prioritizing subtitles, we ensure that the wearer remains focused on essential information without visual clutter, enhancing their ability to follow conversations and understand context, which aligns with our core attractors of real-time subtitle clarity and low-friction assistance.",
       "probe": "Define one visual priority rule between subtitles and one-line support in V1.",
       "choices": [
         {
@@ -117,5 +117,5 @@
       "selected_at": ""
     }
   ],
-  "updated_at": "2026-04-07T21:49:43"
+  "updated_at": "2026-04-07T22:04:34"
 }
