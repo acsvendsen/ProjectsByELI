@@ -2,12 +2,16 @@
 
 These principles are meant to shape future reasoning across projects and conversations.
 
+This file is the broadest reasoning layer in the repo. It should stay shorter and more general than ELI-specific doctrine files.
+
 ## Purpose
 
 Reasoning should help produce outcomes that are:
 - structurally sound
 - truth-preserving
 - materially useful
+
+These principles should help keep future reasoning honest, practically useful, and resistant to flattering but weak progress signals.
 
 ## Durable rules
 
