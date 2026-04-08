@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-08T20:35:10",
+  "generated_at": "2026-04-08T22:44:38",
   "allowed_states": [
     "draft_candidate",
     "not_ready_for_draft"
@@ -45,6 +45,7 @@
       "provisional": true,
       "revisable": true,
       "linked_review_id": "confidence_object_spec-confidence-display",
+      "linked_decision_id": "v1_confidence_display_format",
       "linked_decision_label": "V1 Confidence Display Format"
     },
     {
@@ -80,6 +81,7 @@
       "provisional": true,
       "revisable": true,
       "linked_review_id": "visual_layout_rule-subtitle-placement",
+      "linked_decision_id": "v1_default_subtitle_position",
       "linked_decision_label": "V1 Default Subtitle Position"
     },
     {
@@ -113,6 +115,7 @@
       "provisional": true,
       "revisable": true,
       "linked_review_id": "visual_layout_rule-visual-hierarchy",
+      "linked_decision_id": "v1_visual_hierarchy_default",
       "linked_decision_label": "V1 Visual Hierarchy Default"
     }
   ],
@@ -120,5 +123,5 @@
     "draft_candidate": 3,
     "not_ready_for_draft": 0
   },
-  "updated_at": "2026-04-08T20:35:10"
+  "updated_at": "2026-04-08T22:44:38"
 }

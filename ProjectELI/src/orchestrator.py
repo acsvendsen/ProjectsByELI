@@ -4840,14 +4840,13 @@ def enrich_action_inbox_with_reflection(analysis):
         current_items=updated_items,
         schema=analysis.get('schema', {}),
     )
-    save_v1_decision_review_state(
-        build_v1_decision_review_state(
-            v1_decision_candidates,
-            current_items=updated_items,
-            implementation_artifact_candidates=implementation_artifact_candidates,
-            schema=analysis.get('schema', {}),
-        )
+    v1_review_state = build_v1_decision_review_state(
+        v1_decision_candidates,
+        current_items=updated_items,
+        implementation_artifact_candidates=implementation_artifact_candidates,
+        schema=analysis.get('schema', {}),
     )
+    save_v1_decision_review_state(v1_review_state)
     save_implementation_artifact_review_state(artifact_review_state)
     save_option_readiness_review_state(option_readiness_state)
     artifact_emission_state = build_artifact_emission_readiness_state(
@@ -4860,6 +4859,7 @@ def enrich_action_inbox_with_reflection(analysis):
         build_draft_artifact_review_state(
             artifact_emission_state,
             artifact_review_state,
+            v1_review_state=v1_review_state,
             schema=analysis.get('schema', {}),
         )
     )
@@ -6241,6 +6241,7 @@ def build_artifact_emission_readiness_state(artifact_review_state, option_readin
             'provisional': True,
             'revisable': bool(artifact.get('revisable', True)),
             'linked_review_id': artifact.get('artifact_id', ''),
+            'linked_decision_id': artifact.get('linked_decision_id', ''),
             'linked_decision_label': artifact.get('linked_decision_label', ''),
         })
 
@@ -6290,6 +6291,7 @@ def default_draft_artifact_review_state():
         'allowed_forms': ['structured_design_brief'],
         'scope_note': 'This surface only emits provisional structured design brief drafts. It does not emit technical engineering drafts or final design commitments.',
         'emitted_drafts': [],
+        'pending_v1_decision_alignment': [],
         'counts': {'structured_design_brief': 0},
     }
 
@@ -6300,6 +6302,8 @@ def load_draft_artifact_review_state():
         data = default_draft_artifact_review_state()
     if not isinstance(data.get('emitted_drafts'), list):
         data['emitted_drafts'] = []
+    if not isinstance(data.get('pending_v1_decision_alignment'), list):
+        data['pending_v1_decision_alignment'] = []
     if not isinstance(data.get('counts'), dict):
         data['counts'] = default_draft_artifact_review_state().get('counts', {})
     if not isinstance(data.get('allowed_forms'), list):
@@ -6328,6 +6332,20 @@ def build_structured_design_brief_summary(emission_row, artifact_row):
         parts.append(f"Keep active constraints explicit: {', '.join(artifact_row.get('open_constraints', [])[:3])}.")
     parts.append('This draft remains review-oriented and revisable, not a final implementation commitment.')
     return ' '.join(parts)
+
+
+def pending_v1_decision_emission_key(row):
+    if not isinstance(row, dict):
+        return ''
+    for value in (
+        row.get('decision_id', ''),
+        row.get('linked_decision_id', ''),
+        normalize_signal_key(row.get('label', '')),
+        normalize_signal_key(row.get('linked_decision_label', '')),
+    ):
+        if value:
+            return str(value)
+    return ''
 
 
 def normalized_brief_prompt(text, limit=120):
@@ -6433,7 +6451,105 @@ def build_structured_design_review_question(artifact_row, leading_direction):
     )
 
 
-def build_draft_artifact_review_state(artifact_emission_state, artifact_review_state, schema=None):
+def build_pending_v1_decision_emission_alignment(v1_review_state, artifact_emission_state, emitted_rows):
+    pending_rows = v1_review_state.get('pending_v1_decisions', []) if isinstance(v1_review_state, dict) else []
+    emission_rows = artifact_emission_state.get('artifact_emission_readiness', []) if isinstance(artifact_emission_state, dict) else []
+    emitted_rows = emitted_rows if isinstance(emitted_rows, list) else []
+    emission_by_key = {}
+    for row in emission_rows:
+        key = pending_v1_decision_emission_key(row)
+        if key:
+            emission_by_key[key] = row
+    emitted_by_key = {}
+    for row in emitted_rows:
+        key = pending_v1_decision_emission_key(row)
+        if key:
+            emitted_by_key[key] = row
+
+    alignment_rows = []
+    for pending in pending_rows:
+        if not isinstance(pending, dict):
+            continue
+        key = pending_v1_decision_emission_key(pending)
+        emission = emission_by_key.get(key, {})
+        emitted = emitted_by_key.get(key, {})
+        status = 'not_emitted'
+        not_emitted_reason = ''
+        if emitted:
+            status = 'emitted_as_structured_design_brief'
+        elif emission:
+            if emission.get('draft_readiness_state') == 'draft_candidate' and emission.get('suggested_draft_form') == 'structured_design_brief':
+                status = 'eligible_but_withheld'
+                not_emitted_reason = (
+                    'This decision is currently draft-eligible in artifact emission readiness, but it is not present in the emitted draft brief surface.'
+                )
+            else:
+                not_emitted_reason = emission.get('draft_readiness_reason', '') or 'Current artifact-emission readiness does not support structured design brief emission.'
+        else:
+            not_emitted_reason = 'No linked artifact-emission readiness row currently supports structured design brief emission for this pending V1 decision.'
+        alignment_rows.append({
+            'decision_id': pending.get('decision_id', ''),
+            'label': pending.get('label', ''),
+            'candidate_status': pending.get('candidate_status', ''),
+            'emission_alignment_status': status,
+            'linked_pending_decision': pending.get('label', ''),
+            'linked_artifact_id': emission.get('artifact_id', emitted.get('artifact_id', '')),
+            'linked_emitted_draft_title': emitted.get('title', ''),
+            'linked_emitted_draft_form': emitted.get('emitted_draft_form', ''),
+            'linked_readiness_state': emission.get('draft_readiness_state', ''),
+            'linked_suggested_draft_form': emission.get('suggested_draft_form', ''),
+            'not_emitted_reason': not_emitted_reason,
+        })
+    return alignment_rows
+
+
+def build_emitted_draft_v1_alignment(emitted_row, pending_rows_by_key, recent_rows_by_key):
+    emitted_row = emitted_row if isinstance(emitted_row, dict) else {}
+    key = pending_v1_decision_emission_key(emitted_row)
+    pending = pending_rows_by_key.get(key, {})
+    recent = recent_rows_by_key.get(key, {})
+    if pending:
+        return {
+            'pending_v1_decision_alignment_status': 'linked_to_current_pending_decision',
+            'linked_pending_decision': pending.get('label', ''),
+            'linked_pending_decision_status': pending.get('candidate_status', ''),
+            'pending_v1_decision_currently_pending': True,
+            'pending_v1_decision_alignment_reason': '',
+        }
+    if recent:
+        return {
+            'pending_v1_decision_alignment_status': 'linked_to_recently_changed_decision',
+            'linked_pending_decision': recent.get('label', emitted_row.get('linked_decision_label', '')),
+            'linked_pending_decision_status': recent.get('current_candidate_status', ''),
+            'pending_v1_decision_currently_pending': False,
+            'pending_v1_decision_alignment_reason': compact_text_excerpt(
+                recent.get('transition_summary', '')
+                or recent.get('transition_reason', '')
+                or 'The linked V1 decision is no longer currently pending, but it remains part of recent review continuity.',
+                320,
+            ),
+        }
+    if emitted_row.get('linked_decision_id') or emitted_row.get('linked_decision_label'):
+        return {
+            'pending_v1_decision_alignment_status': 'emitted_without_current_pending_decision',
+            'linked_pending_decision': emitted_row.get('linked_decision_label', ''),
+            'linked_pending_decision_status': '',
+            'pending_v1_decision_currently_pending': False,
+            'pending_v1_decision_alignment_reason': (
+                'This draft brief remains emitted, but there is no current pending V1 decision row for the linked decision. '
+                'Treat it as provisional review context rather than an actively pending bounded decision.'
+            ),
+        }
+    return {
+        'pending_v1_decision_alignment_status': 'no_linked_pending_decision',
+        'linked_pending_decision': '',
+        'linked_pending_decision_status': '',
+        'pending_v1_decision_currently_pending': False,
+        'pending_v1_decision_alignment_reason': 'This emitted draft is not currently linked to a pending V1 decision row.',
+    }
+
+
+def build_draft_artifact_review_state(artifact_emission_state, artifact_review_state, v1_review_state=None, schema=None):
     schema = schema or load_cognition_schema()
     cfg = draft_artifact_emission_config(schema)
     if not cfg.get('enabled', True):
@@ -6444,6 +6560,19 @@ def build_draft_artifact_review_state(artifact_emission_state, artifact_review_s
         row.get('artifact_id', ''): row
         for row in artifact_rows
         if isinstance(row, dict) and row.get('artifact_id')
+    }
+    v1_review_state = v1_review_state if isinstance(v1_review_state, dict) else load_v1_decision_review_state()
+    pending_rows = v1_review_state.get('pending_v1_decisions', [])
+    recent_rows = v1_review_state.get('recently_changed_v1_decisions', [])
+    pending_rows_by_key = {
+        pending_v1_decision_emission_key(row): row
+        for row in pending_rows
+        if isinstance(row, dict) and pending_v1_decision_emission_key(row)
+    }
+    recent_rows_by_key = {
+        pending_v1_decision_emission_key(row): row
+        for row in recent_rows
+        if isinstance(row, dict) and pending_v1_decision_emission_key(row)
     }
     action_items = load_action_inbox().get('items', [])
     action_by_id = {
@@ -6465,6 +6594,7 @@ def build_draft_artifact_review_state(artifact_emission_state, artifact_review_s
         what_would_change = row.get('evidence_to_progress', [])[:4]
         emitted.append({
             'artifact_id': row.get('artifact_id', ''),
+            'linked_decision_id': row.get('linked_decision_id', ''),
             'source_artifact_type': row.get('artifact_type', artifact.get('artifact_type', '')),
             'source_artifact_type_label': artifact.get('artifact_type_label', row.get('artifact_type', '').replace('_', ' ')),
             'emitted_draft_form': row.get('suggested_draft_form', ''),
@@ -6489,13 +6619,21 @@ def build_draft_artifact_review_state(artifact_emission_state, artifact_review_s
             'linked_review_id': row.get('linked_review_id', ''),
             'linked_decision_label': row.get('linked_decision_label', ''),
         })
+        emitted[-1].update(build_emitted_draft_v1_alignment(emitted[-1], pending_rows_by_key, recent_rows_by_key))
     emitted = emitted[:cfg.get('max_visible', 4)]
+    alignment_rows = build_pending_v1_decision_emission_alignment(v1_review_state, artifact_emission_state, emitted)
     return {
         'generated_at': now_iso(),
         'allowed_forms': cfg.get('allowed_forms', ['structured_design_brief']),
         'scope_note': 'This surface only emits provisional structured design brief drafts. It does not emit technical engineering drafts or final design commitments.',
         'emitted_drafts': emitted,
-        'counts': {'structured_design_brief': len(emitted)},
+        'pending_v1_decision_alignment': alignment_rows,
+        'counts': {
+            'structured_design_brief': len(emitted),
+            'emitted_without_current_pending_decision': sum(
+                1 for row in emitted if row.get('pending_v1_decision_alignment_status') == 'emitted_without_current_pending_decision'
+            ),
+        },
     }
 
 
