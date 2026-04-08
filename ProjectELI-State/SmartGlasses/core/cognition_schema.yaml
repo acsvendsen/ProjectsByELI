@@ -78,6 +78,8 @@ control:
   runtime_aliases:
     scorecard:
       preserve_stronger_grounding: true
+    reflect:
+      preserve_stronger_reflect: true
     daily_snapshot:
       embed_latest_scorecard_excerpt: true
       embed_latest_reflect_excerpt: true

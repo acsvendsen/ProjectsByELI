@@ -630,6 +630,9 @@ DEFAULT_COGNITION_SCHEMA = {
             'scorecard': {
                 'preserve_stronger_grounding': True,
             },
+            'reflect': {
+                'preserve_stronger_reflect': True,
+            },
             'daily_snapshot': {
                 'embed_latest_scorecard_excerpt': True,
                 'embed_latest_reflect_excerpt': True,
@@ -798,6 +801,8 @@ control:
   runtime_aliases:
     scorecard:
       preserve_stronger_grounding: true
+    reflect:
+      preserve_stronger_reflect: true
     daily_snapshot:
       embed_latest_scorecard_excerpt: true
       embed_latest_reflect_excerpt: true
@@ -4642,11 +4647,15 @@ def runtime_alias_config(schema=None):
     control = schema.get('control', {}) if isinstance(schema, dict) else {}
     aliases = control.get('runtime_aliases', {}) if isinstance(control.get('runtime_aliases', {}), dict) else {}
     scorecard = aliases.get('scorecard', {}) if isinstance(aliases.get('scorecard', {}), dict) else {}
+    reflect = aliases.get('reflect', {}) if isinstance(aliases.get('reflect', {}), dict) else {}
     daily_snapshot = aliases.get('daily_snapshot', {}) if isinstance(aliases.get('daily_snapshot', {}), dict) else {}
     audit = aliases.get('audit', {}) if isinstance(aliases.get('audit', {}), dict) else {}
     return {
         'scorecard': {
             'preserve_stronger_grounding': bool(scorecard.get('preserve_stronger_grounding', True)),
+        },
+        'reflect': {
+            'preserve_stronger_reflect': bool(reflect.get('preserve_stronger_reflect', True)),
         },
         'daily_snapshot': {
             'embed_latest_scorecard_excerpt': bool(daily_snapshot.get('embed_latest_scorecard_excerpt', True)),
@@ -4743,6 +4752,43 @@ def reflect_report_diagnostic_status(content):
     return 'valid'
 
 
+def reflect_report_quality(content):
+    text = content or ''
+    diagnostic_status = reflect_report_diagnostic_status(text)
+    diagnostic_rank = {
+        'valid': 3,
+        'repaired': 2,
+        'fallback': 1,
+        'error': 0,
+        'unknown': 0,
+    }.get(diagnostic_status, 0)
+    core_sections = [
+        '## Reflection Summary',
+        '## Resonance Signals',
+        '## Action Direction Judgments',
+        '## Proposed Field Deltas',
+        '## Applied Conservative Field Updates',
+    ]
+    operational_sections = [
+        '## Pending V1 Decisions',
+        '## Held Pending New Grounding',
+        '## Active Action Priorities',
+        '## Recurring Probes Not Yet Elevated',
+    ]
+    core_section_count = sum(1 for heading in core_sections if heading in text)
+    operational_section_count = sum(1 for heading in operational_sections if heading in text)
+    diagnostics_visible = int('## Reflect Diagnostics' in text)
+    quality_score = (diagnostic_rank * 15) + (core_section_count * 2) + operational_section_count + diagnostics_visible
+    return {
+        'quality_score': quality_score,
+        'diagnostic_status': diagnostic_status,
+        'diagnostic_rank': diagnostic_rank,
+        'core_section_count': core_section_count,
+        'operational_section_count': operational_section_count,
+        'diagnostics_visible': diagnostics_visible,
+    }
+
+
 def build_alias_candidate_meta(report_name, path, content):
     meta = {
         'source_path': str(path),
@@ -4755,6 +4801,7 @@ def build_alias_candidate_meta(report_name, path, content):
         meta['scorecard_quality'] = scorecard_report_quality(content)
     if report_name == 'reflect':
         meta['reflect_diagnostic_status'] = reflect_report_diagnostic_status(content)
+        meta['reflect_quality'] = reflect_report_quality(content)
     return meta
 
 
@@ -4774,6 +4821,17 @@ def should_update_latest_alias(report_name, candidate_meta, current_meta, curren
         if candidate_stamp and current_stamp and candidate_stamp < current_stamp:
             return False, 'older_equal_quality'
         return True, 'newer_equal_grounding'
+
+    if report_name == 'reflect' and runtime_alias_config(schema).get('reflect', {}).get('preserve_stronger_reflect', True):
+        current_quality = (current_meta.get('reflect_quality') or {}).get('quality_score', reflect_report_quality(current_content).get('quality_score', 0))
+        candidate_quality = (candidate_meta.get('reflect_quality') or {}).get('quality_score', 0)
+        if candidate_quality > current_quality:
+            return True, 'stronger_reflect'
+        if candidate_quality < current_quality:
+            return False, 'preserved_stronger_reflect'
+        if candidate_stamp and current_stamp and candidate_stamp < current_stamp:
+            return False, 'older_equal_quality'
+        return True, 'newer_equal_reflect'
 
     if candidate_stamp and current_stamp and candidate_stamp < current_stamp:
         return False, 'older_report'
