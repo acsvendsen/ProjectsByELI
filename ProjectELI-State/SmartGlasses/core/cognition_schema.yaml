@@ -75,6 +75,15 @@ control:
       specialist_consultation_history_limit: 600
     audit:
       entry_limit: 120
+  runtime_aliases:
+    scorecard:
+      preserve_stronger_grounding: true
+    daily_snapshot:
+      embed_latest_scorecard_excerpt: true
+      embed_latest_reflect_excerpt: true
+      excerpt_chars: 1800
+    audit:
+      decision_limit: 120
 
 specialist_consultation:
   enabled: true

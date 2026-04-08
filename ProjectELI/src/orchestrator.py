@@ -454,6 +454,7 @@ BUILD_CAPTURE_SCRIPT_PATH = cfg_path_value('build_capture_script', 'scripts/capt
 SPECIALIST_TRUST_MEMORY_PATH = PROJECT_STATE_DIR / "specialist_trust_memory.json"
 SPECIALIST_CONSULTATION_HISTORY_PATH = PROJECT_STATE_DIR / "specialist_consultation_history.json"
 RETENTION_AUDIT_PATH = PROJECT_STATE_DIR / "retention_audit.json"
+LATEST_ALIAS_STATE_PATH = PROJECT_STATE_DIR / "latest_alias_state.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -625,6 +626,19 @@ DEFAULT_COGNITION_SCHEMA = {
                 'entry_limit': 120,
             },
         },
+        'runtime_aliases': {
+            'scorecard': {
+                'preserve_stronger_grounding': True,
+            },
+            'daily_snapshot': {
+                'embed_latest_scorecard_excerpt': True,
+                'embed_latest_reflect_excerpt': True,
+                'excerpt_chars': 1800,
+            },
+            'audit': {
+                'decision_limit': 120,
+            },
+        },
         'phase7_repo_alignment': {
             'enabled': True,
             'diff_alignment': {
@@ -781,6 +795,15 @@ control:
       specialist_consultation_history_limit: 600
     audit:
       entry_limit: 120
+  runtime_aliases:
+    scorecard:
+      preserve_stronger_grounding: true
+    daily_snapshot:
+      embed_latest_scorecard_excerpt: true
+      embed_latest_reflect_excerpt: true
+      excerpt_chars: 1800
+    audit:
+      decision_limit: 120
   phase7_repo_alignment:
     enabled: true
     diff_alignment:
@@ -4614,6 +4637,227 @@ def apply_runtime_retention(protected_report_paths=None, schema=None):
     }
 
 
+def runtime_alias_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    aliases = control.get('runtime_aliases', {}) if isinstance(control.get('runtime_aliases', {}), dict) else {}
+    scorecard = aliases.get('scorecard', {}) if isinstance(aliases.get('scorecard', {}), dict) else {}
+    daily_snapshot = aliases.get('daily_snapshot', {}) if isinstance(aliases.get('daily_snapshot', {}), dict) else {}
+    audit = aliases.get('audit', {}) if isinstance(aliases.get('audit', {}), dict) else {}
+    return {
+        'scorecard': {
+            'preserve_stronger_grounding': bool(scorecard.get('preserve_stronger_grounding', True)),
+        },
+        'daily_snapshot': {
+            'embed_latest_scorecard_excerpt': bool(daily_snapshot.get('embed_latest_scorecard_excerpt', True)),
+            'embed_latest_reflect_excerpt': bool(daily_snapshot.get('embed_latest_reflect_excerpt', True)),
+            'excerpt_chars': max(400, safe_int(daily_snapshot.get('excerpt_chars', 1800), 1800)),
+        },
+        'audit': {
+            'decision_limit': max(10, safe_int(audit.get('decision_limit', 120), 120)),
+        },
+    }
+
+
+def load_latest_alias_state():
+    data = load_json_file(LATEST_ALIAS_STATE_PATH, {'aliases': {}, 'entries': []})
+    if not isinstance(data, dict):
+        data = {'aliases': {}, 'entries': []}
+    if not isinstance(data.get('aliases'), dict):
+        data['aliases'] = {}
+    if not isinstance(data.get('entries'), list):
+        data['entries'] = []
+    return data
+
+
+def save_latest_alias_state(data, schema=None):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    cfg = runtime_alias_config(schema)
+    data['updated_at'] = now_iso()
+    data['entries'] = data.get('entries', [])[-cfg.get('audit', {}).get('decision_limit', 120):]
+    LATEST_ALIAS_STATE_PATH.write_text(json.dumps(data, indent=2) + "\n", encoding='utf-8')
+
+
+def append_latest_alias_entry(report_name, action, reason, candidate_meta, current_meta=None, schema=None):
+    data = load_latest_alias_state()
+    aliases = data.setdefault('aliases', {})
+    if action == 'updated':
+        aliases[report_name] = candidate_meta
+    data.setdefault('entries', []).append({
+        'timestamp': now_iso(),
+        'report_name': report_name,
+        'action': action,
+        'reason': reason,
+        'candidate': candidate_meta,
+        'current': current_meta or {},
+    })
+    save_latest_alias_state(data, schema=schema)
+
+
+def write_text_atomic(path, content):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.tmp.{os.getpid()}.{int(time.time() * 1000)}")
+    try:
+        tmp.write_text(content, encoding='utf-8')
+        os.replace(tmp, path)
+    finally:
+        if tmp.exists():
+            try:
+                tmp.unlink()
+            except Exception:
+                pass
+
+
+def report_stamp_from_path(path):
+    try:
+        match = re.match(r'^(?P<stamp>\d{8}_\d{6})_', pathlib.Path(path).name)
+        if not match:
+            return ''
+        return match.group('stamp')
+    except Exception:
+        return ''
+
+
+def scorecard_report_quality(content):
+    text = content or ''
+    known_status_count = (
+        len(re.findall(r'(?m)^- status: on_track\s*$', text))
+        + len(re.findall(r'(?m)^- status: needs_attention\s*$', text))
+        + len(re.findall(r'(?m)^- status: blocked\s*$', text))
+    )
+    unknown_status_count = len(re.findall(r'(?m)^- status: unknown\s*$', text))
+    ungrounded_count = text.count('No grounded assessment generated in this run.')
+    quality_score = (known_status_count * 3) - (unknown_status_count * 2) - (ungrounded_count * 2)
+    return {
+        'quality_score': quality_score,
+        'known_status_count': known_status_count,
+        'unknown_status_count': unknown_status_count,
+        'ungrounded_count': ungrounded_count,
+    }
+
+
+def reflect_report_diagnostic_status(content):
+    match = re.search(r'(?m)^- status:\s*([a-z_]+)\s*\|', content or '')
+    if match:
+        return normalize_signal_key(match.group(1))
+    return 'valid'
+
+
+def build_alias_candidate_meta(report_name, path, content):
+    meta = {
+        'source_path': str(path),
+        'source_name': pathlib.Path(path).name,
+        'stamp': report_stamp_from_path(path),
+        'written_at': now_iso(),
+        'report_name': report_name,
+    }
+    if report_name == 'scorecard':
+        meta['scorecard_quality'] = scorecard_report_quality(content)
+    if report_name == 'reflect':
+        meta['reflect_diagnostic_status'] = reflect_report_diagnostic_status(content)
+    return meta
+
+
+def should_update_latest_alias(report_name, candidate_meta, current_meta, current_content, candidate_content, schema=None):
+    if not current_meta:
+        return True, 'initialize_latest_alias'
+
+    candidate_stamp = candidate_meta.get('stamp', '')
+    current_stamp = current_meta.get('stamp', '')
+    if report_name == 'scorecard' and runtime_alias_config(schema).get('scorecard', {}).get('preserve_stronger_grounding', True):
+        current_quality = (current_meta.get('scorecard_quality') or {}).get('quality_score', scorecard_report_quality(current_content).get('quality_score', 0))
+        candidate_quality = (candidate_meta.get('scorecard_quality') or {}).get('quality_score', 0)
+        if candidate_quality > current_quality:
+            return True, 'stronger_grounding'
+        if candidate_quality < current_quality:
+            return False, 'preserved_stronger_grounding'
+        if candidate_stamp and current_stamp and candidate_stamp < current_stamp:
+            return False, 'older_equal_quality'
+        return True, 'newer_equal_grounding'
+
+    if candidate_stamp and current_stamp and candidate_stamp < current_stamp:
+        return False, 'older_report'
+    return True, 'newer_report'
+
+
+def update_latest_alias(report_name, report_path, content, schema=None):
+    schema = schema or load_cognition_schema()
+    latest = REPORTS_DIR / f'latest_{report_name}.md'
+    lock_path = PROJECT_STATE_DIR / f'.latest_{report_name}.lock'
+    fd = None
+    deadline = time.time() + 5.0
+    while fd is None and time.time() < deadline:
+        try:
+            fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            try:
+                if (time.time() - lock_path.stat().st_mtime) > 10:
+                    lock_path.unlink()
+                    continue
+            except FileNotFoundError:
+                continue
+            time.sleep(0.05)
+    try:
+        state = load_latest_alias_state()
+        current_meta = state.get('aliases', {}).get(report_name, {})
+        current_content = ''
+        if latest.exists():
+            try:
+                current_content = latest.read_text(encoding='utf-8', errors='ignore')
+            except Exception:
+                current_content = ''
+        candidate_meta = build_alias_candidate_meta(report_name, report_path, content)
+        should_update, reason = should_update_latest_alias(
+            report_name,
+            candidate_meta,
+            current_meta,
+            current_content,
+            content,
+            schema=schema,
+        )
+        if should_update:
+            write_text_atomic(latest, content)
+            state.setdefault('aliases', {})[report_name] = candidate_meta
+        state.setdefault('entries', []).append({
+            'timestamp': now_iso(),
+            'report_name': report_name,
+            'action': 'updated' if should_update else 'kept_existing',
+            'reason': reason,
+            'candidate': candidate_meta,
+            'current': current_meta or {},
+        })
+        save_latest_alias_state(state, schema=schema)
+        return should_update, reason
+    finally:
+        if fd is not None:
+            try:
+                os.close(fd)
+            except Exception:
+                pass
+        try:
+            if lock_path.exists():
+                lock_path.unlink()
+        except Exception:
+            pass
+
+
+def latest_report_excerpt(name, headings=None, limit=1800):
+    path = latest_report_path(name)
+    if not path:
+        return ''
+    text = read_file_excerpt(path)
+    if not text:
+        return ''
+    start = 0
+    for heading in headings or []:
+        index = text.find(heading)
+        if index >= 0:
+            start = index
+            break
+    excerpt = text[start:]
+    return compact_text_excerpt(excerpt, limit)
+
+
 def project_scorecard_config():
     data = load_json_file(SCORECARD_CONFIG_PATH, {"dimensions": []})
     if not isinstance(data, dict):
@@ -7340,9 +7584,9 @@ def write_report(name, content):
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     stamp = dt.datetime.now().strftime('%Y%m%d_%H%M%S')
     path = REPORTS_DIR / f'{stamp}_{name}.md'
-    path.write_text(content, encoding='utf-8')
+    write_text_atomic(path, content)
+    update_latest_alias(name, path, content)
     latest = REPORTS_DIR / f'latest_{name}.md'
-    latest.write_text(content, encoding='utf-8')
     apply_runtime_retention(protected_report_paths=[path, latest])
     return path
 
@@ -7398,6 +7642,16 @@ def daily_snapshot():
             evidence.get('v1_decision_candidates', []),
         )
     append_operational_visibility_sections(body, operational_visibility)
+    alias_cfg = runtime_alias_config()
+    excerpt_limit = alias_cfg.get('daily_snapshot', {}).get('excerpt_chars', 1800)
+    if alias_cfg.get('daily_snapshot', {}).get('embed_latest_scorecard_excerpt', True):
+        scorecard_excerpt = latest_report_excerpt('scorecard', headings=['## Project Summary'], limit=excerpt_limit)
+        if scorecard_excerpt:
+            body.extend(['## Latest Canonical Scorecard', scorecard_excerpt, ''])
+    if alias_cfg.get('daily_snapshot', {}).get('embed_latest_reflect_excerpt', True):
+        reflect_excerpt = latest_report_excerpt('reflect', headings=['## Reflect Diagnostics', '## Reflection Summary'], limit=excerpt_limit)
+        if reflect_excerpt:
+            body.extend(['## Latest Canonical Reflect', reflect_excerpt, ''])
     for cycle, title, text, prio, conf, created in rows:
         body.append(f'## {title}')
         body.append(f'- cycle: {cycle}')

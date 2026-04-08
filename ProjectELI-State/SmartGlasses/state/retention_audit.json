@@ -39,7 +39,50 @@
         ],
         "protected_paths": []
       }
+    },
+    {
+      "timestamp": "2026-04-08T12:22:03",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 121,
+        "groups": [
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 21,
+            "kept_count": 72
+          },
+          {
+            "report_name": "reality",
+            "removed_count": 20,
+            "kept_count": 72
+          },
+          {
+            "report_name": "sleep",
+            "removed_count": 20,
+            "kept_count": 72
+          },
+          {
+            "report_name": "reflect",
+            "removed_count": 20,
+            "kept_count": 72
+          },
+          {
+            "report_name": "scorecard",
+            "removed_count": 20,
+            "kept_count": 72
+          },
+          {
+            "report_name": "dream",
+            "removed_count": 20,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_daily_snapshot.md",
+          "20260408_122203_daily_snapshot.md"
+        ]
+      }
     }
   ],
-  "updated_at": "2026-04-08T11:32:04"
+  "updated_at": "2026-04-08T12:22:03"
 }
