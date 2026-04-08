@@ -1,78 +1,75 @@
 {
-  "generated_at": "2026-04-08T11:27:24",
+  "generated_at": "2026-04-08T11:51:30",
   "project_name": "smart_glasses",
   "reflect": {
     "reflection_summary": "The project maintains strong resonance on key attractors and tensions but risks over-dominant core deepening mode and unresolved contradictions between privacy vs usefulness and latency vs richness. Balanced progress is needed to prevent drift while maintaining constraint pressure.",
     "resonance_signals": [
       {
-        "field": "attractors | tensions",
+        "field": "attractors | tensions | modes",
         "target_id": "",
-        "label": "Subtitle Clarity, Memory Trust, Low-Friction Assistance: cross-source resonance",
+        "label": "Core Deepening Resonance",
         "repetition_kind": "cross_source_resonance",
-        "reason": "Recurs in Eli docs, reports, and runtime truth.",
-        "confidence": 0.72
-      },
-      {
-        "field": "tensions",
-        "target_id": "",
-        "label": "Privacy vs Usefulness, Latency vs Richness: persistent unresolved contradiction",
-        "repetition_kind": "cross_source_resonance",
-        "reason": "Score stable but unresolved contradiction; recurs across Eli docs, reports.",
-        "confidence": 0.72
-      },
-      {
-        "field": "tensions",
-        "target_id": "",
-        "label": "Discreet UX vs Visual Clarity: under-attended and recurring tension",
-        "repetition_kind": "cross_source_resonance",
-        "reason": "Under-attended despite recurring evidence; needs more balanced attention.",
+        "reason": "Recurs across Eli docs, reports, and runtime truth with weighted evidence.",
         "confidence": 0.72
       }
     ],
     "strengthening_attractors": [
       {
-        "target_id": "",
-        "label": "Real-time subtitle clarity: critical for trust in noisy environments",
-        "reason": "Ongoing focus needed to ensure high quality.",
+        "target_id": "subtitle_clarity",
+        "label": "Real-time subtitle clarity",
+        "reason": "Critical for trust in noisy environments and ongoing focus needed to ensure high quality.",
         "confidence": 0.8
       }
     ],
     "intensifying_tensions": [
       {
-        "target_id": "",
-        "label": "Privacy vs Usefulness, Latency vs Richness: persistent unresolved contradiction",
-        "reason": "Score stable but unresolved contradiction; recurs across Eli docs, reports.",
+        "target_id": "privacy_vs_usefulness",
+        "label": "Privacy vs usefulness",
+        "reason": "Persistent unresolved contradictions; recurs across Eli docs, reports.",
+        "confidence": 0.72
+      },
+      {
+        "target_id": "latency_vs_richness",
+        "label": "Latency vs richness",
+        "reason": "Persistent unresolved contradictions; recurs across Eli docs, reports.",
         "confidence": 0.72
       }
     ],
     "under_attended_tensions": [
       {
         "target_id": "",
-        "label": "Discreet UX vs Visual Clarity: under-attended and recurring tension",
-        "reason": "Under-attended despite recurring evidence; needs more balanced attention.",
+        "label": "Discreet UX vs visual clarity",
+        "reason": "Under-attended and recurring tension with evidence but only one recent field update; recurs across Eli docs, reports.",
         "confidence": 0.72
       }
     ],
     "possible_drift": [
       {
-        "label": "Core Deepening Mode Drift: risk of imbalance",
+        "label": "Core Deepening Mode Drift",
         "reason": "Risk of drift if not addressed with balanced progress across critical areas.",
         "confidence": 0.7
       }
     ],
     "dormant_ideas_worth_reactivation": [
       {
-        "label": "Subtitle Placement Optimization: revisiting for V1",
-        "reason": "Previously considered but now might be a good time to revisit due to new context.",
+        "label": "Subtitle Placement Strategy",
+        "reason": "Reassess subtitle placement strategies, considering more prominent display options to improve usability without becoming distracting.",
         "type": "premature_but_promising",
-        "confidence": 0.72
+        "confidence": 0.58
       }
     ],
     "contradiction_persistence": [
       {
         "target_id": "",
-        "label": "Privacy vs Usefulness, Latency vs Richness: persistent unresolved contradiction",
-        "reason": "Score stable but unresolved contradiction; recurs across Eli docs, reports.",
+        "label": "Privacy vs usefulness",
+        "reason": "Score stable but unresolved in meaning; recurs across Eli docs, reports.",
+        "persistence_level": "high",
+        "confidence": 0.72
+      },
+      {
+        "target_id": "",
+        "label": "Latency vs richness",
+        "reason": "Score stable but unresolved in meaning; recurs across Eli docs, reports.",
         "persistence_level": "high",
         "confidence": 0.72
       }
@@ -80,7 +77,7 @@
     "over_dominant_attractors": [
       {
         "target_id": "",
-        "label": "Core Deepening Mode Drift: risk of drift if not balanced",
+        "label": "Core Deepening Mode Drift",
         "reason": "Risk of drift if not addressed with balanced progress across critical areas.",
         "confidence": 0.7
       }
@@ -89,8 +86,8 @@
     "under_attended_recurring_tensions": [
       {
         "target_id": "",
-        "label": "Discreet UX vs Visual Clarity: under-attended and recurring tension",
-        "reason": "Under-attended despite recurring evidence; needs more balanced attention.",
+        "label": "Discreet UX vs visual clarity",
+        "reason": "Under-attended and recurring tension with evidence but only one recent field update; recurs across Eli docs, reports.",
         "confidence": 0.72
       }
     ],
@@ -121,16 +118,16 @@
       {
         "field": "attractors",
         "target_id": "",
-        "label": "Subtitle Clarity Reinforcement Loop: persistent evidence across Eli docs, reports",
-        "reason": "Recurrent evidence across Eli docs, reports with weighted evidence 7.0.",
+        "label": "Subtitle Clarity Reinforcement Loop",
+        "reason": "Persistent evidence across Eli docs, reports with weighted evidence.",
         "confidence": 0.8
       }
     ],
     "counterweight_awareness": [
       {
-        "target_id": "",
-        "label": "Subtitle Clarity: counterweights recognized but need balanced attention",
-        "reason": "Counterweights are recognized but need balanced attention.",
+        "target_id": "subtitle_clarity",
+        "label": "Subtitle Clarity Counterweights",
+        "reason": "Strengthening Real-time subtitle clarity also keeps pressure on Latency vs richness, Discreet UX vs visual clarity.",
         "counterweight_tensions": [
           "latency_vs_richness",
           "discreet_ux_vs_visual_clarity"
@@ -151,7 +148,7 @@
         "consultation_mode": "advisory",
         "decision": "recommend_consultation",
         "reason": "Code Architecture Specialist can advise on persistent uncertainty without overriding ELI judgment.",
-        "confidence": 0.733
+        "confidence": 0.728
       },
       {
         "action_domain": "phone/cloud boundary",
@@ -170,9 +167,9 @@
         "id": "memory-cache-policy",
         "title": "Memory/Cache Policy",
         "domain": "memory/cache policy",
-        "alignment_score": 0.805,
+        "alignment_score": 0.813,
         "resistance_score": 1.0,
-        "architectural_pull_score": 0.457,
+        "architectural_pull_score": 0.503,
         "direction_judgment": "pause",
         "repo_grounding_score": 0.0,
         "repo_alignment_classification": "",
@@ -182,15 +179,15 @@
         "specialist_consultation_mode": "advisory",
         "specialist_evaluation": "",
         "specialist_signal_score": 0.0,
-        "reason": "aligns with Trustworthy memory support; also addresses under-attended pressure in Privacy vs usefulness, Latency vs richness; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs usefulness, Latency vs richness; Code Architecture Specialist can advise on persistent uncertainty without overriding ELI judgment.; Repeated pause without new evidence is softly damped.; Resurfacing repeats despite resistance without enough new field evidence.",
-        "influence_state": "damped",
-        "influence_reason": "Repeated pause without new evidence is softly damped.",
-        "resurfacing_classification": "noisy_repetition",
-        "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
+        "reason": "aligns with Trustworthy memory support; also addresses under-attended pressure in Privacy vs usefulness, Latency vs richness; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs usefulness, Latency vs richness; Code Architecture Specialist can advise on persistent uncertainty without overriding ELI judgment.; Earlier pause is kept visible because field evidence improved.; Resurfacing follows a meaningful increase in field evidence or pull.",
+        "influence_state": "visible",
+        "influence_reason": "Earlier pause is kept visible because field evidence improved.",
+        "resurfacing_classification": "genuine_reemergence",
+        "resurfacing_reason": "Resurfacing follows a meaningful increase in field evidence or pull.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 315,
+        "appearance_count": 324,
         "rank": 1,
-        "confidence": 0.743
+        "confidence": 0.754
       },
       {
         "id": "phone-cloud-boundary",
@@ -198,7 +195,7 @@
         "domain": "phone/cloud boundary",
         "alignment_score": 0.627,
         "resistance_score": 1.0,
-        "architectural_pull_score": 0.277,
+        "architectural_pull_score": 0.317,
         "direction_judgment": "pause",
         "repo_grounding_score": 0.0,
         "repo_alignment_classification": "",
@@ -208,23 +205,23 @@
         "specialist_consultation_mode": "advisory",
         "specialist_evaluation": "",
         "specialist_signal_score": 0.0,
-        "reason": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Latency vs richness, Privacy vs usefulness; meets resistance from Latency vs richness, Privacy vs usefulness; needs counterweight discipline on Latency vs richness, Privacy vs usefulness; Code Architecture Specialist can advise on design tradeoffs without overriding ELI judgment.; Repeated pause without new evidence is softly damped.; Resurfacing repeats despite resistance without enough new field evidence.",
-        "influence_state": "damped",
-        "influence_reason": "Repeated pause without new evidence is softly damped.",
-        "resurfacing_classification": "noisy_repetition",
-        "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
+        "reason": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Latency vs richness, Privacy vs usefulness; meets resistance from Latency vs richness, Privacy vs usefulness; needs counterweight discipline on Latency vs richness, Privacy vs usefulness; Code Architecture Specialist can advise on design tradeoffs without overriding ELI judgment.; Earlier kill is not enforced because new field evidence supports re-emergence.; Resurfacing follows a meaningful increase in field evidence or pull.",
+        "influence_state": "visible",
+        "influence_reason": "Earlier kill is not enforced because new field evidence supports re-emergence.",
+        "resurfacing_classification": "genuine_reemergence",
+        "resurfacing_reason": "Resurfacing follows a meaningful increase in field evidence or pull.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 315,
+        "appearance_count": 324,
         "rank": 2,
-        "confidence": 0.662
+        "confidence": 0.67
       },
       {
         "id": "confidence-display",
         "title": "Confidence Display",
         "domain": "confidence display",
-        "alignment_score": 0.616,
+        "alignment_score": 0.624,
         "resistance_score": 1.0,
-        "architectural_pull_score": 0.266,
+        "architectural_pull_score": 0.274,
         "direction_judgment": "pause",
         "repo_grounding_score": 0.0,
         "repo_alignment_classification": "",
@@ -240,17 +237,17 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 315,
+        "appearance_count": 324,
         "rank": 3,
-        "confidence": 0.657
+        "confidence": 0.661
       },
       {
         "id": "visual-hierarchy",
         "title": "Visual Hierarchy",
         "domain": "visual hierarchy",
-        "alignment_score": 0.576,
-        "resistance_score": 0.941,
-        "architectural_pull_score": 0.131,
+        "alignment_score": 0.593,
+        "resistance_score": 0.944,
+        "architectural_pull_score": 0.147,
         "direction_judgment": "kill",
         "repo_grounding_score": 0.0,
         "repo_alignment_classification": "",
@@ -266,17 +263,17 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 315,
+        "appearance_count": 324,
         "rank": 4,
-        "confidence": 0.62
+        "confidence": 0.628
       },
       {
         "id": "subtitle-placement",
         "title": "Subtitle Placement",
         "domain": "subtitle placement",
-        "alignment_score": 0.415,
+        "alignment_score": 0.423,
         "resistance_score": 1.0,
-        "architectural_pull_score": 0.045,
+        "architectural_pull_score": 0.051,
         "direction_judgment": "kill",
         "repo_grounding_score": 0.0,
         "repo_alignment_classification": "",
@@ -292,14 +289,14 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 315,
+        "appearance_count": 324,
         "rank": 5,
-        "confidence": 0.563
+        "confidence": 0.566
       }
     ],
     "dormant_idea_returns": [
       {
-        "label": "Subtitle Placement Optimization: revisiting for V1",
+        "label": "Subtitle Placement Strategy",
         "type": "premature_but_promising",
         "return_kind": "noisy_resurfacing",
         "related_domain": "subtitle placement",
@@ -312,13 +309,20 @@
     ],
     "suggested_mode_shifts": [
       {
-        "target_mode": "",
+        "target_mode": "core_deepening",
         "reason": "Suggest balanced progress across critical areas to prevent drift.",
         "confidence": 0.7,
-        "requested_delta": 0.0132
+        "requested_delta": 0.04
       }
     ],
     "field_deltas": [
+      {
+        "field": "modes",
+        "target_id": "core_deepening",
+        "requested_delta": 0.04,
+        "reason": "Suggest balanced progress across critical areas to prevent drift.",
+        "confidence": 0.7
+      },
       {
         "field": "tensions",
         "target_id": "latency_vs_richness",
@@ -344,7 +348,7 @@
         "id": "subtitle-placement",
         "domain": "subtitle placement",
         "title": "Subtitle Placement",
-        "summary": "By having predefined subtitle placement rules, the system can dynamically adjust how subtitles are displayed based on the reliability of the transcription. This reduces visual clutter when confidence is low, ensuring that high-confidence subtitles remain prominent for critical information.",
+        "summary": "This change will enhance the wearer's trust in subtitles by ensuring they are always visible but not overly intrusive, leading to better comprehension of conversations and reduced cognitive load during interactions.",
         "probe": "Define one fixed subtitle position rule for V1: keep subtitles at the bottom center of the display.",
         "choices": [
           {
@@ -362,27 +366,27 @@
         "selected_choice_label": "More Prominent",
         "status": "selected",
         "selected_at": "2026-04-08T09:54:58",
-        "candidate_signature": "cc88327ef624097c",
-        "appearance_count": 315,
+        "candidate_signature": "ed95c846e22cad15",
+        "appearance_count": 324,
         "consecutive_appearances": 1,
         "first_seen_at": "2026-04-06T22:26:09",
-        "last_seen_at": "2026-04-08T11:26:25",
-        "last_judged_at": "2026-04-08T11:27:24",
-        "alignment_score": 0.415,
+        "last_seen_at": "2026-04-08T11:50:29",
+        "last_judged_at": "2026-04-08T11:51:30",
+        "alignment_score": 0.423,
         "resistance_score": 1.0,
-        "architectural_pull_score": 0.045,
+        "architectural_pull_score": 0.051,
         "direction_judgment": "kill",
         "judgment_reason": "aligns with Real-time subtitle clarity; also addresses under-attended pressure in Latency vs richness, Discreet UX vs visual clarity; meets resistance from Latency vs richness, Discreet UX vs visual clarity; needs counterweight discipline on Latency vs richness, Discreet UX vs visual clarity",
         "judgment_rank": 5,
-        "field_evidence_score": 0.538,
+        "field_evidence_score": 0.552,
         "influence_state": "damped",
         "influence_reason": "Earlier kill softly damps resurfacing until new evidence appears.",
         "resurfacing_despite_resistance": true,
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
-        "base_alignment_score": 0.415,
-        "base_resistance_score": 0.964,
-        "base_architectural_pull_score": 0.125,
+        "base_alignment_score": 0.423,
+        "base_resistance_score": 0.967,
+        "base_architectural_pull_score": 0.131,
         "alignment_adjustment": 0.0,
         "resistance_adjustment": 0.06,
         "pull_adjustment": -0.08,
@@ -406,13 +410,13 @@
         "specialist_recommended_specialist_id": "visualization_specialist_v1",
         "specialist_recommended_specialist_label": "Visualization Specialist",
         "specialist_consultation_mode": "delegated_drafting",
-        "specialist_expected_gain": 0.507,
-        "specialist_current_uncertainty": 0.267,
-        "specialist_consultation_reason": "Visualization Specialist is the closest match, but expected gain 0.507 is still too weak for consultation.",
+        "specialist_expected_gain": 0.508,
+        "specialist_current_uncertainty": 0.27,
+        "specialist_consultation_reason": "Visualization Specialist is the closest match, but expected gain 0.508 is still too weak for consultation.",
         "specialist_competitive_alternative_id": "",
         "specialist_competitive_alternative_label": "",
-        "evidence_delta": 0.0,
-        "pull_delta": 0.08,
+        "evidence_delta": 0.001,
+        "pull_delta": 0.001,
         "judgment_inputs": {
           "attractors": [
             "subtitle_clarity"
@@ -434,7 +438,7 @@
         "id": "confidence-display",
         "domain": "confidence display",
         "title": "Confidence Display",
-        "summary": "By clearly indicating the certainty of each piece of information, the wearer can better understand when to trust the subtitles or memory support, reducing cognitive load and increasing overall usability.",
+        "summary": "By providing clear and concise confidence information, the system will build trust over time, leading to more reliable use in real-world interactions where accurate memory support is crucial.",
         "probe": "Choose one confidence display format for V1: label only or label plus short reason.",
         "choices": [
           {
@@ -452,27 +456,27 @@
         "selected_choice_label": "Label + Reason",
         "status": "selected",
         "selected_at": "2026-04-08T09:55:31",
-        "candidate_signature": "591ac132d17ee697",
-        "appearance_count": 315,
+        "candidate_signature": "0b29e30c728d2e32",
+        "appearance_count": 324,
         "consecutive_appearances": 1,
         "first_seen_at": "2026-04-06T22:26:09",
-        "last_seen_at": "2026-04-08T11:26:25",
-        "last_judged_at": "2026-04-08T11:27:24",
-        "alignment_score": 0.616,
+        "last_seen_at": "2026-04-08T11:50:29",
+        "last_judged_at": "2026-04-08T11:51:30",
+        "alignment_score": 0.624,
         "resistance_score": 1.0,
-        "architectural_pull_score": 0.266,
+        "architectural_pull_score": 0.274,
         "direction_judgment": "pause",
         "judgment_reason": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Discreet UX vs visual clarity, Latency vs richness; meets resistance from Discreet UX vs visual clarity, Latency vs richness; needs counterweight discipline on Latency vs richness, Discreet UX vs visual clarity",
         "judgment_rank": 3,
-        "field_evidence_score": 0.675,
+        "field_evidence_score": 0.689,
         "influence_state": "damped",
         "influence_reason": "Repeated pause without new evidence is softly damped.",
         "resurfacing_despite_resistance": true,
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
-        "base_alignment_score": 0.616,
+        "base_alignment_score": 0.624,
         "base_resistance_score": 1.0,
-        "base_architectural_pull_score": 0.306,
+        "base_architectural_pull_score": 0.314,
         "alignment_adjustment": 0.0,
         "resistance_adjustment": 0.03,
         "pull_adjustment": -0.04,
@@ -496,13 +500,13 @@
         "specialist_recommended_specialist_id": "visualization_specialist_v1",
         "specialist_recommended_specialist_label": "Visualization Specialist",
         "specialist_consultation_mode": "delegated_drafting",
-        "specialist_expected_gain": 0.56,
-        "specialist_current_uncertainty": 0.557,
-        "specialist_consultation_reason": "Visualization Specialist is the closest match, but expected gain 0.56 is still too weak for consultation.",
+        "specialist_expected_gain": 0.571,
+        "specialist_current_uncertainty": 0.561,
+        "specialist_consultation_reason": "Visualization Specialist is the closest match, but expected gain 0.571 is still too weak for consultation.",
         "specialist_competitive_alternative_id": "",
         "specialist_competitive_alternative_label": "",
-        "evidence_delta": 0.0,
-        "pull_delta": 0.04,
+        "evidence_delta": 0.001,
+        "pull_delta": 0.001,
         "judgment_inputs": {
           "attractors": [
             "subtitle_clarity",
@@ -525,8 +529,8 @@
         "id": "memory-cache-policy",
         "domain": "memory/cache policy",
         "title": "Memory/Cache Policy",
-        "summary": "This change will enhance the accuracy of name recall during conversations by keeping recent interactions in memory, reducing the likelihood of incorrect or delayed responses. It supports core attractors such as memory trust and low-friction assistance while respecting V1 constraints like local processing and phone-first architecture.",
-        "probe": "Define a recency-based cache eviction rule where entries accessed within the past hour are given higher priority to remain in the local cache.",
+        "summary": "By setting a local cache threshold, the system can provide faster memory recall responses with reduced latency and lower battery consumption. This improves the overall trust in the system's ability to assist quickly and accurately, especially during dense conversations where frequent cloud requests could be disruptive.",
+        "probe": "Define one local-cache size limit for face/name memories between 10-15 entries on the phone.",
         "choices": [
           {
             "id": "smaller_cache",
@@ -543,30 +547,30 @@
         "selected_choice_label": "Recency First",
         "status": "selected",
         "selected_at": "2026-04-08T09:53:26",
-        "candidate_signature": "c69cec61992bc237",
-        "appearance_count": 315,
+        "candidate_signature": "684978c87b46bc08",
+        "appearance_count": 324,
         "consecutive_appearances": 1,
         "first_seen_at": "2026-04-06T22:26:09",
-        "last_seen_at": "2026-04-08T11:26:25",
-        "last_judged_at": "2026-04-08T11:27:24",
-        "alignment_score": 0.805,
+        "last_seen_at": "2026-04-08T11:50:29",
+        "last_judged_at": "2026-04-08T11:51:30",
+        "alignment_score": 0.813,
         "resistance_score": 1.0,
-        "architectural_pull_score": 0.457,
+        "architectural_pull_score": 0.503,
         "direction_judgment": "pause",
         "judgment_reason": "aligns with Trustworthy memory support; also addresses under-attended pressure in Privacy vs usefulness, Latency vs richness; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs usefulness, Latency vs richness; Code Architecture Specialist can advise on persistent uncertainty without overriding ELI judgment.",
         "judgment_rank": 1,
-        "field_evidence_score": 0.798,
-        "influence_state": "damped",
-        "influence_reason": "Repeated pause without new evidence is softly damped.",
+        "field_evidence_score": 0.812,
+        "influence_state": "visible",
+        "influence_reason": "Earlier pause is kept visible because field evidence improved.",
         "resurfacing_despite_resistance": true,
-        "resurfacing_classification": "noisy_repetition",
-        "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
-        "base_alignment_score": 0.805,
-        "base_resistance_score": 0.997,
-        "base_architectural_pull_score": 0.497,
+        "resurfacing_classification": "genuine_reemergence",
+        "resurfacing_reason": "Resurfacing follows a meaningful increase in field evidence or pull.",
+        "base_alignment_score": 0.813,
+        "base_resistance_score": 1.0,
+        "base_architectural_pull_score": 0.503,
         "alignment_adjustment": 0.0,
-        "resistance_adjustment": 0.03,
-        "pull_adjustment": -0.04,
+        "resistance_adjustment": 0.0,
+        "pull_adjustment": 0.0,
         "repo_grounding_score": 0.0,
         "repo_alignment_classification": "",
         "repo_grounding_reason": "",
@@ -587,13 +591,13 @@
         "specialist_recommended_specialist_id": "code_architecture_specialist_v1",
         "specialist_recommended_specialist_label": "Code Architecture Specialist",
         "specialist_consultation_mode": "advisory",
-        "specialist_expected_gain": 0.666,
-        "specialist_current_uncertainty": 0.782,
+        "specialist_expected_gain": 0.652,
+        "specialist_current_uncertainty": 0.786,
         "specialist_consultation_reason": "Code Architecture Specialist can advise on persistent uncertainty without overriding ELI judgment.",
         "specialist_competitive_alternative_id": "",
         "specialist_competitive_alternative_label": "",
-        "evidence_delta": 0.0,
-        "pull_delta": 0.04,
+        "evidence_delta": 0.001,
+        "pull_delta": 0.121,
         "judgment_inputs": {
           "attractors": [
             "memory_trust"
@@ -616,7 +620,7 @@
         "id": "phone-cloud-boundary",
         "domain": "phone/cloud boundary",
         "title": "Phone/Cloud Boundary",
-        "summary": "This rule will help maintain the phone's memory efficiency while ensuring that the most relevant subtitles are always available, enhancing the overall user experience without excessive data usage or local processing burden.",
+        "summary": "This approach ensures that V1 remains focused and robust by leveraging the phone's capabilities where they are most critical. It prevents unnecessary load on the phone while ensuring that real-time subtitle processing is reliable, thereby maintaining trust with the user.",
         "probe": "Choose one phone-local versus cloud fallback boundary for face/name recall lookup in V1.",
         "choices": [
           {
@@ -634,30 +638,30 @@
         "selected_choice_label": "Balanced Fallback",
         "status": "selected",
         "selected_at": "2026-04-08T09:55:35",
-        "candidate_signature": "4cfeaaff7fa5f00d",
-        "appearance_count": 315,
+        "candidate_signature": "555b4b4102193a40",
+        "appearance_count": 324,
         "consecutive_appearances": 1,
         "first_seen_at": "2026-04-06T22:26:09",
-        "last_seen_at": "2026-04-08T11:26:25",
-        "last_judged_at": "2026-04-08T11:27:24",
+        "last_seen_at": "2026-04-08T11:50:29",
+        "last_judged_at": "2026-04-08T11:51:30",
         "alignment_score": 0.627,
         "resistance_score": 1.0,
-        "architectural_pull_score": 0.277,
+        "architectural_pull_score": 0.317,
         "direction_judgment": "pause",
         "judgment_reason": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Latency vs richness, Privacy vs usefulness; meets resistance from Latency vs richness, Privacy vs usefulness; needs counterweight discipline on Latency vs richness, Privacy vs usefulness; Code Architecture Specialist can advise on design tradeoffs without overriding ELI judgment.",
         "judgment_rank": 2,
         "field_evidence_score": 0.683,
-        "influence_state": "damped",
-        "influence_reason": "Repeated pause without new evidence is softly damped.",
+        "influence_state": "visible",
+        "influence_reason": "Earlier kill is not enforced because new field evidence supports re-emergence.",
         "resurfacing_despite_resistance": true,
-        "resurfacing_classification": "noisy_repetition",
-        "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
+        "resurfacing_classification": "genuine_reemergence",
+        "resurfacing_reason": "Resurfacing follows a meaningful increase in field evidence or pull.",
         "base_alignment_score": 0.627,
         "base_resistance_score": 1.0,
         "base_architectural_pull_score": 0.317,
         "alignment_adjustment": 0.0,
-        "resistance_adjustment": 0.03,
-        "pull_adjustment": -0.04,
+        "resistance_adjustment": 0.0,
+        "pull_adjustment": 0.0,
         "repo_grounding_score": 0.0,
         "repo_alignment_classification": "",
         "repo_grounding_reason": "",
@@ -684,7 +688,7 @@
         "specialist_competitive_alternative_id": "",
         "specialist_competitive_alternative_label": "",
         "evidence_delta": 0.0,
-        "pull_delta": 0.04,
+        "pull_delta": 0.12,
         "judgment_inputs": {
           "attractors": [
             "subtitle_clarity",
@@ -708,8 +712,8 @@
         "id": "visual-hierarchy",
         "domain": "visual hierarchy",
         "title": "Visual Hierarchy",
-        "summary": "By optimizing the visual hierarchy between subtitles and one-line prompts, the system can maintain clear, readable subtitles while ensuring that contextual support is available but less prominent. This improves the overall user experience and trust in the system.",
-        "probe": "Define a subtitle-vs-one-line priority rule where subtitles remain central but have lower precedence than in V1 to allow one-line prompts to coexist without overwhelming the wearer.",
+        "summary": "This prioritization will enhance the wearer's ability to follow conversations effectively without visual overload, thereby increasing trust and usability of the system. It also aligns with the core attractors of low-friction assistance and real-time subtitle clarity.",
+        "probe": "Define one visual priority rule between subtitles and one-line support in V1.",
         "choices": [
           {
             "id": "subtitles_dominate",
@@ -726,27 +730,27 @@
         "selected_choice_label": "Subtitles Dominate",
         "status": "selected",
         "selected_at": "2026-04-08T09:54:53",
-        "candidate_signature": "c3015599f0a0789c",
-        "appearance_count": 315,
+        "candidate_signature": "701161e440ed2c19",
+        "appearance_count": 324,
         "consecutive_appearances": 1,
         "first_seen_at": "2026-04-06T22:26:09",
-        "last_seen_at": "2026-04-08T11:26:25",
-        "last_judged_at": "2026-04-08T11:27:24",
-        "alignment_score": 0.576,
-        "resistance_score": 0.941,
-        "architectural_pull_score": 0.131,
+        "last_seen_at": "2026-04-08T11:50:29",
+        "last_judged_at": "2026-04-08T11:51:30",
+        "alignment_score": 0.593,
+        "resistance_score": 0.944,
+        "architectural_pull_score": 0.147,
         "direction_judgment": "kill",
         "judgment_reason": "aligns with Real-time subtitle clarity, Low-friction assistance; also addresses under-attended pressure in Discreet UX vs visual clarity; meets resistance from Discreet UX vs visual clarity; needs counterweight discipline on Discreet UX vs visual clarity",
         "judgment_rank": 4,
-        "field_evidence_score": 0.637,
+        "field_evidence_score": 0.666,
         "influence_state": "damped",
         "influence_reason": "Earlier kill softly damps resurfacing until new evidence appears.",
         "resurfacing_despite_resistance": true,
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
-        "base_alignment_score": 0.576,
-        "base_resistance_score": 0.881,
-        "base_architectural_pull_score": 0.211,
+        "base_alignment_score": 0.593,
+        "base_resistance_score": 0.884,
+        "base_architectural_pull_score": 0.227,
         "alignment_adjustment": 0.0,
         "resistance_adjustment": 0.06,
         "pull_adjustment": -0.08,
@@ -770,13 +774,13 @@
         "specialist_recommended_specialist_id": "visualization_specialist_v1",
         "specialist_recommended_specialist_label": "Visualization Specialist",
         "specialist_consultation_mode": "delegated_drafting",
-        "specialist_expected_gain": 0.536,
-        "specialist_current_uncertainty": 0.366,
-        "specialist_consultation_reason": "Visualization Specialist is the closest match, but expected gain 0.536 is still too weak for consultation.",
+        "specialist_expected_gain": 0.537,
+        "specialist_current_uncertainty": 0.372,
+        "specialist_consultation_reason": "Visualization Specialist is the closest match, but expected gain 0.537 is still too weak for consultation.",
         "specialist_competitive_alternative_id": "",
         "specialist_competitive_alternative_label": "",
-        "evidence_delta": 0.0,
-        "pull_delta": 0.08,
+        "evidence_delta": 0.004,
+        "pull_delta": 0.082,
         "judgment_inputs": {
           "attractors": [
             "subtitle_clarity",
@@ -794,10 +798,10 @@
         }
       }
     ],
-    "updated_at": "2026-04-08T11:27:24",
-    "judged_at": "2026-04-08T11:27:24",
+    "updated_at": "2026-04-08T11:51:30",
+    "judged_at": "2026-04-08T11:51:30",
     "specialist_consultation": {
-      "generated_at": "2026-04-08T11:27:24",
+      "generated_at": "2026-04-08T11:51:30",
       "decisions": [
         {
           "decision_id": "51db870b65d15d7e",
@@ -805,21 +809,21 @@
           "action_domain": "subtitle placement",
           "action_title": "Subtitle Placement",
           "consultation_purpose": "design_tradeoffs",
-          "current_uncertainty": 0.267,
+          "current_uncertainty": 0.27,
           "contradiction_risk": 0.7,
           "decision": "no_consultation",
           "status": "not_invoked",
           "specialist_id": "visualization_specialist_v1",
           "specialist_label": "Visualization Specialist",
           "consultation_mode": "delegated_drafting",
-          "expected_gain": 0.507,
+          "expected_gain": 0.508,
           "semantic_match": 0.98,
           "trust_score": 0.459,
           "historical_success": 0.5,
           "constraint_fidelity": 0.58,
           "hallucination_risk": 0.35,
           "related_repo_paths": [],
-          "reason": "Visualization Specialist is the closest match, but expected gain 0.507 is still too weak for consultation.",
+          "reason": "Visualization Specialist is the closest match, but expected gain 0.508 is still too weak for consultation.",
           "competitive_alternative_id": "",
           "competitive_alternative_label": "",
           "confidence": 0.616
@@ -830,24 +834,24 @@
           "action_domain": "confidence display",
           "action_title": "Confidence Display",
           "consultation_purpose": "design_tradeoffs",
-          "current_uncertainty": 0.557,
+          "current_uncertainty": 0.561,
           "contradiction_risk": 0.7,
           "decision": "no_consultation",
           "status": "not_invoked",
           "specialist_id": "visualization_specialist_v1",
           "specialist_label": "Visualization Specialist",
           "consultation_mode": "delegated_drafting",
-          "expected_gain": 0.56,
-          "semantic_match": 0.96,
+          "expected_gain": 0.571,
+          "semantic_match": 1.0,
           "trust_score": 0.459,
           "historical_success": 0.5,
           "constraint_fidelity": 0.58,
           "hallucination_risk": 0.35,
           "related_repo_paths": [],
-          "reason": "Visualization Specialist is the closest match, but expected gain 0.56 is still too weak for consultation.",
+          "reason": "Visualization Specialist is the closest match, but expected gain 0.571 is still too weak for consultation.",
           "competitive_alternative_id": "",
           "competitive_alternative_label": "",
-          "confidence": 0.612
+          "confidence": 0.62
         },
         {
           "decision_id": "c1cadf9adc263bbb",
@@ -855,15 +859,15 @@
           "action_domain": "memory/cache policy",
           "action_title": "Memory/Cache Policy",
           "consultation_purpose": "persistent_uncertainty",
-          "current_uncertainty": 0.782,
+          "current_uncertainty": 0.786,
           "contradiction_risk": 0.7,
           "decision": "recommend_consultation",
           "status": "not_invoked",
           "specialist_id": "code_architecture_specialist_v1",
           "specialist_label": "Code Architecture Specialist",
           "consultation_mode": "advisory",
-          "expected_gain": 0.666,
-          "semantic_match": 0.94,
+          "expected_gain": 0.652,
+          "semantic_match": 0.88,
           "trust_score": 0.624,
           "historical_success": 0.5,
           "constraint_fidelity": 0.77,
@@ -872,7 +876,7 @@
           "reason": "Code Architecture Specialist can advise on persistent uncertainty without overriding ELI judgment.",
           "competitive_alternative_id": "",
           "competitive_alternative_label": "",
-          "confidence": 0.733
+          "confidence": 0.728
         },
         {
           "decision_id": "98af2195901ef879",
@@ -905,21 +909,21 @@
           "action_domain": "visual hierarchy",
           "action_title": "Visual Hierarchy",
           "consultation_purpose": "design_tradeoffs",
-          "current_uncertainty": 0.366,
-          "contradiction_risk": 0.659,
+          "current_uncertainty": 0.372,
+          "contradiction_risk": 0.661,
           "decision": "no_consultation",
           "status": "not_invoked",
           "specialist_id": "visualization_specialist_v1",
           "specialist_label": "Visualization Specialist",
           "consultation_mode": "delegated_drafting",
-          "expected_gain": 0.536,
+          "expected_gain": 0.537,
           "semantic_match": 1.0,
           "trust_score": 0.459,
           "historical_success": 0.5,
           "constraint_fidelity": 0.58,
           "hallucination_risk": 0.35,
           "related_repo_paths": [],
-          "reason": "Visualization Specialist is the closest match, but expected gain 0.536 is still too weak for consultation.",
+          "reason": "Visualization Specialist is the closest match, but expected gain 0.537 is still too weak for consultation.",
           "competitive_alternative_id": "",
           "competitive_alternative_label": "",
           "confidence": 0.62
@@ -928,7 +932,44 @@
       "evaluations": []
     }
   },
-  "applied_updates": [],
+  "applied_updates": [
+    {
+      "timestamp": "2026-04-08T11:51:30",
+      "cycle": "reflect",
+      "field": "modes",
+      "target_id": "core_deepening",
+      "target_label": "Core Deepening",
+      "previous_value": 0.7416,
+      "requested_delta": 0.04,
+      "applied_delta": 0.0132,
+      "new_value": 0.7548,
+      "reason": "Suggest balanced progress across critical areas to prevent drift.",
+      "confidence": 0.7,
+      "control_kind": "",
+      "linked_source_reports": [
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260408_114943_sleep.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260408_115029_dream.md",
+        "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260408_115044_reality.md"
+      ],
+      "support_count": 13,
+      "effective_support_count": 13,
+      "evidence_weight": 1.0,
+      "evidence_sources": [
+        "eli_docs",
+        "reports"
+      ],
+      "weighted_evidence_score": 3.0,
+      "resonance_kind": "cross_source_resonance",
+      "diversity_multiplier": 0.574,
+      "diversity_notes": [
+        "repeated same-pattern reinforcement (12 recent hits)",
+        "time separation is short (2.3 min)"
+      ],
+      "saturation_multiplier": 1.0,
+      "saturation_notes": [],
+      "change_type": "score_update"
+    }
+  ],
   "evidence_analysis": {
     "resonance_signals": [
       {
@@ -1181,21 +1222,21 @@
         "action_domain": "subtitle placement",
         "action_title": "Subtitle Placement",
         "consultation_purpose": "design_tradeoffs",
-        "current_uncertainty": 0.267,
+        "current_uncertainty": 0.27,
         "contradiction_risk": 0.7,
         "decision": "no_consultation",
         "status": "not_invoked",
         "specialist_id": "visualization_specialist_v1",
         "specialist_label": "Visualization Specialist",
         "consultation_mode": "delegated_drafting",
-        "expected_gain": 0.507,
+        "expected_gain": 0.508,
         "semantic_match": 0.98,
         "trust_score": 0.459,
         "historical_success": 0.5,
         "constraint_fidelity": 0.58,
         "hallucination_risk": 0.35,
         "related_repo_paths": [],
-        "reason": "Visualization Specialist is the closest match, but expected gain 0.507 is still too weak for consultation.",
+        "reason": "Visualization Specialist is the closest match, but expected gain 0.508 is still too weak for consultation.",
         "competitive_alternative_id": "",
         "competitive_alternative_label": "",
         "confidence": 0.616
@@ -1206,24 +1247,24 @@
         "action_domain": "confidence display",
         "action_title": "Confidence Display",
         "consultation_purpose": "design_tradeoffs",
-        "current_uncertainty": 0.557,
+        "current_uncertainty": 0.561,
         "contradiction_risk": 0.7,
         "decision": "no_consultation",
         "status": "not_invoked",
         "specialist_id": "visualization_specialist_v1",
         "specialist_label": "Visualization Specialist",
         "consultation_mode": "delegated_drafting",
-        "expected_gain": 0.56,
-        "semantic_match": 0.96,
+        "expected_gain": 0.571,
+        "semantic_match": 1.0,
         "trust_score": 0.459,
         "historical_success": 0.5,
         "constraint_fidelity": 0.58,
         "hallucination_risk": 0.35,
         "related_repo_paths": [],
-        "reason": "Visualization Specialist is the closest match, but expected gain 0.56 is still too weak for consultation.",
+        "reason": "Visualization Specialist is the closest match, but expected gain 0.571 is still too weak for consultation.",
         "competitive_alternative_id": "",
         "competitive_alternative_label": "",
-        "confidence": 0.612
+        "confidence": 0.62
       },
       {
         "decision_id": "c1cadf9adc263bbb",
@@ -1231,15 +1272,15 @@
         "action_domain": "memory/cache policy",
         "action_title": "Memory/Cache Policy",
         "consultation_purpose": "persistent_uncertainty",
-        "current_uncertainty": 0.782,
+        "current_uncertainty": 0.786,
         "contradiction_risk": 0.7,
         "decision": "recommend_consultation",
         "status": "not_invoked",
         "specialist_id": "code_architecture_specialist_v1",
         "specialist_label": "Code Architecture Specialist",
         "consultation_mode": "advisory",
-        "expected_gain": 0.666,
-        "semantic_match": 0.94,
+        "expected_gain": 0.652,
+        "semantic_match": 0.88,
         "trust_score": 0.624,
         "historical_success": 0.5,
         "constraint_fidelity": 0.77,
@@ -1248,7 +1289,7 @@
         "reason": "Code Architecture Specialist can advise on persistent uncertainty without overriding ELI judgment.",
         "competitive_alternative_id": "",
         "competitive_alternative_label": "",
-        "confidence": 0.733
+        "confidence": 0.728
       },
       {
         "decision_id": "98af2195901ef879",
@@ -1281,21 +1322,21 @@
         "action_domain": "visual hierarchy",
         "action_title": "Visual Hierarchy",
         "consultation_purpose": "design_tradeoffs",
-        "current_uncertainty": 0.366,
-        "contradiction_risk": 0.659,
+        "current_uncertainty": 0.372,
+        "contradiction_risk": 0.661,
         "decision": "no_consultation",
         "status": "not_invoked",
         "specialist_id": "visualization_specialist_v1",
         "specialist_label": "Visualization Specialist",
         "consultation_mode": "delegated_drafting",
-        "expected_gain": 0.536,
+        "expected_gain": 0.537,
         "semantic_match": 1.0,
         "trust_score": 0.459,
         "historical_success": 0.5,
         "constraint_fidelity": 0.58,
         "hallucination_risk": 0.35,
         "related_repo_paths": [],
-        "reason": "Visualization Specialist is the closest match, but expected gain 0.536 is still too weak for consultation.",
+        "reason": "Visualization Specialist is the closest match, but expected gain 0.537 is still too weak for consultation.",
         "competitive_alternative_id": "",
         "competitive_alternative_label": "",
         "confidence": 0.62
@@ -1407,16 +1448,16 @@
           "trust_score": 0.649
         }
       },
-      "updated_at": "2026-04-08T11:27:24"
+      "updated_at": "2026-04-08T11:51:30"
     },
     "action_direction_judgments": [
       {
         "id": "memory-cache-policy",
         "title": "Memory/Cache Policy",
         "domain": "memory/cache policy",
-        "alignment_score": 0.805,
+        "alignment_score": 0.813,
         "resistance_score": 1.0,
-        "architectural_pull_score": 0.457,
+        "architectural_pull_score": 0.503,
         "direction_judgment": "pause",
         "repo_grounding_score": 0.0,
         "repo_alignment_classification": "",
@@ -1426,15 +1467,15 @@
         "specialist_consultation_mode": "advisory",
         "specialist_evaluation": "",
         "specialist_signal_score": 0.0,
-        "reason": "aligns with Trustworthy memory support; also addresses under-attended pressure in Privacy vs usefulness, Latency vs richness; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs usefulness, Latency vs richness; Code Architecture Specialist can advise on persistent uncertainty without overriding ELI judgment.; Repeated pause without new evidence is softly damped.; Resurfacing repeats despite resistance without enough new field evidence.",
-        "influence_state": "damped",
-        "influence_reason": "Repeated pause without new evidence is softly damped.",
-        "resurfacing_classification": "noisy_repetition",
-        "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
+        "reason": "aligns with Trustworthy memory support; also addresses under-attended pressure in Privacy vs usefulness, Latency vs richness; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs usefulness, Latency vs richness; Code Architecture Specialist can advise on persistent uncertainty without overriding ELI judgment.; Earlier pause is kept visible because field evidence improved.; Resurfacing follows a meaningful increase in field evidence or pull.",
+        "influence_state": "visible",
+        "influence_reason": "Earlier pause is kept visible because field evidence improved.",
+        "resurfacing_classification": "genuine_reemergence",
+        "resurfacing_reason": "Resurfacing follows a meaningful increase in field evidence or pull.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 315,
+        "appearance_count": 324,
         "rank": 1,
-        "confidence": 0.743
+        "confidence": 0.754
       },
       {
         "id": "phone-cloud-boundary",
@@ -1442,7 +1483,7 @@
         "domain": "phone/cloud boundary",
         "alignment_score": 0.627,
         "resistance_score": 1.0,
-        "architectural_pull_score": 0.277,
+        "architectural_pull_score": 0.317,
         "direction_judgment": "pause",
         "repo_grounding_score": 0.0,
         "repo_alignment_classification": "",
@@ -1452,23 +1493,23 @@
         "specialist_consultation_mode": "advisory",
         "specialist_evaluation": "",
         "specialist_signal_score": 0.0,
-        "reason": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Latency vs richness, Privacy vs usefulness; meets resistance from Latency vs richness, Privacy vs usefulness; needs counterweight discipline on Latency vs richness, Privacy vs usefulness; Code Architecture Specialist can advise on design tradeoffs without overriding ELI judgment.; Repeated pause without new evidence is softly damped.; Resurfacing repeats despite resistance without enough new field evidence.",
-        "influence_state": "damped",
-        "influence_reason": "Repeated pause without new evidence is softly damped.",
-        "resurfacing_classification": "noisy_repetition",
-        "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
+        "reason": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Latency vs richness, Privacy vs usefulness; meets resistance from Latency vs richness, Privacy vs usefulness; needs counterweight discipline on Latency vs richness, Privacy vs usefulness; Code Architecture Specialist can advise on design tradeoffs without overriding ELI judgment.; Earlier kill is not enforced because new field evidence supports re-emergence.; Resurfacing follows a meaningful increase in field evidence or pull.",
+        "influence_state": "visible",
+        "influence_reason": "Earlier kill is not enforced because new field evidence supports re-emergence.",
+        "resurfacing_classification": "genuine_reemergence",
+        "resurfacing_reason": "Resurfacing follows a meaningful increase in field evidence or pull.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 315,
+        "appearance_count": 324,
         "rank": 2,
-        "confidence": 0.662
+        "confidence": 0.67
       },
       {
         "id": "confidence-display",
         "title": "Confidence Display",
         "domain": "confidence display",
-        "alignment_score": 0.616,
+        "alignment_score": 0.624,
         "resistance_score": 1.0,
-        "architectural_pull_score": 0.266,
+        "architectural_pull_score": 0.274,
         "direction_judgment": "pause",
         "repo_grounding_score": 0.0,
         "repo_alignment_classification": "",
@@ -1484,17 +1525,17 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 315,
+        "appearance_count": 324,
         "rank": 3,
-        "confidence": 0.657
+        "confidence": 0.661
       },
       {
         "id": "visual-hierarchy",
         "title": "Visual Hierarchy",
         "domain": "visual hierarchy",
-        "alignment_score": 0.576,
-        "resistance_score": 0.941,
-        "architectural_pull_score": 0.131,
+        "alignment_score": 0.593,
+        "resistance_score": 0.944,
+        "architectural_pull_score": 0.147,
         "direction_judgment": "kill",
         "repo_grounding_score": 0.0,
         "repo_alignment_classification": "",
@@ -1510,17 +1551,17 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 315,
+        "appearance_count": 324,
         "rank": 4,
-        "confidence": 0.62
+        "confidence": 0.628
       },
       {
         "id": "subtitle-placement",
         "title": "Subtitle Placement",
         "domain": "subtitle placement",
-        "alignment_score": 0.415,
+        "alignment_score": 0.423,
         "resistance_score": 1.0,
-        "architectural_pull_score": 0.045,
+        "architectural_pull_score": 0.051,
         "direction_judgment": "kill",
         "repo_grounding_score": 0.0,
         "repo_alignment_classification": "",
@@ -1536,14 +1577,14 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 315,
+        "appearance_count": 324,
         "rank": 5,
-        "confidence": 0.563
+        "confidence": 0.566
       }
     ],
     "dormant_idea_returns": [
       {
-        "label": "Subtitle Placement Optimization: revisiting for V1",
+        "label": "Subtitle Placement Strategy",
         "type": "premature_but_promising",
         "return_kind": "noisy_resurfacing",
         "related_domain": "subtitle placement",
@@ -1593,28 +1634,28 @@
     "tensions": {
       "field": "tensions",
       "version": "eli_v2_phase1",
-      "updated_at": "2026-04-08T10:42:22",
+      "updated_at": "2026-04-08T11:37:10",
       "items": [
         {
           "id": "privacy_vs_usefulness",
           "label": "Privacy vs usefulness",
           "summary": "Helpful assistive behavior should not quietly slide into invasive capture or retention.",
           "pressure": "high",
-          "score": 0.802
+          "score": 0.8071
         },
         {
           "id": "latency_vs_richness",
           "label": "Latency vs richness",
           "summary": "The system should provide timely help without overloading the runtime with richer but slower processing.",
           "pressure": "high",
-          "score": 0.8352
+          "score": 0.8393
         },
         {
           "id": "discreet_ux_vs_visual_clarity",
           "label": "Discreet UX vs visual clarity",
           "summary": "Display behavior should remain socially acceptable while still being readable in motion and noise.",
           "pressure": "medium",
-          "score": 0.7069
+          "score": 0.712
         }
       ]
     },
@@ -1646,14 +1687,14 @@
     "modes": {
       "field": "modes",
       "version": "eli_v2_phase1",
-      "updated_at": "2026-04-08T11:10:39",
-      "current_mode": "implementation_grounding",
+      "updated_at": "2026-04-08T11:51:30",
+      "current_mode": "core_deepening",
       "items": [
         {
           "id": "core_deepening",
           "label": "Core Deepening",
           "summary": "Bias toward subtitle, memory, confidence, and architecture improvements that increase daily-use value.",
-          "score": 0.6552
+          "score": 0.7548
         },
         {
           "id": "constraint_pressure",

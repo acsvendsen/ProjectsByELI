@@ -1,3 +1,0 @@
-# scorecard error
-
-<urlopen error [Errno 61] Connection refused>

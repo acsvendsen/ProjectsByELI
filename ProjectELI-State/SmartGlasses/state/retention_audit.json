@@ -1,0 +1,45 @@
+{
+  "entries": [
+    {
+      "timestamp": "2026-04-08T11:32:04",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 5404,
+        "groups": [
+          {
+            "report_name": "scorecard",
+            "removed_count": 896,
+            "kept_count": 72
+          },
+          {
+            "report_name": "reflect",
+            "removed_count": 773,
+            "kept_count": 72
+          },
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 931,
+            "kept_count": 72
+          },
+          {
+            "report_name": "dream",
+            "removed_count": 934,
+            "kept_count": 72
+          },
+          {
+            "report_name": "reality",
+            "removed_count": 931,
+            "kept_count": 72
+          },
+          {
+            "report_name": "sleep",
+            "removed_count": 939,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": []
+      }
+    }
+  ],
+  "updated_at": "2026-04-08T11:32:04"
+}

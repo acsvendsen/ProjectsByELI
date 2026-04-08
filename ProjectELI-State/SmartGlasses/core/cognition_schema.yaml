@@ -64,6 +64,17 @@ control:
     minimum_field_evidence_score: 0.48
     weakly_grounded_min_alignment: 0.38
     feasible_later_min_alignment: 0.72
+  runtime_retention:
+    reports:
+      enabled: true
+      keep_per_report_type: 72
+      keep_per_error_report_type: 24
+      minimum_age_minutes_before_prune: 30
+    state:
+      field_delta_history_limit: 400
+      specialist_consultation_history_limit: 600
+    audit:
+      entry_limit: 120
 
 specialist_consultation:
   enabled: true

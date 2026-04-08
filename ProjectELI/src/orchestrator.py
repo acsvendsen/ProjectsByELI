@@ -453,6 +453,7 @@ BUILD_SUMMARY_PATH = ENGINE_STATE_DIR / str(CFG.get('build_summary_filename', 't
 BUILD_CAPTURE_SCRIPT_PATH = cfg_path_value('build_capture_script', 'scripts/capture_transcriptlab_build.py')
 SPECIALIST_TRUST_MEMORY_PATH = PROJECT_STATE_DIR / "specialist_trust_memory.json"
 SPECIALIST_CONSULTATION_HISTORY_PATH = PROJECT_STATE_DIR / "specialist_consultation_history.json"
+RETENTION_AUDIT_PATH = PROJECT_STATE_DIR / "retention_audit.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -609,6 +610,21 @@ DEFAULT_COGNITION_SCHEMA = {
             'weakly_grounded_min_alignment': 0.38,
             'feasible_later_min_alignment': 0.72,
         },
+        'runtime_retention': {
+            'reports': {
+                'enabled': True,
+                'keep_per_report_type': 72,
+                'keep_per_error_report_type': 24,
+                'minimum_age_minutes_before_prune': 30,
+            },
+            'state': {
+                'field_delta_history_limit': 400,
+                'specialist_consultation_history_limit': 600,
+            },
+            'audit': {
+                'entry_limit': 120,
+            },
+        },
         'phase7_repo_alignment': {
             'enabled': True,
             'diff_alignment': {
@@ -754,6 +770,17 @@ control:
     minimum_field_evidence_score: 0.48
     weakly_grounded_min_alignment: 0.38
     feasible_later_min_alignment: 0.72
+  runtime_retention:
+    reports:
+      enabled: true
+      keep_per_report_type: 72
+      keep_per_error_report_type: 24
+      minimum_age_minutes_before_prune: 30
+    state:
+      field_delta_history_limit: 400
+      specialist_consultation_history_limit: 600
+    audit:
+      entry_limit: 120
   phase7_repo_alignment:
     enabled: true
     diff_alignment:
@@ -1493,7 +1520,8 @@ def load_field_delta_history():
 def save_field_delta_history(history):
     PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     history['updated_at'] = now_iso()
-    history['entries'] = history.get('entries', [])[-400:]
+    limit = safe_int(runtime_retention_config().get('state', {}).get('field_delta_history_limit', 400), 400)
+    history['entries'] = history.get('entries', [])[-max(1, limit):]
     FIELD_DELTA_HISTORY_PATH.write_text(json.dumps(history, indent=2) + "\n", encoding='utf-8')
 
 
@@ -4400,7 +4428,8 @@ def load_specialist_consultation_history():
 def save_specialist_consultation_history(data):
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     data['updated_at'] = now_iso()
-    data['entries'] = data.get('entries', [])[-600:]
+    limit = safe_int(runtime_retention_config().get('state', {}).get('specialist_consultation_history_limit', 600), 600)
+    data['entries'] = data.get('entries', [])[-max(1, limit):]
     SPECIALIST_CONSULTATION_HISTORY_PATH.write_text(json.dumps(data, indent=2), encoding='utf-8')
 
 
@@ -4426,6 +4455,163 @@ def load_json_file(path, fallback):
         return json.loads(path.read_text(encoding='utf-8'))
     except Exception:
         return fallback
+
+
+def runtime_retention_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    retention = control.get('runtime_retention', {}) if isinstance(control.get('runtime_retention', {}), dict) else {}
+    reports = retention.get('reports', {}) if isinstance(retention.get('reports', {}), dict) else {}
+    state = retention.get('state', {}) if isinstance(retention.get('state', {}), dict) else {}
+    audit = retention.get('audit', {}) if isinstance(retention.get('audit', {}), dict) else {}
+    return {
+        'reports': {
+            'enabled': reports.get('enabled', True),
+            'keep_per_report_type': max(1, safe_int(reports.get('keep_per_report_type', 72), 72)),
+            'keep_per_error_report_type': max(1, safe_int(reports.get('keep_per_error_report_type', 24), 24)),
+            'minimum_age_minutes_before_prune': max(0, safe_int(reports.get('minimum_age_minutes_before_prune', 30), 30)),
+        },
+        'state': {
+            'field_delta_history_limit': max(1, safe_int(state.get('field_delta_history_limit', 400), 400)),
+            'specialist_consultation_history_limit': max(1, safe_int(state.get('specialist_consultation_history_limit', 600), 600)),
+        },
+        'audit': {
+            'entry_limit': max(10, safe_int(audit.get('entry_limit', 120), 120)),
+        },
+    }
+
+
+def load_retention_audit():
+    data = load_json_file(RETENTION_AUDIT_PATH, {'entries': []})
+    if not isinstance(data, dict):
+        data = {'entries': []}
+    if not isinstance(data.get('entries'), list):
+        data['entries'] = []
+    return data
+
+
+def save_retention_audit(data, schema=None):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    cfg = runtime_retention_config(schema)
+    data['updated_at'] = now_iso()
+    data['entries'] = data.get('entries', [])[-cfg.get('audit', {}).get('entry_limit', 120):]
+    RETENTION_AUDIT_PATH.write_text(json.dumps(data, indent=2) + "\n", encoding='utf-8')
+
+
+def append_retention_audit(kind, summary, schema=None):
+    data = load_retention_audit()
+    data.setdefault('entries', []).append({
+        'timestamp': now_iso(),
+        'kind': kind,
+        'summary': summary,
+    })
+    save_retention_audit(data, schema=schema)
+
+
+def prune_generated_reports(protected_paths=None, schema=None):
+    cfg = runtime_retention_config(schema)
+    report_cfg = cfg.get('reports', {})
+    if not report_cfg.get('enabled', True):
+        return {'removed_count': 0, 'groups': []}
+
+    protected = set()
+    for path in protected_paths or []:
+        try:
+            protected.add(str(pathlib.Path(path).resolve()))
+        except Exception:
+            continue
+
+    cutoff = time.time() - (report_cfg.get('minimum_age_minutes_before_prune', 30) * 60)
+    pattern = re.compile(r'^(?P<stamp>\d{8}_\d{6})_(?P<name>.+)\.md$')
+    grouped = {}
+    for path in REPORTS_DIR.glob('*.md'):
+        if path.name.startswith('latest_'):
+            continue
+        match = pattern.match(path.name)
+        if not match:
+            continue
+        grouped.setdefault(match.group('name'), []).append(path)
+
+    removed = []
+    group_summaries = []
+    for name, paths in grouped.items():
+        keep_limit = report_cfg.get('keep_per_error_report_type', 24) if name.endswith('_error') else report_cfg.get('keep_per_report_type', 72)
+        ordered = sorted(paths, key=lambda item: item.name, reverse=True)
+        survivors = set(ordered[:keep_limit])
+        for path in ordered:
+            try:
+                if path.stat().st_mtime >= cutoff:
+                    survivors.add(path)
+            except FileNotFoundError:
+                continue
+        for path in ordered:
+            resolved = str(path.resolve())
+            if resolved in protected:
+                survivors.add(path)
+        group_removed = []
+        for path in ordered:
+            if path in survivors:
+                continue
+            try:
+                path.unlink()
+                group_removed.append(path.name)
+                removed.append(path.name)
+            except FileNotFoundError:
+                continue
+        if group_removed:
+            group_summaries.append({
+                'report_name': name,
+                'removed_count': len(group_removed),
+                'kept_count': len(ordered) - len(group_removed),
+            })
+
+    if removed:
+        append_retention_audit('report_prune', {
+            'removed_count': len(removed),
+            'groups': group_summaries,
+            'protected_paths': [pathlib.Path(p).name for p in protected],
+        }, schema=schema)
+    return {'removed_count': len(removed), 'groups': group_summaries}
+
+
+def trim_runtime_history_files(schema=None):
+    cfg = runtime_retention_config(schema)
+    changes = []
+
+    field_history = load_field_delta_history()
+    field_entries = field_history.get('entries', [])
+    field_limit = cfg.get('state', {}).get('field_delta_history_limit', 400)
+    if len(field_entries) > field_limit:
+        trimmed = len(field_entries) - field_limit
+        field_history['entries'] = field_entries[-field_limit:]
+        field_history['updated_at'] = now_iso()
+        FIELD_DELTA_HISTORY_PATH.write_text(json.dumps(field_history, indent=2) + "\n", encoding='utf-8')
+        changes.append({'path': FIELD_DELTA_HISTORY_PATH.name, 'trimmed': trimmed, 'kept': field_limit})
+
+    specialist_history = load_specialist_consultation_history()
+    specialist_entries = specialist_history.get('entries', [])
+    specialist_limit = cfg.get('state', {}).get('specialist_consultation_history_limit', 600)
+    if len(specialist_entries) > specialist_limit:
+        trimmed = len(specialist_entries) - specialist_limit
+        specialist_history['entries'] = specialist_entries[-specialist_limit:]
+        specialist_history['updated_at'] = now_iso()
+        SPECIALIST_CONSULTATION_HISTORY_PATH.write_text(json.dumps(specialist_history, indent=2) + "\n", encoding='utf-8')
+        changes.append({'path': SPECIALIST_CONSULTATION_HISTORY_PATH.name, 'trimmed': trimmed, 'kept': specialist_limit})
+
+    if changes:
+        append_retention_audit('state_trim', {'changes': changes}, schema=schema)
+    return changes
+
+
+def apply_runtime_retention(protected_report_paths=None, schema=None):
+    schema = schema or load_cognition_schema()
+    report_summary = prune_generated_reports(protected_report_paths, schema=schema)
+    state_summary = trim_runtime_history_files(schema=schema)
+    return {
+        'reports_removed': report_summary.get('removed_count', 0),
+        'report_groups': report_summary.get('groups', []),
+        'state_changes': state_summary,
+    }
 
 
 def project_scorecard_config():
@@ -7157,6 +7343,7 @@ def write_report(name, content):
     path.write_text(content, encoding='utf-8')
     latest = REPORTS_DIR / f'latest_{name}.md'
     latest.write_text(content, encoding='utf-8')
+    apply_runtime_retention(protected_report_paths=[path, latest])
     return path
 
 
