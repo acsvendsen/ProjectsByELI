@@ -110,6 +110,10 @@ control:
       - component_shortlist
       - schematic_direction
       - implementation_sketch
+  implementation_artifact_review_continuity:
+    enabled: true
+    max_recently_changed: 6
+    carry_forward_recently_changed: true
   v1_human_review:
     enabled: true
     keep_revisable_by_default: true

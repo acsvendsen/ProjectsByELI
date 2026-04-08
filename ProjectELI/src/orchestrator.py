@@ -126,6 +126,14 @@ IMPLEMENTATION_ARTIFACT_TYPES = (
     'schematic_direction',
     'implementation_sketch',
 )
+IMPLEMENTATION_ARTIFACT_REVIEW_TRANSITION_REASONS = (
+    'no_longer_qualified',
+    'moved_to_hold',
+    'linked_to_pending_decision',
+    'superseded',
+    'weak_grounding',
+    'moved_out_of_review',
+)
 REFLECT_EXPECTED_TOP_LEVEL_KEYS = (
     'reflection_summary',
     'resonance_signals',
@@ -489,6 +497,7 @@ RETENTION_AUDIT_PATH = PROJECT_STATE_DIR / "retention_audit.json"
 LATEST_ALIAS_STATE_PATH = PROJECT_STATE_DIR / "latest_alias_state.json"
 V1_DECISION_HUMAN_RESPONSES_PATH = PROJECT_STATE_DIR / "v1_decision_human_responses.json"
 V1_DECISION_REVIEW_PATH = PROJECT_STATE_DIR / "v1_decision_review.json"
+IMPLEMENTATION_ARTIFACT_REVIEW_PATH = PROJECT_STATE_DIR / "implementation_artifact_review.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -692,6 +701,11 @@ DEFAULT_COGNITION_SCHEMA = {
             },
         },
         'v1_decision_review_continuity': {
+            'enabled': True,
+            'max_recently_changed': 6,
+            'carry_forward_recently_changed': True,
+        },
+        'implementation_artifact_review_continuity': {
             'enabled': True,
             'max_recently_changed': 6,
             'carry_forward_recently_changed': True,
@@ -928,6 +942,10 @@ control:
       hold: true
       revise_options: true
   v1_decision_review_continuity:
+    enabled: true
+    max_recently_changed: 6
+    carry_forward_recently_changed: true
+  implementation_artifact_review_continuity:
     enabled: true
     max_recently_changed: 6
     carry_forward_recently_changed: true
@@ -4636,6 +4654,14 @@ def enrich_action_inbox_with_reflection(analysis):
             schema=analysis.get('schema', {}),
         )
     )
+    save_implementation_artifact_review_state(
+        build_implementation_artifact_review_state(
+            implementation_artifact_candidates,
+            current_items=updated_items,
+            pending_v1_decisions=v1_decision_candidates,
+            schema=analysis.get('schema', {}),
+        )
+    )
     data['items'] = updated_items
     data['judged_at'] = judged_at
     data['v1_decision_candidates'] = v1_decision_candidates
@@ -5375,6 +5401,251 @@ def save_v1_decision_review_state(data):
     payload = data if isinstance(data, dict) else {'pending_v1_decisions': []}
     payload['updated_at'] = now_iso()
     V1_DECISION_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def implementation_artifact_review_continuity_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('implementation_artifact_review_continuity', {}) if isinstance(control.get('implementation_artifact_review_continuity', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'max_recently_changed': max(1, safe_int(cfg.get('max_recently_changed', 6), 6)),
+        'carry_forward_recently_changed': bool(cfg.get('carry_forward_recently_changed', True)),
+    }
+
+
+def default_implementation_artifact_review_state():
+    return {
+        'generated_at': '',
+        'implementation_artifact_candidates': [],
+        'recently_changed_implementation_artifact_candidates': [],
+        'counts': {
+            'implementation_artifact_candidates': 0,
+            'recently_changed_implementation_artifact_candidates': 0,
+            'linked_to_pending_decision': 0,
+        },
+    }
+
+
+def load_implementation_artifact_review_state():
+    data = load_json_file(IMPLEMENTATION_ARTIFACT_REVIEW_PATH, default_implementation_artifact_review_state())
+    if not isinstance(data, dict):
+        data = default_implementation_artifact_review_state()
+    if not isinstance(data.get('implementation_artifact_candidates'), list):
+        data['implementation_artifact_candidates'] = []
+    if not isinstance(data.get('recently_changed_implementation_artifact_candidates'), list):
+        data['recently_changed_implementation_artifact_candidates'] = []
+    if not isinstance(data.get('counts'), dict):
+        data['counts'] = default_implementation_artifact_review_state().get('counts', {})
+    return data
+
+
+def implementation_artifact_review_key(row):
+    if not isinstance(row, dict):
+        return ''
+    for value in (
+        row.get('artifact_id', ''),
+        row.get('source_action_id', ''),
+        normalize_signal_key(row.get('source_domain', '')),
+        normalize_signal_key(row.get('label', '')),
+    ):
+        if value:
+            return str(value)
+    return ''
+
+
+def build_implementation_artifact_review_transition(previous_row, current_item=None, linked_pending_decision=None, replacement_candidate=None):
+    current_item = current_item if isinstance(current_item, dict) else {}
+    linked_pending_decision = linked_pending_decision if isinstance(linked_pending_decision, dict) else {}
+    replacement_candidate = replacement_candidate if isinstance(replacement_candidate, dict) else {}
+    transition_reason = 'no_longer_qualified'
+    current_location = 'not_currently_in_review'
+    transition_summary = current_item.get('reason', '') or previous_row.get('reason', '')
+    current_review_status = current_item.get('review_status', 'not_currently_in_review') if current_item else 'not_currently_in_review'
+    linked_action = current_item.get('direction_judgment', '') or previous_row.get('linked_action_judgment', '')
+    linked_hold = bool(current_item.get('grounding_hold_active', False) or previous_row.get('linked_hold_active', False))
+    linked_grounding = normalize_scorecard_grounding_status(
+        linked_pending_decision.get('grounding_status', current_item.get('grounding_status', previous_row.get('grounding_status', 'unknown')))
+    )
+
+    if replacement_candidate:
+        transition_reason = 'superseded'
+        current_location = 'implementation_artifact_candidates'
+        transition_summary = (
+            f"This artifact is no longer the current review surface. "
+            f"{replacement_candidate.get('label', 'A newer artifact candidate')} is now the more relevant implementation-artifact review candidate in this area."
+        )
+    elif linked_pending_decision:
+        transition_reason = 'linked_to_pending_decision'
+        current_location = 'pending_v1_decisions'
+        transition_summary = (
+            linked_pending_decision.get('reason', '')
+            or 'This artifact candidate is no longer primary because the same area is now better represented as a bounded pending decision.'
+        )
+    elif linked_hold or linked_action == 'hold_until_new_grounding':
+        transition_reason = 'moved_to_hold'
+        current_location = 'held_pending_grounding'
+        transition_summary = (
+            current_item.get('grounding_hold_reason', '')
+            or previous_row.get('linked_hold_reason', '')
+            or 'This artifact remains relevant, but ELI is now holding it until new grounding appears.'
+        )
+    elif linked_grounding in ('unknown', 'limited_evidence'):
+        transition_reason = 'weak_grounding'
+        current_location = 'not_currently_in_review'
+        transition_summary = (
+            current_item.get('reason', '')
+            or previous_row.get('reason', '')
+            or 'This artifact candidate no longer has enough grounding to stay in the active review surface.'
+        )
+    elif current_item:
+        transition_reason = 'moved_out_of_review'
+        current_location = linked_action or 'not_currently_in_review'
+        transition_summary = (
+            current_item.get('reason', '')
+            or 'This artifact candidate is no longer the current review surface under the latest action judgment.'
+        )
+
+    return {
+        'artifact_id': previous_row.get('artifact_id', current_item.get('artifact_id', '')),
+        'label': previous_row.get('label', current_item.get('label', '')),
+        'artifact_type': previous_row.get('artifact_type', current_item.get('artifact_type', '')),
+        'artifact_type_label': previous_row.get('artifact_type_label', current_item.get('artifact_type_label', '')),
+        'source_action_id': previous_row.get('source_action_id', current_item.get('source_action_id', '')),
+        'source_domain': previous_row.get('source_domain', current_item.get('source_domain', '')),
+        'source_kind': previous_row.get('source_kind', current_item.get('source_kind', '')),
+        'previous_review_status': previous_row.get('review_status', ''),
+        'current_review_status': current_review_status,
+        'transition_reason': transition_reason,
+        'transition_summary': compact_text_excerpt(transition_summary, 320),
+        'current_location': current_location,
+        'linked_decision_id': linked_pending_decision.get('decision_id', ''),
+        'linked_decision_label': linked_pending_decision.get('label', ''),
+        'linked_decision_status': linked_pending_decision.get('candidate_status', ''),
+        'replacement_artifact_id': replacement_candidate.get('artifact_id', ''),
+        'replacement_label': replacement_candidate.get('label', ''),
+        'grounding_status': linked_grounding,
+        'linked_action_judgment': linked_action,
+        'linked_hold_active': linked_hold,
+        'linked_hold_reason': current_item.get('grounding_hold_reason', previous_row.get('linked_hold_reason', '')),
+        'revisable': bool(previous_row.get('revisable', True)),
+        'transition_at': now_iso(),
+    }
+
+
+def build_implementation_artifact_review_state(artifact_rows, current_items=None, pending_v1_decisions=None, schema=None):
+    schema = schema or load_cognition_schema()
+    continuity_cfg = implementation_artifact_review_continuity_config(schema)
+    prior_review = load_implementation_artifact_review_state() if continuity_cfg.get('enabled', True) else default_implementation_artifact_review_state()
+    review_rows = []
+    pending_by_action_id = {}
+    pending_by_domain = {}
+    for item in pending_v1_decisions or []:
+        if not isinstance(item, dict):
+            continue
+        action_id = item.get('action_id', '')
+        if action_id:
+            pending_by_action_id[action_id] = item
+        domain_key = normalize_signal_key(item.get('action_domain', ''))
+        if domain_key:
+            pending_by_domain.setdefault(domain_key, item)
+    items_by_action_id = {}
+    items_by_domain = {}
+    for item in current_items or []:
+        if not isinstance(item, dict):
+            continue
+        action_id = item.get('id', '')
+        if action_id:
+            items_by_action_id[action_id] = item
+        domain_key = normalize_signal_key(item.get('domain', ''))
+        if domain_key:
+            items_by_domain.setdefault(domain_key, item)
+
+    for row in artifact_rows or []:
+        if not isinstance(row, dict):
+            continue
+        domain_key = normalize_signal_key(row.get('source_domain', ''))
+        linked_decision = pending_by_action_id.get(row.get('source_action_id', '')) or pending_by_domain.get(domain_key, {})
+        linked_item = items_by_action_id.get(row.get('source_action_id', '')) or items_by_domain.get(domain_key, {})
+        review_rows.append({
+            'artifact_id': row.get('artifact_id', ''),
+            'label': row.get('label', ''),
+            'artifact_type': row.get('artifact_type', ''),
+            'artifact_type_label': row.get('artifact_type_label', ''),
+            'bounded_framing': row.get('bounded_choice_framing', ''),
+            'reason': row.get('reason', ''),
+            'addresses': row.get('addresses', []),
+            'source_kind': row.get('source_kind', ''),
+            'source_domain': row.get('source_domain', ''),
+            'source_action_id': row.get('source_action_id', ''),
+            'grounding_status': row.get('grounding_status', 'unknown'),
+            'repo_surfaces': row.get('repo_surfaces', []),
+            'pressure_score': row.get('pressure_score', 0.0),
+            'review_status': row.get('review_status', 'provisional_review_candidate'),
+            'provisional': bool(row.get('provisional', True)),
+            'revisable': bool(row.get('revisable', True)),
+            'rank': row.get('rank', 999),
+            'linked_decision_id': linked_decision.get('decision_id', ''),
+            'linked_decision_label': linked_decision.get('label', ''),
+            'linked_decision_status': linked_decision.get('candidate_status', ''),
+            'linked_hold_active': bool(linked_item.get('grounding_hold_active', False)),
+            'linked_hold_reason': linked_item.get('grounding_hold_reason', ''),
+            'linked_action_judgment': linked_item.get('direction_judgment', ''),
+        })
+
+    current_by_key = {implementation_artifact_review_key(row): row for row in review_rows if implementation_artifact_review_key(row)}
+    recent_rows = []
+    recent_by_key = {}
+    if continuity_cfg.get('enabled', True):
+        for previous_row in prior_review.get('implementation_artifact_candidates', []):
+            if not isinstance(previous_row, dict):
+                continue
+            key = implementation_artifact_review_key(previous_row)
+            if not key or key in current_by_key:
+                continue
+            domain_key = normalize_signal_key(previous_row.get('source_domain', ''))
+            current_item = items_by_action_id.get(previous_row.get('source_action_id', '')) or items_by_domain.get(domain_key, {})
+            linked_pending_decision = pending_by_action_id.get(previous_row.get('source_action_id', '')) or pending_by_domain.get(domain_key, {})
+            replacement_candidate = None
+            for candidate in review_rows:
+                if normalize_signal_key(candidate.get('source_domain', '')) == domain_key and candidate.get('artifact_id') != previous_row.get('artifact_id'):
+                    replacement_candidate = candidate
+                    break
+            transition = build_implementation_artifact_review_transition(previous_row, current_item, linked_pending_decision, replacement_candidate)
+            recent_rows.append(transition)
+            recent_by_key[key] = transition
+        if continuity_cfg.get('carry_forward_recently_changed', True):
+            for previous_row in prior_review.get('recently_changed_implementation_artifact_candidates', []):
+                if not isinstance(previous_row, dict):
+                    continue
+                key = implementation_artifact_review_key(previous_row)
+                if not key or key in current_by_key or key in recent_by_key:
+                    continue
+                carried = dict(previous_row)
+                carried.setdefault('transition_at', prior_review.get('updated_at', prior_review.get('generated_at', '')) or now_iso())
+                recent_rows.append(carried)
+                recent_by_key[key] = carried
+        recent_rows.sort(key=lambda row: row.get('transition_at', ''), reverse=True)
+        recent_rows = recent_rows[:continuity_cfg.get('max_recently_changed', 6)]
+
+    return {
+        'generated_at': now_iso(),
+        'allowed_transition_reasons': list(IMPLEMENTATION_ARTIFACT_REVIEW_TRANSITION_REASONS),
+        'implementation_artifact_candidates': review_rows,
+        'recently_changed_implementation_artifact_candidates': recent_rows,
+        'counts': {
+            'implementation_artifact_candidates': len(review_rows),
+            'recently_changed_implementation_artifact_candidates': len(recent_rows),
+            'linked_to_pending_decision': sum(1 for row in review_rows if row.get('linked_decision_id')),
+        },
+    }
+
+
+def save_implementation_artifact_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else {'implementation_artifact_candidates': []}
+    payload['updated_at'] = now_iso()
+    IMPLEMENTATION_ARTIFACT_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
 
 
 def load_specialist_consultation_history():
