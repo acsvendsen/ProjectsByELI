@@ -1,44 +1,39 @@
 # Sleep cycle
 
 ## Inputs Used This Cycle
-- No changed files detected in the latest scan.
-## Consolidation of Key Signals for SmartGlasses Project
+- core/field_v2/modes.json
+- core/field_v2/tensions.json
+# Consolidation
 
-### Strengthening Signals
-1. **Subtitle Clarity**: Focus on ensuring subtitles remain clear, stable, and trustworthy during live conversations.
-2. **Memory Trustworthiness**: Ensure that the memory support is reliable and does not create false certainty or inaccurate recall.
-3. **Core Interaction Design**: Frame-touch interaction remains primary in V1; avoid adding voice commands until explicitly justified.
+## Strengthening Signals
+- **Subtitle Clarity**: The focus on real-time subtitle clarity remains high, indicating a critical need to ensure subtitles are clear and stable in live conversations.
+- **Memory Trust**: Memory support continues to be crucial for remembering names, faces, and prior context accurately without overconfidence.
 
-### Weakening Signals
-1. **Feature Sprawl**: Avoid broad feature expansion unless it directly deepens core functionality like subtitle quality, memory trust, and visual UX.
-2. **Complexity Bloat**: Keep interactions low-friction to reduce social awkwardness and cognitive load on the wearer.
+## Weakening Signals
+- **Low-Friction Assistance**: There's a slight decrease in emphasis on delivering low-friction assistance, suggesting a potential shift towards more complex interaction methods that could add social awkwardness.
+- **Discreet UX vs Visual Clarity**: The pressure for maintaining a discreet user experience is weakening slightly, which might lead to a compromise between social acceptability and visual clarity.
 
-### Contradictions That Must Stay Alive
-1. **Privacy vs Usefulness**: Balance must be maintained between providing useful assistance without compromising privacy.
-2. **Latency vs Richness**: Optimize for timely responses rather than overloading with richer but slower processing features.
-3. **Discreet UX vs Visual Clarity**: Strive for a balance that ensures the system is socially acceptable while still being readable and functional.
+## Contradictions That Must Stay Alive
+- **Privacy vs Usefulness**: This tension remains critical as the system must balance providing useful assistance without compromising privacy.
+- **Latency vs Richness**: The pressure for timely responses over richer but slower processing needs to be managed carefully.
 
-### Dormant Ideas Worth Reactivating
-1. **Subtitle Placement and Visual Hierarchy**: Review subtitle placement strategies to ensure they are optimal for readability without becoming distracting.
+## Dormant Ideas Worth Reactivating
+- **Subtitle Placement**: Given the operator's selection of "More Prominent" placement, this could be a dormant idea worth reactivating and exploring further.
+- **Confidence Display**: The choice of "Label + Reason" for confidence display might need revisiting to ensure it provides enough trust while remaining unobtrusive.
 
-### Concrete Tensions Around Core Mission
-1. **Subtitle Quality, Memory Trust, Fast Lookup**: Prioritize improving these aspects over broad feature expansion.
-2. **Battery Management vs Always-On Sensing**: Address the tension between always-on functionality and battery conservation early in development.
-3. **Real-Time Processing vs Cloud Intelligence**: Decide on a balance that leverages cloud where it adds clear value while keeping local processing minimal.
+## Concrete Tensions Around Core Areas
+### Subtitle Quality, Confidence Trust, Automatic New-Person Memory, Memory Reinforcement, Fast Lookup, Privacy, Latency, Battery, Visual UX
+- **Subtitle Quality**: Ensuring subtitles remain clear and stable in noisy environments.
+- **Confidence Trust**: Balancing the need for confidence objects with avoiding overconfidence that could undermine trust.
+- **Memory Reinforcement**: Strengthening memory policies to ensure names and faces are remembered correctly and reinforced over time.
+- **Fast Lookup**: Improving fast lookup requirements while maintaining battery efficiency.
+- **Privacy**: Managing privacy concerns by ensuring assistive behavior does not infringe on personal boundaries.
+- **Latency**: Ensuring timely responses without overloading the system with complex processing.
+- **Battery**: Balancing always-on sensing against power consumption constraints.
 
-### No Fluff
-- Focus on concrete decisions rather than generic product advice or speculative features.
+## No Fluff
+- The project should continue to surface real-world limitations early, including hardware, battery, thermal, latency, privacy, and usability constraints. This will help in avoiding premature optimization or feature sprawl.
+- Core deepening over feature expansion is the guiding principle, focusing on improving subtitle quality, memory trust, and visual UX.
 
-### Summary of Core Mission and Constraints
-1. **Mission**: Create smart glasses as a discreet, context-aware personal assistant for real-time subtitles, face/name recall, conversation memory, and one-line support.
-2. **Non-negotiables**: Early hardware remains simple; V1 interaction is frame-touch only; context persists across sessions.
-3. **Core Attractors**: Real-time subtitle clarity, trustworthy memory support, low-friction assistance.
-4. **Tensions**: Privacy vs usefulness, latency vs richness, discreet UX vs visual clarity.
-5. **Constraints**: Frame-touch-only V1, phone-first runtime, core-deepening over sprawl.
-
-### Action Items
-- Continue refining subtitle placement and confidence display strategies.
-- Evaluate memory caching policies for fast lookup while maintaining privacy.
-- Ensure all interactions remain low-friction and socially acceptable in V1.
-
-By focusing on these key signals, the project can maintain its core mission and address the critical tensions that will shape its success.
+## Final Thoughts
+The project should continue to prioritize the core mission of providing real-time subtitle assistance, trustworthy memory support, and low-friction assistance. Key areas such as subtitle clarity, memory trust, confidence display, and visual hierarchy need continuous refinement while respecting the constraints on privacy, latency, and battery management.

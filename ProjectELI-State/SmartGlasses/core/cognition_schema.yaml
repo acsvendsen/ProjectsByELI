@@ -56,6 +56,14 @@ control:
     field_repeat_window: 12
     field_min_weighted_evidence_gain: 0.22
     field_min_added_source_types: 1
+  v1_decision_candidates:
+    enabled: true
+    repeat_appearance_min: 3
+    minimum_choice_count: 2
+    minimum_alignment_floor: 0.35
+    minimum_field_evidence_score: 0.48
+    weakly_grounded_min_alignment: 0.38
+    feasible_later_min_alignment: 0.72
 
 specialist_consultation:
   enabled: true

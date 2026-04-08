@@ -19,6 +19,48 @@ DREAM_DOMAINS = [
     "phone/cloud boundary",
     "visual hierarchy",
 ]
+V1_DECISION_DOMAIN_CONFIG = {
+    'subtitle placement': {
+        'decision_id': 'v1_default_subtitle_position',
+        'decision_label': 'V1 Default Subtitle Position',
+        'decision_question': 'What should the default subtitle position behavior be for V1 live use?',
+        'decision_scope': 'v1_default',
+        'subsystem_id': 'subtitle_system',
+        'reality_keys': ['subtitle_placement', 'subtitle_clarity', 'discreet_ux_vs_visual_clarity'],
+    },
+    'confidence display': {
+        'decision_id': 'v1_confidence_display_format',
+        'decision_label': 'V1 Confidence Display Format',
+        'decision_question': 'What confidence format should V1 use by default during live subtitle support?',
+        'decision_scope': 'v1_default',
+        'subsystem_id': 'privacy_trust',
+        'reality_keys': ['confidence_display', 'low_friction_assistance', 'privacy_vs_usefulness'],
+    },
+    'memory/cache policy': {
+        'decision_id': 'v1_memory_cache_default',
+        'decision_label': 'V1 Memory/Cache Default',
+        'decision_question': 'What bounded memory/cache default should V1 use before richer recall behavior is expanded?',
+        'decision_scope': 'v1_default',
+        'subsystem_id': 'memory_system',
+        'reality_keys': ['memory_cache_policy', 'memory_trust', 'privacy_vs_usefulness'],
+    },
+    'phone/cloud boundary': {
+        'decision_id': 'v1_phone_cloud_boundary_default',
+        'decision_label': 'V1 Phone/Cloud Boundary Default',
+        'decision_question': 'What should the default phone/cloud boundary be for V1 live subtitle processing?',
+        'decision_scope': 'v1_default',
+        'subsystem_id': 'wireless_interface',
+        'reality_keys': ['phone_cloud_boundary', 'phone_first_runtime', 'latency_vs_richness'],
+    },
+    'visual hierarchy': {
+        'decision_id': 'v1_visual_hierarchy_default',
+        'decision_label': 'V1 Visual Hierarchy Default',
+        'decision_question': 'What should the default visual hierarchy be for V1 overlays during live conversation?',
+        'decision_scope': 'v1_default',
+        'subsystem_id': 'subtitle_system',
+        'reality_keys': ['visual_hierarchy', 'discreet_ux_vs_visual_clarity', 'subtitle_clarity'],
+    },
+}
 DECISION_VERBS = ("define", "choose", "set", "limit", "compare", "use", "keep", "route", "cache", "show", "hide", "prefer")
 PHONE_CLOUD_TASK_PATTERNS = {
     "live subtitle processing": [r'live subtitle', r'subtitle processing', r'subtitle rendering'],
@@ -78,6 +120,7 @@ REFLECT_EXPECTED_TOP_LEVEL_KEYS = (
     'specialist_consultation_decisions',
     'specialist_consultation_evaluations',
     'action_direction_judgments',
+    'v1_decision_candidates',
     'dormant_idea_returns',
     'suggested_mode_shifts',
     'field_deltas',
@@ -557,6 +600,15 @@ DEFAULT_COGNITION_SCHEMA = {
             'field_min_weighted_evidence_gain': 0.22,
             'field_min_added_source_types': 1,
         },
+        'v1_decision_candidates': {
+            'enabled': True,
+            'repeat_appearance_min': 3,
+            'minimum_choice_count': 2,
+            'minimum_alignment_floor': 0.35,
+            'minimum_field_evidence_score': 0.48,
+            'weakly_grounded_min_alignment': 0.38,
+            'feasible_later_min_alignment': 0.72,
+        },
         'phase7_repo_alignment': {
             'enabled': True,
             'diff_alignment': {
@@ -694,6 +746,14 @@ control:
     field_repeat_window: 12
     field_min_weighted_evidence_gain: 0.22
     field_min_added_source_types: 1
+  v1_decision_candidates:
+    enabled: true
+    repeat_appearance_min: 3
+    minimum_choice_count: 2
+    minimum_alignment_floor: 0.35
+    minimum_field_evidence_score: 0.48
+    weakly_grounded_min_alignment: 0.38
+    feasible_later_min_alignment: 0.72
   phase7_repo_alignment:
     enabled: true
     diff_alignment:
@@ -3871,8 +3931,10 @@ def enrich_action_inbox_with_reflection(analysis):
         })
 
     judgment_rows.sort(key=lambda entry: entry.get('rank', 0) or 999)
+    v1_decision_candidates, updated_items = build_v1_decision_candidates(updated_items, analysis)
     data['items'] = updated_items
     data['judged_at'] = judged_at
+    data['v1_decision_candidates'] = v1_decision_candidates
     data['specialist_consultation'] = {
         'generated_at': judged_at,
         'decisions': specialist_context.get('decisions', []),
@@ -3884,7 +3946,7 @@ def enrich_action_inbox_with_reflection(analysis):
         'judged_at': judged_at,
         'items': updated_items,
     })
-    return judgment_rows, data, specialist_context
+    return judgment_rows, v1_decision_candidates, data, specialist_context
 
 
 def render_reflection_analysis_context(analysis):
@@ -4281,23 +4343,62 @@ REALITY_ASSESSMENT_ALIASES = {
     'subtitle_placement': 'subtitle_clarity',
     'subtitle_placement_feasibility': 'subtitle_clarity',
     'subtitle_clarity': 'subtitle_clarity',
+    'real_time_subtitle_clarity': 'subtitle_clarity',
     'confidence_display': 'confidence_display',
     'confidence_display_feasibility': 'confidence_display',
     'memory_caching': 'memory_trust',
     'memory_cache_policy': 'memory_trust',
     'memory_support': 'memory_trust',
     'memory_trust': 'memory_trust',
+    'trustworthy_memory_support': 'memory_trust',
     'phone_cloud_boundary': 'phone_first_runtime',
     'phone_cloud_boundary_feasibility': 'phone_first_runtime',
     'phone_first_runtime': 'phone_first_runtime',
+    'v1_architecture_direction': 'phone_first_runtime',
     'visual_hierarchy': 'discreet_ux_vs_visual_clarity',
     'visual_hierarchy_feasibility': 'discreet_ux_vs_visual_clarity',
     'privacy_vs_usefulness': 'privacy_vs_usefulness',
     'latency_vs_richness': 'latency_vs_richness',
     'discreet_ux_vs_visual_clarity': 'discreet_ux_vs_visual_clarity',
     'frame_touch_only_v1_interaction': 'frame_touch_only_v1_interaction',
+    'interaction_mode': 'frame_touch_only_v1_interaction',
     'implementation_grounding': 'implementation_grounding',
+    'low_friction_assistance': 'low_friction_assistance',
+    'core_deepening_over_sprawl': 'core_deepening_over_sprawl',
+    'core_deepening_over_sprawl_feasibility': 'core_deepening_over_sprawl',
+    'core_deepening_over_sprawl_current_mode': 'core_deepening_over_sprawl',
 }
+REALITY_ALLOWED_JUDGMENTS = {
+    'feasible_now',
+    'feasible_later',
+    'likely_waste_of_time',
+    'assumptions_needing_evidence',
+    'unknown',
+}
+REALITY_JUDGMENT_PRIORITY = {
+    'feasible_now': 0,
+    'feasible_later': 1,
+    'assumptions_needing_evidence': 2,
+    'likely_waste_of_time': 3,
+    'unknown': 4,
+}
+
+
+def normalize_reality_judgment(value, detail=''):
+    judgment = normalize_signal_key(value)
+    if judgment in REALITY_ALLOWED_JUDGMENTS:
+        return judgment
+    detail_text = str(detail or '')
+    match = re.search(
+        r'\b(feasible now|feasible later|likely waste of time|assumptions needing evidence)\b',
+        detail_text,
+        flags=re.IGNORECASE,
+    )
+    if match:
+        normalized = normalize_signal_key(match.group(1))
+        if normalized in REALITY_ALLOWED_JUDGMENTS:
+            return normalized
+    return 'unknown'
 
 
 def store_reality_assessment(entries, label, target_id, judgment, detail):
@@ -4305,7 +4406,7 @@ def store_reality_assessment(entries, label, target_id, judgment, detail):
     entry = {
         'label': label,
         'target_id': key,
-        'judgment': normalize_signal_key(judgment),
+        'judgment': normalize_reality_judgment(judgment, detail),
         'detail': compact_text_excerpt(detail, 280),
     }
     for candidate in {
@@ -4315,6 +4416,11 @@ def store_reality_assessment(entries, label, target_id, judgment, detail):
         REALITY_ASSESSMENT_ALIASES.get(normalize_signal_key(label), ''),
     }:
         if candidate:
+            existing = entries.get(candidate)
+            existing_rank = REALITY_JUDGMENT_PRIORITY.get(normalize_signal_key(existing.get('judgment', 'unknown')) if isinstance(existing, dict) else 'unknown', 99)
+            new_rank = REALITY_JUDGMENT_PRIORITY.get(entry.get('judgment', 'unknown'), 99)
+            if existing and existing_rank <= new_rank:
+                continue
             entries[candidate] = entry
 
 
@@ -4346,6 +4452,39 @@ def parse_reality_assessments(text):
             judgment_match = re.search(r'\b(feasible now|feasible later|likely waste of time|assumptions needing evidence)\b', detail, flags=re.IGNORECASE)
         judgment = judgment_match.group(1) if judgment_match else ''
         store_reality_assessment(entries, label, heading, judgment, detail)
+    heading_summary_pattern = re.compile(
+        r'^##\s+(.+?):\s*(feasible now|feasible later|likely waste of time|assumptions needing evidence|frame-touch only v1)\s*$([\s\S]*?)(?=^##\s+|\Z)',
+        flags=re.MULTILINE | re.IGNORECASE,
+    )
+    for match in heading_summary_pattern.finditer(text):
+        label = (match.group(1) or '').strip()
+        raw_judgment = (match.group(2) or '').strip()
+        detail = (match.group(3) or '').strip()
+        judgment = 'feasible_now' if normalize_signal_key(raw_judgment) == 'frame_touch_only_v1' else raw_judgment
+        store_reality_assessment(entries, label, label, judgment, detail)
+    section_pattern = re.compile(r'^##\s+(.+?)\s*$([\s\S]*?)(?=^##\s+|\Z)', flags=re.MULTILINE)
+    for match in section_pattern.finditer(text):
+        label = (match.group(1) or '').strip()
+        body = (match.group(2) or '').strip()
+        if not body:
+            continue
+        judgment_match = re.search(
+            r'\*\*(feasible now|feasible later|likely waste of time|assumptions needing evidence|frame-touch only v1)\*\*',
+            body,
+            flags=re.IGNORECASE,
+        )
+        if not judgment_match:
+            judgment_match = re.search(
+                r'\b(feasible now|feasible later|likely waste of time|assumptions needing evidence|frame-touch only v1)\b',
+                body,
+                flags=re.IGNORECASE,
+            )
+        if not judgment_match:
+            continue
+        judgment = judgment_match.group(1)
+        if normalize_signal_key(judgment) == 'frame_touch_only_v1':
+            judgment = 'feasible_now'
+        store_reality_assessment(entries, label, label, judgment, body)
     bullet_pattern = re.compile(r'^\s*(?:[-*]|\d+\.)\s+\*\*(.+?)(?:\s+\(([^)]+)\))?\*\*:\s*(.+)$', flags=re.MULTILINE)
     for match in bullet_pattern.finditer(text):
         label = (match.group(1) or '').strip()
@@ -4603,6 +4742,335 @@ def apply_scorecard_grounding(scorecard, prior_reports):
         f"they are active but constrained areas whose readiness is limited by trust, latency, and missing direct subsystem evidence."
     )
     return scorecard
+
+
+def load_scorecard_state():
+    data = load_json_file(SCORECARD_STATE_PATH, {'dimensions': []})
+    if not isinstance(data, dict):
+        data = {'dimensions': []}
+    if not isinstance(data.get('dimensions'), list):
+        data['dimensions'] = []
+    return data
+
+
+def scorecard_dimension_index(scorecard):
+    config = project_scorecard_config()
+    config_by_id = {
+        cfg.get('id'): cfg
+        for cfg in config.get('dimensions', [])
+        if isinstance(cfg, dict) and cfg.get('id')
+    }
+    index = {}
+    for item in scorecard.get('dimensions', []):
+        if not isinstance(item, dict) or not item.get('id'):
+            continue
+        merged = dict(config_by_id.get(item.get('id'), {}))
+        merged.update(item)
+        merged['grounding_status'] = normalize_scorecard_grounding_status(merged.get('grounding_status', 'unknown'))
+        index[item.get('id')] = merged
+    for dim_id, cfg in config_by_id.items():
+        index.setdefault(dim_id, {
+            'id': dim_id,
+            'label': cfg.get('label', dim_id),
+            'status': 'unknown',
+            'grounding_status': 'unknown',
+        })
+    return index
+
+
+def select_reality_feasibility(reality_assessments, keys):
+    priority = {
+        'feasible_now': 0,
+        'feasible_later': 1,
+        'assumptions_needing_evidence': 2,
+        'likely_waste_of_time': 3,
+        'unknown': 4,
+        '': 5,
+    }
+    selected = {
+        'label': '',
+        'target_id': '',
+        'judgment': 'unknown',
+        'detail': '',
+    }
+    normalized_keys = [normalize_signal_key(key) for key in keys if normalize_signal_key(key)]
+
+    def best_for_key(key):
+        best_match = None
+        best_rank = 99
+
+        def consider(entry):
+            nonlocal best_match, best_rank
+            if not isinstance(entry, dict) or not entry:
+                return
+            judgment = normalize_signal_key(entry.get('judgment', 'unknown')) or 'unknown'
+            rank = priority.get(judgment, 98)
+            if rank < best_rank:
+                best_match = {
+                    'label': entry.get('label', ''),
+                    'target_id': entry.get('target_id', key),
+                    'judgment': judgment,
+                    'detail': entry.get('detail', ''),
+                }
+                best_rank = rank
+
+        exact_entry = reality_assessments.get(key, {})
+        if exact_entry:
+            consider(exact_entry)
+            return best_match
+
+        for entry_key, entry in reality_assessments.items():
+            entry_key_norm = normalize_signal_key(entry_key)
+            label_norm = normalize_signal_key(entry.get('label', ''))
+            if key in entry_key_norm or entry_key_norm in key or (label_norm and (key in label_norm or label_norm in key)):
+                consider(entry)
+
+        return best_match
+
+    for key in normalized_keys:
+        match = best_for_key(key)
+        if match:
+            return match
+
+    for key in normalized_keys:
+        alias_key = REALITY_ASSESSMENT_ALIASES.get(key, '')
+        if not alias_key or alias_key == key:
+            continue
+        match = best_for_key(alias_key)
+        if match:
+            return match
+
+    if normalized_keys:
+        selected['target_id'] = normalized_keys[0]
+    return selected
+
+
+def direct_v1_decision_grounding_status(item, feasibility_judgment):
+    field_evidence_score = safe_float(item.get('field_evidence_score', 0.0), 0.0)
+    alignment_score = safe_float(item.get('alignment_score', 0.0), 0.0)
+    if feasibility_judgment == 'feasible_now' and field_evidence_score >= 0.62 and alignment_score >= 0.35:
+        return 'grounded', 'reflect_reality'
+    if feasibility_judgment in ('feasible_now', 'feasible_later') and field_evidence_score >= 0.48:
+        return 'weakly_grounded', 'reflect_reality'
+    if feasibility_judgment and feasibility_judgment != 'unknown':
+        return 'limited_evidence', 'reality_only'
+    return 'unknown', ''
+
+
+def build_v1_decision_candidate(item, analysis, scorecard_index, reality_assessments):
+    defaults = {
+        'v1_decision_candidate_id': '',
+        'v1_decision_candidate_label': '',
+        'v1_decision_candidate_question': '',
+        'v1_decision_candidate_scope': '',
+        'v1_decision_candidate_status': 'not_candidate',
+        'v1_decision_candidate_reason': '',
+        'v1_decision_candidate_confidence': 0.0,
+        'v1_decision_candidate_subsystem': '',
+        'v1_decision_candidate_subsystem_label': '',
+        'v1_decision_candidate_grounding_status': 'unknown',
+        'v1_decision_candidate_grounding_source': '',
+        'v1_decision_candidate_feasibility': 'unknown',
+        'v1_decision_candidate_feasibility_detail': '',
+        'v1_decision_candidate_cycle_state': 'not_candidate',
+        'v1_decision_candidate_revision_signals': [],
+    }
+    domain_cfg = V1_DECISION_DOMAIN_CONFIG.get(item.get('domain', ''))
+    if not domain_cfg:
+        return defaults
+
+    schema = analysis.get('schema', load_cognition_schema())
+    cfg = schema.get('control', {}).get('v1_decision_candidates', {})
+    if not cfg.get('enabled', True):
+        return defaults
+
+    choices = item.get('choices', [])
+    choice_count = len(choices) if isinstance(choices, list) else 0
+    if choice_count < int(cfg.get('minimum_choice_count', 2) or 2):
+        defaults['v1_decision_candidate_reason'] = 'No bounded V1 choice set is available yet.'
+        return defaults
+
+    scorecard_entry = scorecard_index.get(domain_cfg.get('subsystem_id'), {})
+    feasibility = select_reality_feasibility(reality_assessments, domain_cfg.get('reality_keys', []))
+    subsystem_grounding_status = normalize_scorecard_grounding_status(scorecard_entry.get('grounding_status', 'unknown'))
+    grounding_source = 'scorecard' if subsystem_grounding_status != 'unknown' else ''
+    if subsystem_grounding_status == 'unknown':
+        subsystem_grounding_status, grounding_source = direct_v1_decision_grounding_status(item, feasibility.get('judgment', 'unknown'))
+
+    appearance_count = max(1, safe_int(item.get('appearance_count', 0), 0))
+    repeated = appearance_count >= int(cfg.get('repeat_appearance_min', 3) or 3)
+    alignment_score = safe_float(item.get('alignment_score', 0.0), 0.0)
+    field_evidence_score = safe_float(item.get('field_evidence_score', 0.0), 0.0)
+    direction_judgment = item.get('direction_judgment', '')
+    hold_active = bool(item.get('grounding_hold_active', False))
+    feasibility_judgment = feasibility.get('judgment', 'unknown')
+    grounding_status = subsystem_grounding_status
+
+    defaults.update({
+        'v1_decision_candidate_id': domain_cfg.get('decision_id', ''),
+        'v1_decision_candidate_label': domain_cfg.get('decision_label', ''),
+        'v1_decision_candidate_question': domain_cfg.get('decision_question', ''),
+        'v1_decision_candidate_scope': domain_cfg.get('decision_scope', ''),
+        'v1_decision_candidate_subsystem': domain_cfg.get('subsystem_id', ''),
+        'v1_decision_candidate_subsystem_label': scorecard_entry.get('label', domain_cfg.get('subsystem_id', '')),
+        'v1_decision_candidate_grounding_status': grounding_status,
+        'v1_decision_candidate_grounding_source': grounding_source,
+        'v1_decision_candidate_feasibility': feasibility_judgment,
+        'v1_decision_candidate_feasibility_detail': feasibility.get('detail', ''),
+        'v1_decision_candidate_revision_signals': item.get('grounding_release_signals', []) or [
+            'real repo grounding materially changes',
+            'runtime truth materially changes',
+            'a new source type appears',
+            'resistance meaningfully drops',
+        ],
+    })
+
+    if hold_active:
+        defaults['v1_decision_candidate_status'] = 'held_pending_grounding'
+        defaults['v1_decision_candidate_cycle_state'] = 'held_candidate'
+        defaults['v1_decision_candidate_reason'] = (
+            item.get('grounding_hold_reason', '')
+            or 'This remains a meaningful V1-shaping question, but it is still held until grounding improves.'
+        )
+        defaults['v1_decision_candidate_confidence'] = round(clamp_number(
+            0.36 + (field_evidence_score * 0.18),
+            0.32,
+            0.68,
+        ), 3)
+        return defaults
+
+    if not repeated:
+        defaults['v1_decision_candidate_reason'] = 'It has not recurred often enough yet to justify surfacing as a bounded V1 decision.'
+        return defaults
+
+    if grounding_status not in ('grounded', 'weakly_grounded'):
+        defaults['v1_decision_candidate_reason'] = 'It still lacks enough subsystem grounding to be surfaced as a pending V1 choice.'
+        return defaults
+
+    if alignment_score < safe_float(cfg.get('minimum_alignment_floor', 0.35), 0.35):
+        defaults['v1_decision_candidate_reason'] = 'It is recurring, but current project-fit is still too weak for explicit V1 decision surfacing.'
+        return defaults
+
+    if field_evidence_score < safe_float(cfg.get('minimum_field_evidence_score', 0.48), 0.48):
+        defaults['v1_decision_candidate_reason'] = 'It still needs broader field support before it should become a pending V1 decision.'
+        return defaults
+
+    if grounding_status == 'weakly_grounded' and alignment_score < safe_float(cfg.get('weakly_grounded_min_alignment', 0.6), 0.6):
+        defaults['v1_decision_candidate_reason'] = 'Weakly grounded evidence is present, but the project-fit is not strong enough yet for explicit V1 decision surfacing.'
+        return defaults
+
+    if feasibility_judgment not in ('feasible_now', 'feasible_later'):
+        defaults['v1_decision_candidate_reason'] = 'Reality has not yet supported this as a feasible V1 decision surface.'
+        return defaults
+
+    if feasibility_judgment == 'feasible_later' and alignment_score < safe_float(cfg.get('feasible_later_min_alignment', 0.72), 0.72):
+        defaults['v1_decision_candidate_reason'] = 'It is relevant, but current feasibility still looks later than V1-default surfacing should allow.'
+        return defaults
+
+    previous_status = item.get('v1_decision_candidate_status', 'not_candidate')
+    cycle_state = 'new_candidate'
+    if previous_status == 'pending_v1_decision':
+        cycle_state = 'persistent_candidate' if not item.get('material_change_detected', False) else 'refreshed_candidate'
+
+    reason_parts = [
+        'Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision',
+        f"subsystem grounding is {grounding_status.replace('_', ' ')}",
+        f"reality currently reads {feasibility_judgment.replace('_', ' ')}",
+        f"the choice is bounded to {choice_count} explicit V1 options",
+    ]
+    if item.get('resurfacing_classification') == 'noisy_repetition':
+        reason_parts.append('promoting it to a decision candidate should reduce repeated abstract re-probing')
+    if direction_judgment in ('kill', 'pause'):
+        reason_parts.append(f"this does not reopen it as an action even though current action judgment is {direction_judgment}")
+    if cycle_state == 'persistent_candidate':
+        reason_parts.append('it is already a pending V1 decision candidate, so later cycles should keep the question bounded unless grounding changes')
+
+    defaults['v1_decision_candidate_status'] = 'pending_v1_decision'
+    defaults['v1_decision_candidate_cycle_state'] = cycle_state
+    defaults['v1_decision_candidate_reason'] = '. '.join(reason_parts) + '.'
+    defaults['v1_decision_candidate_confidence'] = round(clamp_number(
+        0.42
+        + (0.12 if grounding_status == 'grounded' else 0.07)
+        + (0.08 if feasibility_judgment == 'feasible_now' else 0.03)
+        + min(0.1, appearance_count * 0.01)
+        + min(0.08, field_evidence_score * 0.1),
+        0.45,
+        0.9,
+    ), 3)
+    return defaults
+
+
+def build_v1_decision_candidates(items, analysis):
+    scorecard_index = scorecard_dimension_index(load_scorecard_state())
+    reality_path = latest_report_path('reality')
+    reality_assessments = parse_reality_assessments(read_file_excerpt(reality_path) if reality_path else '')
+    updated_items = []
+    candidate_rows = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        candidate = build_v1_decision_candidate(item, analysis, scorecard_index, reality_assessments)
+        enriched = dict(item)
+        enriched.update(candidate)
+        updated_items.append(enriched)
+        if candidate.get('v1_decision_candidate_status') != 'pending_v1_decision':
+            continue
+        candidate_rows.append({
+            'decision_id': candidate.get('v1_decision_candidate_id', ''),
+            'label': candidate.get('v1_decision_candidate_label', ''),
+            'question': candidate.get('v1_decision_candidate_question', ''),
+            'scope': candidate.get('v1_decision_candidate_scope', ''),
+            'action_id': enriched.get('id', ''),
+            'action_title': enriched.get('title', ''),
+            'action_domain': enriched.get('domain', ''),
+            'subsystem_id': candidate.get('v1_decision_candidate_subsystem', ''),
+            'subsystem_label': candidate.get('v1_decision_candidate_subsystem_label', ''),
+            'grounding_status': candidate.get('v1_decision_candidate_grounding_status', 'unknown'),
+            'grounding_source': candidate.get('v1_decision_candidate_grounding_source', ''),
+            'feasibility': candidate.get('v1_decision_candidate_feasibility', 'unknown'),
+            'feasibility_detail': candidate.get('v1_decision_candidate_feasibility_detail', ''),
+            'candidate_status': candidate.get('v1_decision_candidate_status', 'pending_v1_decision'),
+            'candidate_cycle_state': candidate.get('v1_decision_candidate_cycle_state', 'new_candidate'),
+            'direction_judgment': enriched.get('direction_judgment', ''),
+            'reason': candidate.get('v1_decision_candidate_reason', ''),
+            'revision_signals': candidate.get('v1_decision_candidate_revision_signals', []),
+            'appearance_count': enriched.get('appearance_count', 1),
+            'resurfacing_classification': enriched.get('resurfacing_classification', ''),
+            'selected_choice_id': enriched.get('selected_choice_id', ''),
+            'selected_choice_label': enriched.get('selected_choice_label', ''),
+            'options': [
+                {
+                    'id': choice.get('id', ''),
+                    'label': choice.get('label', ''),
+                }
+                for choice in enriched.get('choices', [])
+                if isinstance(choice, dict)
+            ],
+            'confidence': candidate.get('v1_decision_candidate_confidence', 0.0),
+        })
+
+    priority = {'grounded': 0, 'weakly_grounded': 1, 'limited_evidence': 2, 'unknown': 3}
+    candidate_rows.sort(
+        key=lambda item: (
+            priority.get(item.get('grounding_status', 'unknown'), 9),
+            0 if item.get('feasibility') == 'feasible_now' else 1,
+            -safe_float(item.get('confidence', 0.0), 0.0),
+            item.get('label', ''),
+        )
+    )
+    rank_by_action_id = {
+        item.get('action_id'): index + 1
+        for index, item in enumerate(candidate_rows)
+        if item.get('action_id')
+    }
+    for row in candidate_rows:
+        row['rank'] = rank_by_action_id.get(row.get('action_id'), 0)
+    final_items = []
+    for item in updated_items:
+        enriched = dict(item)
+        enriched['v1_decision_candidate_rank'] = rank_by_action_id.get(item.get('id'), 0)
+        final_items.append(enriched)
+    return candidate_rows, final_items
 
 
 def domain_action_choices(domain):
@@ -4914,10 +5382,27 @@ def sync_action_inbox_from_dream(dream_body):
             'resurfacing_despite_resistance': preserved.get('resurfacing_despite_resistance', False),
             'resurfacing_classification': preserved.get('resurfacing_classification', 'first_seen'),
             'resurfacing_reason': preserved.get('resurfacing_reason', ''),
+            'v1_decision_candidate_id': preserved.get('v1_decision_candidate_id', ''),
+            'v1_decision_candidate_label': preserved.get('v1_decision_candidate_label', ''),
+            'v1_decision_candidate_question': preserved.get('v1_decision_candidate_question', ''),
+            'v1_decision_candidate_scope': preserved.get('v1_decision_candidate_scope', ''),
+            'v1_decision_candidate_status': preserved.get('v1_decision_candidate_status', 'not_candidate'),
+            'v1_decision_candidate_reason': preserved.get('v1_decision_candidate_reason', ''),
+            'v1_decision_candidate_confidence': preserved.get('v1_decision_candidate_confidence', 0.0),
+            'v1_decision_candidate_subsystem': preserved.get('v1_decision_candidate_subsystem', ''),
+            'v1_decision_candidate_subsystem_label': preserved.get('v1_decision_candidate_subsystem_label', ''),
+            'v1_decision_candidate_grounding_status': preserved.get('v1_decision_candidate_grounding_status', 'unknown'),
+            'v1_decision_candidate_grounding_source': preserved.get('v1_decision_candidate_grounding_source', ''),
+            'v1_decision_candidate_feasibility': preserved.get('v1_decision_candidate_feasibility', 'unknown'),
+            'v1_decision_candidate_feasibility_detail': preserved.get('v1_decision_candidate_feasibility_detail', ''),
+            'v1_decision_candidate_cycle_state': preserved.get('v1_decision_candidate_cycle_state', 'not_candidate'),
+            'v1_decision_candidate_revision_signals': preserved.get('v1_decision_candidate_revision_signals', []),
+            'v1_decision_candidate_rank': preserved.get('v1_decision_candidate_rank', 0),
         })
     payload = {
         'source': 'latest_dream',
         'items': items,
+        'v1_decision_candidates': existing.get('v1_decision_candidates', []),
     }
     save_action_inbox(payload)
     save_action_memory({
@@ -5872,6 +6357,7 @@ def render_reflect_markdown(reflect_data, applied_entries):
         ('Specialist Consultation Decisions', reflect_data.get('specialist_consultation_decisions', []), 'specialist_label'),
         ('Specialist Consultation Evaluations', reflect_data.get('specialist_consultation_evaluations', []), 'specialist_label'),
         ('Action Direction Judgments', reflect_data.get('action_direction_judgments', []), 'title'),
+        ('V1 Decision Candidates', reflect_data.get('v1_decision_candidates', []), 'label'),
         ('Possible Drift', reflect_data.get('possible_drift', []), None),
         ('Dormant Ideas Worth Reactivation', reflect_data.get('dormant_ideas_worth_reactivation', []), None),
         ('Dormant Idea Returns', reflect_data.get('dormant_idea_returns', []), 'label'),
@@ -5967,6 +6453,27 @@ def render_reflect_markdown(reflect_data, applied_entries):
                         extra += f" | mode {item.get('specialist_consultation_mode', '')}"
                 if item.get('specialist_evaluation'):
                     extra += f" | specialist_eval {item.get('specialist_evaluation', '')}"
+            elif heading == 'V1 Decision Candidates':
+                option_labels = ', '.join(
+                    option.get('label', '')
+                    for option in item.get('options', [])
+                    if isinstance(option, dict) and option.get('label')
+                ) or 'none'
+                extra = (
+                    f" | rank {item.get('rank', '')}"
+                    f" | action {item.get('action_domain', '') or item.get('action_title', '')}"
+                    f" | subsystem {item.get('subsystem_label', '')}"
+                    f" | grounding {item.get('grounding_status', '')}"
+                    f" | feasibility {item.get('feasibility', '')}"
+                    f" | state {item.get('candidate_cycle_state', '')}"
+                    f" | options {option_labels}"
+                )
+                if item.get('direction_judgment'):
+                    extra += f" | action_judgment {item.get('direction_judgment', '')}"
+                if item.get('selected_choice_label'):
+                    extra += f" | selected {item.get('selected_choice_label', '')}"
+                if item.get('revision_signals'):
+                    extra += f" | revisable_when {', '.join(item.get('revision_signals', []))}"
             elif heading == 'Dormant Ideas Worth Reactivation':
                 extra = f" | type {item.get('type', '')}"
             elif heading == 'Dormant Idea Returns':
@@ -6026,8 +6533,9 @@ def generate_reflect_cycle(changes, prior_reports):
     if reflect_diagnostics.get('status') != 'valid':
         reflect_data['reflect_generation_diagnostics'] = reflect_diagnostics
     reflect_data = enrich_reflect_output(reflect_data, analysis)
-    action_direction_judgments, action_inbox, specialist_context = enrich_action_inbox_with_reflection(analysis)
+    action_direction_judgments, v1_decision_candidates, action_inbox, specialist_context = enrich_action_inbox_with_reflection(analysis)
     reflect_data['action_direction_judgments'] = action_direction_judgments
+    reflect_data['v1_decision_candidates'] = v1_decision_candidates
     reflect_data = enrich_phase6_reflect_output(reflect_data, analysis, action_inbox)
     reflect_data = enrich_phase7_reflect_output(reflect_data, analysis, action_inbox)
     reflect_data = enrich_specialist_reflect_output(reflect_data, specialist_context)
@@ -6057,6 +6565,7 @@ def generate_reflect_cycle(changes, prior_reports):
             'specialist_consultation_evaluations': specialist_context.get('evaluations', []),
             'specialist_trust_memory': specialist_context.get('trust_memory', {}),
             'action_direction_judgments': action_direction_judgments,
+            'v1_decision_candidates': v1_decision_candidates,
             'dormant_idea_returns': reflect_data.get('dormant_idea_returns', []),
             'source_weighting': analysis.get('source_weighting', {}),
         },
