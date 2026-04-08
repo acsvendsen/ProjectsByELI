@@ -219,6 +219,58 @@ ELI should be able to keep useful fragments while rejecting misaligned parts.
 
 ---
 
+## Disciplined suspension and V1 decision candidates
+
+### Hold until new grounding
+ELI should be able to recognize when an idea is still meaningful but not newly actionable.
+
+This state should not be treated as:
+- solved
+- dead
+- promoted
+- forgotten
+
+Instead, it should be treated as a disciplined suspension state.
+
+A held item remains relevant, but should not keep resurfacing as if it were newly actionable when:
+- repo grounding has not materially improved
+- source novelty is insufficient
+- runtime truth has not materially changed
+- resistance remains high without new counter-evidence
+- pull has not materially increased
+
+This behavior exists to reduce repetitive pseudo-motion while preserving unresolved tensions and legitimate future re-emergence.
+
+The hold state must lift when grounding truly improves.
+
+### V1 decision candidates
+ELI should be able to surface a bounded V1 decision candidate when a recurring project question has enough repeated support, feasibility, and grounding to be presented explicitly as a pending choice.
+
+A V1 decision candidate is:
+- narrower than a general idea
+- more explicit than a recurring probe
+- not an automatic commitment
+- not a bypass around ELI judgment
+- not proof that the underlying tension is fully resolved
+
+Its purpose is to convert repeated, grounded, high-value V1-shaping questions into explicit pending decisions rather than endlessly re-probing them abstractly.
+
+A V1 decision candidate should only be surfaced when:
+- the domain is relevant to bounded V1 shaping
+- the choice set is explicit enough to present cleanly
+- repeated support is present
+- feasibility is grounded enough
+- field alignment is strong enough
+- the item is not currently being held for lack of new grounding
+
+Decision candidates must remain:
+- visible
+- auditable
+- revisable
+- subordinate to ELI’s final judgment
+
+---
+
 ## Repo-grounded alignment (Phase 7)
 
 ### Goal
