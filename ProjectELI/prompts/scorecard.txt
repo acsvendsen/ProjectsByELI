@@ -8,6 +8,19 @@ Hard grounding rules:
 - Keep each dimension scoped to itself unless the provided inputs explicitly connect them.
 - If evidence is weak, mark that clearly instead of pretending certainty.
 
+Response protocol:
+- Think through the assessment first, then return exactly one final JSON object.
+- The final response must begin with `{` and end with `}`.
+- Do not include markdown fences, backticks, commentary, headings, bullets, comments, or any prose before or after the JSON object.
+- Use double quotes for every key and every string value.
+- Do not use trailing commas.
+- Do not use ellipses, placeholder comments, or schema notes inside the output.
+- Keep the top-level object to exactly these keys: `"project_summary"` and `"dimensions"`.
+- Include every configured dimension exactly once inside `"dimensions"`.
+- Keep every dimension object to the exact keys shown below.
+- If a string field has weak evidence, use a conservative short string instead of changing the structure.
+- Before responding, internally verify that `"project_summary"` is followed by a comma before `"dimensions"`, and that the final response is valid JSON.
+
 Return strict JSON only in this shape:
 {
   "project_summary": "short paragraph",
@@ -35,3 +48,4 @@ Rules for output:
 - If the evidence is real but narrow, prefer `limited_evidence` or `weakly_grounded` over a generic unknown.
 - `grounding_basis` must name the current evidence source or explain what is still missing.
 - `next_focus` must be concrete and specific to the dimension.
+- Keep the JSON structurally strict even when the assessment is cautious; conservative valid JSON is better than richer malformed JSON.

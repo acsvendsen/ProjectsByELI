@@ -138,6 +138,10 @@ REFLECT_EXPECTED_TOP_LEVEL_KEYS = (
     'suggested_mode_shifts',
     'field_deltas',
 )
+SCORECARD_EXPECTED_TOP_LEVEL_KEYS = (
+    'project_summary',
+    'dimensions',
+)
 REPO_ALIGNMENT_CLASSIFICATIONS = (
     'aligned',
     'productive_resistance',
@@ -6579,6 +6583,17 @@ def validate_reflect_payload(payload):
     return True, '', recognized
 
 
+def validate_scorecard_payload(payload):
+    if not isinstance(payload, dict):
+        return False, 'Scorecard payload did not parse as a top-level JSON object.', []
+    recognized = sorted(key for key in payload.keys() if key in SCORECARD_EXPECTED_TOP_LEVEL_KEYS)
+    if 'project_summary' not in payload or 'dimensions' not in payload:
+        return False, 'Parsed JSON object did not contain both required scorecard keys: project_summary and dimensions.', recognized
+    if not isinstance(payload.get('dimensions'), list):
+        return False, 'Scorecard payload dimensions field must be a JSON array.', recognized
+    return True, '', recognized
+
+
 def build_reflect_fallback_payload(diagnostics):
     error_text = diagnostics.get('error') or 'Reflect output could not be parsed as valid JSON.'
     return {
@@ -6640,6 +6655,52 @@ def parse_reflect_output(raw):
         'error': last_error or 'Reflect JSON remained invalid after deterministic repair attempts.',
     })
     return build_reflect_fallback_payload(diagnostics), diagnostics
+
+
+def parse_scorecard_output(raw):
+    raw_text = str(raw or '').strip()
+    fenced = re.search(r'```(?:json)?\s*(.*?)\s*```', raw_text, flags=re.DOTALL)
+    source_text = fenced.group(1).strip() if fenced else raw_text
+    candidate = extract_balanced_json_object(source_text)
+    diagnostics = {
+        'status': 'valid',
+        'source': 'fenced_block' if fenced else 'raw_response',
+        'repair_strategy': 'none',
+        'error': '',
+        'recognized_keys': [],
+        'raw_excerpt': compact_text_excerpt(raw_text, 320),
+        'candidate_excerpt': compact_text_excerpt(candidate or source_text, 320),
+    }
+    if candidate:
+        last_error = ''
+        for strategy, variant in reflect_json_variants(candidate):
+            try:
+                payload = json.loads(variant)
+            except json.JSONDecodeError as exc:
+                last_error = f'{exc.msg}: line {exc.lineno} column {exc.colno} (char {exc.pos})'
+                continue
+            valid, issue, recognized = validate_scorecard_payload(payload)
+            if not valid:
+                last_error = issue
+                continue
+            diagnostics['recognized_keys'] = recognized
+            diagnostics['repair_strategy'] = strategy if strategy != 'raw' else 'none'
+            if strategy != 'raw':
+                diagnostics['status'] = 'repaired'
+            return payload, diagnostics
+        diagnostics['error'] = last_error
+    try:
+        payload = extract_json_payload(raw_text)
+    except Exception as exc:
+        error_text = diagnostics.get('error') or str(exc) or 'Scorecard JSON remained invalid after deterministic repair attempts.'
+        raise ValueError(error_text) from exc
+    valid, issue, recognized = validate_scorecard_payload(payload)
+    if not valid:
+        raise ValueError(issue)
+    diagnostics['recognized_keys'] = recognized
+    diagnostics['repair_strategy'] = 'generic_extract_json_payload'
+    diagnostics['status'] = 'repaired'
+    return payload, diagnostics
 
 
 def sync_action_inbox_from_dream(dream_body):
@@ -6758,6 +6819,19 @@ def scorecard_context(changes, prior_reports):
 
 def render_scorecard_markdown(scorecard):
     lines = ['## Project Summary', scorecard.get('project_summary', 'No summary generated.'), '']
+    diagnostics = scorecard.get('scorecard_generation_diagnostics', {})
+    if diagnostics:
+        lines.append('## Scorecard Diagnostics')
+        lines.append(
+            f"- status: {diagnostics.get('status', '')} | source: {diagnostics.get('source', '')} | repair_strategy: {diagnostics.get('repair_strategy', 'none')}"
+        )
+        if diagnostics.get('error'):
+            lines.append(f"- note: {diagnostics.get('error')}")
+        if diagnostics.get('recognized_keys'):
+            lines.append(f"- recognized_keys: {', '.join(diagnostics.get('recognized_keys', []))}")
+        if diagnostics.get('raw_excerpt'):
+            lines.append(f"- raw_excerpt: {diagnostics.get('raw_excerpt')}")
+        lines.append('')
     append_transcript_quality_section(lines, scorecard.get('transcript_quality_handling', {}))
     for dim in scorecard.get('dimensions', []):
         lines.append(f"## {dim.get('label', dim.get('id', 'Dimension'))}")
@@ -6809,8 +6883,10 @@ def generate_scorecard_cycle(changes, prior_reports):
     system = load_prompt('scorecard')
     context = scorecard_context(changes, prior_reports)
     raw = ollama_generate(system, context)
-    scorecard = extract_json_payload(raw)
+    scorecard, scorecard_diagnostics = parse_scorecard_output(raw)
     scorecard = normalize_scorecard(scorecard)
+    if scorecard_diagnostics.get('status') != 'valid':
+        scorecard['scorecard_generation_diagnostics'] = scorecard_diagnostics
     scorecard = apply_scorecard_grounding(scorecard, prior_reports)
     scorecard['transcript_quality_handling'] = build_transcript_quality_handling(
         prior_reports=prior_reports,
@@ -8492,12 +8568,26 @@ def run_scorecard_cycle(changes, prior_reports):
         output = attach_cycle_metadata('scorecard', changes, output)
         title = 'Scorecard cycle'
         prio = parse_priority(output)
-        conf = 0.78
+        scorecard_state = load_scorecard_state()
+        diagnostics = scorecard_state.get('scorecard_generation_diagnostics', {})
+        conf = 0.72 if diagnostics.get('status') == 'repaired' else 0.78
         store_memory('scorecard', title, output, priority=prio, confidence=conf)
         path = write_report('scorecard', output)
         duration_ms = int((dt.datetime.now() - started).total_seconds() * 1000)
         store_cycle_run('scorecard', started_at, now_iso(), 'ok', duration_ms, len(changes), str(path), '')
-        write_runtime_state(state='running', current_cycle=None, current_project=PROJECT_SLUG, last_completed_cycle='scorecard', last_cycle_status='ok', last_cycle_finished_at=now_iso(), last_report_path=str(path), last_error='')
+        write_runtime_state(
+            state='running',
+            current_cycle=None,
+            current_project=PROJECT_SLUG,
+            last_completed_cycle='scorecard',
+            last_cycle_status='ok',
+            last_cycle_finished_at=now_iso(),
+            last_report_path=str(path),
+            last_error='',
+            scorecard_generation_status=diagnostics.get('status', 'valid'),
+            scorecard_generation_repair_strategy=diagnostics.get('repair_strategy', 'none'),
+            scorecard_generation_note=diagnostics.get('error', ''),
+        )
         return path
     except Exception as exc:
         duration_ms = int((dt.datetime.now() - started).total_seconds() * 1000)

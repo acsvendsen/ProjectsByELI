@@ -76,6 +76,18 @@ Field-delta rules:
 - do not let specialist recommendations or artifact drafts override field logic, action judgment, or reflect authority
 - do not treat diagrams, schematics, report packaging, or other artifact-oriented specialist output as authoritative reasoning by themselves
 
+Response protocol:
+- Think through the judgment first, then return exactly one final JSON object.
+- The final response must begin with `{` and end with `}`.
+- Do not include markdown fences, backticks, commentary, headings, bullets, comments, or any prose before or after the JSON object.
+- Use double quotes for every key and every string value.
+- Do not use trailing commas.
+- Do not use ellipses, placeholder text, or schema notes inside the output.
+- Include every top-level key shown below exactly once, in the same top-level object.
+- If a section has no justified items, return `[]` for that section instead of omitting the key.
+- If a string field has no useful content, use an empty string rather than changing the structure.
+- Before responding, internally verify that `"reflection_summary"` is followed by a comma before the next top-level key, and that every array and object is fully closed.
+
 Return strict JSON only in this shape:
 {
   "reflection_summary": "short paragraph",
@@ -287,6 +299,7 @@ Output rules:
 - Use only exact target ids that already exist in the provided field snapshot.
 - Keep `field_deltas` sparse and conservative.
 - Prefer no delta over a weakly justified delta.
+- Keep the output structurally strict even when evidence is weak; sparse valid JSON is better than ambitious malformed JSON.
 - Use `cross_source_resonance` only when the idea recurs across more than one source type.
 - Do not classify a dormant idea as `premature_but_promising` unless the inputs show real future value.
 - Use `counterweight_tensions` only for exact existing tension ids that are explicitly linked in the provided control schema.

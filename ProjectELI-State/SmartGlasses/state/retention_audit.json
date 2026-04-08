@@ -398,7 +398,114 @@
           "latest_daily_snapshot.md"
         ]
       }
+    },
+    {
+      "timestamp": "2026-04-08T16:21:12",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 94,
+        "groups": [
+          {
+            "report_name": "reflect",
+            "removed_count": 16,
+            "kept_count": 72
+          },
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 16,
+            "kept_count": 72
+          },
+          {
+            "report_name": "scorecard",
+            "removed_count": 16,
+            "kept_count": 72
+          },
+          {
+            "report_name": "dream",
+            "removed_count": 15,
+            "kept_count": 72
+          },
+          {
+            "report_name": "reality",
+            "removed_count": 15,
+            "kept_count": 72
+          },
+          {
+            "report_name": "sleep",
+            "removed_count": 16,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260408_162111_sleep.md",
+          "latest_sleep.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-08T16:22:44",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 2,
+        "groups": [
+          {
+            "report_name": "dream",
+            "removed_count": 1,
+            "kept_count": 72
+          },
+          {
+            "report_name": "sleep",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_dream.md",
+          "20260408_162244_dream.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-08T16:23:01",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reality",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260408_162301_reality.md",
+          "latest_reality.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-08T16:24:03",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 2,
+        "groups": [
+          {
+            "report_name": "reflect",
+            "removed_count": 1,
+            "kept_count": 72
+          },
+          {
+            "report_name": "reality",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_reflect.md",
+          "20260408_162403_reflect.md"
+        ]
+      }
     }
   ],
-  "updated_at": "2026-04-08T15:43:55"
+  "updated_at": "2026-04-08T16:24:03"
 }
