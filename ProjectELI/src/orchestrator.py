@@ -6321,13 +6321,116 @@ def build_structured_design_brief_summary(emission_row, artifact_row):
         f"{label} is mature enough for a provisional {artifact_type_label.lower()} design brief.",
     ]
     if framing:
-        parts.append(f"Focus the brief on: {compact_text_excerpt(framing, 180)}.")
+        parts.append(f"Focus the brief on: {normalized_brief_prompt(framing, 180)}.")
     if current_direction:
         parts.append(f"Current leading direction: {current_direction}.")
     if artifact_row.get('open_constraints'):
         parts.append(f"Keep active constraints explicit: {', '.join(artifact_row.get('open_constraints', [])[:3])}.")
     parts.append('This draft remains review-oriented and revisable, not a final implementation commitment.')
     return ' '.join(parts)
+
+
+def normalized_brief_prompt(text, limit=120):
+    value = compact_text_excerpt(text or '', limit).rstrip()
+    return value.rstrip('?.! ')
+
+
+def resolved_draft_leading_direction(artifact_row, action_item=None):
+    artifact_row = artifact_row if isinstance(artifact_row, dict) else {}
+    action_item = action_item if isinstance(action_item, dict) else {}
+    selected = action_item.get('selected_choice_label', '') or artifact_row.get('selected_choice_label', '')
+    if selected:
+        return selected
+    directions = artifact_row.get('candidate_directions', []) or []
+    return directions[0] if directions else ''
+
+
+def build_leading_direction_rationale(artifact_row, leading_direction):
+    artifact_row = artifact_row if isinstance(artifact_row, dict) else {}
+    if not leading_direction:
+        return ''
+    constraints = artifact_row.get('open_constraints', []) or []
+    artifact_type = artifact_row.get('artifact_type_label', artifact_row.get('artifact_type', 'artifact').replace('_', ' '))
+    if constraints:
+        return compact_text_excerpt(
+            f"{leading_direction} currently leads because it gives this {artifact_type.lower()} brief a bounded default while staying closer to the active review pressures around {', '.join(constraints[:2])}.",
+            240,
+        )
+    return compact_text_excerpt(
+        f"{leading_direction} currently leads because it gives this brief a concrete default without pretending the wider design space is closed.",
+        220,
+    )
+
+
+def build_alternative_direction_tradeoff(artifact_row, leading_direction):
+    artifact_row = artifact_row if isinstance(artifact_row, dict) else {}
+    directions = [item for item in (artifact_row.get('candidate_directions', []) or []) if item]
+    alternative = ''
+    for direction in directions:
+        if direction != leading_direction:
+            alternative = direction
+            break
+    if not leading_direction or not alternative:
+        return ''
+    constraints = artifact_row.get('open_constraints', []) or []
+    if constraints:
+        return compact_text_excerpt(
+            f"Main alternative: {alternative}. The real tradeoff is whether {alternative} handles {constraints[0]} better while {leading_direction} stays simpler or more stable for the current review scope.",
+            240,
+        )
+    return compact_text_excerpt(
+        f"Main alternative: {alternative}. The review choice is whether that alternative is worth the extra complexity or ambiguity compared with {leading_direction}.",
+        220,
+    )
+
+
+def build_structured_design_success_condition(artifact_row, leading_direction):
+    artifact_row = artifact_row if isinstance(artifact_row, dict) else {}
+    framing = artifact_row.get('bounded_framing', '')
+    constraints = artifact_row.get('open_constraints', []) or []
+    if leading_direction and framing:
+        base = f"A reviewer can say whether {leading_direction} is a credible default answer to: {normalized_brief_prompt(framing, 120)}"
+    elif framing:
+        base = f"A reviewer can narrow the default answer to: {normalized_brief_prompt(framing, 120)}"
+    else:
+        base = "A reviewer can narrow this brief to one credible default without reopening the whole design space"
+    if constraints:
+        base += f", while still respecting {', '.join(constraints[:2])}"
+    return compact_text_excerpt(base + ".", 240)
+
+
+def build_structured_design_failure_risk(artifact_row, leading_direction):
+    artifact_row = artifact_row if isinstance(artifact_row, dict) else {}
+    constraints = artifact_row.get('open_constraints', []) or []
+    revision = artifact_row.get('evidence_to_strengthen_or_revise', []) or artifact_row.get('escalation_signals', []) or []
+    if constraints:
+        risk = f"The current direction may fail if it creates too much pressure against {constraints[0]}"
+        if len(constraints) > 1:
+            risk += f" or {constraints[1]}"
+    else:
+        risk = "The current direction may fail if later grounding shows the brief is framing the wrong default"
+    if revision:
+        risk += f"; likely revision signals include {', '.join(revision[:2])}"
+    return compact_text_excerpt(risk + ".", 240)
+
+
+def build_structured_design_review_question(artifact_row, leading_direction):
+    artifact_row = artifact_row if isinstance(artifact_row, dict) else {}
+    framing = artifact_row.get('bounded_framing', '')
+    if leading_direction and framing:
+        return compact_text_excerpt(
+            f"Given the current constraints, should {leading_direction} remain the leading default for {normalized_brief_prompt(framing, 120)}?",
+            220,
+        )
+    if leading_direction:
+        return compact_text_excerpt(
+            f"Does {leading_direction} still deserve to lead this brief, or should the alternative direction become primary?",
+            180,
+        )
+    return compact_text_excerpt(
+        f"What is the single most review-worthy default answer for {normalized_brief_prompt(framing, 120)}?" if framing else "What is the single most review-worthy default answer here?",
+        180,
+    )
 
 
 def build_draft_artifact_review_state(artifact_emission_state, artifact_review_state, schema=None):
@@ -6342,6 +6445,12 @@ def build_draft_artifact_review_state(artifact_emission_state, artifact_review_s
         for row in artifact_rows
         if isinstance(row, dict) and row.get('artifact_id')
     }
+    action_items = load_action_inbox().get('items', [])
+    action_by_id = {
+        item.get('id', ''): item
+        for item in action_items
+        if isinstance(item, dict) and item.get('id')
+    }
     emitted = []
     for row in (artifact_emission_state.get('artifact_emission_readiness', []) if isinstance(artifact_emission_state, dict) else []):
         if not isinstance(row, dict):
@@ -6351,6 +6460,9 @@ def build_draft_artifact_review_state(artifact_emission_state, artifact_review_s
         if row.get('suggested_draft_form') not in allowed_forms:
             continue
         artifact = artifact_by_id.get(row.get('artifact_id', ''), {})
+        action_item = action_by_id.get(artifact.get('source_action_id', ''), {})
+        leading_direction = resolved_draft_leading_direction(artifact, action_item)
+        what_would_change = row.get('evidence_to_progress', [])[:4]
         emitted.append({
             'artifact_id': row.get('artifact_id', ''),
             'source_artifact_type': row.get('artifact_type', artifact.get('artifact_type', '')),
@@ -6360,13 +6472,20 @@ def build_draft_artifact_review_state(artifact_emission_state, artifact_review_s
             'label': row.get('label', ''),
             'bounded_framing': artifact.get('bounded_framing', ''),
             'draft_summary': build_structured_design_brief_summary(row, artifact),
+            'leading_direction': leading_direction,
+            'leading_direction_rationale': build_leading_direction_rationale(artifact, leading_direction),
+            'alternative_direction_tradeoff': build_alternative_direction_tradeoff(artifact, leading_direction),
+            'success_condition': build_structured_design_success_condition(artifact, leading_direction),
+            'failure_risk': build_structured_design_failure_risk(artifact, leading_direction),
+            'what_would_change_this_choice': what_would_change,
+            'review_question_for_human': build_structured_design_review_question(artifact, leading_direction),
             'why_emitted_now': compact_text_excerpt(row.get('draft_readiness_reason', ''), 320),
             'current_constraints': artifact.get('open_constraints', row.get('blocking_constraints', []))[:4],
             'candidate_directions': artifact.get('candidate_directions', [])[:4],
             'relevant_interfaces': artifact.get('relevant_interfaces', [])[:4],
             'provisional': True,
             'revisable': bool(row.get('revisable', artifact.get('revisable', True))),
-            'evidence_to_strengthen_or_revise': row.get('evidence_to_progress', [])[:4],
+            'evidence_to_strengthen_or_revise': what_would_change,
             'linked_review_id': row.get('linked_review_id', ''),
             'linked_decision_label': row.get('linked_decision_label', ''),
         })
