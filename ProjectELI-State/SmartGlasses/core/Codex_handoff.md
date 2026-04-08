@@ -372,6 +372,27 @@ This means:
 For SmartGlasses, this applies especially to transcript quality under weak audio conditions.
 Partially inferred transcript spans should remain distinguishable from directly recognized spans.
 
+## Staged draft artifact emission
+
+ELI may eventually surface draft artifact outputs when readiness and grounding are strong enough.
+
+This should happen in a trust-preserving staged way:
+- first surface bounded review options and readiness through coarse user-facing bands
+- then surface implementation-artifact review candidates
+- only after sufficient grounding should ELI surface draft artifacts such as:
+  - PDF summaries
+  - structured design briefs
+  - BOM-style drafts
+  - interface maps
+  - schematic directions
+  - KiCad-related scaffolds or other engineering-oriented draft files
+
+Important constraints:
+- draft artifact emission must not be treated as final design truth
+- weakly grounded candidates should not become concrete files prematurely
+- user-facing readiness should be shown in coarse bands rather than exact displayed percentages
+- artifact emission should remain review-oriented and revisable unless stronger project logic explicitly supports firmer commitment
+
 ---
 
 ## Implementation guidance

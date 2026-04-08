@@ -116,6 +116,14 @@ control:
     enabled: true
     max_recently_changed: 6
     carry_forward_recently_changed: true
+  option_readiness:
+    enabled: true
+    max_visible: 10
+    include_held_options: true
+    bands:
+      ready_to_review_min: 85
+      almost_ready_min: 60
+      emerging_min: 35
   v1_human_review:
     enabled: true
     keep_revisable_by_default: true

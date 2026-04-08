@@ -136,6 +136,12 @@ IMPLEMENTATION_ARTIFACT_REVIEW_TRANSITION_REASONS = (
     'weak_grounding',
     'moved_out_of_review',
 )
+OPTION_READINESS_BANDS = (
+    'ready_to_review',
+    'almost_ready',
+    'emerging',
+    'too_early',
+)
 REFLECT_EXPECTED_TOP_LEVEL_KEYS = (
     'reflection_summary',
     'resonance_signals',
@@ -500,6 +506,7 @@ LATEST_ALIAS_STATE_PATH = PROJECT_STATE_DIR / "latest_alias_state.json"
 V1_DECISION_HUMAN_RESPONSES_PATH = PROJECT_STATE_DIR / "v1_decision_human_responses.json"
 V1_DECISION_REVIEW_PATH = PROJECT_STATE_DIR / "v1_decision_review.json"
 IMPLEMENTATION_ARTIFACT_REVIEW_PATH = PROJECT_STATE_DIR / "implementation_artifact_review.json"
+OPTION_READINESS_REVIEW_PATH = PROJECT_STATE_DIR / "option_readiness_review.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -711,6 +718,16 @@ DEFAULT_COGNITION_SCHEMA = {
             'enabled': True,
             'max_recently_changed': 6,
             'carry_forward_recently_changed': True,
+        },
+        'option_readiness': {
+            'enabled': True,
+            'max_visible': 10,
+            'include_held_options': True,
+            'bands': {
+                'ready_to_review_min': 85,
+                'almost_ready_min': 60,
+                'emerging_min': 35,
+            },
         },
         'runtime_retention': {
             'reports': {
@@ -953,6 +970,14 @@ control:
     enabled: true
     max_recently_changed: 6
     carry_forward_recently_changed: true
+  option_readiness:
+    enabled: true
+    max_visible: 10
+    include_held_options: true
+    bands:
+      ready_to_review_min: 85
+      almost_ready_min: 60
+      emerging_min: 35
   runtime_retention:
     reports:
       enabled: true
@@ -1826,6 +1851,43 @@ def append_operational_visibility_sections(lines, operational_visibility):
             )
             if item.get('reason'):
                 lines.append(f"  why: {item.get('reason', '')}")
+        lines.append('')
+
+
+def append_option_readiness_sections(lines, readiness_state):
+    if not isinstance(readiness_state, dict):
+        return
+    rows = readiness_state.get('surfaced_options', [])
+    if not isinstance(rows, list) or not rows:
+        return
+    lines.append('## Reviewable Options')
+    lines.append('These readiness bands are coarse review signals, not exact probabilities.')
+    grouped = {band: [] for band in OPTION_READINESS_BANDS}
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        grouped.setdefault(row.get('readiness_band', 'too_early'), []).append(row)
+    for band in OPTION_READINESS_BANDS:
+        band_rows = grouped.get(band, [])
+        if not band_rows:
+            continue
+        lines.append(f"### {band.replace('_', ' ').title()}")
+        for row in band_rows[:4]:
+            lines.append(
+                f"- {row.get('title', 'option')} | lane {row.get('source_lane', '').replace('_', ' ')} | kind {row.get('option_kind', '').replace('_', ' ')} | band {row.get('readiness_band', '').replace('_', ' ')}"
+            )
+            if row.get('current_direction'):
+                lines.append(f"  current direction: {row.get('current_direction', '')}")
+            if row.get('why_surfaced'):
+                lines.append(f"  why: {row.get('why_surfaced', '')}")
+            if row.get('bounded_options'):
+                lines.append(f"  bounded options: {', '.join(row.get('bounded_options', []))}")
+            if row.get('blocking_factors'):
+                lines.append(f"  blockers: {', '.join(row.get('blocking_factors', []))}")
+            if row.get('missing_evidence'):
+                lines.append(f"  missing evidence: {', '.join(row.get('missing_evidence', []))}")
+            if row.get('could_still_change'):
+                lines.append(f"  could still change: {', '.join(row.get('could_still_change', []))}")
         lines.append('')
 
 
@@ -4743,6 +4805,14 @@ def enrich_action_inbox_with_reflection(analysis):
             schema=analysis.get('schema', {}),
         )
     )
+    save_option_readiness_review_state(
+        build_option_readiness_review_state(
+            v1_decision_candidates,
+            implementation_artifact_candidates,
+            current_items=updated_items,
+            schema=analysis.get('schema', {}),
+        )
+    )
     data['items'] = updated_items
     data['judged_at'] = judged_at
     data['v1_decision_candidates'] = v1_decision_candidates
@@ -5732,6 +5802,222 @@ def save_implementation_artifact_review_state(data):
     payload = data if isinstance(data, dict) else {'implementation_artifact_candidates': []}
     payload['updated_at'] = now_iso()
     IMPLEMENTATION_ARTIFACT_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def option_readiness_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('option_readiness', {}) if isinstance(control.get('option_readiness', {}), dict) else {}
+    bands = cfg.get('bands', {}) if isinstance(cfg.get('bands', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'max_visible': max(1, safe_int(cfg.get('max_visible', 10), 10)),
+        'include_held_options': bool(cfg.get('include_held_options', True)),
+        'bands': {
+            'ready_to_review_min': clamp_number(safe_float(bands.get('ready_to_review_min', 85), 85), 0.0, 100.0),
+            'almost_ready_min': clamp_number(safe_float(bands.get('almost_ready_min', 60), 60), 0.0, 100.0),
+            'emerging_min': clamp_number(safe_float(bands.get('emerging_min', 35), 35), 0.0, 100.0),
+        },
+    }
+
+
+def default_option_readiness_review_state():
+    return {
+        'generated_at': '',
+        'readiness_bands': list(OPTION_READINESS_BANDS),
+        'surfaced_options': [],
+        'counts': {band: 0 for band in OPTION_READINESS_BANDS},
+    }
+
+
+def load_option_readiness_review_state():
+    data = load_json_file(OPTION_READINESS_REVIEW_PATH, default_option_readiness_review_state())
+    if not isinstance(data, dict):
+        data = default_option_readiness_review_state()
+    if not isinstance(data.get('surfaced_options'), list):
+        data['surfaced_options'] = []
+    if not isinstance(data.get('counts'), dict):
+        data['counts'] = default_option_readiness_review_state().get('counts', {})
+    if not isinstance(data.get('readiness_bands'), list):
+        data['readiness_bands'] = list(OPTION_READINESS_BANDS)
+    return data
+
+
+def readiness_band_for_score(score, cfg):
+    score = clamp_number(safe_float(score, 0.0), 0.0, 100.0)
+    bands = cfg.get('bands', {}) if isinstance(cfg, dict) else {}
+    if score >= safe_float(bands.get('ready_to_review_min', 85), 85):
+        return 'ready_to_review'
+    if score >= safe_float(bands.get('almost_ready_min', 60), 60):
+        return 'almost_ready'
+    if score >= safe_float(bands.get('emerging_min', 35), 35):
+        return 'emerging'
+    return 'too_early'
+
+
+def build_option_readiness_review_state(v1_decision_candidates, implementation_artifact_candidates, current_items=None, schema=None):
+    schema = schema or load_cognition_schema()
+    cfg = option_readiness_config(schema)
+    if not cfg.get('enabled', True):
+        return default_option_readiness_review_state()
+
+    current_by_action_id = {}
+    for item in current_items or []:
+        if not isinstance(item, dict):
+            continue
+        action_id = item.get('id', '')
+        if action_id:
+            current_by_action_id[action_id] = item
+
+    rows = []
+    seen_action_ids = set()
+
+    for candidate in v1_decision_candidates or []:
+        if not isinstance(candidate, dict):
+            continue
+        action_id = candidate.get('action_id', '')
+        current_item = current_by_action_id.get(action_id, {})
+        grounding_status = normalize_scorecard_grounding_status(candidate.get('grounding_status', 'unknown'))
+        feasibility = normalize_signal_key(candidate.get('feasibility', 'unknown'))
+        score = 62.0
+        score += {'grounded': 18.0, 'weakly_grounded': 8.0, 'limited_evidence': -8.0, 'unknown': -16.0}.get(grounding_status, -12.0)
+        score += {'feasible_now': 12.0, 'feasible_later': 4.0}.get(feasibility, -10.0)
+        if candidate.get('candidate_status') == 'pending_v1_decision':
+            score += 8.0
+        if candidate.get('selected_choice_label') or current_item.get('selected_choice_label'):
+            score += 4.0
+        if current_item.get('grounding_hold_active'):
+            score = min(score - 10.0, 59.0)
+        score = clamp_number(score, 0.0, 100.0)
+        band = readiness_band_for_score(score, cfg)
+        blocking_factors = []
+        missing_evidence = []
+        if grounding_status != 'grounded':
+            missing_evidence.append(f"stronger subsystem grounding than {grounding_status.replace('_', ' ')}")
+        if feasibility == 'feasible_later':
+            blocking_factors.append('reality still reads feasible later rather than feasible now')
+        elif feasibility not in ('feasible_now', 'feasible_later'):
+            missing_evidence.append('clearer feasibility support from reality')
+        if current_item.get('grounding_hold_active'):
+            blocking_factors.append(compact_text_excerpt(current_item.get('grounding_hold_reason', ''), 180))
+        rows.append({
+            '_score': score,
+            'option_id': f"decision:{candidate.get('decision_id', action_id or normalize_signal_key(candidate.get('label', '')))}",
+            'title': candidate.get('label', current_item.get('title', 'decision option')),
+            'option_kind': 'bounded_decision_option',
+            'source_lane': 'pending_v1_decisions',
+            'current_direction': candidate.get('selected_choice_label', '') or current_item.get('selected_choice_label', ''),
+            'readiness_band': band,
+            'why_surfaced': compact_text_excerpt(candidate.get('reason', ''), 320),
+            'could_still_change': candidate.get('revision_signals', [])[:4],
+            'blocking_factors': [item for item in blocking_factors if item][:4],
+            'missing_evidence': [item for item in missing_evidence if item][:4],
+            'bounded_options': [option.get('label', '') for option in candidate.get('options', []) if isinstance(option, dict) and option.get('label')][:4],
+            'provisional': True,
+            'revisable': bool(candidate.get('revisable', True)),
+            'linked_review_id': candidate.get('decision_id', ''),
+            'linked_review_kind': 'v1_decision_review',
+        })
+        if action_id:
+            seen_action_ids.add(action_id)
+
+    for artifact in implementation_artifact_candidates or []:
+        if not isinstance(artifact, dict):
+            continue
+        grounding_status = normalize_scorecard_grounding_status(artifact.get('grounding_status', 'unknown'))
+        score = 48.0
+        score += {'grounded': 18.0, 'weakly_grounded': 8.0, 'limited_evidence': -4.0, 'unknown': -12.0}.get(grounding_status, -8.0)
+        score += {'pending_v1_decision': 12.0, 'active_action': 6.0, 'paused_action_review': 2.0}.get(artifact.get('source_kind', ''), 0.0)
+        if artifact.get('candidate_directions'):
+            score += 6.0
+        if artifact.get('relevant_interfaces') or artifact.get('candidate_components'):
+            score += 5.0
+        if artifact.get('linked_decision_id'):
+            score += 8.0
+        if artifact.get('provisional', True):
+            score = min(score, 84.0)
+        score = clamp_number(score, 0.0, 100.0)
+        band = readiness_band_for_score(score, cfg)
+        blocking_factors = []
+        missing_evidence = []
+        if grounding_status in ('limited_evidence', 'unknown'):
+            missing_evidence.append(f"stronger grounding than {grounding_status.replace('_', ' ')}")
+        if not artifact.get('candidate_directions') and not artifact.get('relevant_interfaces') and not artifact.get('candidate_components'):
+            blocking_factors.append('bounded review detail is still sparse')
+        rows.append({
+            '_score': score,
+            'option_id': f"artifact:{artifact.get('artifact_id', normalize_signal_key(artifact.get('label', 'artifact')))}",
+            'title': artifact.get('label', 'implementation artifact'),
+            'option_kind': 'implementation_artifact_option',
+            'source_lane': 'implementation_artifact_review',
+            'current_direction': artifact.get('artifact_type_label', artifact.get('artifact_type', 'artifact').replace('_', ' ')),
+            'readiness_band': band,
+            'why_surfaced': compact_text_excerpt(artifact.get('reason', ''), 320),
+            'could_still_change': artifact.get('escalation_signals', [])[:4],
+            'blocking_factors': [item for item in blocking_factors if item][:4],
+            'missing_evidence': [item for item in missing_evidence if item][:4],
+            'bounded_options': artifact.get('candidate_directions', [])[:4],
+            'artifact_type': artifact.get('artifact_type', ''),
+            'artifact_type_label': artifact.get('artifact_type_label', ''),
+            'provisional': bool(artifact.get('provisional', True)),
+            'revisable': bool(artifact.get('revisable', True)),
+            'linked_review_id': artifact.get('artifact_id', ''),
+            'linked_review_kind': 'implementation_artifact_review',
+        })
+
+    if cfg.get('include_held_options', True):
+        for item in current_items or []:
+            if not isinstance(item, dict) or not item.get('choices'):
+                continue
+            if item.get('id', '') in seen_action_ids:
+                continue
+            if not (item.get('grounding_hold_active') or item.get('direction_judgment') == 'hold_until_new_grounding'):
+                continue
+            score = 22.0
+            score += min(15.0, safe_float(item.get('alignment_score', 0.0), 0.0) * 16.0)
+            score += min(14.0, safe_float(item.get('field_evidence_score', 0.0), 0.0) * 16.0)
+            score += min(8.0, safe_float(item.get('architectural_pull_score', 0.0), 0.0) * 12.0)
+            score = min(score, 59.0)
+            band = readiness_band_for_score(score, cfg)
+            rows.append({
+                '_score': score,
+                'option_id': f"held:{item.get('id', normalize_signal_key(item.get('title', 'held option')))}",
+                'title': item.get('title', item.get('domain', 'held option')),
+                'option_kind': 'held_option',
+                'source_lane': 'held_items',
+                'current_direction': item.get('selected_choice_label', ''),
+                'readiness_band': band,
+                'why_surfaced': 'This remains meaningful enough to track, but ELI is explicitly holding it until new grounding appears.',
+                'could_still_change': item.get('grounding_release_signals', [])[:4],
+                'blocking_factors': [compact_text_excerpt(item.get('grounding_hold_reason', ''), 220)] if item.get('grounding_hold_reason') else [],
+                'missing_evidence': [compact_text_excerpt(signal, 120) for signal in item.get('grounding_release_signals', [])[:4]],
+                'bounded_options': [choice.get('label', '') for choice in item.get('choices', []) if isinstance(choice, dict) and choice.get('label')][:4],
+                'provisional': True,
+                'revisable': True,
+                'linked_review_id': item.get('id', ''),
+                'linked_review_kind': 'held_option',
+            })
+
+    band_order = {band: index for index, band in enumerate(OPTION_READINESS_BANDS)}
+    rows.sort(key=lambda row: (band_order.get(row.get('readiness_band', 'too_early'), 99), -safe_float(row.get('_score', 0.0), 0.0), row.get('title', '')))
+    rows = rows[:cfg.get('max_visible', 10)]
+    counts = {band: 0 for band in OPTION_READINESS_BANDS}
+    for row in rows:
+        counts[row.get('readiness_band', 'too_early')] = counts.get(row.get('readiness_band', 'too_early'), 0) + 1
+        row.pop('_score', None)
+    return {
+        'generated_at': now_iso(),
+        'readiness_bands': list(OPTION_READINESS_BANDS),
+        'surfaced_options': rows,
+        'counts': counts,
+    }
+
+
+def save_option_readiness_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else {'surfaced_options': []}
+    payload['updated_at'] = now_iso()
+    OPTION_READINESS_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
 
 
 def load_specialist_consultation_history():
@@ -9425,6 +9711,7 @@ def daily_snapshot():
             schema=load_cognition_schema(),
         )
     append_operational_visibility_sections(body, operational_visibility)
+    append_option_readiness_sections(body, load_option_readiness_review_state())
     alias_cfg = runtime_alias_config()
     excerpt_limit = alias_cfg.get('daily_snapshot', {}).get('excerpt_chars', 1800)
     if alias_cfg.get('daily_snapshot', {}).get('embed_latest_scorecard_excerpt', True):
