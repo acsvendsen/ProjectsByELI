@@ -124,6 +124,13 @@ control:
       ready_to_review_min: 85
       almost_ready_min: 60
       emerging_min: 35
+  artifact_emission_readiness:
+    enabled: true
+    max_visible: 6
+    minimum_option_readiness_band: almost_ready
+    minimum_grounding_for_draft: grounded
+    require_bounded_detail_for_draft: true
+    require_repo_or_runtime_for_technical_drafts: true
   v1_human_review:
     enabled: true
     keep_revisable_by_default: true

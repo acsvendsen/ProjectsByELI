@@ -142,6 +142,18 @@ OPTION_READINESS_BANDS = (
     'emerging',
     'too_early',
 )
+ARTIFACT_EMISSION_READINESS_STATES = (
+    'draft_candidate',
+    'not_ready_for_draft',
+)
+DRAFT_ARTIFACT_FORMS = (
+    'pdf_summary',
+    'structured_design_brief',
+    'bom_draft',
+    'interface_map_draft',
+    'schematic_direction_draft',
+    'kicad_related_scaffold',
+)
 REFLECT_EXPECTED_TOP_LEVEL_KEYS = (
     'reflection_summary',
     'resonance_signals',
@@ -507,6 +519,7 @@ V1_DECISION_HUMAN_RESPONSES_PATH = PROJECT_STATE_DIR / "v1_decision_human_respon
 V1_DECISION_REVIEW_PATH = PROJECT_STATE_DIR / "v1_decision_review.json"
 IMPLEMENTATION_ARTIFACT_REVIEW_PATH = PROJECT_STATE_DIR / "implementation_artifact_review.json"
 OPTION_READINESS_REVIEW_PATH = PROJECT_STATE_DIR / "option_readiness_review.json"
+ARTIFACT_EMISSION_READINESS_PATH = PROJECT_STATE_DIR / "artifact_emission_readiness.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -728,6 +741,14 @@ DEFAULT_COGNITION_SCHEMA = {
                 'almost_ready_min': 60,
                 'emerging_min': 35,
             },
+        },
+        'artifact_emission_readiness': {
+            'enabled': True,
+            'max_visible': 6,
+            'minimum_option_readiness_band': 'almost_ready',
+            'minimum_grounding_for_draft': 'grounded',
+            'require_bounded_detail_for_draft': True,
+            'require_repo_or_runtime_for_technical_drafts': True,
         },
         'runtime_retention': {
             'reports': {
@@ -978,6 +999,13 @@ control:
       ready_to_review_min: 85
       almost_ready_min: 60
       emerging_min: 35
+  artifact_emission_readiness:
+    enabled: true
+    max_visible: 6
+    minimum_option_readiness_band: almost_ready
+    minimum_grounding_for_draft: grounded
+    require_bounded_detail_for_draft: true
+    require_repo_or_runtime_for_technical_drafts: true
   runtime_retention:
     reports:
       enabled: true
@@ -4789,6 +4817,18 @@ def enrich_action_inbox_with_reflection(analysis):
         analysis=analysis,
         schema=analysis.get('schema', {}),
     )
+    artifact_review_state = build_implementation_artifact_review_state(
+        implementation_artifact_candidates,
+        current_items=updated_items,
+        pending_v1_decisions=v1_decision_candidates,
+        schema=analysis.get('schema', {}),
+    )
+    option_readiness_state = build_option_readiness_review_state(
+        v1_decision_candidates,
+        implementation_artifact_candidates,
+        current_items=updated_items,
+        schema=analysis.get('schema', {}),
+    )
     save_v1_decision_review_state(
         build_v1_decision_review_state(
             v1_decision_candidates,
@@ -4797,19 +4837,12 @@ def enrich_action_inbox_with_reflection(analysis):
             schema=analysis.get('schema', {}),
         )
     )
-    save_implementation_artifact_review_state(
-        build_implementation_artifact_review_state(
-            implementation_artifact_candidates,
-            current_items=updated_items,
-            pending_v1_decisions=v1_decision_candidates,
-            schema=analysis.get('schema', {}),
-        )
-    )
-    save_option_readiness_review_state(
-        build_option_readiness_review_state(
-            v1_decision_candidates,
-            implementation_artifact_candidates,
-            current_items=updated_items,
+    save_implementation_artifact_review_state(artifact_review_state)
+    save_option_readiness_review_state(option_readiness_state)
+    save_artifact_emission_readiness_state(
+        build_artifact_emission_readiness_state(
+            artifact_review_state,
+            option_readiness_state,
             schema=analysis.get('schema', {}),
         )
     )
@@ -6018,6 +6051,203 @@ def save_option_readiness_review_state(data):
     payload = data if isinstance(data, dict) else {'surfaced_options': []}
     payload['updated_at'] = now_iso()
     OPTION_READINESS_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def artifact_emission_readiness_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('artifact_emission_readiness', {}) if isinstance(control.get('artifact_emission_readiness', {}), dict) else {}
+    min_band = str(cfg.get('minimum_option_readiness_band', 'almost_ready') or 'almost_ready')
+    if min_band not in OPTION_READINESS_BANDS:
+        min_band = 'almost_ready'
+    min_grounding = normalize_scorecard_grounding_status(cfg.get('minimum_grounding_for_draft', 'grounded'))
+    if min_grounding not in ('grounded', 'weakly_grounded', 'limited_evidence', 'unknown'):
+        min_grounding = 'grounded'
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'max_visible': max(1, safe_int(cfg.get('max_visible', 6), 6)),
+        'minimum_option_readiness_band': min_band,
+        'minimum_grounding_for_draft': min_grounding,
+        'require_bounded_detail_for_draft': bool(cfg.get('require_bounded_detail_for_draft', True)),
+        'require_repo_or_runtime_for_technical_drafts': bool(cfg.get('require_repo_or_runtime_for_technical_drafts', True)),
+    }
+
+
+def default_artifact_emission_readiness_state():
+    return {
+        'generated_at': '',
+        'allowed_states': list(ARTIFACT_EMISSION_READINESS_STATES),
+        'suggested_forms': list(DRAFT_ARTIFACT_FORMS),
+        'artifact_emission_readiness': [],
+        'counts': {state: 0 for state in ARTIFACT_EMISSION_READINESS_STATES},
+    }
+
+
+def load_artifact_emission_readiness_state():
+    data = load_json_file(ARTIFACT_EMISSION_READINESS_PATH, default_artifact_emission_readiness_state())
+    if not isinstance(data, dict):
+        data = default_artifact_emission_readiness_state()
+    if not isinstance(data.get('artifact_emission_readiness'), list):
+        data['artifact_emission_readiness'] = []
+    if not isinstance(data.get('counts'), dict):
+        data['counts'] = default_artifact_emission_readiness_state().get('counts', {})
+    if not isinstance(data.get('allowed_states'), list):
+        data['allowed_states'] = list(ARTIFACT_EMISSION_READINESS_STATES)
+    if not isinstance(data.get('suggested_forms'), list):
+        data['suggested_forms'] = list(DRAFT_ARTIFACT_FORMS)
+    return data
+
+
+def artifact_option_band_allows_draft(option_band, minimum_band):
+    order = {
+        'too_early': 0,
+        'emerging': 1,
+        'almost_ready': 2,
+        'ready_to_review': 3,
+    }
+    return order.get(str(option_band or 'too_early'), 0) >= order.get(str(minimum_band or 'almost_ready'), 2)
+
+
+def artifact_grounding_allows_draft(grounding_status, minimum_grounding):
+    order = {
+        'unknown': 0,
+        'limited_evidence': 1,
+        'weakly_grounded': 2,
+        'grounded': 3,
+    }
+    return order.get(normalize_scorecard_grounding_status(grounding_status), 0) >= order.get(normalize_scorecard_grounding_status(minimum_grounding), 3)
+
+
+def suggest_draft_artifact_form(artifact, cfg):
+    artifact = artifact if isinstance(artifact, dict) else {}
+    artifact_type = artifact.get('artifact_type', '')
+    repo_surfaces = set(artifact.get('repo_surfaces', []) or [])
+    candidate_components = artifact.get('candidate_components', []) or []
+    relevant_interfaces = artifact.get('relevant_interfaces', []) or []
+    technical_signal = bool(repo_surfaces & {'hardware', 'firmware'}) or bool(candidate_components) or artifact_type in ('interface_map', 'schematic_direction', 'component_shortlist')
+    if artifact_type == 'interface_map' and relevant_interfaces:
+        return 'interface_map_draft'
+    if artifact_type == 'schematic_direction':
+        if cfg.get('require_repo_or_runtime_for_technical_drafts', True) and not technical_signal:
+            return ''
+        if repo_surfaces & {'hardware', 'firmware'}:
+            return 'schematic_direction_draft'
+        return ''
+    if artifact_type == 'component_shortlist':
+        if cfg.get('require_repo_or_runtime_for_technical_drafts', True) and not technical_signal:
+            return ''
+        if candidate_components:
+            return 'bom_draft'
+        return ''
+    if artifact_type in ('subsystem_breakdown', 'implementation_sketch'):
+        return 'structured_design_brief'
+    if artifact_type in ('visual_layout_rule', 'confidence_object_spec'):
+        return 'structured_design_brief'
+    if technical_signal and repo_surfaces & {'hardware', 'firmware'} and artifact.get('grounding_status') == 'grounded':
+        return 'kicad_related_scaffold'
+    return 'pdf_summary' if artifact.get('grounding_status') == 'grounded' else ''
+
+
+def build_artifact_emission_readiness_state(artifact_review_state, option_readiness_state, schema=None):
+    schema = schema or load_cognition_schema()
+    cfg = artifact_emission_readiness_config(schema)
+    if not cfg.get('enabled', True):
+        return default_artifact_emission_readiness_state()
+
+    artifact_rows = artifact_review_state.get('implementation_artifact_candidates', []) if isinstance(artifact_review_state, dict) else []
+    option_rows = option_readiness_state.get('surfaced_options', []) if isinstance(option_readiness_state, dict) else []
+    option_by_artifact_id = {}
+    for row in option_rows:
+        if not isinstance(row, dict):
+            continue
+        if row.get('linked_review_kind') != 'implementation_artifact_review':
+            continue
+        option_by_artifact_id[row.get('linked_review_id', '')] = row
+
+    review_rows = []
+    for artifact in artifact_rows:
+        if not isinstance(artifact, dict):
+            continue
+        option_row = option_by_artifact_id.get(artifact.get('artifact_id', ''), {})
+        grounding_status = normalize_scorecard_grounding_status(artifact.get('grounding_status', 'unknown'))
+        option_band = option_row.get('readiness_band', 'too_early')
+        has_bounded_detail = bool(
+            artifact.get('bounded_framing')
+            or artifact.get('candidate_directions')
+            or artifact.get('relevant_interfaces')
+            or artifact.get('candidate_components')
+        )
+        missing_evidence = []
+        blocking_constraints = []
+        if not artifact_grounding_allows_draft(grounding_status, cfg.get('minimum_grounding_for_draft', 'grounded')):
+            missing_evidence.append(f"stronger grounding than {grounding_status.replace('_', ' ')}")
+        if not artifact_option_band_allows_draft(option_band, cfg.get('minimum_option_readiness_band', 'almost_ready')):
+            missing_evidence.append(f"option readiness needs to reach at least {cfg.get('minimum_option_readiness_band', 'almost_ready').replace('_', ' ')}")
+        if cfg.get('require_bounded_detail_for_draft', True) and not has_bounded_detail:
+            missing_evidence.append('bounded artifact detail is still too thin')
+        if artifact.get('open_constraints'):
+            blocking_constraints.extend([compact_text_excerpt(item, 120) for item in artifact.get('open_constraints', [])[:4]])
+        suggested_form = suggest_draft_artifact_form(artifact, cfg)
+        if not suggested_form:
+            missing_evidence.append('artifact form is not concrete enough yet to justify draft emission')
+        draft_state = 'not_ready_for_draft'
+        readiness_reason = artifact.get('reason', '') or 'This artifact should remain review-only until grounding and bounded detail are stronger.'
+        if not missing_evidence:
+            draft_state = 'draft_candidate'
+            readiness_reason = (
+                'Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.'
+            )
+        elif blocking_constraints:
+            readiness_reason = (
+                'This artifact is still review-oriented, but unresolved constraints or missing grounding keep it below draft-emission readiness.'
+            )
+
+        evidence_to_progress = artifact.get('escalation_signals', [])[:4]
+        review_rows.append({
+            'artifact_id': artifact.get('artifact_id', ''),
+            'label': artifact.get('label', ''),
+            'artifact_type': artifact.get('artifact_type', ''),
+            'artifact_type_label': artifact.get('artifact_type_label', ''),
+            'draft_readiness_state': draft_state,
+            'draft_readiness_reason': compact_text_excerpt(readiness_reason, 320),
+            'grounding_status': grounding_status,
+            'option_readiness_band': option_band,
+            'review_status': artifact.get('review_status', ''),
+            'suggested_draft_form': suggested_form,
+            'missing_evidence': missing_evidence[:4],
+            'blocking_constraints': blocking_constraints[:4],
+            'evidence_to_progress': evidence_to_progress,
+            'bounded_framing': artifact.get('bounded_framing', ''),
+            'candidate_directions': artifact.get('candidate_directions', [])[:4],
+            'relevant_interfaces': artifact.get('relevant_interfaces', [])[:4],
+            'candidate_components': artifact.get('candidate_components', [])[:4],
+            'provisional': True,
+            'revisable': bool(artifact.get('revisable', True)),
+            'linked_review_id': artifact.get('artifact_id', ''),
+            'linked_decision_label': artifact.get('linked_decision_label', ''),
+        })
+
+    state_order = {'draft_candidate': 0, 'not_ready_for_draft': 1}
+    band_order = {'ready_to_review': 0, 'almost_ready': 1, 'emerging': 2, 'too_early': 3}
+    review_rows.sort(key=lambda row: (state_order.get(row.get('draft_readiness_state', 'not_ready_for_draft'), 9), band_order.get(row.get('option_readiness_band', 'too_early'), 9), row.get('label', '')))
+    review_rows = review_rows[:cfg.get('max_visible', 6)]
+    counts = {state: 0 for state in ARTIFACT_EMISSION_READINESS_STATES}
+    for row in review_rows:
+        counts[row.get('draft_readiness_state', 'not_ready_for_draft')] = counts.get(row.get('draft_readiness_state', 'not_ready_for_draft'), 0) + 1
+    return {
+        'generated_at': now_iso(),
+        'allowed_states': list(ARTIFACT_EMISSION_READINESS_STATES),
+        'suggested_forms': list(DRAFT_ARTIFACT_FORMS),
+        'artifact_emission_readiness': review_rows,
+        'counts': counts,
+    }
+
+
+def save_artifact_emission_readiness_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else {'artifact_emission_readiness': []}
+    payload['updated_at'] = now_iso()
+    ARTIFACT_EMISSION_READINESS_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
 
 
 def load_specialist_consultation_history():
