@@ -56,6 +56,32 @@ DORMANT_IDEA_TYPE_VALUES = (
     'constraint_blocked',
     'mode_suppressed',
 )
+REFLECT_EXPECTED_TOP_LEVEL_KEYS = (
+    'reflection_summary',
+    'resonance_signals',
+    'strengthening_attractors',
+    'intensifying_tensions',
+    'under_attended_tensions',
+    'possible_drift',
+    'dormant_ideas_worth_reactivation',
+    'contradiction_persistence',
+    'over_dominant_attractors',
+    'cooling_candidates',
+    'under_attended_recurring_tensions',
+    'neglected_persistent_tensions',
+    'reinforcement_loops',
+    'counterweight_awareness',
+    'field_imbalance_patterns',
+    'repo_change_candidates',
+    'repo_alignment_observations',
+    'field_diff_alignment_patterns',
+    'specialist_consultation_decisions',
+    'specialist_consultation_evaluations',
+    'action_direction_judgments',
+    'dormant_idea_returns',
+    'suggested_mode_shifts',
+    'field_deltas',
+)
 REPO_ALIGNMENT_CLASSIFICATIONS = (
     'aligned',
     'productive_resistance',
@@ -4330,6 +4356,156 @@ def extract_json_payload(text):
     return json.loads(candidate)
 
 
+def compact_text_excerpt(text, limit=280):
+    collapsed = re.sub(r'\s+', ' ', str(text or '')).strip()
+    if len(collapsed) <= limit:
+        return collapsed
+    return collapsed[:max(0, limit - 3)].rstrip() + '...'
+
+
+def extract_balanced_json_object(text):
+    if not text:
+        return ''
+    for start, char in enumerate(text):
+        if char != '{':
+            continue
+        depth = 0
+        in_string = False
+        escape = False
+        for idx in range(start, len(text)):
+            current = text[idx]
+            if in_string:
+                if escape:
+                    escape = False
+                elif current == '\\':
+                    escape = True
+                elif current == '"':
+                    in_string = False
+                continue
+            if current == '"':
+                in_string = True
+            elif current == '{':
+                depth += 1
+            elif current == '}':
+                depth -= 1
+                if depth == 0:
+                    return text[start:idx + 1].strip()
+    return ''
+
+
+def insert_missing_json_key_commas(text):
+    lines = text.splitlines()
+    if not lines:
+        return text
+    repaired = []
+    for idx, raw in enumerate(lines):
+        line = raw.rstrip()
+        if idx < len(lines) - 1:
+            next_line = lines[idx + 1].lstrip()
+            if next_line.startswith('"'):
+                stripped = line.rstrip()
+                if stripped and not stripped.endswith(('{', '[', ':', ',')):
+                    if re.search(r'("|\}|\]|\btrue\b|\bfalse\b|\bnull\b|[0-9])\s*$', stripped):
+                        line = stripped + ','
+        repaired.append(line)
+    return '\n'.join(repaired)
+
+
+def reflect_json_variants(candidate):
+    variants = []
+
+    def add_variant(name, value):
+        value = value.strip()
+        if value and all(existing_value != value for _, existing_value in variants):
+            variants.append((name, value))
+
+    trimmed = re.sub(r',(\s*[}\]])', r'\1', candidate)
+    quoted = re.sub(r'([{\[,]\s*)([A-Za-z_][A-Za-z0-9_]*)(\s*:)', r'\1"\2"\3', candidate)
+    comma_repaired = insert_missing_json_key_commas(candidate)
+    add_variant('raw', candidate)
+    add_variant('trim_trailing_commas', trimmed)
+    add_variant('insert_missing_key_commas', comma_repaired)
+    add_variant('insert_missing_key_commas_then_trim', re.sub(r',(\s*[}\]])', r'\1', comma_repaired))
+    add_variant('quote_bare_keys', quoted)
+    add_variant('quote_bare_keys_then_trim', re.sub(r',(\s*[}\]])', r'\1', quoted))
+    quoted_comma = insert_missing_json_key_commas(quoted)
+    add_variant('quote_bare_keys_and_insert_missing_key_commas', quoted_comma)
+    add_variant('quote_bare_keys_insert_missing_key_commas_then_trim', re.sub(r',(\s*[}\]])', r'\1', quoted_comma))
+    return variants
+
+
+def validate_reflect_payload(payload):
+    if not isinstance(payload, dict):
+        return False, 'Reflect payload did not parse as a top-level JSON object.', []
+    recognized = sorted(key for key in payload.keys() if key in REFLECT_EXPECTED_TOP_LEVEL_KEYS)
+    if not recognized:
+        return False, 'Parsed JSON object did not contain recognized reflect keys.', []
+    return True, '', recognized
+
+
+def build_reflect_fallback_payload(diagnostics):
+    error_text = diagnostics.get('error') or 'Reflect output could not be parsed as valid JSON.'
+    return {
+        'reflection_summary': (
+            'Reflect fallback activated because the model returned malformed or unusable JSON. '
+            'ELI preserved grounded analysis and downstream action judgment, but trusted no model-proposed field deltas from this pass.'
+        ),
+        'possible_drift': [
+            {
+                'label': 'Reflect Output Reliability',
+                'reason': error_text,
+                'confidence': 0.86,
+            }
+        ],
+        'field_deltas': [],
+    }
+
+
+def parse_reflect_output(raw):
+    raw_text = str(raw or '').strip()
+    fenced = re.search(r'```(?:json)?\s*(.*?)\s*```', raw_text, flags=re.DOTALL)
+    source_text = fenced.group(1).strip() if fenced else raw_text
+    candidate = extract_balanced_json_object(source_text)
+    diagnostics = {
+        'status': 'valid',
+        'source': 'fenced_block' if fenced else 'raw_response',
+        'repair_strategy': 'none',
+        'error': '',
+        'recognized_keys': [],
+        'raw_excerpt': compact_text_excerpt(raw_text, 320),
+        'candidate_excerpt': compact_text_excerpt(candidate or source_text, 320),
+    }
+    if not candidate:
+        diagnostics.update({
+            'status': 'fallback',
+            'error': 'No balanced JSON object could be extracted from reflect output.',
+        })
+        return build_reflect_fallback_payload(diagnostics), diagnostics
+
+    last_error = ''
+    for strategy, variant in reflect_json_variants(candidate):
+        try:
+            payload = json.loads(variant)
+        except json.JSONDecodeError as exc:
+            last_error = f'{exc.msg}: line {exc.lineno} column {exc.colno} (char {exc.pos})'
+            continue
+        valid, issue, recognized = validate_reflect_payload(payload)
+        if not valid:
+            last_error = issue
+            continue
+        diagnostics['recognized_keys'] = recognized
+        diagnostics['repair_strategy'] = strategy if strategy != 'raw' else 'none'
+        if strategy != 'raw':
+            diagnostics['status'] = 'repaired'
+        return payload, diagnostics
+
+    diagnostics.update({
+        'status': 'fallback',
+        'error': last_error or 'Reflect JSON remained invalid after deterministic repair attempts.',
+    })
+    return build_reflect_fallback_payload(diagnostics), diagnostics
+
+
 def sync_action_inbox_from_dream(dream_body):
     existing = load_action_inbox()
     existing_items = {item.get('id'): item for item in existing.get('items', [])}
@@ -5306,6 +5482,19 @@ def apply_reflect_field_deltas(reflect_data, source_report_paths, analysis):
 
 def render_reflect_markdown(reflect_data, applied_entries):
     lines = ['## Reflection Summary', reflect_data.get('reflection_summary', 'No reflection summary generated.'), '']
+    diagnostics = reflect_data.get('reflect_generation_diagnostics', {})
+    if diagnostics:
+        lines.append('## Reflect Diagnostics')
+        lines.append(
+            f"- status: {diagnostics.get('status', '')} | source: {diagnostics.get('source', '')} | repair_strategy: {diagnostics.get('repair_strategy', 'none')}"
+        )
+        if diagnostics.get('error'):
+            lines.append(f"- note: {diagnostics.get('error')}")
+        if diagnostics.get('recognized_keys'):
+            lines.append(f"- recognized_keys: {', '.join(diagnostics.get('recognized_keys', []))}")
+        if diagnostics.get('raw_excerpt'):
+            lines.append(f"- raw_excerpt: {diagnostics.get('raw_excerpt')}")
+        lines.append('')
     sections = [
         ('Resonance Signals', reflect_data.get('resonance_signals', []), 'target_id'),
         ('Strengthening Attractors', reflect_data.get('strengthening_attractors', []), 'target_id'),
@@ -5474,7 +5663,10 @@ def generate_reflect_cycle(changes, prior_reports):
     analysis = build_reflection_analysis(changes, prior_reports)
     context = reflect_context(changes, prior_reports, analysis)
     raw = ollama_generate(system, context)
-    reflect_data = normalize_reflect_output(extract_json_payload(raw))
+    parsed_payload, reflect_diagnostics = parse_reflect_output(raw)
+    reflect_data = normalize_reflect_output(parsed_payload)
+    if reflect_diagnostics.get('status') != 'valid':
+        reflect_data['reflect_generation_diagnostics'] = reflect_diagnostics
     reflect_data = enrich_reflect_output(reflect_data, analysis)
     action_direction_judgments, action_inbox, specialist_context = enrich_action_inbox_with_reflection(analysis)
     reflect_data['action_direction_judgments'] = action_direction_judgments
@@ -5512,8 +5704,10 @@ def generate_reflect_cycle(changes, prior_reports):
         },
         'field_snapshot': updated_snapshot,
     }
+    if reflect_diagnostics.get('status') != 'valid':
+        reflect_state['reflect_generation_diagnostics'] = reflect_diagnostics
     REFLECT_STATE_PATH.write_text(json.dumps(reflect_state, indent=2), encoding='utf-8')
-    return render_reflect_markdown(reflect_data, applied_entries)
+    return render_reflect_markdown(reflect_data, applied_entries), reflect_diagnostics
 
 
 def store_cycle_run(cycle, started_at, finished_at, status, duration_ms, changed_files, report_path='', error_text=''):
@@ -6084,16 +6278,33 @@ def run_reflect_cycle(changes, prior_reports):
     started_at = started.isoformat(timespec='seconds')
     write_runtime_state(state='running', current_cycle='reflect', current_project=PROJECT_SLUG, cycle_started_at=started_at, changed_files=len(changes))
     try:
-        output = generate_reflect_cycle(changes, prior_reports)
+        output, reflect_diagnostics = generate_reflect_cycle(changes, prior_reports)
         output = attach_cycle_metadata('reflect', changes, output)
         title = 'Reflect cycle'
         prio = parse_priority(output)
-        conf = 0.8
+        if reflect_diagnostics.get('status') == 'fallback':
+            conf = 0.58
+        elif reflect_diagnostics.get('status') == 'repaired':
+            conf = 0.72
+        else:
+            conf = 0.8
         store_memory('reflect', title, output, priority=prio, confidence=conf)
         path = write_report('reflect', output)
         duration_ms = int((dt.datetime.now() - started).total_seconds() * 1000)
         store_cycle_run('reflect', started_at, now_iso(), 'ok', duration_ms, len(changes), str(path), '')
-        write_runtime_state(state='running', current_cycle=None, current_project=PROJECT_SLUG, last_completed_cycle='reflect', last_cycle_status='ok', last_cycle_finished_at=now_iso(), last_report_path=str(path), last_error='')
+        write_runtime_state(
+            state='running',
+            current_cycle=None,
+            current_project=PROJECT_SLUG,
+            last_completed_cycle='reflect',
+            last_cycle_status='ok',
+            last_cycle_finished_at=now_iso(),
+            last_report_path=str(path),
+            last_error='',
+            reflect_generation_status=reflect_diagnostics.get('status', 'valid'),
+            reflect_generation_repair_strategy=reflect_diagnostics.get('repair_strategy', 'none'),
+            reflect_generation_note=reflect_diagnostics.get('error', ''),
+        )
         return path
     except Exception as exc:
         duration_ms = int((dt.datetime.now() - started).total_seconds() * 1000)

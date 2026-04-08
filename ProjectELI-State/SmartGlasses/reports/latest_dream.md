@@ -5,16 +5,13 @@
 ### Idea 1: Subtitle Placement
 
 1. **Why it benefits the core**
-
-   Improving subtitle placement rules based on confidence levels will ensure that subtitles are always readable and do not become distracting, thereby enhancing user trust and comfort during live conversations.
+   Improving subtitle placement rules can enhance readability and reduce distraction, making subtitles more useful without overwhelming the wearer.
 
 2. **What small change unlocks it**
-
-   Define two subtitle placement modes: one for high-confidence states (e.g., when a face or name is seen frequently) and another for low-confidence states (e.g., when a new person is encountered).
+   Define two subtitle placement rules: one for high-confidence contexts (e.g., common words, known speakers) where subtitles should be positioned at the bottom of the frame, and another for low-confidence contexts (e.g., unknown speakers or noisy environments) where subtitles can be moved to the top center to avoid visual distraction.
 
 3. **Likely payoff**
-
-   By implementing distinct subtitle placement rules, the system will maintain a balance between readability and distraction, improving user experience and trust in the assistant's reliability.
+   By providing clearer placement guidelines based on confidence levels, the system can reduce visual clutter in critical moments while ensuring essential information remains easily readable.
 
 4. **Immediate next probe**
    - Define one fixed subtitle position rule for V1: keep subtitles at the bottom center of the display.
@@ -22,62 +19,65 @@
 ### Idea 2: Confidence Display
 
 1. **Why it benefits the core**
-   - By refining how confidence is displayed, we can ensure that the wearer receives clear and trustworthy information about the reliability of subtitles and memories. This improves trust in the system by providing a consistent and understandable way to convey certainty levels.
+
+   By defining a clear confidence format that includes a numeric score, label, and short reason, we can provide the wearer with a reliable and understandable measure of certainty. This will help build trust in the system's accuracy and reduce social friction by making the assistive behavior transparent.
 
 2. **What small change unlocks it**
-   - Define a new confidence format that combines a numeric score with a label and a short reason for why the system is confident or uncertain.
+
+   Define a simple confidence object format: `score + " " + label + " (" + short reason + ")`. For example, `0.84 High (Seen recently)` or `0.35 Low (Weak match)`. This format can be easily implemented and tested in the V1 version.
 
 3. **Likely payoff**
-   - A well-designed confidence display will help build trust in the system, allowing wearers to better understand when they can rely on the subtitles and memory support provided by the glasses. This will lead to more effective use of the assistant without creating any social awkwardness.
+
+   Implementing a clear confidence display will enhance user trust by making the system's certainty levels explicit. This transparency will help the wearer understand when to rely on the system and when to seek additional information, reducing social awkwardness during interactions.
 
 4. **Immediate next probe**
-   - Choose one confidence display format for V1: label only or label plus short reason.
+   - Define the confidence score presentation format as `score + " " + label + " (" + short reason + ")` for V1.
 
 ### Idea 3: Memory/Cache Policy
 
 1. **Why it benefits the core**
-
-   By setting a clear threshold for local face/name memory, we ensure that the system focuses on high-value memories while maintaining low storage demands, which is crucial for V1's battery-conscious design.
+   - Strengthening local caching for face/name recall improves the accuracy and speed of memory lookups, enhancing the wearer's trust in the system's ability to provide relevant context during interactions.
 
 2. **What small change unlocks it**
-
-   Define one local-cache size limit for storing face and name recall, ensuring that only frequently encountered individuals are cached locally.
+   - Define a local cache eviction policy that retains recently seen faces and names based on a recency threshold.
 
 3. **Likely payoff**
-
-   This decision will help balance memory utility with battery efficiency, allowing the system to provide relevant support without overwhelming the phone's storage, thus maintaining a lighter and more reliable V1 experience.
+   - By keeping a local cache of frequently encountered individuals, the system can quickly retrieve confidence objects for likely new people without requiring cloud access, reducing latency and improving overall trust in memory support during conversations.
 
 4. **Immediate next probe**
-
-   Set a local cache size limit of 20 entries for frequently encountered faces and names.
+   - Set a local cache eviction rule to retain faces and names seen within the last 10 minutes.
 
 ### Idea 4: Phone/Cloud Boundary
 
 1. **Why it benefits the core**
-   Enhancing subtitle placement rules for different confidence levels will ensure that subtitles are always clear, stable, and do not distract from the conversation. This improves real-time subtitle clarity and helps maintain trust with the wearer.
+
+   By defining a clear boundary for what runs on the phone versus the cloud, we ensure that V1 remains focused on delivering real utility without overloading the glasses hardware. This helps maintain low latency and high responsiveness critical for trust and effectiveness in noisy environments.
 
 2. **What small change unlocks it**
-   Define two to three subtitle placement rules based on confidence scores: one rule for high-confidence matches where subtitles can be placed closer to the screen edge without distraction, another for medium-confidence matches where subtitles are slightly further back but still visible, and a third for low-confidence matches where subtitles should be more prominently displayed.
+
+   Define specific tasks to run locally on the phone and explicitly fall back to the cloud only when necessary, such as live subtitle processing or face/name recall lookup. This will help streamline the V1 architecture and reduce battery consumption by offloading non-critical processes.
 
 3. **Likely payoff**
-   By carefully placing subtitles based on confidence, we reduce visual clutter while ensuring that critical information is always clear. This enhances the wearer's trust in the system without overwhelming them with unnecessary text.
+
+   By keeping subtitle processing local, we can ensure real-time responsiveness and low latency, which are crucial for maintaining trust in the system. Additionally, this approach minimizes data transfer, conserves battery life, and ensures that the system behaves predictably even when network conditions are poor.
 
 4. **Immediate next probe**
-   - Choose one phone-local versus cloud fallback boundary for face/name recall lookup in V1.
+
+   Define one task-specific phone/cloud fallback boundary for live subtitle processing.
 
 ### Idea 5: Visual Hierarchy
 
 1. **Why it benefits the core**
 
-   By defining a clear visual hierarchy between subtitles and one-line support, we ensure that the wearer can focus on real-time conversation without being overwhelmed by additional information. This improves the overall clarity and usability of the interface, enhancing the wearer's ability to understand and respond appropriately in noisy environments.
+   By refining the visual hierarchy between subtitles and one-line support, we can ensure that the wearer remains focused on essential information without being overwhelmed by secondary details. This will enhance the wearer's ability to process live conversations efficiently while maintaining a low-friction interface.
 
 2. **What small change unlocks it**
 
-   Define a simple visual hierarchy rule: subtitles should be prominently displayed with clear, stable placement, while one-line support should be less prominent but still easily accessible when needed.
+   Define a single subtitle placement rule for high-confidence faces/names and another for lower-confidence entities, ensuring that critical information is always prominently displayed.
 
 3. **Likely payoff**
 
-   A well-defined visual hierarchy will reduce cognitive load and improve the wearer's ability to focus on real-time conversation. This will enhance the core mission of helping the wearer understand and respond better in noisy environments, without being distracted by additional information.
+   This change will help the wearer prioritize important details, reducing cognitive load and enhancing overall comprehension during live interactions. By clearly distinguishing between high-confidence and low-confidence information, we can improve trust in the system's accuracy while maintaining a clean visual interface.
 
 4. **Immediate next probe**
    - Define one visual priority rule between subtitles and one-line support in V1.

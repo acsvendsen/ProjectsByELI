@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-04-08T07:59:05",
+  "generated_at": "2026-04-08T08:56:06",
   "project_name": "smart_glasses",
   "reflect": {
-    "reflection_summary": "The project maintains strong resonance on core attractors but under-attends to the discreet UX vs visual clarity tension, and has an over-dominant core-depending mode. Subtitle placement optimization is a dormant idea worth reactivating.",
+    "reflection_summary": "The project maintains strong resonance on key attractors and tensions, particularly around subtitle clarity and memory trustworthiness. However, the core-depending mode is over-dominant, risking drift if not balanced with attention to privacy vs usefulness, latency vs richness, and discreet UX vs visual clarity. Suggested deltas aim to address these imbalances while keeping field changes conservative.",
     "resonance_signals": [
       {
         "field": "attractors | tensions",
         "target_id": "",
-        "label": "Cross-source Resonance",
+        "label": "cross_source_resonance",
         "repetition_kind": "cross_source_resonance",
-        "reason": "Signals recur across Eli docs, reports, and code configuration.",
+        "reason": "Recurring concepts across ELI docs, reports, and runtime truth.",
         "confidence": 0.8
       }
     ],
@@ -19,6 +19,12 @@
         "label": "Real-time subtitle clarity",
         "reason": "Critical for trust in noisy environments; ongoing focus needed to ensure high quality.",
         "confidence": 0.8
+      },
+      {
+        "target_id": "memory_trust",
+        "label": "Trustworthy memory support",
+        "reason": "Continued emphasis on trustworthy memory support without creating false certainty.",
+        "confidence": 0.78
       }
     ],
     "intensifying_tensions": [
@@ -37,7 +43,7 @@
     ],
     "under_attended_tensions": [
       {
-        "target_id": "discreet_ux_vs_visual_clarity",
+        "target_id": "",
         "label": "Discreet UX vs visual clarity",
         "reason": "Under-attended despite recurring evidence; needs more balanced attention.",
         "confidence": 0.72
@@ -45,7 +51,7 @@
     ],
     "possible_drift": [
       {
-        "label": "Core Dependent Mode Drift",
+        "label": "Core-depending Mode Drift",
         "reason": "Risk of drift if not addressed with balanced progress across critical areas.",
         "confidence": 0.7
       }
@@ -76,16 +82,16 @@
     ],
     "over_dominant_attractors": [
       {
-        "target_id": "core_depending",
-        "label": "Core Dependent Mode",
-        "reason": "Over-dominant and could lead to drift if not addressed.",
+        "target_id": "core_depending_mode",
+        "label": "Core-depending mode",
+        "reason": "Risk of drift if not addressed with balanced progress across critical areas.",
         "confidence": 0.7
       }
     ],
     "cooling_candidates": [],
     "under_attended_recurring_tensions": [
       {
-        "target_id": "discreet_ux_vs_visual_clarity",
+        "target_id": "",
         "label": "Discreet UX vs visual clarity",
         "reason": "Under-attended despite recurring evidence; needs more balanced attention.",
         "confidence": 0.72
@@ -100,19 +106,11 @@
         "confidence": 0.72
       }
     ],
-    "reinforcement_loops": [
-      {
-        "field": "attractors",
-        "target_id": "subtitle_clarity",
-        "label": "Rebalancing Real-time subtitle clarity",
-        "reason": "Strengthening Real-time subtitle clarity keeps pressure on other tensions.",
-        "confidence": 0.8
-      }
-    ],
+    "reinforcement_loops": [],
     "counterweight_awareness": [
       {
         "target_id": "subtitle_clarity",
-        "label": "Subtitle Clarity",
+        "label": "Subtitle Clarity Counterweights",
         "reason": "Strengthening Real-time subtitle clarity keeps pressure on Latency vs richness, Discreet UX vs visual clarity.",
         "counterweight_tensions": [
           "latency_vs_richness",
@@ -171,7 +169,7 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 227,
+        "appearance_count": 251,
         "rank": 1,
         "confidence": 0.708
       },
@@ -197,7 +195,7 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 227,
+        "appearance_count": 251,
         "rank": 2,
         "confidence": 0.63
       },
@@ -223,7 +221,7 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 227,
+        "appearance_count": 251,
         "rank": 3,
         "confidence": 0.614
       },
@@ -249,7 +247,7 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 227,
+        "appearance_count": 251,
         "rank": 4,
         "confidence": 0.582
       },
@@ -275,7 +273,7 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 227,
+        "appearance_count": 251,
         "rank": 5,
         "confidence": 0.548
       }
@@ -295,7 +293,7 @@
     ],
     "suggested_mode_shifts": [
       {
-        "target_mode": "core_depending",
+        "target_mode": "core_depending_mode",
         "reason": "Shift to ensure balanced progress across all critical areas.",
         "confidence": 0.7,
         "requested_delta": 0.04
@@ -304,7 +302,7 @@
     "field_deltas": [
       {
         "field": "modes",
-        "target_id": "core_depending",
+        "target_id": "core_depending_mode",
         "requested_delta": 0.04,
         "reason": "Shift to ensure balanced progress across all critical areas.",
         "confidence": 0.7
@@ -313,7 +311,7 @@
         "field": "modes",
         "target_id": "implementation_grounding",
         "requested_delta": -0.02,
-        "reason": "Reflect suggested a shift away from implementation_grounding toward core_depending.",
+        "reason": "Reflect suggested a shift away from implementation_grounding toward core_depending_mode.",
         "confidence": 0.7
       },
       {
@@ -333,7 +331,7 @@
         "id": "subtitle-placement",
         "domain": "subtitle placement",
         "title": "Subtitle Placement",
-        "summary": "By implementing distinct subtitle placement rules, the system will maintain a balance between readability and distraction, improving user experience and trust in the assistant's reliability.",
+        "summary": "By providing stable and contextually appropriate subtitle placements, the system will become more predictable and reliable, reducing instances where subtitles disrupt the wearer's experience or become confusing due to poor placement. This enhances trust and usability, aligning with the core mission of improving real-time understanding in noisy environments.",
         "probe": "Define one fixed subtitle position rule for V1: keep subtitles at the bottom center of the display.",
         "choices": [
           {
@@ -351,12 +349,12 @@
         "selected_choice_label": "",
         "status": "pending",
         "selected_at": "",
-        "candidate_signature": "5e84b2de21c40671",
-        "appearance_count": 227,
+        "candidate_signature": "2564d07d2cd64c05",
+        "appearance_count": 251,
         "consecutive_appearances": 1,
         "first_seen_at": "2026-04-06T22:26:09",
-        "last_seen_at": "2026-04-08T07:58:08",
-        "last_judged_at": "2026-04-08T07:59:05",
+        "last_seen_at": "2026-04-08T08:55:11",
+        "last_judged_at": "2026-04-08T08:56:06",
         "alignment_score": 0.391,
         "resistance_score": 1.0,
         "architectural_pull_score": 0.0,
@@ -423,7 +421,7 @@
         "id": "confidence-display",
         "domain": "confidence display",
         "title": "Confidence Display",
-        "summary": "A well-designed confidence display will help build trust in the system, allowing wearers to better understand when they can rely on the subtitles and memory support provided by the glasses. This will lead to more effective use of the assistant without creating any social awkwardness.",
+        "summary": "By clearly displaying the certainty and source of the subtitle information, users will be able to quickly assess whether a subtitle is likely accurate. This improves trust in the system and allows for better decision-making during conversations.",
         "probe": "Choose one confidence display format for V1: label only or label plus short reason.",
         "choices": [
           {
@@ -441,12 +439,12 @@
         "selected_choice_label": "",
         "status": "pending",
         "selected_at": "",
-        "candidate_signature": "6fd7d2e1350cde17",
-        "appearance_count": 227,
+        "candidate_signature": "4e2b0417a0703ec3",
+        "appearance_count": 251,
         "consecutive_appearances": 1,
         "first_seen_at": "2026-04-06T22:26:09",
-        "last_seen_at": "2026-04-08T07:58:08",
-        "last_judged_at": "2026-04-08T07:59:05",
+        "last_seen_at": "2026-04-08T08:55:11",
+        "last_judged_at": "2026-04-08T08:56:06",
         "alignment_score": 0.592,
         "resistance_score": 1.0,
         "architectural_pull_score": 0.082,
@@ -514,8 +512,8 @@
         "id": "memory-cache-policy",
         "domain": "memory/cache policy",
         "title": "Memory/Cache Policy",
-        "summary": "This decision will help balance memory utility with battery efficiency, allowing the system to provide relevant support without overwhelming the phone's storage, thus maintaining a lighter and more reliable V1 experience.",
-        "probe": "Set a local cache size limit of 20 entries for frequently encountered faces and names.",
+        "summary": "This change will reduce latency in face/name recognition and improve overall memory recall speed, leading to more seamless interactions without the need for constant cloud connectivity or background syncing.",
+        "probe": "Set one local cache eviction rule for face/name memory in V1.",
         "choices": [
           {
             "id": "smaller_cache",
@@ -532,12 +530,12 @@
         "selected_choice_label": "",
         "status": "pending",
         "selected_at": "",
-        "candidate_signature": "68b9c27a94ba8467",
-        "appearance_count": 227,
+        "candidate_signature": "549ee33506524c56",
+        "appearance_count": 251,
         "consecutive_appearances": 1,
         "first_seen_at": "2026-04-06T22:26:09",
-        "last_seen_at": "2026-04-08T07:58:08",
-        "last_judged_at": "2026-04-08T07:59:05",
+        "last_seen_at": "2026-04-08T08:55:11",
+        "last_judged_at": "2026-04-08T08:56:06",
         "alignment_score": 0.781,
         "resistance_score": 1.0,
         "architectural_pull_score": 0.316,
@@ -605,7 +603,7 @@
         "id": "phone-cloud-boundary",
         "domain": "phone/cloud boundary",
         "title": "Phone/Cloud Boundary",
-        "summary": "By carefully placing subtitles based on confidence, we reduce visual clutter while ensuring that critical information is always clear. This enhances the wearer's trust in the system without overwhelming them with unnecessary text.",
+        "summary": "By keeping subtitle processing local, we ensure high-fidelity, low-latency subtitles that are crucial for real-time understanding. Cloud fallbacks for less critical operations like memory lookups reduce battery drain and maintain privacy by limiting off-glasses data transmission.",
         "probe": "Choose one phone-local versus cloud fallback boundary for face/name recall lookup in V1.",
         "choices": [
           {
@@ -623,12 +621,12 @@
         "selected_choice_label": "",
         "status": "pending",
         "selected_at": "",
-        "candidate_signature": "6a5cf9995e027f2f",
-        "appearance_count": 227,
+        "candidate_signature": "0c011660d90adccd",
+        "appearance_count": 251,
         "consecutive_appearances": 1,
         "first_seen_at": "2026-04-06T22:26:09",
-        "last_seen_at": "2026-04-08T07:58:08",
-        "last_judged_at": "2026-04-08T07:59:05",
+        "last_seen_at": "2026-04-08T08:55:11",
+        "last_judged_at": "2026-04-08T08:56:06",
         "alignment_score": 0.627,
         "resistance_score": 1.0,
         "architectural_pull_score": 0.117,
@@ -697,7 +695,7 @@
         "id": "visual-hierarchy",
         "domain": "visual hierarchy",
         "title": "Visual Hierarchy",
-        "summary": "A well-defined visual hierarchy will reduce cognitive load and improve the wearer's ability to focus on real-time conversation. This will enhance the core mission of helping the wearer understand and respond better in noisy environments, without being distracted by additional information.",
+        "summary": "By ensuring subtitles are given higher precedence in the visual hierarchy, the wearer can maintain focus on the primary conversation text, reducing cognitive strain and improving overall understanding during interactions. This will make the system more effective without overwhelming the wearer with too much information.",
         "probe": "Define one visual priority rule between subtitles and one-line support in V1.",
         "choices": [
           {
@@ -715,12 +713,12 @@
         "selected_choice_label": "",
         "status": "pending",
         "selected_at": "",
-        "candidate_signature": "562da9bd4caea618",
-        "appearance_count": 227,
+        "candidate_signature": "066b1ec0d275bf68",
+        "appearance_count": 251,
         "consecutive_appearances": 1,
         "first_seen_at": "2026-04-06T22:26:09",
-        "last_seen_at": "2026-04-08T07:58:08",
-        "last_judged_at": "2026-04-08T07:59:05",
+        "last_seen_at": "2026-04-08T08:55:11",
+        "last_judged_at": "2026-04-08T08:56:06",
         "alignment_score": 0.529,
         "resistance_score": 0.938,
         "architectural_pull_score": 0.0,
@@ -783,10 +781,10 @@
         }
       }
     ],
-    "updated_at": "2026-04-08T07:59:05",
-    "judged_at": "2026-04-08T07:59:05",
+    "updated_at": "2026-04-08T08:56:06",
+    "judged_at": "2026-04-08T08:56:06",
     "specialist_consultation": {
-      "generated_at": "2026-04-08T07:59:05",
+      "generated_at": "2026-04-08T08:56:06",
       "decisions": [
         {
           "decision_id": "51db870b65d15d7e",
@@ -1370,7 +1368,7 @@
           "trust_score": 0.649
         }
       },
-      "updated_at": "2026-04-08T07:59:05"
+      "updated_at": "2026-04-08T08:56:06"
     },
     "action_direction_judgments": [
       {
@@ -1395,7 +1393,7 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 227,
+        "appearance_count": 251,
         "rank": 1,
         "confidence": 0.708
       },
@@ -1421,7 +1419,7 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 227,
+        "appearance_count": 251,
         "rank": 2,
         "confidence": 0.63
       },
@@ -1447,7 +1445,7 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 227,
+        "appearance_count": 251,
         "rank": 3,
         "confidence": 0.614
       },
@@ -1473,7 +1471,7 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 227,
+        "appearance_count": 251,
         "rank": 4,
         "confidence": 0.582
       },
@@ -1499,7 +1497,7 @@
         "resurfacing_classification": "noisy_repetition",
         "resurfacing_reason": "Resurfacing repeats despite resistance without enough new field evidence.",
         "resurfacing_despite_resistance": true,
-        "appearance_count": 227,
+        "appearance_count": 251,
         "rank": 5,
         "confidence": 0.548
       }

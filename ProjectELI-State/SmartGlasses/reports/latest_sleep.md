@@ -2,65 +2,81 @@
 
 ## Inputs Used This Cycle
 - No changed files detected in the latest scan.
-## Consolidation of Recent Project Signals
+# Consolidated Insights for SmartGlasses Project
 
-### Strengthening Signals
-- **Subtitle Clarity**: Continued emphasis on real-time subtitle clarity, ensuring they remain readable and stable for live conversations (score: high).
-- **Memory Trustworthiness**: Consistent focus on building trustworthy memory support that does not overpromise or create false certainty (score: 0.78).
+## Strengthening Signals
 
-### Weakening Signals
-- **Low-Friction Assistance**: Reduced emphasis on adding command modes and increasing interaction complexity, maintaining V1 frame-touch-only interactions.
+### Subtitle Clarity
+- **Strength**: High  
+  - **Current State**: Real-time subtitle clarity remains a top priority, ensuring that subtitles are clear, fast, and stable enough for live conversation trust.
 
-### Contradictions That Must Stay Alive
-- **Privacy vs Usefulness**: Balancing the need for privacy with providing useful assistive behavior (score: 0.7928).
-- **Latency vs Richness**: Prioritizing timely responses over richer but slower processing to maintain trust and usability (score: 0.8269).
+### Memory Support
+- **Confidence Display**:  
+  - Current score: 0.78 (strength: high)  
+  - **Action Needed**: Continue working on confidence display formats to ensure they build trust without overloading the wearer.
+- **Memory Trust**:  
+  - Current score: 0.78 (strength: high)  
+  - **Action Needed**: Ensure names and prior context are remembered accurately, avoiding false certainty or corrupted recall.
 
-### Dormant Ideas Worth Reactivating
-- **Subtitle Placement and Visual Hierarchy**: Investigating the best subtitle placement without becoming overly distracting, ensuring a clean visual hierarchy.
+### Low-Friction Assistance
+- **Current State**: The system should provide one-line help and visible support without creating command overhead.
+- **Action Needed**: Focus on refining the visual UX to ensure assistance is helpful yet low-friction.
 
-### Concrete Tensions Around Key Areas
+## Weakening Signals
 
-#### Subtitle Quality, Confidence Trust, Automatic New-Person Memory, Memory Reinforcement, Fast Lookup
-- **Subtitle Quality**: Ensuring subtitles are clear and stable remains critical to trust.
-- **Confidence Display**: Deciding on the best format for confidence (label only, label + short reason, or score + label) is essential for building trust.
-- **Automatic New-Person Memory**: Implementing a system that remembers new faces and names with confidence objects over time.
-- **Memory Reinforcement**: Designing a mechanism to reinforce memory for fast lookup without overwhelming the wearer.
+### Privacy vs Usefulness
+- **Current Pressure**: High  
+  - **Action Needed**: Continue to balance the need for useful assistive behavior with strict privacy constraints, ensuring that no data is stored or used in a way that could be perceived as invasive.
 
-#### Visual UX
-- **Subtitle Placement**: Determining the best subtitle placement that ensures readability while avoiding distraction.
-- **Visual Hierarchy**: Ensuring subtitles and one-line prompts coexist without overloading the wearer, maintaining a clear visual hierarchy.
+### Latency vs Richness
+- **Current Pressure**: High  
+  - **Action Needed**: Optimize for timely responses while avoiding overloading the system with rich but slower processing. Ensure subtitle and memory behavior remains fast and reliable.
 
-### Open Questions
+## Contradictions That Must Stay Alive
 
-- **Subtitle Placement**: What is the optimal position for subtitles to be readable yet unobtrusive?
-- **Confidence Display**: How should confidence be represented: numeric score, label, or short reason?
-- **Memory/Cache Policy**: How much face/name memory should be cached locally on the phone?
-- **Phone/Cloud Boundary**: When and how should cloud processing be integrated to support offline functionality?
+### Discreet UX vs Visual Clarity
+- **Current Pressure**: Medium  
+  - **Action Needed**: Balance the need for a discreet user experience that avoids social awkwardness with the requirement of sufficient visual clarity to be useful in real-world interactions. 
 
-### Current Project Inputs
+## Dormant Ideas Worth Reactivating
 
-#### Core Field
-- The glasses aim to assist in noisy environments and dense multi-person contexts by providing real-time subtitles, remembering names, and offering one-line prompts.
-- Interaction is frame-touch only for V1.
+### Memory Reinforcement
+- **State**: Not currently active but relevant.
+- **Action Needed**: Revisit how face/name memory should be stored and reinforced for fast lookup and trust, ensuring that new memories are built with confidence objects.
 
-#### Tensions
-- **Privacy vs Usefulness**: Ensure helpful behavior does not encroach on privacy.
-- **Latency vs Richness**: Prioritize timely responses over richer but slower processing to maintain trust.
+### Fast Lookup Requirements
+- **State**: Not currently a focus.
+- **Action Needed**: Consider implementing mechanisms to quickly retrieve frequently accessed information without significant lag or user disruption.
 
-#### Core Attractors
-- **Subtitle Clarity** and **Memory Trustworthiness** are top priorities.
+## Concrete Tensions Around Core Mission
 
-#### Constraints
-- **Frame-Touch-Only V1 Interaction**: All explicit interactions should happen through frame touches.
-- **Phone-First Runtime**: Heavy processing primarily on the phone with optional cloud support.
+### Subtitle Quality
+- **Current Focus**: Improving real-time subtitle clarity and stability.  
+  - **Action Needed**: Prioritize testing and optimizing subtitle placement, speed, and readability in noisy environments.
 
-### Action Inbox
+### Confidence Trust
+- **Current Focus**: Ensuring memory support does not overpromise certainty.  
+  - **Action Needed**: Develop a confidence display format that is both clear and honest, providing short reasons for memory decisions when appropriate.
 
-- **Subtitle Placement**: Investigate optimal placement for readability and non-distractiveness.
-- **Confidence Display**: Define the best format for confidence representation.
-- **Memory/Cache Policy**: Determine local caching strategy for face/name memory.
-- **Phone/Cloud Boundary**: Outline conditions for integrating cloud processing to support offline functionality.
+### Automatic Memory Behavior vs Explicit Remember-Touch Behavior
+- **State**: Distinct but connected.
+- **Action Needed**: Ensure automatic memory behavior supports explicit remember-touch behavior without creating false certainty or confusion. Implement confidence objects to manage this balance.
 
-### Reality Rules
-- Focus on core improvements over broad feature expansion.
-- Surface real-world constraints early to avoid optimizing impossible directions.
+## Open Questions
+
+1. **Subtitle Placement**:  
+   - **Current State**: No operator choice selected; use best effort within `subtitle placement`.
+2. **Confidence Display**:  
+   - **Current State**: No operator choice selected; use best effort within `confidence display`.
+3. **Memory/Cache Policy**:  
+   - **Current State**: No operator choice selected; use best effort within `memory/cache policy`.
+4. **Phone/Cloud Boundary**:  
+   - **Current State**: No operator choice selected; use best effort within `phone/cloud boundary`.
+
+## Reality-Check Rule
+
+- Continue to surface real-world limitations early, including hardware, battery, thermal, latency, privacy, and usability constraints.
+
+## Core Mission
+
+The project should continuously focus on creating a discreet, context-aware personal assistant that provides real-time subtitle assistance, memory support, and low-friction one-line prompts. The system must stay true to its core mission while addressing the key tensions and constraints outlined in the current inputs.

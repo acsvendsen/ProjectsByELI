@@ -3,13 +3,14 @@
 ## Inputs Used This Cycle
 - No changed files detected in the latest scan.
 ## Reflection Summary
-The project maintains strong resonance on core attractors but under-attends to the discreet UX vs visual clarity tension, and has an over-dominant core-depending mode. Subtitle placement optimization is a dormant idea worth reactivating.
+The project maintains strong resonance on key attractors and tensions, particularly around subtitle clarity and memory trustworthiness. However, the core-depending mode is over-dominant, risking drift if not balanced with attention to privacy vs usefulness, latency vs richness, and discreet UX vs visual clarity. Suggested deltas aim to address these imbalances while keeping field changes conservative.
 
 ## Resonance Signals
-- Cross-source Resonance: Signals recur across Eli docs, reports, and code configuration. | cross_source_resonance (confidence 0.8)
+- cross_source_resonance: Recurring concepts across ELI docs, reports, and runtime truth. | cross_source_resonance (confidence 0.8)
 
 ## Strengthening Attractors
 - Real-time subtitle clarity: Critical for trust in noisy environments; ongoing focus needed to ensure high quality. (confidence 0.8)
+- Trustworthy memory support: Continued emphasis on trustworthy memory support without creating false certainty. (confidence 0.78)
 
 ## Intensifying Tensions
 - Privacy vs usefulness: Score stable but unresolved contradiction, recurs across Eli docs, reports. (confidence 0.72)
@@ -23,7 +24,7 @@ The project maintains strong resonance on core attractors but under-attends to t
 - Latency vs richness: Score stable but unresolved contradiction, recurs across Eli docs, reports. | persistence high (confidence 0.72)
 
 ## Over-Dominant Attractors
-- Core Dependent Mode: Over-dominant and could lead to drift if not addressed. (confidence 0.7)
+- Core-depending mode: Risk of drift if not addressed with balanced progress across critical areas. (confidence 0.7)
 
 ## Cooling Candidates
 - none
@@ -35,10 +36,10 @@ The project maintains strong resonance on core attractors but under-attends to t
 - Latency vs richness: recurs across eli_docs, reports; has 1 recent tension updates; score is numerically stable but the contradiction remains unresolved in meaning; recurs with weighted evidence 4.0; but only has 1 recent field updates; source spread: eli_docs, reports | suggested_delta 0.012 (confidence 0.72)
 
 ## Reinforcement Loops
-- Rebalancing Real-time subtitle clarity: Strengthening Real-time subtitle clarity keeps pressure on other tensions. (confidence 0.8)
+- none
 
 ## Counterweight Awareness
-- Subtitle Clarity: Strengthening Real-time subtitle clarity keeps pressure on Latency vs richness, Discreet UX vs visual clarity. | tensions latency_vs_richness, discreet_ux_vs_visual_clarity (confidence 0.8)
+- Subtitle Clarity Counterweights: Strengthening Real-time subtitle clarity keeps pressure on Latency vs richness, Discreet UX vs visual clarity. | tensions latency_vs_richness, discreet_ux_vs_visual_clarity (confidence 0.8)
 
 ## Field Imbalance Patterns
 - none
@@ -67,7 +68,7 @@ The project maintains strong resonance on core attractors but under-attends to t
 - Subtitle Placement: aligns with Real-time subtitle clarity; also addresses under-attended pressure in Latency vs richness; meets resistance from Latency vs richness, Discreet UX vs visual clarity; needs counterweight discipline on Latency vs richness, Discreet UX vs visual clarity; Earlier kill softly damps resurfacing until new evidence appears.; Resurfacing repeats despite resistance without enough new field evidence. | rank 5 | alignment 0.391 | resistance 1.0 | pull 0.0 | judgment kill | influence damped | resurfacing noisy_repetition | specialist Visualization Specialist | consult no_consultation | mode delegated_drafting (confidence 0.548)
 
 ## Possible Drift
-- Core Dependent Mode Drift: Risk of drift if not addressed with balanced progress across critical areas. (confidence 0.7)
+- Core-depending Mode Drift: Risk of drift if not addressed with balanced progress across critical areas. (confidence 0.7)
 
 ## Dormant Ideas Worth Reactivation
 - Subtitle Placement Optimization: Premature but promising; worth reactivating for practical improvements in subtitle placement. | type premature_but_promising (confidence 0.5)
@@ -76,11 +77,11 @@ The project maintains strong resonance on core attractors but under-attends to t
 - Subtitle Placement Optimization: no clear changed condition for return | type premature_but_promising | return noisy_resurfacing | domain subtitle placement | target attractors/subtitle_clarity (confidence 0.58)
 
 ## Suggested Mode Shifts
-- core_depending: Shift to ensure balanced progress across all critical areas. (confidence 0.7)
+- core_depending_mode: Shift to ensure balanced progress across all critical areas. (confidence 0.7)
 
 ## Proposed Field Deltas
-- modes/core_depending: requested_delta 0.04 | confidence 0.7 | reason: Shift to ensure balanced progress across all critical areas.
-- modes/implementation_grounding: requested_delta -0.02 | confidence 0.7 | reason: Reflect suggested a shift away from implementation_grounding toward core_depending.
+- modes/core_depending_mode: requested_delta 0.04 | confidence 0.7 | reason: Shift to ensure balanced progress across all critical areas.
+- modes/implementation_grounding: requested_delta -0.02 | confidence 0.7 | reason: Reflect suggested a shift away from implementation_grounding toward core_depending_mode.
 - tensions/latency_vs_richness: requested_delta 0.012 | confidence 0.72 | kind rebalancing | reason: Rebalancing pressure: recurs across eli_docs, reports; has 1 recent tension updates; score is numerically stable but the contradiction remains unresolved in meaning; recurs with weighted evidence 4.0; but only has 1 recent field updates; source spread: eli_docs, reports
 
 ## Applied Conservative Field Updates

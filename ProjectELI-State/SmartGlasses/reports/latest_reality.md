@@ -4,51 +4,65 @@
 - No changed files detected in the latest scan.
 ## Reality Check Summary for SmartGlasses Project
 
-### Subtitle Placement
-**Feasible Now:** The glasses should provide clear, readable subtitles that do not become distracting. Given the emphasis on real-time clarity and stability, focusing on a placement that minimizes distraction while ensuring readability is feasible now.
+### Feasibility Assessments
 
-### Confidence Display
-**Feasible Later:** Early versions can use simple labels (e.g., "high," "low") to convey confidence without overwhelming the wearer. Adding short reasons for confidence levels could be considered later when the core subtitle functionality is well-established and trust in the system is higher.
+#### Subtitle Placement: 
+**Feasible Now**
+- The current `TranscriptLab` app provides a clear testbed for subtitle placement, ensuring subtitles are readable in motion and noise. Given that the focus is on early real-time performance, this can be iterated based on initial feedback.
 
-### Memory/Cache Policy
-**Assumptions Needing Evidence:** The caching strategy for face/name memory needs more evidence before finalizing. Current constraints suggest heavy reliance on phone/cloud, but the specific caching policy (e.g., local vs cloud) should be defined to ensure low latency and high usability without compromising privacy or battery life.
+#### Confidence Display:
+**Feasible Later**
+- While `TranscriptLab` can help establish confidence display patterns, it will need more specific user testing to determine optimal formats (label only vs label + short reason). This should be prioritized once the core subtitle functionality is well established.
 
-### Phone/Cloud Boundary
-**Feasible Now:** Given the early hardware constraints, favoring a phone-first approach is feasible. Cloud support can be optional where it adds clear value and does not significantly impact latency or battery use. This aligns with the current implementation grounding mode.
+#### Memory/Cache Policy: 
+**Likely Waste of Time**
+- Given the current constraint that V1 interaction is frame-touch-only and heavy processing happens on the phone, exploring memory caching in depth now may not yield immediate benefits. Core functionality needs to be solidified first.
 
-### Visual Hierarchy
-**Assumptions Needing Evidence:** Defining how subtitles and one-line prompts coexist without overloading the wearer requires more evidence. Current constraints suggest a low-friction, discreet UX, but specific visual hierarchy decisions need to be made based on real-world testing.
+#### Phone/Cloud Boundary:
+**Feasible Now**
+- The current architecture direction clearly favors a phone-first approach with optional cloud support. This can be refined further based on performance and user feedback but is currently well-grounded by the project inputs.
 
-### Core Deeper Work
-**Feasible Now:** Focusing on improving subtitle quality, memory trust, and visual UX is feasible now. These core areas directly support the mission of enhancing daily use value without adding unnecessary complexity or broad feature sprawl.
+#### Visual Hierarchy: 
+**Assumptions Needing Evidence**
+- While initial assumptions favor clarity over feature density, specific visual hierarchy decisions (e.g., subtitle vs one-line prompts) need concrete evidence from user testing to ensure they do not become distracting or overly complex.
+
+### Core Deepening Over Sprawl
+
+- **Core-deepening work should focus on improving subtitle quality and memory support.**
+  - Subtitle clarity and stability are critical for real-world usefulness, so ongoing refinement here is essential.
+  - Memory support needs to be reliable and trustworthy without creating unnecessary privacy concerns or overloading the wearer.
 
 ### Constraint Pressure
-**Feasible Now:** Surface battery, latency, privacy, and usability limits early to avoid wasting time on weak directions. This will help in making informed decisions about subtitle behavior, memory storage, and cloud usage.
+
+- **Battery and thermal constraints remain major risks:**
+  - Real-time subtitles must feel near-real-time; any design that significantly increases battery drain should be reconsidered.
+  
+- **Privacy vs. usefulness remains a high-pressure tension:**
+  - Memory support should avoid creating false certainty or privacy concerns, so designs that reinforce trust are crucial.
 
 ### Interaction Constraints
-**Feasible Now:** Frame-touch-only V1 interaction is feasible given the current project constraints. Avoiding voice commands for now ensures a simpler initial user experience that can be expanded later if necessary.
 
-### Evolution Rule Compliance
-**Feasible Now:** Evolve beyond the original form as long as it strengthens the core mission, improves real-world usefulness, or increases trust and clarity without distracting from the core focus on subtitles, memory support, and low-friction assistance.
+- **Frame-touch interaction is the primary V1 mode:**
+  - Any new interaction patterns must respect this constraint until it explicitly changes direction later.
 
-## Reality Check Reasoning
+### Next Steps
 
-- **Subtitle Placement (feasible now):** The glasses must provide clear, readable subtitles that do not become distracting. Early testing can help determine an optimal placement.
-  
-- **Confidence Display (feasible later):** Simple labels for confidence levels are feasible now. Adding short reasons could be considered once the core functionality is well-established and trust in the system is higher.
+1. **Subtitle Placement and Stability:** 
+   - Continue iterating on `TranscriptLab` to ensure subtitles remain readable in motion and noise.
+   
+2. **Confidence Display Testing:** 
+   - Plan user testing sessions to validate different confidence display formats (label only, label + short reason).
 
-- **Memory/Cache Policy (assumptions needing evidence):** The caching strategy needs to balance low latency with privacy concerns. More testing and evidence are required before finalizing this policy.
+3. **Core Subtitle and Memory Loop:**
+   - Refine subtitle quality and memory recall mechanisms based on early usability tests.
 
-- **Phone/Cloud Boundary (feasible now):** A phone-first approach that allows optional cloud support where it adds clear value is feasible now, aligning with current constraints.
+4. **Phone/Cloud Boundary Clarification:**
+   - Ensure that heavy processing remains off-glasses until clearly justified by performance benefits or user needs.
 
-- **Visual Hierarchy (assumptions needing evidence):** Defining the visual hierarchy for subtitles and prompts requires more testing to ensure a low-friction user experience without overwhelming the wearer.
+5. **Visual Hierarchy Design:**
+   - Conduct initial visual hierarchy tests to ensure the display is not overly complex and remains useful in real-world contexts.
 
-- **Core Deeper Work (feasible now):** Improving subtitle quality, memory trust, and visual UX are core areas that can be worked on without adding unnecessary complexity.
+### Conclusion
 
-- **Constraint Pressure (feasible now):** Early identification of constraints such as battery, latency, privacy, and usability will help avoid wasted effort on weak directions.
-
-- **Interaction Constraints (feasible now):** Frame-touch-only interaction is a feasible constraint for V1. Voice commands can be considered later if the need arises.
-
-- **Evolution Rule Compliance (feasible now):** Evolving the project to strengthen core areas without distractions is acceptable as long as it aligns with the mission and enhances daily use value.
-
-By focusing on these concrete, project-specific directions, we ensure that the SmartGlasses project stays aligned with its core mission while addressing real-world constraints early.
+- The project should continue to focus on core deepening while respecting current constraints, particularly around battery, thermal management, privacy, and usability.
+- User testing will be crucial for validating early assumptions about subtitle placement, confidence display, and visual hierarchy.
