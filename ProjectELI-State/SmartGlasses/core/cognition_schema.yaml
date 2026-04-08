@@ -107,6 +107,8 @@ control:
     candidate_types:
       - subsystem_breakdown
       - interface_map
+      - visual_layout_rule
+      - confidence_object_spec
       - component_shortlist
       - schematic_direction
       - implementation_sketch

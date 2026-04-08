@@ -122,6 +122,8 @@ V1_REVIEW_TRANSITION_REASONS = (
 IMPLEMENTATION_ARTIFACT_TYPES = (
     'subsystem_breakdown',
     'interface_map',
+    'visual_layout_rule',
+    'confidence_object_spec',
     'component_shortlist',
     'schematic_direction',
     'implementation_sketch',
@@ -929,6 +931,8 @@ control:
     candidate_types:
       - subsystem_breakdown
       - interface_map
+      - visual_layout_rule
+      - confidence_object_spec
       - component_shortlist
       - schematic_direction
       - implementation_sketch
@@ -1385,16 +1389,85 @@ def implementation_artifact_type_label(kind):
     return {
         'subsystem_breakdown': 'Subsystem Breakdown',
         'interface_map': 'Interface Map',
+        'visual_layout_rule': 'Visual Layout Rule',
+        'confidence_object_spec': 'Confidence Object Spec',
         'component_shortlist': 'Component Shortlist',
         'schematic_direction': 'Schematic Direction',
         'implementation_sketch': 'Implementation Sketch',
     }.get(kind, kind.replace('_', ' ').title())
 
 
+def humanize_review_signal(value):
+    text = str(value or '').strip().replace('_', ' ').replace('-', ' ')
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
+
+
+def infer_relevant_interfaces(source_domain, repo_surfaces):
+    values = []
+    seen = set()
+    for surface in repo_surfaces or []:
+        cleaned = humanize_review_signal(surface)
+        if cleaned and cleaned not in seen:
+            seen.add(cleaned)
+            values.append(cleaned)
+    text = str(source_domain or '').strip()
+    if '/' in text:
+        for part in text.split('/'):
+            cleaned = humanize_review_signal(part.replace('boundary', '').replace('interface', ''))
+            if cleaned and cleaned not in seen:
+                seen.add(cleaned)
+                values.append(cleaned)
+    return values[:3]
+
+
+def build_implementation_artifact_detail_fields(item, pending, artifact_type, repo_surfaces):
+    pending = pending if isinstance(pending, dict) else {}
+    candidate_directions = []
+    if pending:
+        for option in pending.get('options', [])[:4]:
+            if isinstance(option, dict) and option.get('label'):
+                candidate_directions.append(option.get('label', ''))
+    open_constraints = []
+    for bucket in ('tensions', 'constraints'):
+        for raw in ACTION_DIRECTION_LINKS.get(item.get('domain', ''), {}).get(bucket, []):
+            cleaned = humanize_review_signal(raw)
+            if cleaned and cleaned not in open_constraints:
+                open_constraints.append(cleaned)
+    relevant_interfaces = infer_relevant_interfaces(item.get('domain', ''), repo_surfaces)
+    candidate_components = []
+    if artifact_type == 'component_shortlist':
+        for option in pending.get('options', [])[:4]:
+            if isinstance(option, dict) and option.get('label'):
+                candidate_components.append(option.get('label', ''))
+    escalation_signals = []
+    for signal in (pending.get('revision_signals', []) or item.get('grounding_release_signals', []) or []):
+        cleaned = compact_text_excerpt(signal, 120)
+        if cleaned and cleaned not in escalation_signals:
+            escalation_signals.append(cleaned)
+    return {
+        'candidate_directions': candidate_directions[:4],
+        'open_constraints': open_constraints[:4],
+        'relevant_interfaces': relevant_interfaces[:3],
+        'candidate_components': candidate_components[:4],
+        'escalation_signals': escalation_signals[:4],
+    }
+
+
 def infer_implementation_artifact_type(text, repo_surfaces, has_bounded_options, artifact_preferences, allowed_types):
     normalized = normalize_signal_key(text)
     repo_surfaces = set(repo_surfaces or [])
     allowed = set(allowed_types or IMPLEMENTATION_ARTIFACT_TYPES)
+    if 'confidence_object_spec' in allowed and any(token in normalized for token in (
+        'confidence', 'certainty', 'uncertain', 'trust label', 'label plus reason', 'label + reason',
+        'label only', 'reason label', 'confidence format', 'confidence display',
+    )):
+        return 'confidence_object_spec'
+    if 'visual_layout_rule' in allowed and any(token in normalized for token in (
+        'layout', 'placement', 'position', 'hierarchy', 'overlay', 'prominence', 'subtitle', 'visual priority',
+        'stacking', 'visual hierarchy',
+    )):
+        return 'visual_layout_rule'
     if 'interface_map' in allowed and any(token in normalized for token in (
         'boundary', 'interface', 'api', 'handoff', 'link', 'protocol', 'cloud', 'phone', 'wireless', 'bridge',
     )):
@@ -1417,8 +1490,10 @@ def infer_implementation_artifact_type(text, repo_surfaces, has_bounded_options,
         'architecture', 'service', 'module boundary',
     )):
         return 'subsystem_breakdown'
-    if 'component_shortlist' in allowed and has_bounded_options and artifact_preferences.get('prefer_component_selection_guidance', True):
-        return 'component_shortlist'
+    if has_bounded_options and 'interface_map' in allowed and any(token in normalized for token in ('boundary', 'handoff', 'link')):
+        return 'interface_map'
+    if has_bounded_options and 'subsystem_breakdown' in allowed and any(token in normalized for token in ('policy', 'cache', 'memory', 'runtime', 'stack')):
+        return 'subsystem_breakdown'
     if 'implementation_sketch' in allowed:
         return 'implementation_sketch'
     return next(iter(allowed), 'implementation_sketch')
@@ -1536,6 +1611,7 @@ def build_implementation_artifact_candidates(action_direction_judgments, v1_deci
             cfg.get('candidate_types', list(IMPLEMENTATION_ARTIFACT_TYPES)),
         )
         artifact_label = implementation_artifact_type_label(artifact_type)
+        detail_fields = build_implementation_artifact_detail_fields(item, pending, artifact_type, repo_surfaces)
         reason_parts = []
         if pending:
             reason_parts.append('This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration')
@@ -1574,6 +1650,11 @@ def build_implementation_artifact_candidates(action_direction_judgments, v1_deci
             'addresses': addresses[:2],
             'bounded_choice_framing': compact_text_excerpt(pending.get('question', ''), 180) if pending else '',
             'repo_surfaces': repo_surfaces,
+            'candidate_directions': detail_fields.get('candidate_directions', []),
+            'open_constraints': detail_fields.get('open_constraints', []),
+            'relevant_interfaces': detail_fields.get('relevant_interfaces', []),
+            'candidate_components': detail_fields.get('candidate_components', []),
+            'escalation_signals': detail_fields.get('escalation_signals', []),
             'review_status': 'provisional_review_candidate',
             'provisional': bool(cfg.get('provisional_by_default', True)),
             'revisable': True,
@@ -5575,6 +5656,11 @@ def build_implementation_artifact_review_state(artifact_rows, current_items=None
             'bounded_framing': row.get('bounded_choice_framing', ''),
             'reason': row.get('reason', ''),
             'addresses': row.get('addresses', []),
+            'candidate_directions': row.get('candidate_directions', []),
+            'open_constraints': row.get('open_constraints', []),
+            'relevant_interfaces': row.get('relevant_interfaces', []),
+            'candidate_components': row.get('candidate_components', []),
+            'escalation_signals': row.get('escalation_signals', []),
             'source_kind': row.get('source_kind', ''),
             'source_domain': row.get('source_domain', ''),
             'source_action_id': row.get('source_action_id', ''),
