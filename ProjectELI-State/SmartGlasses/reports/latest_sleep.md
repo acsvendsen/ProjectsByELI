@@ -2,78 +2,87 @@
 
 ## Inputs Used This Cycle
 - core/Codex_handoff.md
-- core/field_v2/modes.json
-# Consolidation of Current Signals for SmartGlasses Project
+# Recent Consolidation for SmartGlasses Project
 
 ## Strengthening Signals
+1. **Subtitle Clarity**:
+   - **Current**: Real-time subtitle clarity remains a high-priority attractor.
+   - **Action**: Focus on optimizing text placement, font size, and stability to ensure subtitles are clear and readable in noisy environments.
 
-### Subtitle Clarity and Quality
-- **Subtitle Placement**: Operator selected `More Prominent`, indicating a strong focus on ensuring subtitles are visible without becoming distracting. This aligns with the need for clear, readable, and stable subtitles that remain trust-preserving.
+2. **Memory Trust**:
+   - **Current**: The system should remember names, faces, and prior context without creating corrupted recall.
+   - **Action**: Implement a recency-first memory cache policy for fast lookups and reinforce confidence objects over time.
 
-### Memory Support and Trustworthiness
-- **Memory Trust**: A high score of 0.78 emphasizes the importance of building reliable memory support that does not overpromise or introduce uncertainty.
-  
-### Low-Friction Assistance
-- **Low-Friction Assistance**: The current score of 0.68 highlights the need to enhance one-line prompts and visible support without adding unnecessary complexity.
+3. **Low-Friction Assistance**:
+   - **Current**: Provide one-line help rather than overwhelming prompts.
+   - **Action**: Continue to streamline the interaction design, ensuring that assistance is presented as brief, relevant snippets without disrupting the user experience.
 
 ## Weakening Signals
+1. **Privacy vs Usefulness**:
+   - **Current**: There's high pressure to balance privacy and usefulness in memory support.
+   - **Action**: Reduce unnecessary data retention and ensure that any stored information is anonymized or aggregated to protect privacy while still providing useful assistance.
 
-### Privacy vs Usefulness Tension
-- **Privacy vs Usefulness**: While this tension is high at 0.802, it's important to ensure that any privacy concerns do not overshadow the usefulness of the system.
-  
-### Always-On Sensing vs Battery and Thermals
-- **Latency vs Richness**: This tension is also high at 0.8352, indicating a need to balance real-time responsiveness with the risk of increased battery drain.
+2. **Discreet UX vs Visual Clarity**:
+   - **Current**: The system needs a visually clear yet discreet display behavior.
+   - **Action**: Simplify the visual hierarchy, focusing on making subtitles prominent but minimizing distractions, and ensuring that one-line prompts are easily readable without overwhelming the user.
 
 ## Contradictions That Must Stay Alive
+1. **Real-time vs Rich Context**:
+   - **Current**: There's a tension between providing timely help and maintaining rich contextual memory support.
+   - **Action**: Ensure that any tradeoffs made in real-time responsiveness do not compromise the core mission of providing timely, relevant assistance.
 
-### Core Deepening Over Sprawl
-- **Core Deepening over Sprawl**: The guiding principle that prefers core-deepening work over broad feature expansion remains crucial and must continue to be balanced against potential sprawl.
+2. **Core Deepening vs Feature Sprawl**:
+   - **Current**: The project must focus on deepening the core mission rather than broad feature expansion.
+   - **Action**: Prioritize work that improves subtitle quality, memory trust, and visual UX over unnecessary additions that do not deepen the core mission.
 
 ## Dormant Ideas Worth Reactivating
+1. **Subtitle Placement**:
+   - **Current**: The operator has selected more prominent subtitle placement as an action item.
+   - **Action**: Revise the UI to ensure subtitles are easily readable without becoming distracting, possibly through dynamic adjustment based on user interaction and environmental noise levels.
 
-### V1 Decision Candidates
-- **Held Items**: There are held items, such as more prominent subtitle placement and improved confidence display, which should remain in the backlog but not resurface prematurely without new counter-evidence.
-  
-## Concrete Tensions Around Key Areas
+2. **Confidence Display**:
+   - **Current**: The operator has chosen a label + reason format for confidence display.
+   - **Action**: Implement this approach consistently across all memory and recognition features to build trust and transparency with the user.
 
-### Subtitle Quality, Confidence Trust, Automatic Memory Behavior, Explicit Remember-Touch Behavior
-- **Subtitle Placement**: Operator selected `More Prominent`, emphasizing the need for clear and visible subtitles.
-- **Confidence Display**: Operator selected `Label + Reason`, indicating a preference for both labels and short reasons to build trust in memory support.
-- **Automatic Memory Behavior vs Confidence and Correction Safety**: The tension here is high, as automatic behavior must be balanced with safety mechanisms to avoid overconfidence.
+## Concrete Tensions Around Subtitle Quality, Confidence Trust, Automatic New-Person Memory, Memory Reinforcement, Fast Lookup, Privacy, Battery, Latency, and Visual UX
+1. **Subtitle Quality**:
+   - **Current**: Ensuring subtitles are clear and readable is crucial.
+   - **Action**: Continuously iterate on subtitle placement, font size, and readability to maintain high quality.
 
-### Fast Lookup Requirements
-- **Memory/Cache Policy**: Operator selected `Recency First`, indicating a preference for recent context over older data. This balances the need for fast lookup with memory reinforcement.
+2. **Confidence Trust**:
+   - **Current**: Confidence objects should be reinforced over time for trust in memory support.
+   - **Action**: Design a system where confidence levels are dynamically adjusted based on user interactions and feedback.
 
-## Summary of Open Questions
+3. **Automatic New-Person Memory**:
+   - **Current**: The system must remember new faces and names with confidence objects.
+   - **Action**: Implement a recency-first caching policy to ensure that recent interactions have higher memory reinforcement, reducing the need for extensive data storage.
 
-### Core Deepening and Constraint Pressure
-- **Core Deepening Over Sprawl**: Focus on improving subtitle clarity, memory trust, and visual UX rather than broad feature expansion.
-- **Constraint Pressure**: Surface battery, latency, privacy, and usability limits early so weak directions can be killed quickly.
+4. **Memory Reinforcement**:
+   - **Current**: Strengthening memory support over time is essential.
+   - **Action**: Use explicit touch-based interactions and consistent memory refreshes to reinforce user memory of names and faces.
 
-## Recent Inputs and Actions
+5. **Fast Lookup**:
+   - **Current**: The system should provide quick access to previously learned information.
+   - **Action**: Optimize the cache policy to ensure fast lookups, especially for commonly used or recently accessed items.
 
-### Action Inbox
-- Subtitle Placement: Selected `More Prominent`.
-- Confidence Display: Selected `Label + Reason`.
-- Memory/Cache Policy: Selected `Recency First`.
-- Phone/Cloud Boundary: Selected `Balanced Fallback`.
+6. **Privacy**:
+   - **Current**: Balancing privacy with useful memory support is a critical tension.
+   - **Action**: Implement strict data anonymization and aggregation practices to protect user privacy while still providing relevant assistance.
 
-### Core Field Summary
-- **Subtitle Clarity**: Real-time subtitles should remain clear, stable, and trust-preserving.
-- **Memory Support**: Reliable memory support without overpromising certainty or creating corrupted recall.
-- **Low-Friction Assistance**: Provide one-line help and visible support without command overhead.
+7. **Battery**:
+   - **Current**: Always-on sensing must be balanced against battery constraints.
+   - **Action**: Optimize power consumption by using more efficient processing techniques and minimizing unnecessary data transmissions.
 
-## Project-Specific Constraints
+8. **Latency**:
+   - **Current**: Timely help is essential to maintain user trust.
+   - **Action**: Prioritize low-latency responses, especially for critical interactions like real-time subtitle display.
 
-### Interaction Constraints
-- **Frame-Touch-Only V1**: Early interaction should happen through frame touches, not voice commands.
-  
-### Phone-First Runtime
-- **Phone-First Processing**: Heavy processing should primarily happen on the phone, with cloud optional where justified.
+9. **Visual UX**:
+   - **Current**: Ensuring a clear and unobtrusive UI is important.
+   - **Action**: Continuously refine the visual hierarchy to ensure that subtitles are prominent but do not distract from the primary task at hand.
 
-### Core Deepening vs Sprawl
-- **Core Deepening**: Bias toward subtitle, memory, confidence, and architecture improvements that increase daily-use value.
+## No Fluff
+- Focus on specific, actionable steps rather than generic advice or broad feature ideas. 
+- Prioritize concrete enhancements tied directly to the current project instance and its core mission. 
 
-## Conclusion
-
-The project remains focused on core deepening while balancing key tensions. The recent operator guidance and actions reflect a clear direction towards improving subtitle clarity, memory trust, and low-friction assistance without overcomplicating the system. The project should continue to surface constraints early and maintain a disciplined approach to new ideas.
+This consolidation aims to streamline efforts and ensure that all actions align with the project’s core goals of improving subtitle quality, memory trust, and visual UX while maintaining privacy and efficiency constraints.

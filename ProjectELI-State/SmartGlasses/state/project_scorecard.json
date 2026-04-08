@@ -1,14 +1,14 @@
 {
-  "project_summary": "The project is on track with the core attractors of real-time subtitle clarity and memory support, but needs continued attention to ensure privacy, low latency, and discreet UX. The hardware stack remains constrained by battery and social acceptability pressures, while the software stack focuses on practicality and maintainability.",
+  "project_summary": "The project is focused on enhancing subtitle clarity and memory support while respecting V1 constraints such as frame-touch interaction and phone-first processing. Core-deepening work is prioritized to improve real-time subtitles and memory trust, but tensions with privacy and latency remain unresolved.",
   "dimensions": [
     {
       "id": "hardware_stack",
       "label": "Hardware Stack",
       "status": "on_track",
       "goal": "Keep V1 lightweight, discreet, socially acceptable, and dependent on minimal on-glasses compute.",
-      "limitation_pressure": "battery and thermal pressure, social acceptability",
-      "progress_summary": "The glasses are designed to remain lightweight and socially acceptable, focusing on frame-touch interactions for simplicity and minimal on-glasses computation.",
-      "next_focus": "Continue optimizing display placement and visual clarity without compromising social acceptability or battery life.",
+      "limitation_pressure": "weight, social acceptability, battery",
+      "progress_summary": "The project remains focused on maintaining a lightweight and socially acceptable design with minimal on-glasses compute.",
+      "next_focus": "Define more specific subtitle placement rules for different confidence states to ensure subtitles are readable without becoming distracting.",
       "confidence": 1.0
     },
     {
@@ -72,6 +72,6 @@
       "confidence": 0.25
     }
   ],
-  "generated_at": "2026-04-08T10:51:41",
+  "generated_at": "2026-04-08T11:27:39",
   "project_name": "smart_glasses"
 }

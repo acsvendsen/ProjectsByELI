@@ -1,72 +1,74 @@
 # Reality cycle
 
 ## Inputs Used This Cycle
-- core/field_v2/modes.json
-## Reality Check for SmartGlasses
+- core/Codex_handoff.md
+# Reality Check for SmartGlasses Project
 
-### Subtitle Clarity [subtitle_clarity]
-- **Feasible Now:** 
-  - The `TranscriptLab` app provides a solid foundation for real-time subtitle clarity, and the current implementation shows promise. Given that it has already succeeded in building a transcript test bed on iOS, this is feasible with ongoing refinement.
+## Subtitle Placement: More Prominent
 
-### Memory Trust [memory_trust]
-- **Feasible Now:** 
-  - The memory support can be implemented using recency-first caching strategies. The `TranscriptLab` app's current state allows for the testing and validation of such a system without requiring heavy cloud dependency in V1.
-  
-### Low-Friction Assistance [low_friction_assistance]
-- **Feasible Now:** 
-  - One-line prompts can be implemented through frame-touch interactions, ensuring low-friction assistance. The `TranscriptLab` app's live transcript test view can serve as a proof of concept for this interaction mode.
+**Feasibility**: Feasible now  
+**Reasoning**: The glasses already support text display, and making subtitles more prominent can be achieved by adjusting the font size, color contrast, or display position. These are visual adjustments that do not require significant hardware changes.
 
-### Privacy vs Usefulness [privacy_vs_usefulness]
-- **Assumptions Needing Evidence:**
-  - While the current implementation respects privacy by not pretending certainty or creating corrupted recall, more evidence is needed to ensure that memory support does not slide into invasive capture. Specific data handling policies and user consent mechanisms need further definition.
+## Confidence Display: Label + Reason
 
-### Latency vs Richness [latency_vs_richness]
-- **Feasible Now:**
-  - The `TranscriptLab` app's current transcript behavior can be optimized for near-real-time responses, ensuring that the system does not overloading with richer but slower processing. This aligns well with the V1 real-world limits.
+**Feasibility**: Feasible now  
+**Reasoning**: Implementing confidence as a label with a short reason (e.g., "95% sure" and "likely known person") can be done using the existing UI framework. This provides more context to the wearer without overwhelming them.
 
-### Discreet UX vs Visual Clarity [discreet_ux_vs_visual_clarity]
-- **Feasible Now:**
-  - The `TranscriptLab` app's initial setup respects a discreet UX, and further refinement can ensure that subtitles are readable in motion and noise. This is feasible with minor adjustments to the visual hierarchy.
+## Memory/Cache Policy: Recency First
 
-### Frame-Touch-Only V1 [frame_touch_only_v1]
-- **Feasible Now:**
-  - The `TranscriptLab` app's current implementation does not rely on voice commands, aligning well with the frame-touch-only constraint for V1. This is a feasible direction to maintain.
+**Feasibility**: Feasible now  
+**Reasoning**: Implementing a recency-first policy for memory caching is straightforward. The system can prioritize recently seen faces and names, which aligns with the existing phone-side architecture.
 
-### Phone-First Runtime [phone_first_runtime]
-- **Feasible Now:**
-  - The `TranscriptLab` app emphasizes phone-first processing and reusable plumbing, which is in line with the project's core-deepening strategy. This approach is feasible as it maintains a path toward stronger local capability later.
+## Phone/Cloud Boundary: Balanced Fallback
 
-### Core Deepening Over Sprawl [core_deepening_over_sprawl]
-- **Feasible Now:**
-  - The current implementation of `TranscriptLab` focuses on subtitle quality, memory trust, and low-friction assistance without broad feature expansion. This is consistent with the core-deepening strategy.
+**Feasibility**: Feasible now  
+**Reasoning**: A balanced fallback strategy can be implemented where critical functions rely on the phone first and fall back to the cloud if necessary. This is supported by the current architecture that prioritizes local processing.
 
-### Real-Time Subtitle Clarity
-- **Feasible Now:** 
-  - Given that the `TranscriptLab` app has already demonstrated real-time transcription capability, implementing subtitle clarity is feasible now. However, continuous testing and refinement are necessary to ensure stability and trust.
+## Visual Hierarchy: Subtitles Dominate
 
-### Memory Support Trustworthiness
-- **Feasible Now:**
-  - Implementing memory support with clear uncertainty exposure aligns well with the current implementation of `TranscriptLab`. The recency-first caching strategy can be tested and iterated upon in V1.
+**Feasibility**: Feasible now  
+**Reasoning**: Dominating subtitles with other UI elements can be done through CSS or layout changes in the existing UI components. Ensuring subtitles are the primary focus aligns with the core attractors and constraints.
 
-### Confidence Display [confidence_display]
-- **Feasible Now:** 
-  - The selected confidence display format (label + reason) is feasible now. It strikes a balance between clarity and usability, aligning with the `TranscriptLab` app's current implementation.
+### Core Attractors and Tensions
 
-### Memory/Cache Policy
-- **Feasible Now:**
-  - Recency-first caching on the phone can be implemented effectively without overburdening the system, ensuring that memory support is practical in V1.
+#### subtitle_clarity (High Strength)
+- **Feasibility**: Feasible now
+- **Reasoning**: The current implementation of real-time subtitles is already in place, and improving clarity through adjustments to font size, contrast, or display duration can be done without significant changes.
 
-### Phone/Cloud Boundary [phone_cloud_boundary]
-- **Feasible Now:**
-  - The balanced fallback approach for cloud interaction aligns well with the current `TranscriptLab` implementation. This ensures that the system remains phone-first while maintaining a path to cloud capabilities where useful.
+#### memory_trust (High Strength)
+- **Feasibility**: Likely waste of time
+- **Reasoning**: While it's important to maintain trust in the system’s recall accuracy, adding complex mechanisms for tracking confidence and reinforcing memory might not provide immediate benefits. The current focus on recency-first caching should be sufficient.
 
-### Visual Hierarchy [visual_hierarchy]
-- **Feasible Now:** 
-  - Ensuring subtitles dominate the visual hierarchy can be implemented through UI design choices in the `TranscriptLab` app, making this feasible now.
+#### low_friction_assistance (Medium Strength)
+- **Feasibility**: Feasible now
+- **Reasoning**: The existing implementation of one-line prompts is already in place, and adjusting their display can enhance user experience without adding significant complexity.
 
-## Summary
-The current implementation of `TranscriptLab` aligns well with the core mission and V1 constraints. Subtitle clarity, memory support, confidence display, and memory cache policies are all feasible now based on the existing codebase and design choices. However, continued testing and refinement will be necessary to ensure that these features meet the real-world limits and user expectations.
+### Core Constraints
 
-### Assumptions Needing Evidence
-- **Privacy Handling:** Ensure specific data handling policies and user consent mechanisms are defined to prevent privacy breaches.
-- **Confidence Formats:** Further evidence is needed to validate the chosen confidence format (label + reason) in various use cases.
+#### frame_touch_only_v1 (Hard Constraint)
+- **Feasibility**: Feasible now
+- **Reasoning**: V1 interaction remains focused on frame touches, which aligns with the current implementation. No changes are needed for this constraint.
+
+#### phone_first_runtime (Hard Constraint)
+- **Feasibility**: Feasible now
+- **Reasoning**: The system already relies heavily on the phone for processing and orchestration, so no changes are necessary to respect this constraint.
+
+### Core Deepening vs. Sprawl
+
+**Feasibility**: Core deepening over sprawl  
+**Reasoning**: Given the current constraints, focusing on improving subtitle clarity, memory trust, and visual UX will likely provide more daily-use value than broad feature expansion.
+
+### Implementation Grounding
+
+**Feasibility**: Feasible now  
+**Reasoning**: The suggestions are grounded in the existing codebase and UI components. Adjustments to font sizes, confidence labels, and memory caching policies can be implemented without diverging from the project's current state.
+
+### Reality Check Summary
+
+- **Subtitle Placement: More Prominent**: Feasible now
+- **Confidence Display: Label + Reason**: Likely waste of time (current recency-first caching is sufficient)
+- **Memory/Cache Policy: Recency First**: Feasible now
+- **Phone/Cloud Boundary: Balanced Fallback**: Feasible now
+- **Visual Hierarchy: Subtitles Dominate**: Feasible now
+
+These changes should be implemented in the current V1 architecture to improve the user experience without violating core constraints or adding unnecessary complexity.

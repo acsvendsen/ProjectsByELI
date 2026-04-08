@@ -1129,6 +1129,126 @@ def render_cognition_schema_context(schema):
     return '\n'.join(lines) + '\n'
 
 
+def build_operational_visibility(action_direction_judgments, v1_decision_candidates):
+    pending = []
+    candidate_action_ids = set()
+    for item in v1_decision_candidates or []:
+        if not isinstance(item, dict):
+            continue
+        action_id = item.get('action_id', '')
+        if action_id:
+            candidate_action_ids.add(action_id)
+        pending.append({
+            'label': item.get('label', ''),
+            'domain': item.get('action_domain', ''),
+            'subsystem_label': item.get('subsystem_label', ''),
+            'grounding_status': item.get('grounding_status', 'unknown'),
+            'feasibility': item.get('feasibility', 'unknown'),
+            'reason': compact_text_excerpt(item.get('reason', ''), 260),
+            'options': [option.get('label', '') for option in item.get('options', []) if isinstance(option, dict) and option.get('label')],
+            'selected_choice_label': item.get('selected_choice_label', ''),
+            'revisable_when': item.get('revision_signals', []),
+            'rank': item.get('rank', 0),
+            'candidate_cycle_state': item.get('candidate_cycle_state', 'new_candidate'),
+        })
+
+    held = []
+    active = []
+    recurring = []
+    for item in sorted(action_direction_judgments or [], key=lambda row: row.get('rank', 999) or 999):
+        if not isinstance(item, dict):
+            continue
+        if item.get('id') in candidate_action_ids:
+            continue
+        row = {
+            'title': item.get('title', item.get('domain', 'candidate')),
+            'domain': item.get('domain', ''),
+            'judgment': item.get('direction_judgment', ''),
+            'reason': compact_text_excerpt(item.get('reason', ''), 240),
+            'rank': item.get('rank', 0),
+            'resurfacing': item.get('resurfacing_classification', ''),
+            'pull': item.get('architectural_pull_score', 0.0),
+            'release_on': item.get('grounding_release_signals', []),
+        }
+        if item.get('direction_judgment') == 'hold_until_new_grounding' or item.get('grounding_hold_active'):
+            held.append(row)
+        elif item.get('direction_judgment') == 'continue':
+            active.append(row)
+        else:
+            recurring.append(row)
+
+    return {
+        'pending_v1_decisions': pending,
+        'held_items': held,
+        'active_actions': active,
+        'recurring_probes': recurring,
+        'counts': {
+            'pending_v1_decisions': len(pending),
+            'held_items': len(held),
+            'active_actions': len(active),
+            'recurring_probes': len(recurring),
+        },
+    }
+
+
+def append_operational_visibility_sections(lines, operational_visibility):
+    if not isinstance(operational_visibility, dict):
+        return
+
+    pending = operational_visibility.get('pending_v1_decisions', [])
+    if pending:
+        lines.append('## Pending V1 Decisions')
+        lines.append('These are bounded V1 defaults worth explicit inspection; they are not accepted decisions.')
+        for item in pending:
+            lines.append(
+                f"- {item.get('label', 'decision')} | domain {item.get('domain', '')} | grounding {item.get('grounding_status', '')} | feasibility {item.get('feasibility', '')} | state {item.get('candidate_cycle_state', '')}"
+            )
+            if item.get('reason'):
+                lines.append(f"  why: {item.get('reason', '')}")
+            if item.get('options'):
+                lines.append(f"  bounded choices: {', '.join(item.get('options', []))}")
+            if item.get('selected_choice_label'):
+                lines.append(f"  current surfaced default: {item.get('selected_choice_label', '')}")
+            if item.get('revisable_when'):
+                lines.append(f"  revisable when: {', '.join(item.get('revisable_when', []))}")
+        lines.append('')
+
+    held = operational_visibility.get('held_items', [])
+    if held:
+        lines.append('## Held Pending New Grounding')
+        for item in held[:5]:
+            lines.append(
+                f"- {item.get('title', 'item')} | domain {item.get('domain', '')} | judgment hold_until_new_grounding | resurfacing {item.get('resurfacing', '') or 'steady_signal'}"
+            )
+            if item.get('reason'):
+                lines.append(f"  why: {item.get('reason', '')}")
+            if item.get('release_on'):
+                lines.append(f"  release on: {', '.join(item.get('release_on', []))}")
+        lines.append('')
+
+    active = operational_visibility.get('active_actions', [])
+    if active:
+        lines.append('## Active Action Priorities')
+        for item in active[:5]:
+            lines.append(
+                f"- {item.get('title', 'item')} | domain {item.get('domain', '')} | judgment continue | pull {item.get('pull', 0.0)}"
+            )
+            if item.get('reason'):
+                lines.append(f"  why: {item.get('reason', '')}")
+        lines.append('')
+
+    recurring = operational_visibility.get('recurring_probes', [])
+    if recurring:
+        lines.append('## Recurring Probes Not Yet Elevated')
+        for item in recurring[:5]:
+            lines.append(
+                f"- {item.get('title', 'item')} | domain {item.get('domain', '')} | judgment {item.get('judgment', '')} | resurfacing {item.get('resurfacing', '') or 'steady_signal'}"
+            )
+            if item.get('reason'):
+                lines.append(f"  why: {item.get('reason', '')}")
+        lines.append('')
+
+
 def render_specialist_consultation_context():
     registry = load_specialist_registry()
     policy = load_specialist_routing_policy()
@@ -6338,6 +6458,7 @@ def render_reflect_markdown(reflect_data, applied_entries):
         if diagnostics.get('raw_excerpt'):
             lines.append(f"- raw_excerpt: {diagnostics.get('raw_excerpt')}")
         lines.append('')
+    append_operational_visibility_sections(lines, reflect_data.get('operational_visibility', {}))
     sections = [
         ('Resonance Signals', reflect_data.get('resonance_signals', []), 'target_id'),
         ('Strengthening Attractors', reflect_data.get('strengthening_attractors', []), 'target_id'),
@@ -6357,7 +6478,6 @@ def render_reflect_markdown(reflect_data, applied_entries):
         ('Specialist Consultation Decisions', reflect_data.get('specialist_consultation_decisions', []), 'specialist_label'),
         ('Specialist Consultation Evaluations', reflect_data.get('specialist_consultation_evaluations', []), 'specialist_label'),
         ('Action Direction Judgments', reflect_data.get('action_direction_judgments', []), 'title'),
-        ('V1 Decision Candidates', reflect_data.get('v1_decision_candidates', []), 'label'),
         ('Possible Drift', reflect_data.get('possible_drift', []), None),
         ('Dormant Ideas Worth Reactivation', reflect_data.get('dormant_ideas_worth_reactivation', []), None),
         ('Dormant Idea Returns', reflect_data.get('dormant_idea_returns', []), 'label'),
@@ -6453,27 +6573,6 @@ def render_reflect_markdown(reflect_data, applied_entries):
                         extra += f" | mode {item.get('specialist_consultation_mode', '')}"
                 if item.get('specialist_evaluation'):
                     extra += f" | specialist_eval {item.get('specialist_evaluation', '')}"
-            elif heading == 'V1 Decision Candidates':
-                option_labels = ', '.join(
-                    option.get('label', '')
-                    for option in item.get('options', [])
-                    if isinstance(option, dict) and option.get('label')
-                ) or 'none'
-                extra = (
-                    f" | rank {item.get('rank', '')}"
-                    f" | action {item.get('action_domain', '') or item.get('action_title', '')}"
-                    f" | subsystem {item.get('subsystem_label', '')}"
-                    f" | grounding {item.get('grounding_status', '')}"
-                    f" | feasibility {item.get('feasibility', '')}"
-                    f" | state {item.get('candidate_cycle_state', '')}"
-                    f" | options {option_labels}"
-                )
-                if item.get('direction_judgment'):
-                    extra += f" | action_judgment {item.get('direction_judgment', '')}"
-                if item.get('selected_choice_label'):
-                    extra += f" | selected {item.get('selected_choice_label', '')}"
-                if item.get('revision_signals'):
-                    extra += f" | revisable_when {', '.join(item.get('revision_signals', []))}"
             elif heading == 'Dormant Ideas Worth Reactivation':
                 extra = f" | type {item.get('type', '')}"
             elif heading == 'Dormant Idea Returns':
@@ -6536,6 +6635,7 @@ def generate_reflect_cycle(changes, prior_reports):
     action_direction_judgments, v1_decision_candidates, action_inbox, specialist_context = enrich_action_inbox_with_reflection(analysis)
     reflect_data['action_direction_judgments'] = action_direction_judgments
     reflect_data['v1_decision_candidates'] = v1_decision_candidates
+    reflect_data['operational_visibility'] = build_operational_visibility(action_direction_judgments, v1_decision_candidates)
     reflect_data = enrich_phase6_reflect_output(reflect_data, analysis, action_inbox)
     reflect_data = enrich_phase7_reflect_output(reflect_data, analysis, action_inbox)
     reflect_data = enrich_specialist_reflect_output(reflect_data, specialist_context)
@@ -6566,6 +6666,7 @@ def generate_reflect_cycle(changes, prior_reports):
             'specialist_trust_memory': specialist_context.get('trust_memory', {}),
             'action_direction_judgments': action_direction_judgments,
             'v1_decision_candidates': v1_decision_candidates,
+            'operational_visibility': reflect_data.get('operational_visibility', {}),
             'dormant_idea_returns': reflect_data.get('dormant_idea_returns', []),
             'source_weighting': analysis.get('source_weighting', {}),
         },
@@ -7101,6 +7202,15 @@ def daily_snapshot():
     rows = con.execute('SELECT cycle, title, body, priority, confidence, created_at FROM memories ORDER BY id DESC LIMIT 12').fetchall()
     con.close()
     body = ['# Daily Field Snapshot', '']
+    reflect_state = load_json_file(REFLECT_STATE_PATH, {})
+    evidence = reflect_state.get('evidence_analysis', {}) if isinstance(reflect_state, dict) else {}
+    operational_visibility = evidence.get('operational_visibility', {}) if isinstance(evidence, dict) else {}
+    if not operational_visibility and isinstance(evidence, dict):
+        operational_visibility = build_operational_visibility(
+            evidence.get('action_direction_judgments', []),
+            evidence.get('v1_decision_candidates', []),
+        )
+    append_operational_visibility_sections(body, operational_visibility)
     for cycle, title, text, prio, conf, created in rows:
         body.append(f'## {title}')
         body.append(f'- cycle: {cycle}')

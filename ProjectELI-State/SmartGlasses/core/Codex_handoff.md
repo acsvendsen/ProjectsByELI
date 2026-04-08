@@ -252,6 +252,7 @@ A V1 decision candidate is:
 - not an automatic commitment
 - not a bypass around ELI judgment
 - not proof that the underlying tension is fully resolved
+- easy for a human reviewer to inspect, compare, and revise.
 
 Its purpose is to convert repeated, grounded, high-value V1-shaping questions into explicit pending decisions rather than endlessly re-probing them abstractly.
 

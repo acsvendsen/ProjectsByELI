@@ -1,16 +1,16 @@
 # Scorecard cycle
 
 ## Inputs Used This Cycle
-- core/field_v2/modes.json
+- No changed files detected in the latest scan.
 ## Project Summary
-The project is on track with the core attractors of real-time subtitle clarity and memory support, but needs continued attention to ensure privacy, low latency, and discreet UX. The hardware stack remains constrained by battery and social acceptability pressures, while the software stack focuses on practicality and maintainability.
+The project is focused on enhancing subtitle clarity and memory support while respecting V1 constraints such as frame-touch interaction and phone-first processing. Core-deepening work is prioritized to improve real-time subtitles and memory trust, but tensions with privacy and latency remain unresolved.
 
 ## Hardware Stack
 - status: on_track
 - goal: Keep V1 lightweight, discreet, socially acceptable, and dependent on minimal on-glasses compute.
-- limitation pressure: battery and thermal pressure, social acceptability
-- progress: The glasses are designed to remain lightweight and socially acceptable, focusing on frame-touch interactions for simplicity and minimal on-glasses computation.
-- next focus: Continue optimizing display placement and visual clarity without compromising social acceptability or battery life.
+- limitation pressure: weight, social acceptability, battery
+- progress: The project remains focused on maintaining a lightweight and socially acceptable design with minimal on-glasses compute.
+- next focus: Define more specific subtitle placement rules for different confidence states to ensure subtitles are readable without becoming distracting.
 - confidence: 1.0
 
 ## Software Stack
