@@ -111,6 +111,13 @@ VISIBLE_V1_DECISION_STATUSES = (
     'held_by_human_review',
     'revise_options_requested',
 )
+IMPLEMENTATION_ARTIFACT_TYPES = (
+    'subsystem_breakdown',
+    'interface_map',
+    'component_shortlist',
+    'schematic_direction',
+    'implementation_sketch',
+)
 REFLECT_EXPECTED_TOP_LEVEL_KEYS = (
     'reflection_summary',
     'resonance_signals',
@@ -652,6 +659,19 @@ DEFAULT_COGNITION_SCHEMA = {
             },
             'confidence_object_fields': ['score', 'label', 'reason'],
         },
+        'implementation_artifacts': {
+            'enabled': True,
+            'max_visible': 4,
+            'minimum_pull': 0.42,
+            'minimum_alignment': 0.34,
+            'minimum_field_evidence': 0.44,
+            'minimum_repo_grounding': 0.12,
+            'minimum_pressure_score': 0.32,
+            'allow_from_active_actions': True,
+            'allow_from_pending_decisions': True,
+            'provisional_by_default': True,
+            'candidate_types': list(IMPLEMENTATION_ARTIFACT_TYPES),
+        },
         'v1_human_review': {
             'enabled': True,
             'keep_revisable_by_default': True,
@@ -868,6 +888,23 @@ control:
       - score
       - label
       - reason
+  implementation_artifacts:
+    enabled: true
+    max_visible: 4
+    minimum_pull: 0.42
+    minimum_alignment: 0.34
+    minimum_field_evidence: 0.44
+    minimum_repo_grounding: 0.12
+    minimum_pressure_score: 0.32
+    allow_from_active_actions: true
+    allow_from_pending_decisions: true
+    provisional_by_default: true
+    candidate_types:
+      - subsystem_breakdown
+      - interface_map
+      - component_shortlist
+      - schematic_direction
+      - implementation_sketch
   v1_human_review:
     enabled: true
     keep_revisable_by_default: true
@@ -1270,6 +1307,11 @@ def render_cognition_schema_context(schema):
     lines.append(
         f"- enabled: {transcript_quality.get('enabled')} | input_quality_states: {', '.join(transcript_quality.get('input_quality_states', []))} | content_states: {', '.join(transcript_quality.get('content_states', []))}"
     )
+    implementation_artifacts = implementation_artifact_config(schema)
+    lines.append('## Implementation Artifact Surfacing')
+    lines.append(
+        f"- enabled: {implementation_artifacts.get('enabled')} | max_visible: {implementation_artifacts.get('max_visible')} | candidate_types: {', '.join(implementation_artifacts.get('candidate_types', []))}"
+    )
     repo_alignment = schema.get('phase7_repo_alignment', control.get('phase7_repo_alignment', {}))
     diff_alignment = repo_alignment.get('diff_alignment', {})
     lines.append('## Phase 7 Repo Alignment')
@@ -1279,7 +1321,235 @@ def render_cognition_schema_context(schema):
     return '\n'.join(lines) + '\n'
 
 
-def build_operational_visibility(action_direction_judgments, v1_decision_candidates):
+def implementation_artifact_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('implementation_artifacts', {}) if isinstance(control.get('implementation_artifacts', {}), dict) else {}
+    candidate_types = cfg.get('candidate_types', list(IMPLEMENTATION_ARTIFACT_TYPES))
+    if not isinstance(candidate_types, list) or not candidate_types:
+        candidate_types = list(IMPLEMENTATION_ARTIFACT_TYPES)
+    normalized_types = [str(item) for item in candidate_types if str(item) in IMPLEMENTATION_ARTIFACT_TYPES]
+    if not normalized_types:
+        normalized_types = list(IMPLEMENTATION_ARTIFACT_TYPES)
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'max_visible': max(1, safe_int(cfg.get('max_visible', 4), 4)),
+        'minimum_pull': clamp_number(safe_float(cfg.get('minimum_pull', 0.42), 0.42), 0.0, 1.0),
+        'minimum_alignment': clamp_number(safe_float(cfg.get('minimum_alignment', 0.34), 0.34), 0.0, 1.0),
+        'minimum_field_evidence': clamp_number(safe_float(cfg.get('minimum_field_evidence', 0.44), 0.44), 0.0, 1.0),
+        'minimum_repo_grounding': clamp_number(safe_float(cfg.get('minimum_repo_grounding', 0.12), 0.12), 0.0, 1.0),
+        'minimum_pressure_score': clamp_number(safe_float(cfg.get('minimum_pressure_score', 0.32), 0.32), 0.0, 1.0),
+        'allow_from_active_actions': bool(cfg.get('allow_from_active_actions', True)),
+        'allow_from_pending_decisions': bool(cfg.get('allow_from_pending_decisions', True)),
+        'provisional_by_default': bool(cfg.get('provisional_by_default', True)),
+        'candidate_types': normalized_types,
+    }
+
+
+def implementation_artifact_type_label(kind):
+    return {
+        'subsystem_breakdown': 'Subsystem Breakdown',
+        'interface_map': 'Interface Map',
+        'component_shortlist': 'Component Shortlist',
+        'schematic_direction': 'Schematic Direction',
+        'implementation_sketch': 'Implementation Sketch',
+    }.get(kind, kind.replace('_', ' ').title())
+
+
+def infer_implementation_artifact_type(text, repo_surfaces, has_bounded_options, artifact_preferences, allowed_types):
+    normalized = normalize_signal_key(text)
+    repo_surfaces = set(repo_surfaces or [])
+    allowed = set(allowed_types or IMPLEMENTATION_ARTIFACT_TYPES)
+    if 'interface_map' in allowed and any(token in normalized for token in (
+        'boundary', 'interface', 'api', 'handoff', 'link', 'protocol', 'cloud', 'phone', 'wireless', 'bridge',
+    )):
+        return 'interface_map'
+    if 'component_shortlist' in allowed and any(token in normalized for token in (
+        'component', 'part', 'sensor', 'display', 'camera', 'motor', 'encoder', 'microphone', 'mic', 'battery',
+        'supplier', 'selection', 'shortlist', 'module',
+    )):
+        return 'component_shortlist'
+    if 'schematic_direction' in allowed and (
+        any(token in normalized for token in ('schematic', 'wiring', 'signal', 'power', 'audio path', 'display path', 'board', 'circuit', 'bus'))
+        or (
+            artifact_preferences.get('prefer_schematics_for_hardware_tasks', True)
+            and repo_surfaces & {'hardware', 'firmware'}
+        )
+    ):
+        return 'schematic_direction'
+    if 'subsystem_breakdown' in allowed and any(token in normalized for token in (
+        'subsystem', 'pipeline', 'stack', 'runtime', 'firmware', 'deployment', 'memory', 'cache', 'controls',
+        'architecture', 'service', 'module boundary',
+    )):
+        return 'subsystem_breakdown'
+    if 'component_shortlist' in allowed and has_bounded_options and artifact_preferences.get('prefer_component_selection_guidance', True):
+        return 'component_shortlist'
+    if 'implementation_sketch' in allowed:
+        return 'implementation_sketch'
+    return next(iter(allowed), 'implementation_sketch')
+
+
+def build_implementation_artifact_candidates(action_direction_judgments, v1_decision_candidates, analysis=None, schema=None):
+    schema = schema or load_cognition_schema()
+    cfg = implementation_artifact_config(schema)
+    if not cfg.get('enabled', True):
+        return []
+    analysis = analysis if isinstance(analysis, dict) else {}
+    artifact_preferences = schema.get('artifact_preferences', {}) if isinstance(schema, dict) else {}
+    pending_by_action_id = {}
+    for item in v1_decision_candidates or []:
+        if not isinstance(item, dict):
+            continue
+        action_id = item.get('action_id', '')
+        if action_id:
+            pending_by_action_id[action_id] = item
+    repo_by_domain = {}
+    for candidate in analysis.get('repo_change_candidates', []):
+        if not isinstance(candidate, dict):
+            continue
+        for domain in candidate.get('matched_domains', []):
+            key = normalize_signal_key(domain)
+            if not key:
+                continue
+            repo_by_domain.setdefault(key, []).append(candidate)
+
+    rows = []
+    seen = set()
+    for item in sorted(action_direction_judgments or [], key=lambda row: row.get('rank', 999) or 999):
+        if not isinstance(item, dict):
+            continue
+        if item.get('direction_judgment') == 'hold_until_new_grounding' or item.get('grounding_hold_active'):
+            continue
+        source_text = ' '.join(filter(None, [
+            item.get('title', ''),
+            item.get('domain', ''),
+            item.get('reason', ''),
+        ]))
+        normalized_source_text = normalize_signal_key(source_text)
+        implementation_relevant = any(token in normalized_source_text for token in (
+            'boundary', 'interface', 'component', 'module', 'stack', 'runtime', 'memory', 'cache', 'firmware',
+            'deployment', 'controls', 'wireless', 'power', 'signal', 'audio', 'display', 'implementation', 'architecture',
+        ))
+        action_id = item.get('id', '')
+        pending = pending_by_action_id.get(action_id)
+        if pending and not cfg.get('allow_from_pending_decisions', True):
+            continue
+        if not pending and not cfg.get('allow_from_active_actions', True):
+            continue
+        judgment = item.get('direction_judgment', '')
+        if not pending and judgment not in ('continue', 'pause'):
+            continue
+        if not pending and judgment == 'pause' and not implementation_relevant:
+            continue
+
+        alignment = safe_float(item.get('alignment_score', 0.0), 0.0)
+        pull = safe_float(item.get('architectural_pull_score', 0.0), 0.0)
+        field_evidence = safe_float(item.get('field_evidence_score', 0.0), 0.0)
+        repo_grounding = safe_float(item.get('repo_grounding_score', 0.0), 0.0)
+        domain_key = normalize_signal_key(item.get('domain', ''))
+        related_repo = repo_by_domain.get(domain_key, [])
+        repo_surfaces = sorted({
+            str(entry.get('surface', '')).strip()
+            for entry in related_repo
+            if entry.get('surface')
+        })
+        pressure_score = (
+            (0.18 if pending else 0.14 if judgment == 'continue' else 0.1)
+            + min(0.2, max(0.0, pull) * 0.26)
+            + min(0.16, max(0.0, alignment) * 0.18)
+            + min(0.14, max(0.0, field_evidence) * 0.16)
+            + min(0.12, max(0.0, repo_grounding) * 0.18)
+        )
+        if implementation_relevant:
+            pressure_score += 0.04
+        if pending and pending.get('feasibility') in ('feasible_now', 'feasible_later'):
+            pressure_score += 0.06
+        if item.get('repo_alignment_classification') in ('aligned', 'productive_resistance'):
+            pressure_score += 0.05
+        if item.get('specialist_consultation_mode') in ('delegated_drafting', 'instrumental'):
+            pressure_score += 0.05
+        pressure_score = round(clamp_number(pressure_score, 0.0, 1.0), 3)
+
+        if pressure_score < cfg.get('minimum_pressure_score', 0.32):
+            continue
+        if not pending and judgment == 'pause' and alignment < max(0.52, cfg.get('minimum_alignment', 0.34) + 0.18):
+            continue
+        if alignment < cfg.get('minimum_alignment', 0.34) and not pending:
+            continue
+        if field_evidence < cfg.get('minimum_field_evidence', 0.44) and repo_grounding < cfg.get('minimum_repo_grounding', 0.12) and not pending:
+            if not (judgment == 'pause' and implementation_relevant and alignment >= 0.7):
+                continue
+
+        source_label = pending.get('label', '') if pending else item.get('title', item.get('domain', 'candidate'))
+        dedupe_key = (action_id or domain_key or normalize_signal_key(source_label), pending.get('candidate_status', '') if pending else item.get('direction_judgment', ''))
+        if dedupe_key in seen:
+            continue
+        seen.add(dedupe_key)
+
+        has_bounded_options = bool(pending and pending.get('options'))
+        artifact_type = infer_implementation_artifact_type(
+            ' '.join(filter(None, [
+                source_label,
+                item.get('domain', ''),
+                item.get('reason', ''),
+                pending.get('question', '') if pending else '',
+                pending.get('scope', '') if pending else '',
+            ])),
+            repo_surfaces,
+            has_bounded_options,
+            artifact_preferences,
+            cfg.get('candidate_types', list(IMPLEMENTATION_ARTIFACT_TYPES)),
+        )
+        artifact_label = implementation_artifact_type_label(artifact_type)
+        reason_parts = []
+        if pending:
+            reason_parts.append('This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration')
+        elif judgment == 'pause':
+            reason_parts.append('Current action judgment is pause, but a concrete review artifact could still clarify the implementation surface without reopening it as an active action')
+        else:
+            reason_parts.append('Current project pressure is concrete enough to justify a review-oriented implementation artifact')
+        if item.get('repo_alignment_classification') in ('aligned', 'productive_resistance'):
+            reason_parts.append(f"repo grounding is {item.get('repo_alignment_classification', '').replace('_', ' ')}")
+        if repo_surfaces:
+            reason_parts.append(f"recent repo motion touches {', '.join(repo_surfaces)} surfaces")
+        if pending and pending.get('grounding_status'):
+            reason_parts.append(f"subsystem grounding is {pending.get('grounding_status', '').replace('_', ' ')}")
+        if item.get('specialist_consultation_mode') in ('delegated_drafting', 'instrumental'):
+            reason_parts.append('any later artifact work should remain review-oriented and subordinate to ELI judgment')
+
+        addresses = []
+        if pending and pending.get('question'):
+            addresses.append(compact_text_excerpt(pending.get('question', ''), 140))
+        if item.get('reason'):
+            addresses.append(compact_text_excerpt(item.get('reason', ''), 140))
+        if not addresses and pending and pending.get('reason'):
+            addresses.append(compact_text_excerpt(pending.get('reason', ''), 140))
+
+        rows.append({
+            'artifact_id': f"{artifact_type}-{(action_id or domain_key or normalize_signal_key(source_label or artifact_type))}",
+            'label': source_label,
+            'artifact_type': artifact_type,
+            'artifact_type_label': artifact_label,
+            'source_kind': 'pending_v1_decision' if pending else 'paused_action_review' if judgment == 'pause' else 'active_action',
+            'source_domain': item.get('domain', ''),
+            'source_action_id': action_id,
+            'grounding_status': pending.get('grounding_status', 'weakly_grounded' if repo_grounding >= cfg.get('minimum_repo_grounding', 0.12) else 'limited_evidence') if pending else ('weakly_grounded' if repo_grounding >= cfg.get('minimum_repo_grounding', 0.12) else 'limited_evidence'),
+            'pressure_score': pressure_score,
+            'reason': compact_text_excerpt('. '.join(reason_parts) + '.', 320),
+            'addresses': addresses[:2],
+            'bounded_choice_framing': compact_text_excerpt(pending.get('question', ''), 180) if pending else '',
+            'repo_surfaces': repo_surfaces,
+            'review_status': 'provisional_review_candidate',
+            'provisional': bool(cfg.get('provisional_by_default', True)),
+            'revisable': True,
+            'rank': item.get('rank', 999),
+        })
+
+    rows.sort(key=lambda row: (-safe_float(row.get('pressure_score', 0.0), 0.0), safe_int(row.get('rank', 999), 999), row.get('label', '')))
+    return rows[:cfg.get('max_visible', 4)]
+
+
+def build_operational_visibility(action_direction_judgments, v1_decision_candidates, analysis=None, schema=None):
     pending = []
     candidate_action_ids = set()
     for item in v1_decision_candidates or []:
@@ -1333,13 +1603,22 @@ def build_operational_visibility(action_direction_judgments, v1_decision_candida
         else:
             recurring.append(row)
 
+    implementation_artifact_candidates = build_implementation_artifact_candidates(
+        action_direction_judgments,
+        v1_decision_candidates,
+        analysis=analysis,
+        schema=schema,
+    )
+
     return {
         'pending_v1_decisions': pending,
+        'implementation_artifact_candidates': implementation_artifact_candidates,
         'held_items': held,
         'active_actions': active,
         'recurring_probes': recurring,
         'counts': {
             'pending_v1_decisions': len(pending),
+            'implementation_artifact_candidates': len(implementation_artifact_candidates),
             'held_items': len(held),
             'active_actions': len(active),
             'recurring_probes': len(recurring),
@@ -1377,6 +1656,25 @@ def append_operational_visibility_sections(lines, operational_visibility):
             lines.append(f"  revisable: {'yes' if item.get('revisable', True) else 'no'}")
             if item.get('revisable_when'):
                 lines.append(f"  revisable when: {', '.join(item.get('revisable_when', []))}")
+        lines.append('')
+
+    artifact_candidates = operational_visibility.get('implementation_artifact_candidates', [])
+    if artifact_candidates:
+        lines.append('## Implementation Artifact Candidates')
+        lines.append('These are review-oriented artifact surfaces, not accepted designs, chosen parts, or implementation commitments.')
+        for item in artifact_candidates[:5]:
+            lines.append(
+                f"- {item.get('label', 'artifact')} | type {item.get('artifact_type_label', item.get('artifact_type', 'artifact').replace('_', ' '))} | source {item.get('source_kind', '').replace('_', ' ')} | grounding {item.get('grounding_status', '')} | provisional {'yes' if item.get('provisional', True) else 'no'}"
+            )
+            if item.get('reason'):
+                lines.append(f"  why: {item.get('reason', '')}")
+            if item.get('addresses'):
+                lines.append(f"  addresses: {' | '.join(item.get('addresses', []))}")
+            if item.get('bounded_choice_framing'):
+                lines.append(f"  bounded framing: {item.get('bounded_choice_framing', '')}")
+            if item.get('repo_surfaces'):
+                lines.append(f"  repo surfaces: {', '.join(item.get('repo_surfaces', []))}")
+            lines.append(f"  review status: {item.get('review_status', 'provisional_review_candidate').replace('_', ' ')}")
         lines.append('')
 
     held = operational_visibility.get('held_items', [])
@@ -7926,7 +8224,13 @@ def generate_reflect_cycle(changes, prior_reports):
     action_direction_judgments, v1_decision_candidates, action_inbox, specialist_context = enrich_action_inbox_with_reflection(analysis)
     reflect_data['action_direction_judgments'] = action_direction_judgments
     reflect_data['v1_decision_candidates'] = v1_decision_candidates
-    reflect_data['operational_visibility'] = build_operational_visibility(action_direction_judgments, v1_decision_candidates)
+    reflect_data['operational_visibility'] = build_operational_visibility(
+        action_direction_judgments,
+        v1_decision_candidates,
+        analysis=analysis,
+        schema=analysis.get('schema', {}),
+    )
+    reflect_data['implementation_artifact_candidates'] = reflect_data.get('operational_visibility', {}).get('implementation_artifact_candidates', [])
     reflect_data['transcript_quality_handling'] = build_transcript_quality_handling(
         prior_reports=prior_reports,
         reflect_data=reflect_data,
@@ -7964,6 +8268,7 @@ def generate_reflect_cycle(changes, prior_reports):
             'action_direction_judgments': action_direction_judgments,
             'v1_decision_candidates': v1_decision_candidates,
             'operational_visibility': reflect_data.get('operational_visibility', {}),
+            'implementation_artifact_candidates': reflect_data.get('implementation_artifact_candidates', []),
             'transcript_quality_handling': reflect_data.get('transcript_quality_handling', {}),
             'dormant_idea_returns': reflect_data.get('dormant_idea_returns', []),
             'source_weighting': analysis.get('source_weighting', {}),
@@ -8532,6 +8837,8 @@ def daily_snapshot():
         operational_visibility = build_operational_visibility(
             evidence.get('action_direction_judgments', []),
             evidence.get('v1_decision_candidates', []),
+            analysis=evidence,
+            schema=load_cognition_schema(),
         )
     append_operational_visibility_sections(body, operational_visibility)
     alias_cfg = runtime_alias_config()

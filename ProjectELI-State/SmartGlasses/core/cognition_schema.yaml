@@ -93,6 +93,23 @@ control:
       - score
       - label
       - reason
+  implementation_artifacts:
+    enabled: true
+    max_visible: 4
+    minimum_pull: 0.42
+    minimum_alignment: 0.34
+    minimum_field_evidence: 0.44
+    minimum_repo_grounding: 0.12
+    minimum_pressure_score: 0.32
+    allow_from_active_actions: true
+    allow_from_pending_decisions: true
+    provisional_by_default: true
+    candidate_types:
+      - subsystem_breakdown
+      - interface_map
+      - component_shortlist
+      - schematic_direction
+      - implementation_sketch
   v1_human_review:
     enabled: true
     keep_revisable_by_default: true
