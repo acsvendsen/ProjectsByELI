@@ -4,99 +4,105 @@
 - cycle: scorecard
 - priority: 7
 - confidence: 0.78
-- created: 2026-04-08T08:56:29
+- created: 2026-04-08T09:23:40
 # Scorecard cycle
 
 ## Inputs Used This Cycle
 - No changed files detected in the latest scan.
 ## Project Summary
-The project is focused on delivering real-time subtitles and memory support that are trust-preserving and low-friction. The current phase emphasizes improving subtitle quality, memory accuracy, and visual clarity while maintaining privacy and reducing latency.
+The SmartGlasses project is focused on creating discreet, context-aware personal assistance through real-time subtitles, memory support, and low-friction interactions. The current V1 implementation is frame-touch based, with minimal hardware complexity to preserve battery life and social acceptability. The project must balance these constraints while continuously addressing core attractors like subtitle clarity and privacy concerns.
 
 ## Hardware Stack
 - status: on_track
 - goal: Keep V1 lightweight, discreet, socially acceptable, and dependent on minimal on-glasses compute.
-- limitation pressure: battery
-- progress: The project is on track to keep the hardware stack simple with a focus on frame-touch interaction and minimal local processing. The current implementation of `TranscriptLab` aligns well with these goals.
-- next focus: Evaluate subtitle placement rules within `TranscriptLab` to ensure readability without distraction.
+- limitation pressure: battery pressure
+- progress: The project is making progress by focusing on frame-touch interaction and minimizing hardware complexity. However, the current lack of changed files detected means no new evidence to support this directly.
+- next focus: Continuously monitor battery usage and thermal performance during testing to ensure V1 remains lightweight and socially acceptable.
 - confidence: 0.8
 
 ## Software Stack
-- status: on_track
+- status: unknown
 - goal: Keep the cognition stack practical, maintainable, and centered on subtitle quality, memory trust, and low-friction assistive behavior.
-- limitation pressure: complexity drift
-- progress: The software stack is focused on core functionalities such as real-time subtitles and memory support. The `TranscriptLab` app provides a practical test bed for these features.
-- next focus: Implement confidence display formats within `TranscriptLab` to ensure clear and useful visual cues.
-- confidence: 0.75
+- limitation pressure: complexity drift, latency, trust
+- progress: No grounded assessment generated in this run.
+- next focus: Review software stack against current goals and limitations.
+- confidence: 0.25
 
 ## Wireless Interface
-- status: on_track
+- status: unknown
 - goal: Keep the glasses-phone link reliable enough for phone-first processing without making V1 fragile.
-- limitation pressure: connection stability
-- progress: The current implementation of `TranscriptLab` ensures that the wireless interface remains robust. No issues have been detected in recent tests, but ongoing monitoring is necessary to maintain reliability.
-- next focus: Test different levels of local vs. cloud processing within `TranscriptLab` to ensure reliable and low-latency subtitle delivery.
-- confidence: 0.85
+- limitation pressure: connection stability, latency, battery cost
+- progress: No grounded assessment generated in this run.
+- next focus: Review wireless interface against current goals and limitations.
+- confidence: 0.25
 
 ## Firmware
-- status: on_track
+- status: unknown
 - goal: Keep firmware simple, robust, and aligned with touch-first input and lightweight display behavior.
-- limitation pressure: embedded complexity
-- progress: The firmware is designed to be minimalistic and responsive. Frame-touch interaction has been tested in `TranscriptLab`, indicating that the hardware meets the current requirements.
-- next focus: Refine visual hierarchy rules within `TranscriptLab` to ensure clear and unobtrusive display of subtitles and one-line prompts.
-- confidence: 0.8
+- limitation pressure: embedded complexity, power draw, debugging overhead
+- progress: No grounded assessment generated in this run.
+- next focus: Review firmware against current goals and limitations.
+- confidence: 0.25
 
 ## Subtitle System
-- status: on_track
+- status: unknown
 - goal: Deliver near-real-time, readable subtitles with trust-preserving visual behavior.
-- limitation pressure: latency
-- progress: The subtitle system is being tested in `TranscriptLab` to ensure real-time performanc
+- limitation pressure: latency, readability, visual distraction
+- progress: No grounded assessment generated in this run.
+- next focus: Review subtitle system against current goals and limitations.
+- confidence: 0.25
+
+## Memory System
+- status: unknown
+- goal: Support fast, trustworthy face/name recall and conversation memory without storing too much low-value information.
+- limitation pressure: privacy perception, lookup speed, false co
 
 ## Reflect cycle
 - cycle: reflect
 - priority: 9
 - confidence: 0.8
-- created: 2026-04-08T08:56:06
+- created: 2026-04-08T09:23:26
 # Reflect cycle
 
 ## Inputs Used This Cycle
 - No changed files detected in the latest scan.
 ## Reflection Summary
-The project maintains strong resonance on key attractors and tensions, particularly around subtitle clarity and memory trustworthiness. However, the core-depending mode is over-dominant, risking drift if not balanced with attention to privacy vs usefulness, latency vs richness, and discreet UX vs visual clarity. Suggested deltas aim to address these imbalances while keeping field changes conservative.
+The project maintains strong resonance on core attractors and tensions, but faces risks of drift due to an over-dominant mode. Suggested deltas aim to address imbalances while keeping field changes conservative.
 
 ## Resonance Signals
-- cross_source_resonance: Recurring concepts across ELI docs, reports, and runtime truth. | cross_source_resonance (confidence 0.8)
+- Cross-source resonance: Recurs in Eli docs, reports, and runtime truth with weighted evidence 7.0 | cross_source_resonance (confidence 0.8)
 
 ## Strengthening Attractors
-- Real-time subtitle clarity: Critical for trust in noisy environments; ongoing focus needed to ensure high quality. (confidence 0.8)
-- Trustworthy memory support: Continued emphasis on trustworthy memory support without creating false certainty. (confidence 0.78)
+- Real-time subtitle clarity: Critical for trust in noisy environments; ongoing focus needed to ensure high quality (confidence 0.8)
 
 ## Intensifying Tensions
-- Privacy vs usefulness: Score stable but unresolved contradiction, recurs across Eli docs, reports. (confidence 0.72)
-- Latency vs richness: Score stable but unresolved contradiction, recurs across Eli docs, reports. (confidence 0.72)
+- Privacy vs usefulness: Score stable but unresolved contradiction, recurs across Eli docs, reports (confidence 0.72)
+- Latency vs richness: Score stable but unresolved contradiction, recurs across Eli docs, reports (confidence 0.72)
 
 ## Under-Attended Tensions
-- Discreet UX vs visual clarity: Under-attended despite recurring evidence; needs more balanced attention. (confidence 0.72)
+- Discreet UX vs visual clarity: Under-attended despite recurring evidence; needs more balanced attention (confidence 0.72)
 
 ## Contradiction Persistence
-- Privacy vs usefulness: Score stable but unresolved contradiction, recurs across Eli docs, reports. | persistence high (confidence 0.72)
-- Latency vs richness: Score stable but unresolved contradiction, recurs across Eli docs, reports. | persistence high (confidence 0.72)
+- Privacy vs usefulness: Score stable but unresolved contradiction, recurs across Eli docs, reports | persistence high | persistence high (confidence 0.72)
+- Latency vs richness: Score stable but unresolved contradiction, recurs across Eli docs, reports | persistence high | persistence high (confidence 0.72)
 
 ## Over-Dominant Attractors
-- Core-depending mode: Risk of drift if not addressed with balanced progress across critical areas. (confidence 0.7)
+- Core-depending mode drift: Risk of drift if not addressed with balanced progress across critical areas (confidence 0.7)
 
 ## Cooling Candidates
 - none
 
 ## Under-Attended Recurring Tensions
-- Discreet UX vs visual clarity: Under-attended despite recurring evidence; needs more balanced attention. (confidence 0.72)
+- Discreet UX vs visual clarity: Under-attended despite recurring evidence; needs more balanced attention (confidence 0.72)
 
 ## Neglected Persistent Tensions
 - Latency vs richness: recurs across eli_docs, reports; has 1 recent tension updates; score is numerically stable but the contradiction remains unresolved in meaning; recurs with weighted evidence 4.0; but only has 1 recent field updates; source spread: eli_docs, reports | suggested_delta 0.012 (confidence 0.72)
 
 ## Reinforcement Loops
-- none
+- Real-time subtitle clarity: Strengthening Real-time subtitle clarity keeps pressure on Latency vs richness, Discreet UX vs visual clarity (confidence 0.8)
 
 ## Counterweight Awareness
-- Subtitle Clarity Counterweights: Strengthening Real-time subtitle clarity keeps pressure on Latency vs richness, Discreet UX vs visual clarity. | tensions latency_vs_richness, discreet_ux_vs_visual_clarity (confidence 0.8)
+- Real-time subtitle clarity: Strengthening Real-time subtitle clarity keeps pressure on Latency vs richness, Discreet UX vs visual clarity | tensions latency_vs_richness, discreet_ux_vs_visual_clarity (confidence 0.8)
 
 ## Field Imbalance Patterns
 - none
@@ -108,579 +114,507 @@ The project maintains strong resonance on key attractors and tensions, particula
 - none
 
 ## Field Diff Alignment Patterns
--
+- none
+
+## Specialist Consultation Decisions
+- Code Architecture Specialist: Code Architecture Specialist can advise on design tradeoff
 
 ## Reality cycle
 - cycle: reality
-- priority: 5
+- priority: 9
 - confidence: 0.82
-- created: 2026-04-08T08:55:23
+- created: 2026-04-08T09:22:46
+# Reality cycle
+
+## Inputs Used This Cycle
+- No changed files detected in the latest scan.
+## Reality Check Summary for SmartGlasses Project
+
+### Feasibility Assessments
+
+#### Subtitle Placement: Usable without distraction (feasible now)
+- **Assessment**: Based on the `subtitle placement` attractor, the goal is a subtitle format that remains readable and stable during live conversation. The current implementation in `TranscriptLab` should focus on this core attribute.
+- **Reasoning**: The project inputs suggest that the initial V1 interaction will be frame-touch only, so the placement must balance readability with minimal distraction.
+
+#### Confidence Display: Label + short reason (feasible now)
+- **Assessment**: For the initial version, a confidence format that includes both a label and a brief explanation is recommended.
+- **Reasoning**: This format strikes a balance between clarity and simplicity. It aligns with the `confidence display` attractor's goal of building trust without overwhelming the wearer.
+
+#### Memory/Cache Policy: Local caching for names and faces (feasible now)
+- **Assessment**: The glasses should cache face and name information locally to ensure quick lookup.
+- **Reasoning**: Given the constraint that early versions should rely heavily on phone processing, local caching is necessary to maintain low-latency response times.
+
+#### Phone/Cloud Boundary: Phone-first runtime for heavy processing (feasible now)
+- **Assessment**: Heavy processing, such as speech recognition and context lookup, should primarily happen on the phone.
+- **Reasoning**: This aligns with the `phone_first_runtime` constraint, which ensures that early hardware remains simple while preserving a path to stronger capability later.
+
+#### Visual Hierarchy: Simplified UI for low-friction interaction (feasible now)
+- **Assessment**: The initial V1 should focus on simplicity and clarity in visual design.
+- **Reasoning**: Given the `discreet UX vs visual clarity` tension, simplifying the UI helps ensure that interactions remain unobtrusive.
+
+### Assumptions Needing Evidence
+
+#### High-Fidelity Real-Time Subtitles (assumption needing evidence)
+- **Assessment**: While the project focuses on real-time subtitles, more concrete evidence is needed to validate high-fidelity performance.
+- **Reasoning**: The `subtitle clarity` attractor suggests that subtitles should be clear and stable. However, current implementation signals do not provide specific details on real-time performance.
+
+#### Contextual Prompts Without Overloading (assumption needing evidence)
+- **Assessment**: Determining how to deliver one-line prompts without overloading the wearer requires more concrete testing.
+- **Reasoning**: The `low_friction_assistance` attractor emphasizes low-friction interaction, but spe
+
+## Dream cycle
+- cycle: dream
+- priority: 9
+- confidence: 0.72
+- created: 2026-04-08T09:22:32
+# Dream cycle
+
+## Inputs Used This Cycle
+- No changed files detected in the latest scan.
+### Idea 1: Subtitle Placement
+
+1. **Why it benefits the core**
+
+   By defining a stable subtitle placement rule based on confidence state, V1 can ensure that subtitles are always readable and do not distract the wearer during critical moments. This improves real-time subtitle clarity (subtitle_clarity) by maintaining focus and reducing visual clutter.
+
+2. **What small change unlocks it**
+
+   Introduce a simple rule: If the confidence of a speaker is high (e.g., >0.8), place subtitles directly above or below their face; if confidence is medium (e.g., 0.5-0.8), use an overlay that does not cover the speaker’s mouth; if confidence is low (e.g., <0.5), display subtitles off-screen or at the bottom.
+
+3. **Likely payoff**
+
+   This rule will help maintain a clear visual field for the wearer, reducing distractions and improving trust in the subtitles. By placing subtitles strategically based on confidence, the system can minimize interruptions during high-confidence moments while still providing necessary support when uncertainty is higher.
+
+4. **Immediate next probe**
+   - Define one fixed subtitle position rule for V1: keep subtitles at the bottom center of the display.
+
+### Idea 2: Confidence Display
+
+1. **Why it benefits the core**
+
+   By refining the confidence display format, we can enhance the wearer's trust in both subtitle accuracy and memory recall. A clear and concise confidence label paired with a short reason will help the wearer understand the reliability of the information presented.
+
+2. **What small change unlocks it**
+
+   Implement a new confidence object that uses a simple score (0-1), a label, and a brief explanation for why the system is showing certain information. For example: `score 0.84 + "High" + "Seen recently"` or `score 0.25 + "Low" + "Weak match"`. This change will make the confidence display more informative and trustworthy.
+
+3. **Likely payoff**
+
+   A well-designed confidence display can significantly boost user trust in both subtitles and memory recall features. It helps wearers understand when they should pay extra attention to a message or feel confident about an automated response, which is crucial for maintaining a low-friction assistive experience.
+
+4. **Immediate next probe**
+   - Choose one confidence display format for V1: label only or label plus short reason.
+
+### Idea 3: Memory/Cache Policy
+
+1. **Why it benefits the core**
+
+   Improving the local cache size threshold for face/name recall ensures that frequently encountered individuals are remembered with high confidence, reducing the need for cloud fallbacks and ensuring faster, more reliable memory support.
+
+2. **What small change unlocks it**
+
+   Define a smaller local cache 
+
+## Scorecard cycle
+- cycle: scorecard
+- priority: 7
+- confidence: 0.78
+- created: 2026-04-08T09:22:04
+# Scorecard cycle
+
+## Inputs Used This Cycle
+- No changed files detected in the latest scan.
+## Project Summary
+The current scorecard is strongest around subtitle system, where the cycle still has multi-source evidence that V1 subtitle work is real and central. Software Stack remains directionally solid but only weakly grounded because repo-grounded movement is still thin. Memory System, Privacy And Trust, Wireless Interface, and Firmware are not empty unknowns; they are active but constrained areas whose readiness is limited by trust, latency, and missing direct subsystem evidence.
+
+## Hardware Stack
+- status: on_track
+- grounding: grounded
+- goal: Keep V1 lightweight, discreet, socially acceptable, and dependent on minimal on-glasses compute.
+- limitation pressure: battery and thermal pressure
+- evidence basis: current implementation grounded in frame-touch interaction and simple hardware design with phone-cloud processing.
+- progress: The glasses remain simple, focusing on minimal local logic and heavy cloud processing where justified. Real device testing with `TranscriptLab` supports this approach.
+- next focus: Ensure continued refinement of subtitle placement to avoid distraction while maintaining readability in noisy environments.
+- confidence: 0.95
+
+## Software Stack
+- status: on_track
+- grounding: weakly_grounded
+- goal: Keep the cognition stack practical, maintainable, and centered on subtitle quality, memory trust, and low-friction assistive behavior.
+- limitation pressure: complexity drift, latency, trust
+- evidence basis: Current mode is implementation_grounding; Reality still marks Implementation Grounding and Phone-First Runtime as feasible now; repo-grounded action evidence remains thin in this run.
+- progress: The software stack is still pointed in the right direction: implementation grounding and phone-first constraints remain active, and the cycle is not drifting toward generic feature sprawl. What is still missing is stronger repo-grounded proof that the most important subtitle/trust decisions are moving in code rather than only in reports. No action in the current cycle carries meaningful repo grounding yet, so soft...
+- next focus: Turn one core subtitle-or-trust question into concrete repo-grounded implementation evidence instead of another high-level reconsideration.
+- confidence: 0.66
+
+## Wireless Interface
+- status: needs_attention
+- grounding: limited_evidence
+- goal: Keep the glasses-phone link reliable enough for phone-first processing without making V1 fragile.
+- limitation pressure: connection stability, latency, battery cost
+- evidence basis: Reality still supports a phone-first runtime, but this run does not provide direct evidence about link stability, reconnection behavior, or measured latency on the glasses-phone p
+
+## Reflect cycle
+- cycle: reflect
+- priority: 9
+- confidence: 0.8
+- created: 2026-04-08T09:21:28
+# Reflect cycle
+
+## Inputs Used This Cycle
+- No changed files detected in the latest scan.
+## Reflection Summary
+The project maintains strong resonance on core attractors and tensions, but faces risks of drift due to an over-dominant mode. Suggested deltas aim to address imbalances while keeping field changes conservative.
+
+## Resonance Signals
+- Cross-source resonance: Recurs in Eli docs, reports, and runtime truth with weighted evidence 7.0 | cross_source_resonance (confidence 0.8)
+
+## Strengthening Attractors
+- Real-time subtitle clarity: Critical for trust in noisy environments; ongoing focus needed to ensure high quality (confidence 0.8)
+
+## Intensifying Tensions
+- Privacy vs usefulness: Score stable but unresolved contradiction, recurs across Eli docs, reports (confidence 0.72)
+- Latency vs richness: Score stable but unresolved contradiction, recurs across Eli docs, reports (confidence 0.72)
+
+## Under-Attended Tensions
+- Discreet UX vs visual clarity: Under-attended despite recurring evidence; needs more balanced attention (confidence 0.72)
+
+## Contradiction Persistence
+- Privacy vs usefulness: Score stable but unresolved contradiction, recurs across Eli docs, reports | persistence high (confidence 0.72)
+- Latency vs richness: Score stable but unresolved contradiction, recurs across Eli docs, reports | persistence high (confidence 0.72)
+
+## Over-Dominant Attractors
+- Core-depending mode drift: Risk of drift if not addressed with balanced progress across critical areas (confidence 0.7)
+
+## Cooling Candidates
+- none
+
+## Under-Attended Recurring Tensions
+- Discreet UX vs visual clarity: Under-attended despite recurring evidence; needs more balanced attention (confidence 0.72)
+
+## Neglected Persistent Tensions
+- Latency vs richness: recurs across eli_docs, reports; has 1 recent tension updates; score is numerically stable but the contradiction remains unresolved in meaning; recurs with weighted evidence 4.0; but only has 1 recent field updates; source spread: eli_docs, reports | suggested_delta 0.012 (confidence 0.72)
+
+## Reinforcement Loops
+- Real-time subtitle clarity: Strengthening Real-time subtitle clarity keeps pressure on Latency vs richness, Discreet UX vs visual clarity (confidence 0.8)
+
+## Counterweight Awareness
+- Real-time subtitle clarity: Strengthening Real-time subtitle clarity keeps pressure on Latency vs richness, Discreet UX vs visual clarity | tensions latency_vs_richness, discreet_ux_vs_visual_clarity (confidence 0.8)
+
+## Field Imbalance Patterns
+- none
+
+## Repo Change Candidates
+- none
+
+## Repo Alignment Observations
+- none
+
+## Field Diff Alignment Patterns
+- none
+
+## Specialist Consultation Decisions
+- Code Architecture Specialist: Code Architecture Specialist can advise on implementation review without overriding ELI judgment
+
+## Reality cycle
+- cycle: reality
+- priority: 9
+- confidence: 0.82
+- created: 2026-04-08T09:20:44
+# Reality cycle
+
+## Inputs Used This Cycle
+- No changed files detected in the latest scan.
+## Reality Check Summary for SmartGlasses Project
+
+### Subtitle Placement: Feasible Now
+**Reasoning:** The current implementation is focused on ensuring subtitles remain readable, stable, and trust-preserving in live conversation. Given that the glasses are frame-touch-only V1, any subtitle placement should initially avoid distracting elements until usability testing can determine the best approach.
+
+### Confidence Display: Feasible Later
+**Reasoning:** Confidence display requires balancing clarity with social acceptability and technical feasibility. While initial tests can use simple labels or numeric scores, more complex feedback (like short reasons) may need to be evaluated in later stages based on user feedback and real-world testing.
+
+### Memory/Cache Policy: Feasible Now
+**Reasoning:** The initial implementation should focus on caching basic face/name recognition data locally. This can be done incrementally as the system learns which names and faces are most frequently encountered, without overwhelming the battery or thermal limits of early hardware.
+
+### Phone/Cloud Boundary: Feasible Now
+**Reasoning:** Given that V1 is phone-first and does not rely on heavy on-glasses compute, initial decisions about memory and context caching should focus on optimizing local processing. Cloud usage can be explored in later iterations based on real-world data needs.
+
+### Visual Hierarchy: Feasible Later
+**Reasoning:** The visual hierarchy of subtitles and one-line prompts is a complex design challenge that requires balancing information density with readability. While initial tests can use simple, non-intrusive designs, more refined UI decisions should be guided by user feedback and usability testing sessions.
+
+### Overall Feasibility Breakdown
+
+#### Subtitle Clarity
+- **Current State:** High priority to ensure subtitles remain readable and stable.
+- **Next Steps:** Implement basic subtitle placement and readability tests in `TranscriptLab`.
+
+#### Memory Trust
+- **Current State:** Initial implementation of memory support is feasible but needs refinement based on real-world testing.
+- **Next Steps:** Develop a simple face/name recall mechanism using local storage, ensuring it does not create false certainty.
+
+#### Low-Friction Assistance
+- **Current State:** Implementation grounded in current repo state and core field guidance.
+- **Next Steps:** Integrate basic one-line prompts that do not overburden the wearer.
+
+#### Privacy vs Usefulness
+- **Current State:** Early implementation must prioritize useful assistive behavior without compromising privacy.
+- **Next Steps:** Implement basic confidence displays using clear labels or numeric scores, avoiding complex feedback unl
+
+## Dream cycle
+- cycle: dream
+- priority: 9
+- confidence: 0.72
+- created: 2026-04-08T09:20:19
+# Dream cycle
+
+## Inputs Used This Cycle
+- No changed files detected in the latest scan.
+### Idea 1: Subtitle Placement
+
+1. **Why it benefits the core**
+
+   By refining subtitle placement rules based on confidence levels, we can ensure subtitles are always visible yet minimally distracting. This improves the wearer's understanding without overwhelming their visual field.
+
+2. **What small change unlocks it**
+
+   Define three fixed subtitle placement rules: one for high-confidence content (always above the line), one for medium-confidence content (below the main line with minimal motion blur), and one for low-confidence content (hidden until confirmed by context).
+
+3. **Likely payoff**
+
+   This approach will enhance subtitle clarity and readability while minimizing distraction, ensuring that crucial information is always easily visible without causing visual clutter.
+
+4. **Immediate next probe**
+   - Define one fixed subtitle position rule for V1: keep subtitles at the bottom center of the display.
+
+### Idea 2: Confidence Display
+
+1. **Why it benefits the core**
+
+   Improving confidence display formats ensures that the wearer can quickly understand the reliability of displayed information, which is crucial for maintaining trust and ensuring effective real-time assistance.
+
+2. **What small change unlocks it**
+
+   Define a simple numeric score format with labels for different confidence levels (e.g., Low, Medium, High) along with short reasons to explain why the confidence was assigned.
+
+3. **Likely payoff**
+
+   By clearly indicating the certainty of the displayed information, users can trust the system more and rely on its assistance during critical interactions. This improves overall user satisfaction and the perceived reliability of the SmartGlasses.
+
+4. **Immediate next probe**
+   - Choose one confidence display format for V1: label only or label plus short reason.
+
+### Idea 3: Memory/Cache Policy
+
+1. **Why it benefits the core**
+   - Improving the local caching strategy for face/name recall enhances the real-time subtitle clarity attractor by ensuring that frequently encountered individuals are remembered quickly and accurately, reducing the need for cloud interactions and minimizing latency.
+
+2. **What small change unlocks it**
+   - Define a recency-based eviction policy where less recently seen faces/names are evicted from local cache first, with a minimum threshold to ensure core entities are always retained.
+
+3. **Likely payoff**
+   - This policy will improve memory recall speed for commonly encountered individuals, enhancing the reliability of real-time subtitles and reducing the frequency of cloud lookups, which can help maintain battery efficiency and low latency.
+
+4. **Immediate next probe**
+   - Set one local cache eviction rule for face/na
+
+## Sleep cycle
+- cycle: sleep
+- priority: 7
+- confidence: 0.72
+- created: 2026-04-08T09:20:18
+# Sleep cycle
+
+## Inputs Used This Cycle
+- No changed files detected in the latest scan.
+## Consolidated Signals for SmartGlasses Project
+
+### Strengthening Signals
+1. **Subtitle Clarity**: Continue improving real-time subtitle clarity, ensuring they remain readable, stable, and trustworthy during live conversations.
+2. **Memory Trust**: Enhance the reliability of name and face memory support without compromising privacy or creating misleading recall.
+
+### Weakening Signals
+1. **Always-on Sensing vs Battery**: Reduce reliance on always-on sensing to minimize battery drain.
+2. **Rich Context vs Low-latency Response**: Simplify context management to ensure faster, more reliable responses rather than overcomplicating the system with richer but slower processing.
+
+### Contradictions that Must Stay Alive
+1. **Privacy vs Usefulness**: Ensure assistive behavior remains useful without infringing on user privacy.
+2. **Discreet UX vs Visual Clarity**: Balance social acceptability and readability to maintain a discreet yet functional UI.
+
+### Dormant Ideas Worth Reactivating
+- **Confidence Display Format**: Revisit the confidence display format, considering options like label + short reason or score + label to build trust effectively.
+
+### Concrete Tensions Around Core Mission Elements
+1. **Subtitle Quality vs Fast Lookup**: Prioritize subtitle clarity and speed while maintaining fast memory recall.
+2. **Memory Reinforcement Over Time**: Focus on strengthening name and face recognition over time through confidence objects and reinforcement mechanisms.
+3. **Visual UX vs Battery**: Ensure visual UX is optimized for readability without compromising battery efficiency.
+
+### No Fluff
+- **Subtitle Placement**: Maintain a focus on clear, unobtrusive subtitle placement that minimizes distraction but provides necessary assistance.
+- **Confidence Display**: Use a simple yet effective confidence display to enhance trust and reliability.
+- **Memory Policy**: Implement a memory policy that reinforces correct recall over time while respecting privacy constraints.
+
+### Open Questions
+1. **Subtitle Placement**: Determine the most usable and least distracting subtitle placement without overwhelming the wearer.
+2. **One-line Prompts vs Subtitles**: Define how one-line prompts visually differ from subtitles to ensure clarity without creating confusion.
+3. **Confidence Format**: Decide on a confidence format that builds trust best, considering label only, label + short reason, or score + label.
+4. **Face/Name Memory Caching**: Determine the optimal amount of face/name memory to cache locally for fast lookups.
+
+### Core Deepening
+- Focus on subtitle quality, memory support, and visual UX improvements that increase daily-use value while respecting V1 constraints.
+
+### Constraint Pre
+
+## Scorecard cycle
+- cycle: scorecard
+- priority: 7
+- confidence: 0.78
+- created: 2026-04-08T09:19:57
+# Scorecard cycle
+
+## Inputs Used This Cycle
+- No changed files detected in the latest scan.
+## Project Summary
+The project is focused on enhancing subtitle clarity, memory trustworthiness, and low-friction assistance while maintaining V1 hardware simplicity. Key areas include subtitle placement optimization, confidence display improvement, and balancing core-depending functionality with broader feature expansion.
+
+## Hardware Stack
+- status: on_track
+- goal: Keep V1 lightweight, discreet, socially acceptable, and dependent on minimal on-glasses compute.
+- limitation pressure: social acceptability, battery, thermal pressure, weight
+- progress: The project is on track to maintain V1 hardware simplicity by focusing on frame-touch interaction and minimal local processing. The TranscriptLab app provides a practical test bed for these constraints.
+- next focus: Refine subtitle placement rules in TranscriptLab to ensure clear, non-distracting subtitles during live interactions.
+- confidence: 0.9
+
+## Software Stack
+- status: on_track
+- goal: Keep the cognition stack practical, maintainable, and centered on subtitle quality, memory trust, and low-friction assistive behavior.
+- limitation pressure: complexity drift, latency, trust
+- progress: The software stack is focused on delivering practical, maintainable features that enhance subtitle quality and memory support without introducing excessive complexity. The TranscriptLab app provides a realistic testing environment for these improvements.
+- next focus: Implement a confidence display format that combines label and short reason in TranscriptLab to improve trust and clarity.
+- confidence: 0.9
+
+## Wireless Interface
+- status: on_track
+- goal: Keep the glasses-phone link reliable enough for phone-first processing without making V1 fragile.
+- limitation pressure: connection stability, latency, battery cost
+- progress: The wireless interface is being tested in a realistic environment through TranscriptLab, ensuring that the glasses-phone connection remains reliable for V1 phone-first processing.
+- next focus: Define specific rules for local vs. cloud fallback in the phone/cloud boundary to optimize real-time subtitle delivery and battery life.
+- confidence: 0.9
+
+## Firmware
+- status: on_track
+- goal: Keep firmware simple, robust, and aligned with touch-first input and lightweight display behavior.
+- limitation pressure: embedded complexity, power draw, debugging overhead
+- progress: The firmware is being kept simple and robust through frequent testing with TranscriptLab, ensuring it aligns well with touch-first input and lightweight display requirements.
+- next focus: Define visual hierarchy rules in TranscriptLab to prioritize subtitles over one-line prompts without overwhelming the user.
+- confidence: 0.9
+
+## 
+
+## Reflect cycle
+- cycle: reflect
+- priority: 9
+- confidence: 0.8
+- created: 2026-04-08T09:19:19
+# Reflect cycle
+
+## Inputs Used This Cycle
+- No changed files detected in the latest scan.
+## Reflection Summary
+The project maintains strong resonance on core attractors and tensions, but faces risks of drift due to an over-dominant mode. Suggested deltas aim to address imbalances while keeping field changes conservative.
+
+## Resonance Signals
+- Cross-source resonance: Recurs in Eli docs, reports, and runtime truth with weighted evidence 7.0 | cross_source_resonance (confidence 0.8)
+
+## Strengthening Attractors
+- Real-time subtitle clarity: Critical for trust in noisy environments; ongoing focus needed to ensure high quality (confidence 0.8)
+
+## Intensifying Tensions
+- Privacy vs usefulness: Score stable but unresolved contradiction, recurs across Eli docs, reports (confidence 0.72)
+- Latency vs richness: Score stable but unresolved contradiction, recurs across Eli docs, reports (confidence 0.72)
+
+## Under-Attended Tensions
+- Discreet UX vs visual clarity: Under-attended despite recurring evidence; needs more balanced attention (confidence 0.72)
+
+## Contradiction Persistence
+- Privacy vs usefulness: Score stable but unresolved contradiction, recurs across Eli docs, reports | persistence high (confidence 0.72)
+- Latency vs richness: Score stable but unresolved contradiction, recurs across Eli docs, reports | persistence high (confidence 0.72)
+
+## Over-Dominant Attractors
+- Core-depending mode drift: Risk of drift if not addressed with balanced progress across critical areas (confidence 0.7)
+
+## Cooling Candidates
+- none
+
+## Under-Attended Recurring Tensions
+- Discreet UX vs visual clarity: Under-attended despite recurring evidence; needs more balanced attention (confidence 0.72)
+
+## Neglected Persistent Tensions
+- Latency vs richness: recurs across eli_docs, reports; has 1 recent tension updates; score is numerically stable but the contradiction remains unresolved in meaning; recurs with weighted evidence 4.0; but only has 1 recent field updates; source spread: eli_docs, reports | suggested_delta 0.012 (confidence 0.72)
+
+## Reinforcement Loops
+- Real-time subtitle clarity: Strengthening Real-time subtitle clarity keeps pressure on Latency vs richness, Discreet UX vs visual clarity (confidence 0.8)
+
+## Counterweight Awareness
+- Real-time subtitle clarity: Strengthening Real-time subtitle clarity keeps pressure on Latency vs richness, Discreet UX vs visual clarity | tensions latency_vs_richness, discreet_ux_vs_visual_clarity (confidence 0.8)
+
+## Field Imbalance Patterns
+- none
+
+## Repo Change Candidates
+- none
+
+## Repo Alignment Observations
+- none
+
+## Field Diff Alignment Patterns
+- none
+
+## Specialist Consultation Decisions
+- Code Architecture Specialist: Code Architecture Specialist can advise on design tradeoffs without overriding ELI judgment. | a
+
+## Reality cycle
+- cycle: reality
+- priority: 7
+- confidence: 0.82
+- created: 2026-04-08T09:18:29
 # Reality cycle
 
 ## Inputs Used This Cycle
 - No changed files detected in the latest scan.
 ## Reality Check for SmartGlasses Project
 
-### Subtitle Placement Feasibility
-**Subtitle Placement**: 
-- **Current Direction**: Keep subtitles clear, fast, and stable enough that the wearer can trust them in live conversation.
-
-**Feasibility Analysis**:
-- **feasible now**: The current implementation of `TranscriptLab` should be used to test subtitle placement. Since the app is designed to mimic a real-world glasses experience, it's feasible to conduct initial tests with varying subtitle placements (e.g., bottom center, top center, side edges) and gather feedback on readability and distraction.
-
-### Confidence Display Feasibility
-**Confidence Display**: 
-- **Current Direction**: Use confidence display direction within `TranscriptLab` to ensure subtitles remain readable and trustworthy.
-
-**Feasibility Analysis**:
-- **feasible now**: Implement a simple confidence indicator (e.g., label only, label + short reason) in `TranscriptLab`. This can be done by adding a text overlay with varying levels of certainty. Early tests can help determine the most effective and least distracting format for real-world use.
-
-### Memory/Cache Policy Feasibility
-**Memory/Cache Policy**: 
-- **Current Direction**: Determine how much face/name memory should be cached locally on the phone.
-
-**Feasibility Analysis**:
-- **feasible now**: Start with a small cache of recent faces and names. Implement a simple caching mechanism that stores recently seen individuals for quick lookup in `TranscriptLab`. Evaluate this implementation by testing its recall accuracy and memory overhead.
-
-### Phone/Cloud Boundary Feasibility
-**Phone/Cloud Boundary**: 
-- **Current Direction**: Keep heavy processing on the phone, with cloud optional where clearly justified.
-
-**Feasibility Analysis**:
-- **feasible now**: Use `TranscriptLab` to test different levels of local vs. cloud processing. For instance, start by handling all memory and lookup locally on the phone and gradually introduce cloud services for background updates or deeper analysis. Monitor battery usage and latency to ensure this setup is feasible.
-
-### Visual Hierarchy Feasibility
-**Visual Hierarchy**: 
-- **Current Direction**: Ensure display behavior remains socially acceptable while still being readable in motion and noise.
-
-**Feasibility Analysis**:
-- **feasible now**: Design the subtitle placement within `TranscriptLab` to be unobtrusive yet clear. Test different visual hierarchies (e.g., text size, color contrast) and gather feedback on what works best for real-world use cases. This can involve minor UI adjustments in `TranscriptLabRootView.swift`.
-
-### Summary of Feasibility
-- **Subtitle Placement**: Use `TranscriptLab` to test and refine subtitl
-
-## Dream cycle
-- cycle: dream
-- priority: 9
-- confidence: 0.72
-- created: 2026-04-08T08:55:11
-# Dream cycle
-
-## Inputs Used This Cycle
-- No changed files detected in the latest scan.
-### Idea 1: Subtitle Placement
-
-1. **Why it benefits the core**
-
-   Ensuring stable subtitle placement rules that prioritize readability without becoming distracting helps maintain trust and comprehension for the wearer. Stable, predictable subtitle positions reduce cognitive load and improve the overall user experience.
-
-2. **What small change unlocks it**
-
-   Define two subtitle placement rules: one for high-confidence speech (e.g., clear speaker, direct gaze) and another for low-confidence speech (e.g., background noise, multiple speakers). This ensures subtitles are placed in optimal positions regardless of environmental factors.
-
-3. **Likely payoff**
-
-   By providing stable and contextually appropriate subtitle placements, the system will become more predictable and reliable, reducing instances where subtitles disrupt the wearer's experience or become confusing due to poor placement. This enhances trust and usability, aligning with the core mission of improving real-time understanding in noisy environments.
-
-4. **Immediate next probe**
-   - Define one fixed subtitle position rule for V1: keep subtitles at the bottom center of the display.
-
-### Idea 2: Confidence Display
-
-1. **Why it benefits the core**
-
-   Improving the confidence display format helps ensure that the wearer can trust the subtitle system, which is crucial for the core mission of providing real-time, reliable assistance. A clear and concise confidence format will enhance the user's understanding of the system's reliability and reduce cognitive load.
-
-2. **What small change unlocks it**
-
-   Define a simple numeric score + label + short reason format for confidence objects. For example: "score 0.84 (High) - Seen recently" or "score 0.42 (Low) - Weak match".
-
-3. **Likely payoff**
-
-   By clearly displaying the certainty and source of the subtitle information, users will be able to quickly assess whether a subtitle is likely accurate. This improves trust in the system and allows for better decision-making during conversations.
-
-4. **Immediate next probe**
-   - Choose one confidence display format for V1: label only or label plus short reason.
-
-### Idea 3: Memory/Cache Policy
-
-1. **Why it benefits the core**
-
-   Improving the local cache size for face/name memory enhances the reliability of quick lookups, ensuring that common faces and names are readily available without frequent cloud queries or delays.
-
-2. **What small change unlocks it**
-
-   Define a minimum threshold for storing frequently seen people in the local phone cache, prioritizing those with higher confidence scores based on recent encounters.
-
-3. **Likely payoff**
-
-   This change will reduce latency in face/name recognition and improve
-
-## Sleep cycle
-- cycle: sleep
-- priority: 9
-- confidence: 0.72
-- created: 2026-04-08T08:54:24
-# Sleep cycle
-
-## Inputs Used This Cycle
-- No changed files detected in the latest scan.
-## Consolidation of Key Trends and Decisions
-
-### Strengthening Signals
-- **Subtitle Clarity**: The need for real-time, readable subtitles remains high (strength: 0.8).
-- **Memory Trust**: The system must maintain a balance between remembering names and prior context without creating false certainty (score: 0.78; strength: high).
-
-### Weakening Signals
-- **Privacy vs Usefulness**: The tension between providing useful assistive features while respecting privacy is less pressing in the current phase, with a score of 0.7928.
-- **Discreet UX vs Visual Clarity**: The need for social acceptability and visual clarity remains important but is slightly less critical (score: 0.7028; pressure: medium).
-
-### Contradictions That Must Stay Alive
-- **Always-on Sensing vs Battery and Thermals**: This tension continues to be a key challenge, with heavy processing needing careful balancing against battery constraints.
-- **Latency vs Richness**: The system must remain responsive while providing sufficient context for the wearer (score: 0.8269; pressure: high).
-
-### Dormant Ideas Worth Reactivating
-- **Automatic Memory Support vs Confidence and Correction Safety**: This idea is worth revisiting to ensure memory support does not compromise trust.
-
-### Concrete Tensions Around Key Areas
-1. **Subtitle Quality, Memory Trust, Visual UX**:
-   - Focus on improving subtitle quality and ensuring memory support remains trustworthy.
-   - Ensure visual design supports low-friction assistance without overwhelming the user.
-
-2. **Privacy vs Usefulness**:
-   - Continue to surface privacy concerns early but prioritize immediate functionality over deep privacy features.
-
-3. **Latency vs Richness**:
-   - Prioritize fast, reliable responses while integrating richer context as needed.
-
-4. **Discreet UX vs Visual Clarity**:
-   - Balance social acceptability with the need for clear and usable visual elements.
-
-### Open Questions
-- **Subtitle Placement**: Determine optimal placement to balance readability and distraction.
-- **Confidence Display**: Decide on the best format (label, label + reason, or score) to build trust without overwhelming the user.
-- **Face/Name Memory Policy**: How much memory should be cached locally for fast lookup while maintaining privacy?
-
-### Core Deepening vs Feature Sprawl
-- Prefer core-deepening work that improves subtitle quality, memory trust, and visual UX over broad feature expansion.
-
-### Reality Check
-- Surface real-world limitations early to ensure the project does not waste time on impractical directions.
-
-### Operator Guidance
-- No active operator guidance at this moment; focus on concrete improvements based on current repo state.
-
-### Action Inbox
-- **Subtitle Place
-
-## Scorecard cycle
-- cycle: scorecard
-- priority: 7
-- confidence: 0.78
-- created: 2026-04-08T08:54:07
-# Scorecard cycle
-
-## Inputs Used This Cycle
-- No changed files detected in the latest scan.
-## Project Summary
-The project is focused on delivering real-time subtitle clarity and trustworthy memory support while maintaining a low-friction user experience. Key efforts are concentrated on optimizing subtitle placement, confidence display formats, and memory cache policies. The hardware stack must remain lightweight to ensure social acceptability and minimal battery impact.
-
-## Hardware Stack
-- status: on_track
-- goal: Keep V1 lightweight, discreet, socially acceptable, and dependent on minimal on-glasses compute.
-- limitation pressure: battery, thermal pressure, weight, social acceptability
-- progress: The project is aligning with the goal of keeping V1 hardware simple. The focus remains on frame-touch interactions to avoid heavy sensor or processing requirements.
-- next focus: Continuously test and refine subtitle placement rules to ensure they are both clear and unobtrusive, especially in noisy environments.
-- confidence: 0.9
-
-## Software Stack
-- status: unknown
-- goal: Keep the cognition stack practical, maintainable, and centered on subtitle quality, memory trust, and low-friction assistive behavior.
-- limitation pressure: complexity drift, latency, trust
-- progress: No grounded assessment generated in this run.
-- next focus: Review software stack against current goals and limitations.
-- confidence: 0.25
-
-## Wireless Interface
-- status: unknown
-- goal: Keep the glasses-phone link reliable enough for phone-first processing without making V1 fragile.
-- limitation pressure: connection stability, latency, battery cost
-- progress: No grounded assessment generated in this run.
-- next focus: Review wireless interface against current goals and limitations.
-- confidence: 0.25
-
-## Firmware
-- status: unknown
-- goal: Keep firmware simple, robust, and aligned with touch-first input and lightweight display behavior.
-- limitation pressure: embedded complexity, power draw, debugging overhead
-- progress: No grounded assessment generated in this run.
-- next focus: Review firmware against current goals and limitations.
-- confidence: 0.25
-
-## Subtitle System
-- status: unknown
-- goal: Deliver near-real-time, readable subtitles with trust-preserving visual behavior.
-- limitation pressure: latency, readability, visual distraction
-- progress: No grounded assessment generated in this run.
-- next focus: Review subtitle system against current goals and limitations.
-- confidence: 0.25
-
-## Memory System
-- status: unknown
-- goal: Support fast, trustworthy face/name recall and conversation memory without storing too much low-value information.
-- limitation pressure: privacy perception, lookup speed, false confidence
-- progress: No grounded assessment generated in this run.
-- ne
-
-## Reflect cycle
-- cycle: reflect
-- priority: 9
-- confidence: 0.8
-- created: 2026-04-08T08:53:54
-# Reflect cycle
-
-## Inputs Used This Cycle
-- No changed files detected in the latest scan.
-## Reflection Summary
-The project maintains strong resonance on key attractors and tensions, particularly around subtitle clarity and memory trustworthiness. However, the core-depending mode is over-dominant, risking drift if not balanced with attention to privacy vs usefulness, latency vs richness, and discreet UX vs visual clarity. Suggested deltas aim to address these imbalances while keeping field changes conservative.
-
-## Resonance Signals
-- cross_source_resonance: Recurring concepts across ELI docs, reports, and runtime truth. | cross_source_resonance (confidence 0.8)
-
-## Strengthening Attractors
-- Real-time subtitle clarity: Critical for trust in noisy environments; ongoing focus needed to ensure high quality. (confidence 0.8)
-- Trustworthy memory support: Continued emphasis on trustworthy memory support without creating false certainty. (confidence 0.78)
-
-## Intensifying Tensions
-- Privacy vs usefulness: Score stable but unresolved contradiction, recurs across Eli docs, reports. (confidence 0.72)
-- Latency vs richness: Score stable but unresolved contradiction, recurs across Eli docs, reports. (confidence 0.72)
-
-## Under-Attended Tensions
-- Discreet UX vs visual clarity: Under-attended despite recurring evidence; needs more balanced attention. (confidence 0.72)
-
-## Contradiction Persistence
-- Privacy vs usefulness: Score stable but unresolved contradiction, recurs across Eli docs, reports. | persistence high (confidence 0.72)
-- Latency vs richness: Score stable but unresolved contradiction, recurs across Eli docs, reports. | persistence high (confidence 0.72)
-
-## Over-Dominant Attractors
-- Core-depending mode: Risk of drift if not addressed with balanced progress across critical areas. (confidence 0.7)
-
-## Cooling Candidates
-- none
-
-## Under-Attended Recurring Tensions
-- Discreet UX vs visual clarity: Under-attended despite recurring evidence; needs more balanced attention. (confidence 0.72)
-
-## Neglected Persistent Tensions
-- Latency vs richness: recurs across eli_docs, reports; has 1 recent tension updates; score is numerically stable but the contradiction remains unresolved in meaning; recurs with weighted evidence 4.0; but only has 1 recent field updates; source spread: eli_docs, reports | suggested_delta 0.012 (confidence 0.72)
-
-## Reinforcement Loops
-- none
-
-## Counterweight Awareness
-- Subtitle Clarity Counterweights: Strengthening Real-time subtitle clarity keeps pressure on Latency vs richness, Discreet UX vs visual clarity. | tensions latency_vs_richness, discreet_ux_vs_visual_clarity (confidence 0.8)
-
-## Field Imbalance Patterns
-- none
-
-## Repo Change Candidates
-- none
-
-## Repo Alignment Observations
-- none
-
-## Field Diff Alignment Patterns
--
-
-## Reality cycle
-- cycle: reality
-- priority: 9
-- confidence: 0.82
-- created: 2026-04-08T08:53:15
-# Reality cycle
-
-## Inputs Used This Cycle
-- No changed files detected in the latest scan.
-## Reality Check Summary
-
-### Feasible Now:
-1. **Subtitle Placement**: 
-   - **Reasoning**: The glasses should place subtitles in a manner that remains readable without becoming distracting. Given that the `TranscriptLab` app is focused on live testing, subtitle placement can be refined iteratively through user feedback and experimentation.
-   - **Current Best Effort**: Place subtitles near the center of the frame with adequate spacing to avoid overlapping important visual elements.
-
-2. **Confidence Display**:
-   - **Reasoning**: The confidence format should build trust while remaining understandable. Given that the `TranscriptLab` app is testing different confidence formats, we can focus on a clear label and short reason.
-   - **Current Best Effort**: Use a "Label + Short Reason" format, such as displaying "Confident: [Name]" or "Uncertain: [Name]".
-
-3. **Memory Cache Policy**:
-   - **Reasoning**: The phone should cache face/name memory to improve lookup speed and reduce cloud dependency.
-   - **Current Best Effort**: Cache recently seen faces and names for a limited time (e.g., 1-2 hours) on the phone, with periodic updates from the cloud.
-
-### Feasible Later:
-1. **Low-Friction Interaction**:
-   - **Reasoning**: Given that V1 interaction is frame-touch only, expanding to voice commands later can be feasible but should be treated as a future exploration.
-   - **Current Best Effort**: Ensure all interactions and features are aligned with the current frame-touch-only constraint.
-
-2. **Cloud Dependency**:
-   - **Reasoning**: The system should rely heavily on phone processing for early V1, with cloud support optional where it adds clear value and latency remains acceptable.
-   - **Current Best Effort**: Implement core functionality locally on the phone first, and only use the cloud for background tasks that do not impact real-time performance.
-
-### Likely Waste of Time:
-1. **Automatic Memory Support vs Confidence**:
-   - **Reasoning**: While automatic memory support is valuable, it should be balanced with confidence signals to ensure the system remains honest and trustworthy.
-   - **Current Best Effort**: Focus on building a robust confidence mechanism that prevents overreliance on memory without sacrificing utility.
-
-2. **Complex AR Visuals**:
-   - **Reasoning**: Given the focus on simplicity in early V1, adding complex AR visuals is not immediately necessary.
-   - **Current Best Effort**: Keep UI and visual elements minimal to avoid overwhelming the wearer.
-
-### Assumptions Needing Evidence:
-1. **Subtitle Clarity and Stability**:
-   - **Reasoning**: Ensuring real-time subtitle clarity that remains readable, stable, and trust-preserving in live conversation is cr
-
-## Dream cycle
-- cycle: dream
-- priority: 9
-- confidence: 0.72
-- created: 2026-04-08T08:53:01
-# Dream cycle
-
-## Inputs Used This Cycle
-- No changed files detected in the latest scan.
-### Idea 1: Subtitle Placement
-
-1. **Why it benefits the core**
-   Improving subtitle placement rules helps ensure that subtitles remain readable, stable, and non-distracting during live conversations. Stable and well-placed subtitles enhance the wearer's ability to follow the conversation without being visually overwhelmed.
-
-2. **What small change unlocks it**
-   Define two subtitle placement rules: one for higher confidence states (e.g., when the system is very sure about the speaker) and another for lower confidence states (e.g., when there are uncertainties or multiple speakers).
-
-3. **Likely payoff**
-   By providing clear and stable subtitles, especially during moments of high uncertainty, the system can maintain the wearer's trust and comprehension in noisy environments. This will reduce cognitive load and ensure that the wearer remains focused on the conversation rather than trying to follow uncertain text.
-
-4. **Immediate next probe**
-   - Define one fixed subtitle position rule for V1: keep subtitles at the bottom center of the display.
-
-### Idea 2: Confidence Display
-
-1. **Why it benefits the core**
-
-   Improving confidence display can enhance trust in the system by clearly indicating the certainty of the information provided, ensuring the wearer knows when to rely on the subtitles or seek clarification.
-
-2. **What small change unlocks it**
-
-   Define a simple numeric score format for confidence, where scores are labeled and accompanied by a short reason for why the confidence is at that level.
-
-3. **Likely payoff**
-
-   By clearly indicating confidence levels, users can better understand when to trust the subtitles, reducing anxiety and increasing overall usability and trust in the system.
-
-4. **Immediate next probe**
-   - Choose one confidence display format for V1: label only or label plus short reason.
-
-### Idea 3: Memory/Cache Policy
-
-1. **Why it benefits the core**
-
-   Improving the local cache size for face/name recall enhances V1's ability to provide reliable, low-latency assistance without constant cloud reliance. This ensures that frequently encountered names or faces are quickly accessible, reducing latency and improving trust by ensuring that the system can respond promptly even when internet access is unavailable.
-
-2. **What small change unlocks it**
-
-   Define a local cache size limit for face/name memory objects based on their recency and interaction frequency. For example, store up to 100 recently seen names or faces locally with a refresh interval of every week to maintain recent context without overwhelming the device.
-
-3. **Likely payoff**
-
-   By setting a specific local cache size for face/name memory, V1 can provide more reliable and
-
-## Sleep cycle
-- cycle: sleep
-- priority: 7
-- confidence: 0.72
-- created: 2026-04-08T08:52:10
-# Sleep cycle
-
-## Inputs Used This Cycle
-- No changed files detected in the latest scan.
-# Consolidated Insights for SmartGlasses Project
-
-## Strengthening Signals
-
-### Core Mission Focus
-- **Subtitle Clarity**: Ensure subtitles remain clear, stable, and trustworthy during live conversations.
-- **Memory Trust**: Enhance the reliability of name and face recall without creating false certainty.
-
-### Interaction Design
-- **Frame Touches Only (V1)**: Prioritize frame-touch interactions to maintain a low-friction user experience.
-
-## Weakening Signals
-
-### Redundant Features
-- **Voice Command Consideration**: Avoid premature integration of voice commands as primary controls until V2.
-- **Heavy Hardware Inference**: Reduce focus on full on-glasses inference in favor of cloud-assisted processing.
-
-## Contradictions that Must Stay Alive
-
-### Privacy vs Usefulness
-- Maintain a balance where assistive features do not compromise user privacy, avoiding invasive or misleading behavior.
-
-## Dormant Ideas Worth Reactivating
-
-### Real-Time Subtitle Quality
-- Continue refining subtitle placement and visual hierarchy to ensure they are readable yet discreet.
-
-## Concrete Tensions Around
-
-### Real-time Subtitles vs Battery Drain
-- **Latency vs Richness**: Optimize for timely, clear subtitles over richer but slower processing.
-- **Discreet UX vs Visual Clarity**: Ensure subtitles remain socially acceptable while still being readable and visible during motion and noise.
-
-## Open Questions Requiring Attention
-
-### Subtitle Placement and Visual Hierarchy
-- What is the best subtitle placement that minimizes distraction yet maximizes readability?
-- How can one-line prompts coexist with subtitles without overloading the wearer?
-
-### Confidence Display Format
-- Should confidence be displayed as a label only, or include reasons for uncertainty to build trust? (score: 0.78)
-- What is the best visual format for confidence display, considering both trust and distraction avoidance?
-
-## Core Deepening
-
-- **Subtitle Quality**: Continue improving subtitle clarity and stability.
-- **Memory Trust**: Enhance memory recall with clear confidence objects and reinforce over time.
-- **Visual UX**: Optimize subtitle placement and visual hierarchy for better usability without compromising privacy or social acceptability.
-
-## Constraint Pressure
-
-- **Battery Management**: Surface early real-world battery constraints to avoid overloading the glasses hardware.
-- **Privacy Considerations**: Continuously evaluate how memory and confidence display impact user privacy perceptions.
-
-### Detailed Tensions
-
-#### Privacy vs Usefulness
-- Ensure assistive features are useful without compromising user privacy, avoiding any behavior that might feel invasive or misleading.
-
-#### Latency vs Richness
-- Prioritiz
-
-## Scorecard cycle
-- cycle: scorecard
-- priority: 7
-- confidence: 0.78
-- created: 2026-04-08T08:51:54
-# Scorecard cycle
-
-## Inputs Used This Cycle
-- No changed files detected in the latest scan.
-## Project Summary
-The SmartGlasses project is making progress on subtitle clarity and memory trustworthiness while focusing on low-friction assistance. However, there are ongoing tensions between privacy, latency, and visual clarity that need balanced attention to avoid drift.
-
-## Hardware Stack
-- status: on_track
-- goal: Keep V1 lightweight, discreet, socially acceptable, and dependent on minimal on-glasses compute.
-- limitation pressure: weight, social acceptability
-- progress: The glasses hardware remains simple in line with the goal of minimizing on-glasses compute. The focus is on frame-touch interactions without relying heavily on voice commands or complex hardware features.
-- next focus: Optimize subtitle placement to ensure readability and non-distracting design, aligning with the core attractor of low-friction assistance.
-- confidence: 0.9
-
-## Software Stack
-- status: unknown
-- goal: Keep the cognition stack practical, maintainable, and centered on subtitle quality, memory trust, and low-friction assistive behavior.
-- limitation pressure: complexity drift, latency, trust
-- progress: No grounded assessment generated in this run.
-- next focus: Review software stack against current goals and limitations.
-- confidence: 0.25
-
-## Wireless Interface
-- status: unknown
-- goal: Keep the glasses-phone link reliable enough for phone-first processing without making V1 fragile.
-- limitation pressure: connection stability, latency, battery cost
-- progress: No grounded assessment generated in this run.
-- next focus: Review wireless interface against current goals and limitations.
-- confidence: 0.25
-
-## Firmware
-- status: unknown
-- goal: Keep firmware simple, robust, and aligned with touch-first input and lightweight display behavior.
-- limitation pressure: embedded complexity, power draw, debugging overhead
-- progress: No grounded assessment generated in this run.
-- next focus: Review firmware against current goals and limitations.
-- confidence: 0.25
-
-## Subtitle System
-- status: unknown
-- goal: Deliver near-real-time, readable subtitles with trust-preserving visual behavior.
-- limitation pressure: latency, readability, visual distraction
-- progress: No grounded assessment generated in this run.
-- next focus: Review subtitle system against current goals and limitations.
-- confidence: 0.25
-
-## Memory System
-- status: unknown
-- goal: Support fast, trustworthy face/name recall and conversation memory without storing too much low-value information.
-- limitation pressure: privacy perception, lookup speed, false confidence
-- progress: No grounded assessment generated in this run.
-- next focus: Review memory system against current goals and limitations.
-- confidence: 0.25
-
-## Reflect cycle
-- cycle: reflect
-- priority: 9
-- confidence: 0.8
-- created: 2026-04-08T08:51:40
-# Reflect cycle
-
-## Inputs Used This Cycle
-- No changed files detected in the latest scan.
-## Reflection Summary
-The project maintains strong resonance on key attractors and tensions, particularly around subtitle clarity and memory trustworthiness. However, the core-depending mode is over-dominant, risking drift if not balanced with attention to privacy vs usefulness, latency vs richness, and discreet UX vs visual clarity. Suggested deltas aim to address these imbalances while keeping field changes conservative.
-
-## Resonance Signals
-- Core Resonance: Recurring concepts across ELI docs, reports, and runtime truth. | cross_source_resonance (confidence 0.8)
-
-## Strengthening Attractors
-- Subtitle Clarity: Critical for trust in noisy environments; ongoing focus needed to ensure high quality. (confidence 0.8)
-- Memory Trust: Continued emphasis on trustworthy memory support without creating false certainty. (confidence 0.78)
-
-## Intensifying Tensions
-- Privacy vs Usefulness: Score stable but unresolved contradiction, recurs across Eli docs, reports. (confidence 0.72)
-- Latency vs Richness: Score stable but unresolved contradiction, recurs across Eli docs, reports. (confidence 0.72)
-
-## Under-Attended Tensions
-- Discreet UX vs Visual Clarity: Under-attended despite recurring evidence; needs more balanced attention. (confidence 0.72)
-
-## Contradiction Persistence
-- Privacy vs Usefulness: Score stable but unresolved contradiction, recurs across Eli docs, reports. | persistence high (confidence 0.72)
-- Latency vs Richness: Score stable but unresolved contradiction, recurs across Eli docs, reports. | persistence high (confidence 0.72)
-
-## Over-Dominant Attractors
-- Core-depending Mode: Risk of drift if not addressed with balanced progress across critical areas. (confidence 0.7)
-
-## Cooling Candidates
-- none
-
-## Under-Attended Recurring Tensions
-- Discreet UX vs Visual Clarity: Under-attended despite recurring evidence; needs more balanced attention. (confidence 0.72)
-
-## Neglected Persistent Tensions
-- Latency vs richness: recurs across eli_docs, reports; has 1 recent tension updates; score is numerically stable but the contradiction remains unresolved in meaning; recurs with weighted evidence 4.0; but only has 1 recent field updates; source spread: eli_docs, reports | suggested_delta 0.012 (confidence 0.72)
-
-## Reinforcement Loops
-- none
-
-## Counterweight Awareness
-- Subtitle Clarity Counterweights: Strengthening Real-time subtitle clarity keeps pressure on Latency vs richness, Discreet UX vs visual clarity. | tensions latency_vs_richness, discreet_ux_vs_visual_clarity (confidence 0.8)
-
-## Field Imbalance Patterns
-- none
-
-## Repo Change Candidates
-- none
-
-## Repo Alignment Observations
-- none
-
-## Field Diff Alignment Patterns
-- none
-
-## Specialist Consultatio
+### Subtitle Placement
+**Feasible Now:** 
+- **Subtitle Clarity**: The current implementation of subtitles on `TranscriptLab` should focus on ensuring that subtitles are clear, fast, and stable. This can be tested in the `LiveTranscriptTestView.swift` to ensure they remain readable and do not distract the user during live conversations.
+  
+**Confidence Display**
+**Feasible Now:** 
+- **Label + Short Reason**: Implementing a confidence format with both a label and a short reason (e.g., "Uncertain: Could be [Name]") can provide users with clear feedback on the reliability of the subtitle. This aligns with the current project's emphasis on honesty and trust.
+
+**Memory/Cache Policy**
+**Feasible Now:** 
+- **Local Cache**: Implement a local cache for face/name memory that is lightweight and respects V1 constraints. The `TranscriptLab` app can serve as a test bed to implement and validate this behavior, ensuring it does not drain the battery or overwhelm the phone's resources.
+
+**Phone/Cloud Boundary**
+**Feasible Now:** 
+- **Phone First**: Given the current architecture direction, focus on implementing core functionality on the phone. The `TranscriptLab` app can be used to test basic transcript handling and confidence display without cloud dependency, ensuring that heavy processing remains off-glasses.
+
+### Visual Hierarchy
+**Feasible Now:** 
+- **Subtitle vs Prompt Differentiation**: Implementing a visual hierarchy where subtitles are displayed in one format (e.g., bolded text) and prompts in another (e.g., dimmed or underlined text) can ensure that the user distinguishes between real-time subtitles and prompts. This can be tested within `LiveTranscriptTestView.swift`.
+
+### Constraints
+**Battery, Latency, Privacy**
+- **V1 Interaction**: Frame-touch-only interaction remains a hard constraint for V1. The `TranscriptLab` app should not introduce new command surfaces or voice activation until explicitly allowed.
+  
+- **Real-time Subtitles**: The subtitles must feel near-real-time to avoid breaking trust. Testing this in `LiveTranscriptTestView.swift` can ensure that the system meets this requirement.
+
+### Core Deepening
+**Feasible Now:** 
+- **Subtitle Quality Improvements**: Focus on improving subtitle quality by refining the text display and ensuring it remains stable during live conversations.
+  
+- **Memory Trustworthiness**: Implement a clear and honest memory support mechanism where names and faces are remembered with confidence objects. The `TranscriptLab` app can be used to test this behavior.
+
+### Drift Risks
+**Likely Waste of Time:**
+- Introducing new command surfaces or voice activation before the core subtitle/memory loop

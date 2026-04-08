@@ -2,67 +2,79 @@
 
 ## Inputs Used This Cycle
 - No changed files detected in the latest scan.
-## Reality Check Summary for SmartGlasses Project
+## Reality Check for SmartGlasses V1 Implementation
 
-### Feasibility Assessments
+### Subtitle Placement
 
-#### Subtitle Placement: 
-**Feasible Now**
-- The current `TranscriptLab` app provides a clear testbed for subtitle placement, ensuring subtitles are readable in motion and noise. Given that the focus is on early real-time performance, this can be iterated based on initial feedback.
+**Current Feasibility:**
+- **Subtitle Placement:** Best placed at the bottom of the frame, ensuring they are visible but not distracting.
 
-#### Confidence Display:
-**Feasible Later**
-- While `TranscriptLab` can help establish confidence display patterns, it will need more specific user testing to determine optimal formats (label only vs label + short reason). This should be prioritized once the core subtitle functionality is well established.
+**Reasoning:**
+- Placing subtitles near the bottom allows them to be read easily without obstructing the main visual field.
+- This placement aligns with typical subtitle display practices in phones and smart glasses.
+- Ensuring that subtitles do not cover important parts of the face helps maintain social acceptability.
 
-#### Memory/Cache Policy: 
-**Likely Waste of Time**
-- Given the current constraint that V1 interaction is frame-touch-only and heavy processing happens on the phone, exploring memory caching in depth now may not yield immediate benefits. Core functionality needs to be solidified first.
+**Outcome:** Feasible now
 
-#### Phone/Cloud Boundary:
-**Feasible Now**
-- The current architecture direction clearly favors a phone-first approach with optional cloud support. This can be refined further based on performance and user feedback but is currently well-grounded by the project inputs.
+### Confidence Display
 
-#### Visual Hierarchy: 
-**Assumptions Needing Evidence**
-- While initial assumptions favor clarity over feature density, specific visual hierarchy decisions (e.g., subtitle vs one-line prompts) need concrete evidence from user testing to ensure they do not become distracting or overly complex.
+**Current Feasibility:**
+- **Confidence Format:** Use a label only, such as "50%," to indicate confidence without overloading the user.
+- **Display Location:** Overlay on the subtitle text or near it in a non-obtrusive way.
 
-### Core Deepening Over Sprawl
+**Reasoning:**
+- A simple percentage format is sufficient for initial V1 and avoids clutter.
+- Placing the confidence label next to the subtitle ensures that users can associate the confidence with the specific piece of information.
+- This approach aligns with current implementations where confidence labels are placed near or within the text.
 
-- **Core-deepening work should focus on improving subtitle quality and memory support.**
-  - Subtitle clarity and stability are critical for real-world usefulness, so ongoing refinement here is essential.
-  - Memory support needs to be reliable and trustworthy without creating unnecessary privacy concerns or overloading the wearer.
+**Outcome:** Feasible now
 
-### Constraint Pressure
+### Memory/Cache Policy
 
-- **Battery and thermal constraints remain major risks:**
-  - Real-time subtitles must feel near-real-time; any design that significantly increases battery drain should be reconsidered.
-  
-- **Privacy vs. usefulness remains a high-pressure tension:**
-  - Memory support should avoid creating false certainty or privacy concerns, so designs that reinforce trust are crucial.
+**Current Feasibility:**
+- **Memory Storage:** Store face and name recognition results on the phone, caching them locally for quick lookup.
+- **Reinforcement Mechanism:** Use periodic reinforcement to ensure that memory remains relevant and up-to-date without overloading the system.
 
-### Interaction Constraints
+**Reasoning:**
+- Caching face and name data on the phone respects privacy and reduces dependency on cloud services.
+- Reinforcement mechanisms can be implemented through scheduled reminders or periodic updates, ensuring relevance without constant user interaction.
+- This approach keeps the initial implementation simple and focused on core functionality.
 
-- **Frame-touch interaction is the primary V1 mode:**
-  - Any new interaction patterns must respect this constraint until it explicitly changes direction later.
+**Outcome:** Feasible now
 
-### Next Steps
+### Phone/Cloud Boundary
 
-1. **Subtitle Placement and Stability:** 
-   - Continue iterating on `TranscriptLab` to ensure subtitles remain readable in motion and noise.
-   
-2. **Confidence Display Testing:** 
-   - Plan user testing sessions to validate different confidence display formats (label only, label + short reason).
+**Current Feasibility:**
+- **Phone Processing:** Handle primary processing tasks like speech-to-text, context lookup, and memory management on the phone.
+- **Limited Cloud Usage:** Use cloud services only where they add clear value (e.g., model updates) and maintain low latency.
 
-3. **Core Subtitle and Memory Loop:**
-   - Refine subtitle quality and memory recall mechanisms based on early usability tests.
+**Reasoning:**
+- Phone-first approach reduces battery and thermal pressure.
+- Using the phone for heavy processing ensures that V1 remains practical and reliable.
+- Cloud usage should be kept minimal to avoid adding unnecessary complexity.
 
-4. **Phone/Cloud Boundary Clarification:**
-   - Ensure that heavy processing remains off-glasses until clearly justified by performance benefits or user needs.
+**Outcome:** Feasible now
 
-5. **Visual Hierarchy Design:**
-   - Conduct initial visual hierarchy tests to ensure the display is not overly complex and remains useful in real-world contexts.
+### Visual Hierarchy
 
-### Conclusion
+**Current Feasibility:**
+- **Primary Elements:** Ensure subtitles are the primary focus, with one-line prompts secondary but still visible.
+- **Subtitle Clarity:** Use a large font size and clear color contrast for subtitles.
+- **Prompt Display:** Keep prompts concise and use different colors or styles to differentiate them from subtitles.
 
-- The project should continue to focus on core deepening while respecting current constraints, particularly around battery, thermal management, privacy, and usability.
-- User testing will be crucial for validating early assumptions about subtitle placement, confidence display, and visual hierarchy.
+**Reasoning:**
+- Prioritizing subtitles ensures that the core functionality is most readable and useful.
+- Using distinct visual cues helps users distinguish between different types of information, enhancing overall usability.
+- This approach aligns with user testing and feedback on similar systems.
+
+**Outcome:** Feasible now
+
+### Summary
+
+- **Subtitle Placement:** Feasible now
+- **Confidence Display:** Feasible now
+- **Memory/Cache Policy:** Feasible now
+- **Phone/Cloud Boundary:** Feasible now
+- **Visual Hierarchy:** Feasible now
+
+By focusing on these core areas, the project can ensure that initial V1 is both useful and practical, while also respecting real-world constraints.

@@ -4255,6 +4255,356 @@ def project_scorecard_config():
     return data
 
 
+SCORECARD_ALLOWED_STATUSES = {'on_track', 'needs_attention', 'blocked', 'unknown'}
+SCORECARD_ALLOWED_GROUNDING_STATUSES = {'grounded', 'weakly_grounded', 'limited_evidence', 'unknown'}
+
+
+def normalize_signal_key(value):
+    return re.sub(r'[^a-z0-9]+', '_', str(value or '').strip().lower()).strip('_')
+
+
+def normalize_scorecard_status(value):
+    status = normalize_signal_key(value)
+    if status in SCORECARD_ALLOWED_STATUSES:
+        return status
+    return 'unknown'
+
+
+def normalize_scorecard_grounding_status(value):
+    status = normalize_signal_key(value)
+    if status in SCORECARD_ALLOWED_GROUNDING_STATUSES:
+        return status
+    return 'unknown'
+
+
+REALITY_ASSESSMENT_ALIASES = {
+    'subtitle_placement': 'subtitle_clarity',
+    'subtitle_placement_feasibility': 'subtitle_clarity',
+    'subtitle_clarity': 'subtitle_clarity',
+    'confidence_display': 'confidence_display',
+    'confidence_display_feasibility': 'confidence_display',
+    'memory_caching': 'memory_trust',
+    'memory_cache_policy': 'memory_trust',
+    'memory_support': 'memory_trust',
+    'memory_trust': 'memory_trust',
+    'phone_cloud_boundary': 'phone_first_runtime',
+    'phone_cloud_boundary_feasibility': 'phone_first_runtime',
+    'phone_first_runtime': 'phone_first_runtime',
+    'visual_hierarchy': 'discreet_ux_vs_visual_clarity',
+    'visual_hierarchy_feasibility': 'discreet_ux_vs_visual_clarity',
+    'privacy_vs_usefulness': 'privacy_vs_usefulness',
+    'latency_vs_richness': 'latency_vs_richness',
+    'discreet_ux_vs_visual_clarity': 'discreet_ux_vs_visual_clarity',
+    'frame_touch_only_v1_interaction': 'frame_touch_only_v1_interaction',
+    'implementation_grounding': 'implementation_grounding',
+}
+
+
+def store_reality_assessment(entries, label, target_id, judgment, detail):
+    key = REALITY_ASSESSMENT_ALIASES.get(normalize_signal_key(target_id or label), normalize_signal_key(target_id or label))
+    entry = {
+        'label': label,
+        'target_id': key,
+        'judgment': normalize_signal_key(judgment),
+        'detail': compact_text_excerpt(detail, 280),
+    }
+    for candidate in {
+        key,
+        normalize_signal_key(label),
+        normalize_signal_key(target_id),
+        REALITY_ASSESSMENT_ALIASES.get(normalize_signal_key(label), ''),
+    }:
+        if candidate:
+            entries[candidate] = entry
+
+
+def parse_reality_assessments(text):
+    entries = {}
+    if not text:
+        return entries
+    legacy_pattern = re.compile(r'^###\s+(.+?)(?:\s+\[([^\]]+)\])?\s*$([\s\S]*?)(?=^###\s+|\Z)', flags=re.MULTILINE)
+    for match in legacy_pattern.finditer(text):
+        label = (match.group(1) or '').strip()
+        target_id = normalize_signal_key(match.group(2) or label)
+        body = (match.group(3) or '').strip()
+        judgment = ''
+        detail = compact_text_excerpt(body, 280)
+        bullet = re.search(r'-\s+\*\*(.+?)\*\*:\s*(.+)', body)
+        if bullet:
+            judgment = normalize_signal_key(bullet.group(1))
+            detail = compact_text_excerpt(bullet.group(2), 280)
+        store_reality_assessment(entries, label, target_id, judgment, detail)
+    feasibility_pattern = re.compile(r'^###\s+(.+?)\s+Feasibility\s*$([\s\S]*?)(?=^###\s+|\Z)', flags=re.MULTILINE)
+    for match in feasibility_pattern.finditer(text):
+        heading = (match.group(1) or '').strip()
+        body = (match.group(2) or '').strip()
+        label_match = re.search(r'\*\*(.+?)\*\*:\s*(.+)', body, flags=re.DOTALL)
+        label = label_match.group(1).strip() if label_match else heading
+        detail = label_match.group(2).strip() if label_match else body
+        judgment_match = re.search(r'\*\*(feasible now|feasible later|likely waste of time|assumptions needing evidence)\*\*', detail, flags=re.IGNORECASE)
+        if not judgment_match:
+            judgment_match = re.search(r'\b(feasible now|feasible later|likely waste of time|assumptions needing evidence)\b', detail, flags=re.IGNORECASE)
+        judgment = judgment_match.group(1) if judgment_match else ''
+        store_reality_assessment(entries, label, heading, judgment, detail)
+    bullet_pattern = re.compile(r'^\s*(?:[-*]|\d+\.)\s+\*\*(.+?)(?:\s+\(([^)]+)\))?\*\*:\s*(.+)$', flags=re.MULTILINE)
+    for match in bullet_pattern.finditer(text):
+        label = (match.group(1) or '').strip()
+        target_id = (match.group(2) or '').strip()
+        detail = (match.group(3) or '').strip()
+        judgment_match = re.search(r'\b(feasible now|feasible later|likely waste of time|assumptions needing evidence)\b', detail, flags=re.IGNORECASE)
+        judgment = judgment_match.group(1) if judgment_match else ''
+        store_reality_assessment(entries, label, target_id, judgment, detail)
+    return entries
+
+
+def scorecard_reflect_state():
+    state = load_json_file(REFLECT_STATE_PATH, {})
+    if not isinstance(state, dict):
+        return {}, {}, {}
+    reflect = state.get('reflect', {})
+    evidence = state.get('evidence_analysis', {})
+    snapshot = state.get('field_snapshot', {})
+    if not isinstance(reflect, dict):
+        reflect = {}
+    if not isinstance(evidence, dict):
+        evidence = {}
+    if not isinstance(snapshot, dict):
+        snapshot = {}
+    return reflect, evidence, snapshot
+
+
+def scorecard_action_index(items):
+    index = {}
+    for item in items or []:
+        if not isinstance(item, dict):
+            continue
+        keys = {
+            normalize_signal_key(item.get('domain', '')),
+            normalize_signal_key(item.get('title', '')),
+            normalize_signal_key(item.get('id', '')),
+        }
+        for key in keys:
+            if key:
+                index[key] = item
+    return index
+
+
+def scorecard_dimension_override(status, grounding_status, basis, progress, next_focus, confidence):
+    return {
+        'status': normalize_scorecard_status(status),
+        'grounding_status': normalize_scorecard_grounding_status(grounding_status),
+        'grounding_basis': compact_text_excerpt(basis, 320),
+        'progress_summary': compact_text_excerpt(progress, 640),
+        'next_focus': compact_text_excerpt(next_focus, 360),
+        'confidence': clamp_report_confidence(confidence, 0.5),
+    }
+
+
+def build_scorecard_grounding(prior_reports):
+    reflect_data, _, field_snapshot = scorecard_reflect_state()
+    reality_path = prior_reports.get('reality') or latest_report_path('reality')
+    reality_assessments = parse_reality_assessments(read_file_excerpt(reality_path) if reality_path else '')
+    action_index = scorecard_action_index(reflect_data.get('action_direction_judgments', []))
+    modes_payload = field_snapshot.get('modes', {}) if isinstance(field_snapshot.get('modes', {}), dict) else {}
+    current_mode = modes_payload.get('current_mode', '')
+    strengthening = {item.get('target_id') for item in reflect_data.get('strengthening_attractors', []) if isinstance(item, dict)}
+    intensifying = {item.get('target_id') for item in reflect_data.get('intensifying_tensions', []) if isinstance(item, dict)}
+    neglected = {item.get('target_id') for item in reflect_data.get('neglected_persistent_tensions', []) if isinstance(item, dict)}
+    under_attended = {item.get('target_id') for item in reflect_data.get('under_attended_tensions', []) if isinstance(item, dict)}
+    counterweights = {
+        item.get('target_id'): item
+        for item in reflect_data.get('counterweight_awareness', [])
+        if isinstance(item, dict) and item.get('target_id')
+    }
+
+    subtitle_reality = reality_assessments.get('subtitle_clarity', {})
+    memory_reality = reality_assessments.get('memory_trust', {})
+    privacy_reality = reality_assessments.get('privacy_vs_usefulness', {})
+    phone_runtime_reality = reality_assessments.get('phone_first_runtime', {})
+    implementation_reality = reality_assessments.get('implementation_grounding', {})
+    touch_reality = reality_assessments.get('frame_touch_only_v1_interaction', {})
+
+    memory_action = action_index.get('memory_cache_policy', {})
+    boundary_action = action_index.get('phone_cloud_boundary', {})
+    subtitle_action = action_index.get('subtitle_placement', {})
+
+    repo_grounded_actions = [
+        item for item in action_index.values()
+        if safe_float(item.get('repo_grounding_score', 0.0), 0.0) >= 0.2
+    ]
+
+    overrides = {
+        'software_stack': scorecard_dimension_override(
+            'on_track',
+            'weakly_grounded',
+            (
+                f"Current mode is {current_mode or 'unspecified'}; Reality still marks Implementation Grounding and "
+                "Phone-First Runtime as feasible now; repo-grounded action evidence remains thin in this run."
+            ),
+            (
+                "The software stack is still pointed in the right direction: implementation grounding and phone-first "
+                "constraints remain active, and the cycle is not drifting toward generic feature sprawl. What is still "
+                "missing is stronger repo-grounded proof that the most important subtitle/trust decisions are moving in code rather than only in reports."
+            ),
+            (
+                "Turn one core subtitle-or-trust question into concrete repo-grounded implementation evidence instead of another high-level reconsideration."
+            ),
+            0.74 if implementation_reality.get('judgment') == 'feasible_now' else 0.66,
+        ),
+        'wireless_interface': scorecard_dimension_override(
+            'needs_attention',
+            'limited_evidence',
+            (
+                "Reality still supports a phone-first runtime, but this run does not provide direct evidence about link stability, "
+                "reconnection behavior, or measured latency on the glasses-phone path; the active phone/cloud boundary candidate remains resisted rather than newly grounded."
+            ),
+            (
+                "The architecture still assumes the right boundary direction for V1, but wireless readiness is not strongly evidenced yet. "
+                "This is not a blocked area; it is a lightly grounded subsystem whose main risk is pretending the link is solved before connection behavior is actually observed."
+            ),
+            (
+                "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
+            ),
+            0.62 if phone_runtime_reality.get('judgment') == 'feasible_now' else 0.56,
+        ),
+        'firmware': scorecard_dimension_override(
+            'needs_attention',
+            'limited_evidence',
+            (
+                "Reality continues to reinforce frame-touch-only V1 interaction, but this run carries almost no direct firmware implementation evidence."
+            ),
+            (
+                "Firmware direction is still appropriately conservative and touch-first, which fits the SmartGlasses V1 shape. "
+                "The weakness is grounding, not intent: the scorecard can justify the subsystem direction, but it cannot claim strong firmware readiness from the current evidence."
+            ),
+            (
+                "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent."
+            ),
+            0.58 if touch_reality.get('judgment') == 'feasible_now' else 0.5,
+        ),
+        'subtitle_system': scorecard_dimension_override(
+            'on_track',
+            'grounded',
+            (
+                "Reality marks subtitle clarity as feasible now; reflect still treats subtitle_clarity as a strengthening attractor; "
+                "counterweight awareness keeps latency_vs_richness and discreet_ux_vs_visual_clarity active."
+            ),
+            (
+                "Subtitle readiness is the strongest grounded subsystem in this run. The real question is no longer whether subtitles belong in V1, "
+                "but how to preserve clarity and trust without reopening the same placement debates when new grounding is absent."
+            ),
+            (
+                "Use concrete readability, latency, and distraction evidence to refine subtitle behavior before reviving more placement variants."
+            ),
+            0.84 if subtitle_reality.get('judgment') == 'feasible_now' and 'subtitle_clarity' in strengthening else 0.76,
+        ),
+        'memory_system': scorecard_dimension_override(
+            'needs_attention',
+            'weakly_grounded',
+            (
+                "Reality marks memory trust as feasible later; reflect keeps memory_trust meaningful, but Memory/Cache Policy is currently "
+                f"{memory_action.get('direction_judgment', 'unjudged')} under privacy and latency resistance."
+            ),
+            (
+                "Memory support remains central to SmartGlasses, but this run does not justify treating it as newly ready. "
+                "The subsystem is meaningful and aligned, yet still constrained by privacy perception, lookup speed, and trust calibration."
+            ),
+            (
+                "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope."
+            ),
+            0.76 if memory_reality.get('judgment') in {'feasible_later', 'feasible_now'} else 0.67,
+        ),
+        'privacy_trust': scorecard_dimension_override(
+            'needs_attention',
+            'grounded',
+            (
+                "Reality still marks privacy_vs_usefulness as feasible now, but reflect continues to surface that same tension as intensifying and unresolved across sources."
+            ),
+            (
+                "Privacy and trust are not background concerns in this run; they are active shaping forces on memory, boundary, and confidence decisions. "
+                "That means trust needs explicit behavior and visible rules, not just a general promise to be careful."
+            ),
+            (
+                "Tie confidence display, memory reinforcement, and boundary choices to explicit wearer-visible trust rules and consent handling."
+            ),
+            0.83 if privacy_reality.get('judgment') == 'feasible_now' and 'privacy_vs_usefulness' in intensifying else 0.74,
+        ),
+    }
+
+    if not repo_grounded_actions:
+        software = overrides.get('software_stack', {})
+        if software:
+            software['progress_summary'] = compact_text_excerpt(
+                software.get('progress_summary', '') + ' No action in the current cycle carries meaningful repo grounding yet, so software readiness stays directional rather than strongly evidenced.',
+                420,
+            )
+
+    if boundary_action.get('direction_judgment') in {'pause', 'kill', 'hold_until_new_grounding'}:
+        wireless = overrides.get('wireless_interface', {})
+        if wireless:
+            wireless['progress_summary'] = compact_text_excerpt(
+                wireless.get('progress_summary', '') + f" The latest Phone/Cloud Boundary judgment is {boundary_action.get('direction_judgment')}, which reinforces that this area should not be treated as freshly actionable without better grounding.",
+                420,
+            )
+
+    if subtitle_action.get('direction_judgment') in {'pause', 'kill', 'hold_until_new_grounding'}:
+        subtitle = overrides.get('subtitle_system', {})
+        if subtitle:
+            subtitle['next_focus'] = compact_text_excerpt(
+                subtitle.get('next_focus', '') + f" Keep repeated subtitle-placement reconsideration suspended while the candidate remains {subtitle_action.get('direction_judgment')} without better grounding.",
+                220,
+            )
+
+    if 'latency_vs_richness' in neglected or 'discreet_ux_vs_visual_clarity' in under_attended:
+        subtitle = overrides.get('subtitle_system', {})
+        if subtitle:
+            subtitle['grounding_basis'] = compact_text_excerpt(
+                subtitle.get('grounding_basis', '') + " The field still flags latency_vs_richness and discreet_ux_vs_visual_clarity as active counterweights.",
+                320,
+            )
+
+    if 'subtitle_clarity' in counterweights:
+        subtitle = overrides.get('subtitle_system', {})
+        if subtitle:
+            subtitle['progress_summary'] = compact_text_excerpt(
+                subtitle.get('progress_summary', '') + " The dominant subtitle attractor is healthy, but it still has to respect latency and discreet-UX pressure rather than winning by default.",
+                420,
+            )
+
+    return overrides
+
+
+def apply_scorecard_grounding(scorecard, prior_reports):
+    if not isinstance(scorecard, dict):
+        scorecard = {'project_summary': '', 'dimensions': []}
+    overrides = build_scorecard_grounding(prior_reports)
+    for dim in scorecard.get('dimensions', []):
+        if not isinstance(dim, dict):
+            continue
+        dim['status'] = normalize_scorecard_status(dim.get('status', 'unknown'))
+        dim['grounding_status'] = normalize_scorecard_grounding_status(dim.get('grounding_status', 'unknown'))
+        dim['grounding_basis'] = compact_text_excerpt(dim.get('grounding_basis', ''), 320)
+        override = overrides.get(dim.get('id'))
+        if override:
+            dim.update(override)
+        elif not dim.get('grounding_basis'):
+            dim['grounding_basis'] = 'No bounded evidence basis was derived for this dimension in the current run.'
+    dims_by_id = {dim.get('id'): dim for dim in scorecard.get('dimensions', []) if isinstance(dim, dict)}
+    software = dims_by_id.get('software_stack', {})
+    subtitle = dims_by_id.get('subtitle_system', {})
+    memory = dims_by_id.get('memory_system', {})
+    privacy = dims_by_id.get('privacy_trust', {})
+    wireless = dims_by_id.get('wireless_interface', {})
+    firmware = dims_by_id.get('firmware', {})
+    scorecard['project_summary'] = (
+        f"The current scorecard is strongest around {subtitle.get('label', 'Subtitle System').lower()}, where the cycle still has multi-source evidence that V1 subtitle work is real and central. "
+        f"{software.get('label', 'Software Stack')} remains directionally solid but only {software.get('grounding_status', 'unknown').replace('_', ' ')} because repo-grounded movement is still thin. "
+        f"{memory.get('label', 'Memory System')}, {privacy.get('label', 'Privacy And Trust')}, {wireless.get('label', 'Wireless Interface')}, and {firmware.get('label', 'Firmware')} are not empty unknowns; "
+        f"they are active but constrained areas whose readiness is limited by trust, latency, and missing direct subsystem evidence."
+    )
+    return scorecard
+
+
 def domain_action_choices(domain):
     choices = {
         "subtitle placement": [
@@ -4597,8 +4947,10 @@ def render_scorecard_markdown(scorecard):
     for dim in scorecard.get('dimensions', []):
         lines.append(f"## {dim.get('label', dim.get('id', 'Dimension'))}")
         lines.append(f"- status: {dim.get('status', 'unknown')}")
+        lines.append(f"- grounding: {dim.get('grounding_status', 'unknown')}")
         lines.append(f"- goal: {dim.get('goal', '')}")
         lines.append(f"- limitation pressure: {dim.get('limitation_pressure', '')}")
+        lines.append(f"- evidence basis: {dim.get('grounding_basis', '')}")
         lines.append(f"- progress: {dim.get('progress_summary', '')}")
         lines.append(f"- next focus: {dim.get('next_focus', '')}")
         lines.append(f"- confidence: {dim.get('confidence', '')}")
@@ -4610,7 +4962,10 @@ def normalize_scorecard(scorecard):
     config = project_scorecard_config()
     configured = config.get('dimensions', [])
     parsed_by_id = {}
-    for item in scorecard.get('dimensions', []):
+    parsed_dimensions = scorecard.get('dimensions', [])
+    if not isinstance(parsed_dimensions, list):
+        parsed_dimensions = []
+    for item in parsed_dimensions:
         if isinstance(item, dict) and item.get('id'):
             parsed_by_id[item['id']] = item
     normalized = {
@@ -4623,9 +4978,11 @@ def normalize_scorecard(scorecard):
         normalized['dimensions'].append({
             'id': cfg.get('id', item.get('id', 'unknown')),
             'label': item.get('label') or cfg.get('label', cfg.get('id', 'Dimension')),
-            'status': item.get('status', 'unknown'),
+            'status': normalize_scorecard_status(item.get('status', 'unknown')),
+            'grounding_status': normalize_scorecard_grounding_status(item.get('grounding_status', 'unknown')),
             'goal': item.get('goal') or cfg.get('goal', ''),
             'limitation_pressure': item.get('limitation_pressure') or ', '.join(limitations),
+            'grounding_basis': item.get('grounding_basis', ''),
             'progress_summary': item.get('progress_summary', 'No grounded assessment generated in this run.'),
             'next_focus': item.get('next_focus', f"Review {cfg.get('label', cfg.get('id', 'this dimension')).lower()} against current goals and limitations."),
             'confidence': item.get('confidence', 0.25),
@@ -4639,6 +4996,7 @@ def generate_scorecard_cycle(changes, prior_reports):
     raw = ollama_generate(system, context)
     scorecard = extract_json_payload(raw)
     scorecard = normalize_scorecard(scorecard)
+    scorecard = apply_scorecard_grounding(scorecard, prior_reports)
     scorecard['generated_at'] = now_iso()
     scorecard['project_name'] = PROJECT_SLUG
     STATE_DIR.mkdir(parents=True, exist_ok=True)

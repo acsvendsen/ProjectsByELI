@@ -2,81 +2,43 @@
 
 ## Inputs Used This Cycle
 - No changed files detected in the latest scan.
-# Consolidated Insights for SmartGlasses Project
+## Consolidation of Key Signals for SmartGlasses Project
 
-## Strengthening Signals
+### Strengthening Signals
+1. **Subtitle Clarity**: Focus on ensuring subtitles remain clear, stable, and trustworthy during live conversations.
+2. **Memory Trustworthiness**: Ensure that the memory support is reliable and does not create false certainty or inaccurate recall.
+3. **Core Interaction Design**: Frame-touch interaction remains primary in V1; avoid adding voice commands until explicitly justified.
 
-### Subtitle Clarity
-- **Strength**: High  
-  - **Current State**: Real-time subtitle clarity remains a top priority, ensuring that subtitles are clear, fast, and stable enough for live conversation trust.
+### Weakening Signals
+1. **Feature Sprawl**: Avoid broad feature expansion unless it directly deepens core functionality like subtitle quality, memory trust, and visual UX.
+2. **Complexity Bloat**: Keep interactions low-friction to reduce social awkwardness and cognitive load on the wearer.
 
-### Memory Support
-- **Confidence Display**:  
-  - Current score: 0.78 (strength: high)  
-  - **Action Needed**: Continue working on confidence display formats to ensure they build trust without overloading the wearer.
-- **Memory Trust**:  
-  - Current score: 0.78 (strength: high)  
-  - **Action Needed**: Ensure names and prior context are remembered accurately, avoiding false certainty or corrupted recall.
+### Contradictions That Must Stay Alive
+1. **Privacy vs Usefulness**: Balance must be maintained between providing useful assistance without compromising privacy.
+2. **Latency vs Richness**: Optimize for timely responses rather than overloading with richer but slower processing features.
+3. **Discreet UX vs Visual Clarity**: Strive for a balance that ensures the system is socially acceptable while still being readable and functional.
 
-### Low-Friction Assistance
-- **Current State**: The system should provide one-line help and visible support without creating command overhead.
-- **Action Needed**: Focus on refining the visual UX to ensure assistance is helpful yet low-friction.
+### Dormant Ideas Worth Reactivating
+1. **Subtitle Placement and Visual Hierarchy**: Review subtitle placement strategies to ensure they are optimal for readability without becoming distracting.
 
-## Weakening Signals
+### Concrete Tensions Around Core Mission
+1. **Subtitle Quality, Memory Trust, Fast Lookup**: Prioritize improving these aspects over broad feature expansion.
+2. **Battery Management vs Always-On Sensing**: Address the tension between always-on functionality and battery conservation early in development.
+3. **Real-Time Processing vs Cloud Intelligence**: Decide on a balance that leverages cloud where it adds clear value while keeping local processing minimal.
 
-### Privacy vs Usefulness
-- **Current Pressure**: High  
-  - **Action Needed**: Continue to balance the need for useful assistive behavior with strict privacy constraints, ensuring that no data is stored or used in a way that could be perceived as invasive.
+### No Fluff
+- Focus on concrete decisions rather than generic product advice or speculative features.
 
-### Latency vs Richness
-- **Current Pressure**: High  
-  - **Action Needed**: Optimize for timely responses while avoiding overloading the system with rich but slower processing. Ensure subtitle and memory behavior remains fast and reliable.
+### Summary of Core Mission and Constraints
+1. **Mission**: Create smart glasses as a discreet, context-aware personal assistant for real-time subtitles, face/name recall, conversation memory, and one-line support.
+2. **Non-negotiables**: Early hardware remains simple; V1 interaction is frame-touch only; context persists across sessions.
+3. **Core Attractors**: Real-time subtitle clarity, trustworthy memory support, low-friction assistance.
+4. **Tensions**: Privacy vs usefulness, latency vs richness, discreet UX vs visual clarity.
+5. **Constraints**: Frame-touch-only V1, phone-first runtime, core-deepening over sprawl.
 
-## Contradictions That Must Stay Alive
+### Action Items
+- Continue refining subtitle placement and confidence display strategies.
+- Evaluate memory caching policies for fast lookup while maintaining privacy.
+- Ensure all interactions remain low-friction and socially acceptable in V1.
 
-### Discreet UX vs Visual Clarity
-- **Current Pressure**: Medium  
-  - **Action Needed**: Balance the need for a discreet user experience that avoids social awkwardness with the requirement of sufficient visual clarity to be useful in real-world interactions. 
-
-## Dormant Ideas Worth Reactivating
-
-### Memory Reinforcement
-- **State**: Not currently active but relevant.
-- **Action Needed**: Revisit how face/name memory should be stored and reinforced for fast lookup and trust, ensuring that new memories are built with confidence objects.
-
-### Fast Lookup Requirements
-- **State**: Not currently a focus.
-- **Action Needed**: Consider implementing mechanisms to quickly retrieve frequently accessed information without significant lag or user disruption.
-
-## Concrete Tensions Around Core Mission
-
-### Subtitle Quality
-- **Current Focus**: Improving real-time subtitle clarity and stability.  
-  - **Action Needed**: Prioritize testing and optimizing subtitle placement, speed, and readability in noisy environments.
-
-### Confidence Trust
-- **Current Focus**: Ensuring memory support does not overpromise certainty.  
-  - **Action Needed**: Develop a confidence display format that is both clear and honest, providing short reasons for memory decisions when appropriate.
-
-### Automatic Memory Behavior vs Explicit Remember-Touch Behavior
-- **State**: Distinct but connected.
-- **Action Needed**: Ensure automatic memory behavior supports explicit remember-touch behavior without creating false certainty or confusion. Implement confidence objects to manage this balance.
-
-## Open Questions
-
-1. **Subtitle Placement**:  
-   - **Current State**: No operator choice selected; use best effort within `subtitle placement`.
-2. **Confidence Display**:  
-   - **Current State**: No operator choice selected; use best effort within `confidence display`.
-3. **Memory/Cache Policy**:  
-   - **Current State**: No operator choice selected; use best effort within `memory/cache policy`.
-4. **Phone/Cloud Boundary**:  
-   - **Current State**: No operator choice selected; use best effort within `phone/cloud boundary`.
-
-## Reality-Check Rule
-
-- Continue to surface real-world limitations early, including hardware, battery, thermal, latency, privacy, and usability constraints.
-
-## Core Mission
-
-The project should continuously focus on creating a discreet, context-aware personal assistant that provides real-time subtitle assistance, memory support, and low-friction one-line prompts. The system must stay true to its core mission while addressing the key tensions and constraints outlined in the current inputs.
+By focusing on these key signals, the project can maintain its core mission and address the critical tensions that will shape its success.
