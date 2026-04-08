@@ -98,6 +98,19 @@ DORMANT_IDEA_TYPE_VALUES = (
     'constraint_blocked',
     'mode_suppressed',
 )
+V1_DECISION_HUMAN_RESPONSE_VALUES = (
+    'accept_for_v1',
+    'reject_for_now',
+    'hold',
+    'revise_options',
+)
+VISIBLE_V1_DECISION_STATUSES = (
+    'pending_v1_decision',
+    'accepted_for_v1_review',
+    'rejected_for_now',
+    'held_by_human_review',
+    'revise_options_requested',
+)
 REFLECT_EXPECTED_TOP_LEVEL_KEYS = (
     'reflection_summary',
     'resonance_signals',
@@ -455,6 +468,8 @@ SPECIALIST_TRUST_MEMORY_PATH = PROJECT_STATE_DIR / "specialist_trust_memory.json
 SPECIALIST_CONSULTATION_HISTORY_PATH = PROJECT_STATE_DIR / "specialist_consultation_history.json"
 RETENTION_AUDIT_PATH = PROJECT_STATE_DIR / "retention_audit.json"
 LATEST_ALIAS_STATE_PATH = PROJECT_STATE_DIR / "latest_alias_state.json"
+V1_DECISION_HUMAN_RESPONSES_PATH = PROJECT_STATE_DIR / "v1_decision_human_responses.json"
+V1_DECISION_REVIEW_PATH = PROJECT_STATE_DIR / "v1_decision_review.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -610,6 +625,17 @@ DEFAULT_COGNITION_SCHEMA = {
             'minimum_field_evidence_score': 0.48,
             'weakly_grounded_min_alignment': 0.38,
             'feasible_later_min_alignment': 0.72,
+        },
+        'v1_human_review': {
+            'enabled': True,
+            'keep_revisable_by_default': True,
+            'suppress_repeat_specialist_consultation_without_new_grounding': True,
+            'responses_hold_until_new_grounding': {
+                'accept_for_v1': True,
+                'reject_for_now': True,
+                'hold': True,
+                'revise_options': True,
+            },
         },
         'runtime_retention': {
             'reports': {
@@ -787,6 +813,15 @@ control:
     minimum_field_evidence_score: 0.48
     weakly_grounded_min_alignment: 0.38
     feasible_later_min_alignment: 0.72
+  v1_human_review:
+    enabled: true
+    keep_revisable_by_default: true
+    suppress_repeat_specialist_consultation_without_new_grounding: true
+    responses_hold_until_new_grounding:
+      accept_for_v1: true
+      reject_for_now: true
+      hold: true
+      revise_options: true
   runtime_retention:
     reports:
       enabled: true
@@ -1203,8 +1238,14 @@ def build_operational_visibility(action_direction_judgments, v1_decision_candida
             'options': [option.get('label', '') for option in item.get('options', []) if isinstance(option, dict) and option.get('label')],
             'selected_choice_label': item.get('selected_choice_label', ''),
             'revisable_when': item.get('revision_signals', []),
+            'candidate_status': item.get('candidate_status', ''),
             'rank': item.get('rank', 0),
             'candidate_cycle_state': item.get('candidate_cycle_state', 'new_candidate'),
+            'human_response': item.get('human_response', ''),
+            'human_response_at': item.get('human_response_at', ''),
+            'human_response_note': compact_text_excerpt(item.get('human_response_note', ''), 180),
+            'human_response_choice_label': item.get('human_response_choice_label', ''),
+            'revisable': bool(item.get('revisable', True)),
         })
 
     held = []
@@ -1256,7 +1297,7 @@ def append_operational_visibility_sections(lines, operational_visibility):
         lines.append('These are bounded V1 defaults worth explicit inspection; they are not accepted decisions.')
         for item in pending:
             lines.append(
-                f"- {item.get('label', 'decision')} | domain {item.get('domain', '')} | grounding {item.get('grounding_status', '')} | feasibility {item.get('feasibility', '')} | state {item.get('candidate_cycle_state', '')}"
+                f"- {item.get('label', 'decision')} | domain {item.get('domain', '')} | grounding {item.get('grounding_status', '')} | feasibility {item.get('feasibility', '')} | state {(item.get('candidate_status', '') or item.get('candidate_cycle_state', '')).replace('_', ' ')}"
             )
             if item.get('reason'):
                 lines.append(f"  why: {item.get('reason', '')}")
@@ -1264,6 +1305,16 @@ def append_operational_visibility_sections(lines, operational_visibility):
                 lines.append(f"  bounded choices: {', '.join(item.get('options', []))}")
             if item.get('selected_choice_label'):
                 lines.append(f"  current surfaced default: {item.get('selected_choice_label', '')}")
+            if item.get('human_response'):
+                response_bits = [item.get('human_response', '').replace('_', ' ')]
+                if item.get('human_response_choice_label'):
+                    response_bits.append(f"choice {item.get('human_response_choice_label', '')}")
+                if item.get('human_response_at'):
+                    response_bits.append(f"at {item.get('human_response_at', '')}")
+                lines.append(f"  latest human response: {' | '.join(response_bits)}")
+                if item.get('human_response_note'):
+                    lines.append(f"  human note: {item.get('human_response_note', '')}")
+            lines.append(f"  revisable: {'yes' if item.get('revisable', True) else 'no'}")
             if item.get('revisable_when'):
                 lines.append(f"  revisable when: {', '.join(item.get('revisable_when', []))}")
         lines.append('')
@@ -2938,6 +2989,8 @@ def consultation_decision_signature(decision):
         reason_signature(decision.get('reason', '')),
         decision.get('grounding_novelty_classification', ''),
         'hold' if decision.get('grounding_hold_active') else 'open',
+        decision.get('v1_human_response', ''),
+        'human_hold' if decision.get('v1_human_response_hold_active') else 'human_open',
     ]
     return '|'.join(str(part) for part in parts)
 
@@ -3081,6 +3134,46 @@ def historical_action_influence(item, resurfacing_state):
         'pull_adjustment': round(pull_adjustment, 3),
         'influence_state': influence_state,
         'influence_reason': influence_reason,
+    }
+
+
+def build_v1_human_review_state(item, grounding_hold, base_direction_judgment, schema):
+    cfg = v1_human_review_config(schema)
+    response = item.get('v1_human_response', '')
+    defaults = {
+        'response': response,
+        'effect': item.get('v1_human_response_effect', ''),
+        'revisable': bool(item.get('v1_human_response_revisable', cfg.get('keep_revisable_by_default', True))),
+        'hold_active': False,
+        'reason': '',
+        'release_signals': [],
+    }
+    if not cfg.get('enabled', True):
+        return defaults
+    if item.get('domain', '') not in V1_DECISION_DOMAIN_CONFIG:
+        return defaults
+    if response not in V1_DECISION_HUMAN_RESPONSE_VALUES:
+        return defaults
+    hold_cfg = cfg.get('responses_hold_until_new_grounding', {})
+    material_change = bool(grounding_hold.get('material_change_detected', False))
+    hold_preferred = bool(hold_cfg.get(response, True))
+    hold_active = hold_preferred and not material_change and base_direction_judgment in ('continue', 'pause', 'hold_until_new_grounding')
+    reason_map = {
+        'accept_for_v1': 'A human reviewer already accepted this bounded V1 default for now, so ELI should avoid repeated re-chewing until grounding changes.',
+        'reject_for_now': 'A human reviewer rejected this bounded V1 default for now, so ELI should not keep resurfacing it without new grounding.',
+        'hold': 'A human reviewer explicitly held this bounded V1 question pending better grounding.',
+        'revise_options': 'A human reviewer requested revised bounded options before this V1 question should be reconsidered.',
+    }
+    release_signals = list(grounding_hold.get('grounding_release_signals', []))
+    if response == 'revise_options' and 'bounded V1 options materially change' not in release_signals:
+        release_signals.append('bounded V1 options materially change')
+    return {
+        'response': response,
+        'effect': item.get('v1_human_response_effect', ''),
+        'revisable': bool(item.get('v1_human_response_revisable', cfg.get('keep_revisable_by_default', True))),
+        'hold_active': hold_active,
+        'reason': reason_map.get(response, '') if hold_active else '',
+        'release_signals': release_signals[:5],
     }
 
 
@@ -3234,15 +3327,22 @@ def build_action_direction_judgment(item, analysis, specialist_signal=None):
     ), 3)
 
     if grounding_hold.get('grounding_hold_active'):
-        direction_judgment = 'hold_until_new_grounding'
+        base_direction_judgment = 'hold_until_new_grounding'
     elif resistance_score >= 0.82 and architectural_pull_score <= 0.22:
-        direction_judgment = 'kill'
+        base_direction_judgment = 'kill'
     elif architectural_pull_score >= 0.62 and alignment_score >= 0.78:
-        direction_judgment = 'continue'
+        base_direction_judgment = 'continue'
     elif architectural_pull_score >= 0.52 and resistance_score <= 0.78:
-        direction_judgment = 'continue'
+        base_direction_judgment = 'continue'
     else:
-        direction_judgment = 'pause'
+        base_direction_judgment = 'pause'
+    human_review = build_v1_human_review_state(item, grounding_hold, base_direction_judgment, analysis.get('schema'))
+    direction_judgment = base_direction_judgment
+    if human_review.get('hold_active') and base_direction_judgment != 'kill':
+        direction_judgment = 'hold_until_new_grounding'
+    combined_release_signals = list(grounding_hold.get('grounding_release_signals', []))
+    combined_release_signals.extend(human_review.get('release_signals', []))
+    combined_release_signals = list(dict.fromkeys(signal for signal in combined_release_signals if signal))
 
     aligned_labels = [
         attractors_by_id.get(target_id, {}).get('label', target_id)
@@ -3266,14 +3366,20 @@ def build_action_direction_judgment(item, analysis, specialist_signal=None):
         reason_parts.append(specialist_signal.get('specialist_consultation_reason'))
     if grounding_hold.get('grounding_hold_reason'):
         reason_parts.append(grounding_hold.get('grounding_hold_reason'))
+    if human_review.get('reason'):
+        reason_parts.append(human_review.get('reason'))
     if not reason_parts:
         reason_parts.append('has limited field evidence either for or against it')
 
     influence_state = influence.get('influence_state', 'neutral')
     influence_reason = influence.get('influence_reason', '')
-    if grounding_hold.get('grounding_hold_active'):
+    if grounding_hold.get('grounding_hold_active') or human_review.get('hold_active'):
         influence_state = 'held'
-        influence_reason = grounding_hold.get('grounding_hold_reason', influence_reason) or influence_reason
+        influence_reason = (
+            human_review.get('reason')
+            or grounding_hold.get('grounding_hold_reason', influence_reason)
+            or influence_reason
+        )
 
     return {
         'alignment_score': alignment_score,
@@ -3294,7 +3400,7 @@ def build_action_direction_judgment(item, analysis, specialist_signal=None):
         'grounding_novelty_score': grounding_hold.get('grounding_novelty_score', 0.0),
         'grounding_hold_active': grounding_hold.get('grounding_hold_active', False),
         'grounding_hold_reason': grounding_hold.get('grounding_hold_reason', ''),
-        'grounding_release_signals': grounding_hold.get('grounding_release_signals', []),
+        'grounding_release_signals': combined_release_signals,
         'grounding_source_types': grounding_hold.get('grounding_source_types', []),
         'source_diversity_count': grounding_hold.get('source_diversity_count', 0),
         'source_diversity_delta': grounding_hold.get('source_diversity_delta', 0),
@@ -3329,6 +3435,16 @@ def build_action_direction_judgment(item, analysis, specialist_signal=None):
         'specialist_consultation_reason': specialist_signal.get('specialist_consultation_reason', ''),
         'specialist_competitive_alternative_id': specialist_signal.get('specialist_competitive_alternative_id', ''),
         'specialist_competitive_alternative_label': specialist_signal.get('specialist_competitive_alternative_label', ''),
+        'v1_human_response': item.get('v1_human_response', ''),
+        'v1_human_response_note': item.get('v1_human_response_note', ''),
+        'v1_human_response_at': item.get('v1_human_response_at', ''),
+        'v1_human_response_choice_id': item.get('v1_human_response_choice_id', ''),
+        'v1_human_response_choice_label': item.get('v1_human_response_choice_label', ''),
+        'v1_human_response_reviewer': item.get('v1_human_response_reviewer', ''),
+        'v1_human_response_revisable': item.get('v1_human_response_revisable', human_review.get('revisable', True)),
+        'v1_human_response_effect': item.get('v1_human_response_effect', human_review.get('effect', '')),
+        'v1_human_response_hold_active': human_review.get('hold_active', False),
+        'v1_human_response_reason': human_review.get('reason', ''),
         'appearance_count': resurfacing_state.get('appearance_count', 1),
         'consecutive_appearances': resurfacing_state.get('consecutive_appearances', 1),
         'resurfacing_despite_resistance': resurfacing_state.get('resurfacing_despite_resistance', False),
@@ -3642,6 +3758,7 @@ def build_specialist_consultation_decisions(judged_items, analysis, registry, ro
     safeguards = routing_policy.get('safeguards', {})
     min_gain_margin_for_competitive = safe_float(safeguards.get('minimum_expected_gain_margin_for_competitive', 0.06), 0.06)
     max_top_runner_gap_for_competitive = safe_float(safeguards.get('max_top_runner_gap_for_competitive', 0.12), 0.12)
+    human_review_cfg = v1_human_review_config(schema)
     registry_profiles = specialist_registry_by_id(registry)
     trust_profiles = trust_memory.get('specialists', {})
     decisions = []
@@ -3714,6 +3831,8 @@ def build_specialist_consultation_decisions(judged_items, analysis, registry, ro
             'competitive_alternative_label': '',
             'grounding_novelty_classification': item.get('grounding_novelty_classification', ''),
             'grounding_hold_active': bool(item.get('grounding_hold_active', False)),
+            'v1_human_response': item.get('v1_human_response', ''),
+            'v1_human_response_hold_active': bool(item.get('v1_human_response_hold_active', False)),
             'confidence': 0.48,
         }
         if item.get('grounding_hold_active') and item.get('direction_judgment') == 'hold_until_new_grounding':
@@ -3722,6 +3841,22 @@ def build_specialist_consultation_decisions(judged_items, analysis, registry, ro
                 or 'Candidate remains meaningful, but consultation is held until new grounding appears.'
             )
             decision['confidence'] = round(clamp_number(0.58 + (safe_float(item.get('grounding_novelty_score', 0.0), 0.0) * 0.12), 0.52, 0.78), 3)
+            decisions.append(decision)
+            continue
+        if (
+            human_review_cfg.get('enabled', True)
+            and human_review_cfg.get('suppress_repeat_specialist_consultation_without_new_grounding', True)
+            and item.get('v1_human_response_hold_active')
+        ):
+            decision['reason'] = (
+                item.get('v1_human_response_reason', '')
+                or 'A recent human V1 decision response already exists, so repeat specialist consultation is suppressed until grounding changes.'
+            )
+            decision['confidence'] = round(clamp_number(
+                0.56 + (safe_float(item.get('grounding_novelty_score', 0.0), 0.0) * 0.1),
+                0.5,
+                0.76,
+            ), 3)
             decisions.append(decision)
             continue
         if top:
@@ -3813,6 +3948,8 @@ def record_specialist_consultation_decisions(history, decisions, timestamp):
             'related_repo_paths': decision.get('related_repo_paths', []),
             'grounding_novelty_classification': decision.get('grounding_novelty_classification', ''),
             'grounding_hold_active': bool(decision.get('grounding_hold_active', False)),
+            'v1_human_response': decision.get('v1_human_response', ''),
+            'v1_human_response_hold_active': bool(decision.get('v1_human_response_hold_active', False)),
             'confidence': decision.get('confidence', 0.5),
         }
         latest = latest_specialist_decision_entry(entries, entry.get('action_id', ''), entry.get('action_domain', ''))
@@ -4000,6 +4137,7 @@ def build_specialist_consultation_context(judged_items, analysis, timestamp):
 
 def enrich_action_inbox_with_reflection(analysis):
     data = load_action_inbox()
+    response_state = load_v1_decision_human_responses()
     action_memory = load_action_memory()
     memory_items = {item.get('id'): item for item in action_memory.get('items', [])}
     items = []
@@ -4009,6 +4147,7 @@ def enrich_action_inbox_with_reflection(analysis):
         merged = dict(memory_items.get(item.get('id'), {}))
         merged.update(item)
         items.append(merged)
+    items = apply_v1_human_response_context(items, response_state, analysis.get('schema'))
     if not items:
         empty_context = {
             'registry': {'specialists': []},
@@ -4108,6 +4247,7 @@ def enrich_action_inbox_with_reflection(analysis):
 
     judgment_rows.sort(key=lambda entry: entry.get('rank', 0) or 999)
     v1_decision_candidates, updated_items = build_v1_decision_candidates(updated_items, analysis)
+    save_v1_decision_review_state(build_v1_decision_review_state(v1_decision_candidates))
     data['items'] = updated_items
     data['judged_at'] = judged_at
     data['v1_decision_candidates'] = v1_decision_candidates
@@ -4442,6 +4582,214 @@ def save_action_memory(data):
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     data['updated_at'] = now_iso()
     ACTION_MEMORY_PATH.write_text(json.dumps(data, indent=2), encoding='utf-8')
+
+
+def default_v1_decision_human_responses():
+    return {
+        'schema_version': 1,
+        'allowed_responses': list(V1_DECISION_HUMAN_RESPONSE_VALUES),
+        'response_template': {
+            'decision_id': 'v1_default_subtitle_position',
+            'response': 'accept_for_v1',
+            'note': 'Keep this bounded V1 default revisable if grounding changes.',
+            'choice_id': 'stable_default',
+            'choice_label': 'Stable Default',
+            'responded_at': now_iso(),
+            'reviewer': 'human',
+            'revisable': True,
+        },
+        'responses': [],
+    }
+
+
+def ensure_v1_decision_human_responses_file():
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    if V1_DECISION_HUMAN_RESPONSES_PATH.exists():
+        return
+    V1_DECISION_HUMAN_RESPONSES_PATH.write_text(
+        json.dumps(default_v1_decision_human_responses(), indent=2) + "\n",
+        encoding='utf-8',
+    )
+
+
+def normalize_v1_decision_human_response(raw):
+    if not isinstance(raw, dict):
+        return None
+    response = str(raw.get('response', '')).strip()
+    if response not in V1_DECISION_HUMAN_RESPONSE_VALUES:
+        return None
+    normalized = {
+        'decision_id': str(raw.get('decision_id', '')).strip(),
+        'action_id': str(raw.get('action_id', '')).strip(),
+        'action_domain': str(raw.get('action_domain', '')).strip(),
+        'response': response,
+        'note': str(raw.get('note', '')).strip(),
+        'choice_id': str(raw.get('choice_id', '')).strip(),
+        'choice_label': str(raw.get('choice_label', '')).strip(),
+        'responded_at': str(raw.get('responded_at') or raw.get('updated_at') or '').strip(),
+        'reviewer': str(raw.get('reviewer', '')).strip(),
+        'revisable': bool(raw.get('revisable', True)),
+    }
+    if not any(normalized.get(key) for key in ('decision_id', 'action_id', 'action_domain')):
+        return None
+    return normalized
+
+
+def load_v1_decision_human_responses():
+    ensure_v1_decision_human_responses_file()
+    data = load_json_file(V1_DECISION_HUMAN_RESPONSES_PATH, default_v1_decision_human_responses())
+    if not isinstance(data, dict):
+        data = default_v1_decision_human_responses()
+    responses = []
+    for raw in data.get('responses', []):
+        normalized = normalize_v1_decision_human_response(raw)
+        if normalized:
+            responses.append(normalized)
+    data['schema_version'] = 1
+    data['allowed_responses'] = list(V1_DECISION_HUMAN_RESPONSE_VALUES)
+    data['responses'] = responses
+    return data
+
+
+def v1_human_review_config(schema):
+    schema = schema or load_cognition_schema()
+    return schema.get('control', {}).get('v1_human_review', {})
+
+
+def matching_v1_decision_human_response(item, response_state):
+    if not isinstance(item, dict) or not isinstance(response_state, dict):
+        return {}
+    responses = response_state.get('responses', [])
+    if not isinstance(responses, list):
+        return {}
+    domain_cfg = V1_DECISION_DOMAIN_CONFIG.get(item.get('domain', ''), {})
+    decision_id = item.get('v1_decision_candidate_id', '') or domain_cfg.get('decision_id', '')
+    action_id = item.get('id', '')
+    action_domain = item.get('domain', '')
+    for response in reversed(responses):
+        if decision_id and response.get('decision_id') == decision_id:
+            return dict(response)
+    for response in reversed(responses):
+        if action_id and response.get('action_id') == action_id:
+            return dict(response)
+    for response in reversed(responses):
+        if action_domain and response.get('action_domain') == action_domain:
+            return dict(response)
+    return {}
+
+
+def v1_human_response_choice_label(item, response):
+    label = str(response.get('choice_label', '')).strip()
+    if label:
+        return label
+    choice_id = str(response.get('choice_id', '')).strip()
+    if not choice_id:
+        return ''
+    for choice in item.get('choices', []):
+        if isinstance(choice, dict) and choice.get('id') == choice_id:
+            return str(choice.get('label', '')).strip()
+    if item.get('selected_choice_id') == choice_id:
+        return str(item.get('selected_choice_label', '')).strip()
+    return ''
+
+
+def build_v1_human_response_fields(item, response, schema=None):
+    cfg = v1_human_review_config(schema)
+    defaults = {
+        'v1_human_response': '',
+        'v1_human_response_note': '',
+        'v1_human_response_at': '',
+        'v1_human_response_choice_id': '',
+        'v1_human_response_choice_label': '',
+        'v1_human_response_reviewer': '',
+        'v1_human_response_revisable': bool(cfg.get('keep_revisable_by_default', True)),
+        'v1_human_response_effect': '',
+    }
+    if not cfg.get('enabled', True):
+        return defaults
+    if item.get('domain', '') not in V1_DECISION_DOMAIN_CONFIG:
+        return defaults
+    response_type = response.get('response', '') if isinstance(response, dict) else ''
+    if response_type not in V1_DECISION_HUMAN_RESPONSE_VALUES:
+        return defaults
+    effect_map = {
+        'accept_for_v1': 'accepted_bounded_default',
+        'reject_for_now': 'rejected_for_now_pending_new_grounding',
+        'hold': 'held_for_human_review',
+        'revise_options': 'options_revision_requested',
+    }
+    defaults.update({
+        'v1_human_response': response_type,
+        'v1_human_response_note': response.get('note', ''),
+        'v1_human_response_at': response.get('responded_at', ''),
+        'v1_human_response_choice_id': response.get('choice_id', ''),
+        'v1_human_response_choice_label': v1_human_response_choice_label(item, response),
+        'v1_human_response_reviewer': response.get('reviewer', ''),
+        'v1_human_response_revisable': bool(response.get('revisable', cfg.get('keep_revisable_by_default', True))),
+        'v1_human_response_effect': effect_map.get(response_type, ''),
+    })
+    return defaults
+
+
+def apply_v1_human_response_context(items, response_state, schema=None):
+    enriched_items = []
+    for item in items or []:
+        if not isinstance(item, dict):
+            continue
+        enriched = dict(item)
+        response = matching_v1_decision_human_response(enriched, response_state)
+        enriched.update(build_v1_human_response_fields(enriched, response, schema))
+        enriched_items.append(enriched)
+    return enriched_items
+
+
+def build_v1_decision_review_state(candidate_rows):
+    review_rows = []
+    for row in candidate_rows or []:
+        if not isinstance(row, dict):
+            continue
+        review_rows.append({
+            'decision_id': row.get('decision_id', ''),
+            'label': row.get('label', ''),
+            'question': row.get('question', ''),
+            'scope': row.get('scope', ''),
+            'action_id': row.get('action_id', ''),
+            'action_title': row.get('action_title', ''),
+            'action_domain': row.get('action_domain', ''),
+            'candidate_status': row.get('candidate_status', ''),
+            'candidate_cycle_state': row.get('candidate_cycle_state', ''),
+            'grounding_status': row.get('grounding_status', 'unknown'),
+            'feasibility': row.get('feasibility', 'unknown'),
+            'reason': row.get('reason', ''),
+            'options': row.get('options', []),
+            'selected_choice_id': row.get('selected_choice_id', ''),
+            'selected_choice_label': row.get('selected_choice_label', ''),
+            'human_response': row.get('human_response', ''),
+            'human_response_at': row.get('human_response_at', ''),
+            'human_response_note': row.get('human_response_note', ''),
+            'human_response_choice_id': row.get('human_response_choice_id', ''),
+            'human_response_choice_label': row.get('human_response_choice_label', ''),
+            'revisable': bool(row.get('revisable', True)),
+            'revision_signals': row.get('revision_signals', []),
+            'confidence': row.get('confidence', 0.0),
+        })
+    return {
+        'generated_at': now_iso(),
+        'response_path': str(V1_DECISION_HUMAN_RESPONSES_PATH),
+        'allowed_responses': list(V1_DECISION_HUMAN_RESPONSE_VALUES),
+        'pending_v1_decisions': review_rows,
+        'counts': {
+            'pending_v1_decisions': len(review_rows),
+            'human_responded': sum(1 for row in review_rows if row.get('human_response')),
+        },
+    }
+
+
+def save_v1_decision_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else {'pending_v1_decisions': []}
+    payload['updated_at'] = now_iso()
+    V1_DECISION_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
 
 
 def load_specialist_consultation_history():
@@ -5482,6 +5830,13 @@ def build_v1_decision_candidate(item, analysis, scorecard_index, reality_assessm
         'v1_decision_candidate_feasibility_detail': '',
         'v1_decision_candidate_cycle_state': 'not_candidate',
         'v1_decision_candidate_revision_signals': [],
+        'v1_decision_candidate_human_response': '',
+        'v1_decision_candidate_human_response_note': '',
+        'v1_decision_candidate_human_response_at': '',
+        'v1_decision_candidate_human_response_choice_id': '',
+        'v1_decision_candidate_human_response_choice_label': '',
+        'v1_decision_candidate_human_response_effect': '',
+        'v1_decision_candidate_revisable': True,
     }
     domain_cfg = V1_DECISION_DOMAIN_CONFIG.get(item.get('domain', ''))
     if not domain_cfg:
@@ -5531,6 +5886,13 @@ def build_v1_decision_candidate(item, analysis, scorecard_index, reality_assessm
             'a new source type appears',
             'resistance meaningfully drops',
         ],
+        'v1_decision_candidate_human_response': item.get('v1_human_response', ''),
+        'v1_decision_candidate_human_response_note': item.get('v1_human_response_note', ''),
+        'v1_decision_candidate_human_response_at': item.get('v1_human_response_at', ''),
+        'v1_decision_candidate_human_response_choice_id': item.get('v1_human_response_choice_id', ''),
+        'v1_decision_candidate_human_response_choice_label': item.get('v1_human_response_choice_label', ''),
+        'v1_decision_candidate_human_response_effect': item.get('v1_human_response_effect', ''),
+        'v1_decision_candidate_revisable': bool(item.get('v1_human_response_revisable', True)),
     })
 
     if hold_active:
@@ -5605,6 +5967,27 @@ def build_v1_decision_candidate(item, analysis, scorecard_index, reality_assessm
         0.45,
         0.9,
     ), 3)
+    response = item.get('v1_human_response', '')
+    if response == 'accept_for_v1':
+        defaults['v1_decision_candidate_status'] = 'accepted_for_v1_review'
+        defaults['v1_decision_candidate_cycle_state'] = 'human_accepted'
+        defaults['v1_decision_candidate_reason'] += ' Latest human response accepted this bounded V1 default for now while keeping it revisable.'
+    elif response == 'reject_for_now':
+        defaults['v1_decision_candidate_status'] = 'rejected_for_now'
+        defaults['v1_decision_candidate_cycle_state'] = 'human_rejected'
+        defaults['v1_decision_candidate_reason'] += ' Latest human response rejected this bounded V1 default for now, so it should not keep resurfacing without better grounding.'
+    elif response == 'hold':
+        defaults['v1_decision_candidate_status'] = 'held_by_human_review'
+        defaults['v1_decision_candidate_cycle_state'] = 'human_hold'
+        defaults['v1_decision_candidate_reason'] += ' Latest human response held this bounded V1 question pending better grounding.'
+    elif response == 'revise_options':
+        defaults['v1_decision_candidate_status'] = 'revise_options_requested'
+        defaults['v1_decision_candidate_cycle_state'] = 'human_requested_revision'
+        defaults['v1_decision_candidate_reason'] += ' Latest human response requested revised bounded options before reconsideration.'
+        if 'bounded V1 options materially change' not in defaults['v1_decision_candidate_revision_signals']:
+            defaults['v1_decision_candidate_revision_signals'].append('bounded V1 options materially change')
+    if defaults.get('v1_decision_candidate_human_response_note'):
+        defaults['v1_decision_candidate_reason'] += f" Human note: {defaults.get('v1_decision_candidate_human_response_note')}"
     return defaults
 
 
@@ -5621,7 +6004,7 @@ def build_v1_decision_candidates(items, analysis):
         enriched = dict(item)
         enriched.update(candidate)
         updated_items.append(enriched)
-        if candidate.get('v1_decision_candidate_status') != 'pending_v1_decision':
+        if candidate.get('v1_decision_candidate_status') not in VISIBLE_V1_DECISION_STATUSES:
             continue
         candidate_rows.append({
             'decision_id': candidate.get('v1_decision_candidate_id', ''),
@@ -5655,6 +6038,13 @@ def build_v1_decision_candidates(items, analysis):
                 if isinstance(choice, dict)
             ],
             'confidence': candidate.get('v1_decision_candidate_confidence', 0.0),
+            'human_response': candidate.get('v1_decision_candidate_human_response', ''),
+            'human_response_note': candidate.get('v1_decision_candidate_human_response_note', ''),
+            'human_response_at': candidate.get('v1_decision_candidate_human_response_at', ''),
+            'human_response_choice_id': candidate.get('v1_decision_candidate_human_response_choice_id', ''),
+            'human_response_choice_label': candidate.get('v1_decision_candidate_human_response_choice_label', ''),
+            'human_response_effect': candidate.get('v1_decision_candidate_human_response_effect', ''),
+            'revisable': bool(candidate.get('v1_decision_candidate_revisable', True)),
         })
 
     priority = {'grounded': 0, 'weakly_grounded': 1, 'limited_evidence': 2, 'unknown': 3}
@@ -5934,6 +6324,8 @@ def parse_reflect_output(raw):
 
 def sync_action_inbox_from_dream(dream_body):
     existing = load_action_inbox()
+    response_state = load_v1_decision_human_responses()
+    schema = load_cognition_schema()
     existing_items = {item.get('id'): item for item in existing.get('items', [])}
     action_memory = load_action_memory()
     memory_items = {item.get('id'): item for item in action_memory.get('items', [])}
@@ -6006,7 +6398,16 @@ def sync_action_inbox_from_dream(dream_body):
             'v1_decision_candidate_cycle_state': preserved.get('v1_decision_candidate_cycle_state', 'not_candidate'),
             'v1_decision_candidate_revision_signals': preserved.get('v1_decision_candidate_revision_signals', []),
             'v1_decision_candidate_rank': preserved.get('v1_decision_candidate_rank', 0),
+            'v1_human_response': preserved.get('v1_human_response', ''),
+            'v1_human_response_note': preserved.get('v1_human_response_note', ''),
+            'v1_human_response_at': preserved.get('v1_human_response_at', ''),
+            'v1_human_response_choice_id': preserved.get('v1_human_response_choice_id', ''),
+            'v1_human_response_choice_label': preserved.get('v1_human_response_choice_label', ''),
+            'v1_human_response_reviewer': preserved.get('v1_human_response_reviewer', ''),
+            'v1_human_response_revisable': preserved.get('v1_human_response_revisable', True),
+            'v1_human_response_effect': preserved.get('v1_human_response_effect', ''),
         })
+    items = apply_v1_human_response_context(items, response_state, schema)
     payload = {
         'source': 'latest_dream',
         'items': items,
@@ -7553,6 +7954,28 @@ def context_with_inputs(changes):
                 pieces.append(f"- {title}: operator selected `{selected}`.\n")
             else:
                 pieces.append(f"- {title}: no operator choice selected; use best effort within `{domain}`.\n")
+    pieces.append('\n')
+    pieces.append('# Pending V1 Decisions\n')
+    v1_candidates = action_inbox.get('v1_decision_candidates', [])
+    if not v1_candidates:
+        pieces.append('- No pending V1 decision candidates are currently surfaced.\n')
+    else:
+        for candidate in v1_candidates[:5]:
+            label = candidate.get('label', 'decision')
+            status = candidate.get('candidate_status', 'pending_v1_decision').replace('_', ' ')
+            pieces.append(f"- {label}: status `{status}`.\n")
+            question = candidate.get('question', '').strip()
+            if question:
+                pieces.append(f"  question: {question}\n")
+            if candidate.get('human_response'):
+                response_line = f"  latest human response: `{candidate.get('human_response', '')}`"
+                if candidate.get('human_response_choice_label'):
+                    response_line += f" choosing `{candidate.get('human_response_choice_label', '')}`"
+                if candidate.get('human_response_at'):
+                    response_line += f" at {candidate.get('human_response_at', '')}"
+                pieces.append(response_line + '.\n')
+            if candidate.get('revision_signals'):
+                pieces.append(f"  revisable when: {', '.join(candidate.get('revision_signals', []))}\n")
     pieces.append('\n')
     pieces.append('# Inputs Used This Cycle\n')
     if not changes:

@@ -358,6 +358,22 @@ Prefer the most build-relevant diagram type for the task:
 
 ---
 
+## Degraded perception and transparent inference
+
+When perception input is weak, noisy, partial, or ambiguous, ELI should degrade gracefully rather than pretend certainty.
+
+This means:
+- detect degraded input quality when possible
+- allow cautious context-based inference where it materially helps
+- never present inferred or reconstructed content as fully certain
+- mark inferred content explicitly and accessibly
+- preserve trust by exposing both confidence and degradation state
+
+For SmartGlasses, this applies especially to transcript quality under weak audio conditions.
+Partially inferred transcript spans should remain distinguishable from directly recognized spans.
+
+---
+
 ## Implementation guidance
 
 ### Preferred implementation order

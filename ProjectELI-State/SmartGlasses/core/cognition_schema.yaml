@@ -64,6 +64,15 @@ control:
     minimum_field_evidence_score: 0.48
     weakly_grounded_min_alignment: 0.38
     feasible_later_min_alignment: 0.72
+  v1_human_review:
+    enabled: true
+    keep_revisable_by_default: true
+    suppress_repeat_specialist_consultation_without_new_grounding: true
+    responses_hold_until_new_grounding:
+      accept_for_v1: true
+      reject_for_now: true
+      hold: true
+      revise_options: true
   runtime_retention:
     reports:
       enabled: true

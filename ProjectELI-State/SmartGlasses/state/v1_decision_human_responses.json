@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "allowed_responses": [
+    "accept_for_v1",
+    "reject_for_now",
+    "hold",
+    "revise_options"
+  ],
+  "response_template": {
+    "decision_id": "v1_default_subtitle_position",
+    "response": "accept_for_v1",
+    "note": "Keep this bounded V1 default revisable if grounding changes.",
+    "choice_id": "stable_default",
+    "choice_label": "Stable Default",
+    "responded_at": "2026-04-08T13:25:21",
+    "reviewer": "human",
+    "revisable": true
+  },
+  "responses": []
+}
