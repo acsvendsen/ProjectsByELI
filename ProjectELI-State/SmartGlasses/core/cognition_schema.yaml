@@ -64,6 +64,35 @@ control:
     minimum_field_evidence_score: 0.48
     weakly_grounded_min_alignment: 0.38
     feasible_later_min_alignment: 0.72
+  transcript_quality:
+    enabled: true
+    input_quality_states:
+      - clear
+      - degraded
+      - partial
+    content_states:
+      - directly_recognized
+      - partially_repaired
+      - context_inferred
+      - too_uncertain
+    markers:
+      partially_repaired: "[best-effort repair]"
+      context_inferred: "[inferred]"
+      too_uncertain: "[unclear]"
+    behavior:
+      allow_cautious_repair: true
+      allow_context_inference: true
+      require_input_quality_visibility_when_degraded: true
+      require_explicit_repair_marking: true
+      require_explicit_inference_marking: true
+      prefer_partial_over_silent_polish: true
+      suppress_clean_output_when_too_uncertain: true
+      separate_input_quality_from_content_confidence: true
+      prefer_phone_first_processing_for_transcript_reliability: true
+    confidence_object_fields:
+      - score
+      - label
+      - reason
   v1_human_review:
     enabled: true
     keep_revisable_by_default: true

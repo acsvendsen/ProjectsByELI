@@ -626,6 +626,28 @@ DEFAULT_COGNITION_SCHEMA = {
             'weakly_grounded_min_alignment': 0.38,
             'feasible_later_min_alignment': 0.72,
         },
+        'transcript_quality': {
+            'enabled': True,
+            'input_quality_states': ['clear', 'degraded', 'partial'],
+            'content_states': ['directly_recognized', 'partially_repaired', 'context_inferred', 'too_uncertain'],
+            'markers': {
+                'partially_repaired': '[best-effort repair]',
+                'context_inferred': '[inferred]',
+                'too_uncertain': '[unclear]',
+            },
+            'behavior': {
+                'allow_cautious_repair': True,
+                'allow_context_inference': True,
+                'require_input_quality_visibility_when_degraded': True,
+                'require_explicit_repair_marking': True,
+                'require_explicit_inference_marking': True,
+                'prefer_partial_over_silent_polish': True,
+                'suppress_clean_output_when_too_uncertain': True,
+                'separate_input_quality_from_content_confidence': True,
+                'prefer_phone_first_processing_for_transcript_reliability': True,
+            },
+            'confidence_object_fields': ['score', 'label', 'reason'],
+        },
         'v1_human_review': {
             'enabled': True,
             'keep_revisable_by_default': True,
@@ -813,6 +835,35 @@ control:
     minimum_field_evidence_score: 0.48
     weakly_grounded_min_alignment: 0.38
     feasible_later_min_alignment: 0.72
+  transcript_quality:
+    enabled: true
+    input_quality_states:
+      - clear
+      - degraded
+      - partial
+    content_states:
+      - directly_recognized
+      - partially_repaired
+      - context_inferred
+      - too_uncertain
+    markers:
+      partially_repaired: "[best-effort repair]"
+      context_inferred: "[inferred]"
+      too_uncertain: "[unclear]"
+    behavior:
+      allow_cautious_repair: true
+      allow_context_inference: true
+      require_input_quality_visibility_when_degraded: true
+      require_explicit_repair_marking: true
+      require_explicit_inference_marking: true
+      prefer_partial_over_silent_polish: true
+      suppress_clean_output_when_too_uncertain: true
+      separate_input_quality_from_content_confidence: true
+      prefer_phone_first_processing_for_transcript_reliability: true
+    confidence_object_fields:
+      - score
+      - label
+      - reason
   v1_human_review:
     enabled: true
     keep_revisable_by_default: true
@@ -1209,6 +1260,11 @@ def render_cognition_schema_context(schema):
     lines.append('## Grounding Hold Discipline')
     lines.append(
         f"- enabled: {grounding_hold.get('enabled')} | meaningful_alignment_min: {grounding_hold.get('meaningful_alignment_min')} | meaningful_pull_min: {grounding_hold.get('meaningful_pull_min')} | material_repo_grounding_delta: {grounding_hold.get('material_repo_grounding_delta')}"
+    )
+    transcript_quality = transcript_quality_config(schema)
+    lines.append('## Transcript Quality Transparency')
+    lines.append(
+        f"- enabled: {transcript_quality.get('enabled')} | input_quality_states: {', '.join(transcript_quality.get('input_quality_states', []))} | content_states: {', '.join(transcript_quality.get('content_states', []))}"
     )
     repo_alignment = schema.get('phase7_repo_alignment', control.get('phase7_repo_alignment', {}))
     diff_alignment = repo_alignment.get('diff_alignment', {})
@@ -5295,6 +5351,45 @@ def normalize_scorecard_grounding_status(value):
     return 'unknown'
 
 
+def transcript_quality_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('transcript_quality', {}) if isinstance(control.get('transcript_quality', {}), dict) else {}
+    markers = cfg.get('markers', {}) if isinstance(cfg.get('markers', {}), dict) else {}
+    behavior = cfg.get('behavior', {}) if isinstance(cfg.get('behavior', {}), dict) else {}
+    input_quality_states = cfg.get('input_quality_states', ['clear', 'degraded', 'partial'])
+    content_states = cfg.get('content_states', ['directly_recognized', 'partially_repaired', 'context_inferred', 'too_uncertain'])
+    confidence_fields = cfg.get('confidence_object_fields', ['score', 'label', 'reason'])
+    if not isinstance(input_quality_states, list) or not input_quality_states:
+        input_quality_states = ['clear', 'degraded', 'partial']
+    if not isinstance(content_states, list) or not content_states:
+        content_states = ['directly_recognized', 'partially_repaired', 'context_inferred', 'too_uncertain']
+    if not isinstance(confidence_fields, list) or not confidence_fields:
+        confidence_fields = ['score', 'label', 'reason']
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'input_quality_states': [str(item) for item in input_quality_states if item],
+        'content_states': [str(item) for item in content_states if item],
+        'markers': {
+            'partially_repaired': str(markers.get('partially_repaired', '[best-effort repair]')),
+            'context_inferred': str(markers.get('context_inferred', '[inferred]')),
+            'too_uncertain': str(markers.get('too_uncertain', '[unclear]')),
+        },
+        'behavior': {
+            'allow_cautious_repair': bool(behavior.get('allow_cautious_repair', True)),
+            'allow_context_inference': bool(behavior.get('allow_context_inference', True)),
+            'require_input_quality_visibility_when_degraded': bool(behavior.get('require_input_quality_visibility_when_degraded', True)),
+            'require_explicit_repair_marking': bool(behavior.get('require_explicit_repair_marking', True)),
+            'require_explicit_inference_marking': bool(behavior.get('require_explicit_inference_marking', True)),
+            'prefer_partial_over_silent_polish': bool(behavior.get('prefer_partial_over_silent_polish', True)),
+            'suppress_clean_output_when_too_uncertain': bool(behavior.get('suppress_clean_output_when_too_uncertain', True)),
+            'separate_input_quality_from_content_confidence': bool(behavior.get('separate_input_quality_from_content_confidence', True)),
+            'prefer_phone_first_processing_for_transcript_reliability': bool(behavior.get('prefer_phone_first_processing_for_transcript_reliability', True)),
+        },
+        'confidence_object_fields': [str(item) for item in confidence_fields if item],
+    }
+
+
 REALITY_ASSESSMENT_ALIASES = {
     'subtitle_placement': 'subtitle_clarity',
     'subtitle_placement_feasibility': 'subtitle_clarity',
@@ -5493,6 +5588,231 @@ def scorecard_dimension_override(status, grounding_status, basis, progress, next
         'next_focus': compact_text_excerpt(next_focus, 360),
         'confidence': clamp_report_confidence(confidence, 0.5),
     }
+
+
+def build_transcript_quality_handling(prior_reports=None, reflect_data=None, evidence=None, scorecard=None, schema=None):
+    schema = schema or load_cognition_schema()
+    cfg = transcript_quality_config(schema)
+    if not cfg.get('enabled', True):
+        return {}
+    if not isinstance(reflect_data, dict) or not isinstance(evidence, dict):
+        reflect_data, evidence, _ = scorecard_reflect_state()
+    if not isinstance(scorecard, dict):
+        scorecard = load_scorecard_state()
+    scorecard_index = scorecard_dimension_index(scorecard)
+    action_index = scorecard_action_index(reflect_data.get('action_direction_judgments', []))
+    reality_path = None
+    if isinstance(prior_reports, dict):
+        reality_path = prior_reports.get('reality')
+    if not reality_path:
+        reality_path = latest_report_path('reality')
+    reality_assessments = parse_reality_assessments(read_file_excerpt(reality_path) if reality_path else '')
+
+    subtitle_dim = scorecard_index.get('subtitle_system', {})
+    privacy_dim = scorecard_index.get('privacy_trust', {})
+    software_dim = scorecard_index.get('software_stack', {})
+    confidence_action = action_index.get('confidence_display', {})
+    subtitle_action = action_index.get('subtitle_placement', {})
+    boundary_action = action_index.get('phone_cloud_boundary', {})
+    intensifying_ids = {
+        item.get('target_id')
+        for item in reflect_data.get('intensifying_tensions', [])
+        if isinstance(item, dict) and item.get('target_id')
+    }
+    counterweights = {
+        item.get('target_id'): item
+        for item in reflect_data.get('counterweight_awareness', [])
+        if isinstance(item, dict) and item.get('target_id')
+    }
+    subtitle_reality = select_reality_feasibility(reality_assessments, ['subtitle_clarity', 'subtitle_placement'])
+    confidence_reality = select_reality_feasibility(reality_assessments, ['confidence_display', 'privacy_vs_usefulness'])
+    phone_runtime_reality = select_reality_feasibility(reality_assessments, ['phone_first_runtime', 'phone_cloud_boundary'])
+
+    subtitle_grounding = normalize_scorecard_grounding_status(subtitle_dim.get('grounding_status', 'unknown'))
+    privacy_grounding = normalize_scorecard_grounding_status(privacy_dim.get('grounding_status', 'unknown'))
+    phone_supported = phone_runtime_reality.get('judgment', 'unknown') in {'feasible_now', 'feasible_later'}
+    trust_pressure = 'privacy_vs_usefulness' in intensifying_ids or privacy_dim.get('status') == 'needs_attention'
+    confidence_surface_unsettled = confidence_action.get('direction_judgment', '') in {'pause', 'kill', 'hold_until_new_grounding'}
+
+    if subtitle_grounding == 'grounded' and privacy_grounding in {'grounded', 'weakly_grounded'} and phone_runtime_reality.get('judgment', 'unknown') == 'feasible_now':
+        grounding_status = 'grounded'
+    elif subtitle_grounding in {'grounded', 'weakly_grounded'} and (privacy_grounding in {'grounded', 'weakly_grounded', 'limited_evidence'} or phone_supported):
+        grounding_status = 'weakly_grounded'
+    elif subtitle_reality.get('judgment', 'unknown') != 'unknown' or confidence_reality.get('judgment', 'unknown') != 'unknown':
+        grounding_status = 'limited_evidence'
+    else:
+        grounding_status = 'unknown'
+
+    if grounding_status == 'grounded' and not confidence_surface_unsettled:
+        status = 'on_track'
+    elif grounding_status != 'unknown':
+        status = 'needs_attention'
+    else:
+        status = 'unknown'
+
+    markers = cfg.get('markers', {})
+    repaired_marker = markers.get('partially_repaired', '[best-effort repair]')
+    inferred_marker = markers.get('context_inferred', '[inferred]')
+    unclear_marker = markers.get('too_uncertain', '[unclear]')
+    behavior = cfg.get('behavior', {})
+
+    input_quality_states = [
+        {
+            'state': 'clear',
+            'when': 'audio is intact enough for direct recognition',
+            'presentation': 'show direct transcript content normally while still allowing a normal confidence object',
+            'confidence_treatment': 'content certainty is primary; no degradation cue is required',
+        },
+        {
+            'state': 'degraded',
+            'when': 'audio is weak, noisy, overlapping, or distorted but not completely missing',
+            'presentation': f"allow cautious repair only when explicitly marked with {repaired_marker}",
+            'confidence_treatment': 'show both content certainty and degraded-input state',
+        },
+        {
+            'state': 'partial',
+            'when': 'audio is clipped, missing, or incomplete enough that reconstruction risk is high',
+            'presentation': f"prefer honest fragments or explicit gaps; use {inferred_marker} only for bounded help and {unclear_marker} when not safe to cleanly present",
+            'confidence_treatment': 'input degradation should dominate over any attempt to sound fully certain',
+        },
+    ]
+    content_states = [
+        {
+            'state': 'directly_recognized',
+            'marker': 'direct',
+            'meaning': 'content was heard clearly enough to present without repair or inference marking',
+        },
+        {
+            'state': 'partially_repaired',
+            'marker': repaired_marker,
+            'meaning': 'small bounded repairs were applied to degraded transcript content',
+        },
+        {
+            'state': 'context_inferred',
+            'marker': inferred_marker,
+            'meaning': 'content is a cautious context-based inference rather than a direct hearing result',
+        },
+        {
+            'state': 'too_uncertain',
+            'marker': unclear_marker,
+            'meaning': 'input is too weak to safely present as clean transcript content',
+        },
+    ]
+
+    evidence_parts = []
+    if subtitle_grounding != 'unknown':
+        evidence_parts.append(f"subtitle system is {subtitle_grounding.replace('_', ' ')}")
+    if subtitle_reality.get('judgment', 'unknown') != 'unknown':
+        evidence_parts.append(f"reality reads subtitle handling as {subtitle_reality.get('judgment', 'unknown').replace('_', ' ')}")
+    if phone_runtime_reality.get('judgment', 'unknown') != 'unknown':
+        evidence_parts.append(f"phone-first runtime is {phone_runtime_reality.get('judgment', 'unknown').replace('_', ' ')}")
+    if trust_pressure:
+        evidence_parts.append('privacy vs usefulness remains an active trust-shaping tension')
+    if confidence_surface_unsettled:
+        evidence_parts.append('confidence display behavior is still unresolved enough that transcript trust cues should stay conservative')
+    if subtitle_action.get('direction_judgment'):
+        evidence_parts.append(f"subtitle placement judgment is currently {subtitle_action.get('direction_judgment')}")
+    if boundary_action.get('direction_judgment') in {'pause', 'kill', 'hold_until_new_grounding'}:
+        evidence_parts.append(f"phone/cloud boundary remains {boundary_action.get('direction_judgment')} rather than newly settled")
+
+    summary = (
+        "SmartGlasses V1 should degrade transcript presentation gracefully: keep direct recognition separate from repaired or inferred content, "
+        "prefer marked best-effort fragments over polished certainty, and expose input-quality degradation whenever transcript trust may be affected."
+    )
+    if trust_pressure:
+        summary += " Current project evidence still treats trust and latency pressure as active constraints on subtitle presentation."
+
+    next_focus = (
+        "Keep transcript confidence objects separate from degraded-input markers, and only surface repaired or inferred wording when the marking remains obvious to the wearer."
+    )
+    if confidence_surface_unsettled:
+        next_focus += " Confidence display still needs a clearer bounded V1 surface so uncertainty cues do not collapse back into generic subtitle text."
+
+    return {
+        'status': status,
+        'grounding_status': grounding_status,
+        'summary': compact_text_excerpt(summary, 420),
+        'evidence_basis': compact_text_excerpt('. '.join(evidence_parts) + ('.' if evidence_parts else ''), 420),
+        'next_focus': compact_text_excerpt(next_focus, 320),
+        'input_quality_states': input_quality_states,
+        'content_states': content_states,
+        'confidence_surface': {
+            'content_confidence_fields': cfg.get('confidence_object_fields', ['score', 'label', 'reason']),
+            'separate_input_quality_from_content_confidence': bool(behavior.get('separate_input_quality_from_content_confidence', True)),
+            'require_input_quality_visibility_when_degraded': bool(behavior.get('require_input_quality_visibility_when_degraded', True)),
+            'prefer_phone_first_processing_for_transcript_reliability': bool(behavior.get('prefer_phone_first_processing_for_transcript_reliability', True)),
+        },
+        'behavior': {
+            'allow_cautious_repair': bool(behavior.get('allow_cautious_repair', True)),
+            'allow_context_inference': bool(behavior.get('allow_context_inference', True)),
+            'require_explicit_repair_marking': bool(behavior.get('require_explicit_repair_marking', True)),
+            'require_explicit_inference_marking': bool(behavior.get('require_explicit_inference_marking', True)),
+            'prefer_partial_over_silent_polish': bool(behavior.get('prefer_partial_over_silent_polish', True)),
+            'suppress_clean_output_when_too_uncertain': bool(behavior.get('suppress_clean_output_when_too_uncertain', True)),
+        },
+        'current_pressure_signals': {
+            'privacy_vs_usefulness_active': trust_pressure,
+            'subtitle_counterweights_active': bool(counterweights.get('subtitle_clarity')),
+            'confidence_surface_unsettled': confidence_surface_unsettled,
+        },
+        'markers': markers,
+    }
+
+
+def render_transcript_quality_context(schema=None):
+    cfg = transcript_quality_config(schema)
+    if not cfg.get('enabled', True):
+        return ''
+    markers = cfg.get('markers', {})
+    behavior = cfg.get('behavior', {})
+    lines = ['# SmartGlasses Transcript Quality Transparency']
+    lines.append(f"- input quality states: {', '.join(cfg.get('input_quality_states', []))}")
+    lines.append(f"- content states: {', '.join(cfg.get('content_states', []))}")
+    lines.append(
+        f"- repaired marker: {markers.get('partially_repaired', '')} | inferred marker: {markers.get('context_inferred', '')} | unclear marker: {markers.get('too_uncertain', '')}"
+    )
+    lines.append(
+        f"- allow_cautious_repair: {behavior.get('allow_cautious_repair')} | allow_context_inference: {behavior.get('allow_context_inference')} | prefer_partial_over_silent_polish: {behavior.get('prefer_partial_over_silent_polish')}"
+    )
+    lines.append(
+        "- Keep input-quality degradation separate from content certainty. Prefer honest partial transcript output over silently polished certainty when audio is weak."
+    )
+    return '\n'.join(lines) + '\n'
+
+
+def append_transcript_quality_section(lines, transcript_quality):
+    if not isinstance(transcript_quality, dict) or not transcript_quality:
+        return
+    lines.append('## Transcript Quality & Transparent Inference')
+    lines.append(
+        f"- status: {transcript_quality.get('status', 'unknown')} | grounding: {transcript_quality.get('grounding_status', 'unknown')}"
+    )
+    if transcript_quality.get('summary'):
+        lines.append(f"- summary: {transcript_quality.get('summary', '')}")
+    if transcript_quality.get('evidence_basis'):
+        lines.append(f"- evidence basis: {transcript_quality.get('evidence_basis', '')}")
+    confidence_surface = transcript_quality.get('confidence_surface', {})
+    if confidence_surface:
+        lines.append(
+            f"- confidence surfacing: fields {', '.join(confidence_surface.get('content_confidence_fields', []))} | separate_input_quality_from_content_confidence {confidence_surface.get('separate_input_quality_from_content_confidence')} | degraded_input_visibility {confidence_surface.get('require_input_quality_visibility_when_degraded')}"
+        )
+    input_states = transcript_quality.get('input_quality_states', [])
+    if input_states:
+        lines.append('- input quality handling:')
+        for item in input_states:
+            lines.append(
+                f"  - {item.get('state', '')}: {item.get('when', '')}; {item.get('presentation', '')}"
+            )
+    content_states = transcript_quality.get('content_states', [])
+    if content_states:
+        lines.append('- content representation:')
+        for item in content_states:
+            lines.append(
+                f"  - {item.get('state', '')}: marker {item.get('marker', '')}; {item.get('meaning', '')}"
+            )
+    if transcript_quality.get('next_focus'):
+        lines.append(f"- next focus: {transcript_quality.get('next_focus', '')}")
+    lines.append('')
 
 
 def build_scorecard_grounding(prior_reports):
@@ -6438,6 +6758,7 @@ def scorecard_context(changes, prior_reports):
 
 def render_scorecard_markdown(scorecard):
     lines = ['## Project Summary', scorecard.get('project_summary', 'No summary generated.'), '']
+    append_transcript_quality_section(lines, scorecard.get('transcript_quality_handling', {}))
     for dim in scorecard.get('dimensions', []):
         lines.append(f"## {dim.get('label', dim.get('id', 'Dimension'))}")
         lines.append(f"- status: {dim.get('status', 'unknown')}")
@@ -6491,6 +6812,10 @@ def generate_scorecard_cycle(changes, prior_reports):
     scorecard = extract_json_payload(raw)
     scorecard = normalize_scorecard(scorecard)
     scorecard = apply_scorecard_grounding(scorecard, prior_reports)
+    scorecard['transcript_quality_handling'] = build_transcript_quality_handling(
+        prior_reports=prior_reports,
+        scorecard=scorecard,
+    )
     scorecard['generated_at'] = now_iso()
     scorecard['project_name'] = PROJECT_SLUG
     STATE_DIR.mkdir(parents=True, exist_ok=True)
@@ -7347,6 +7672,7 @@ def render_reflect_markdown(reflect_data, applied_entries):
         if diagnostics.get('raw_excerpt'):
             lines.append(f"- raw_excerpt: {diagnostics.get('raw_excerpt')}")
         lines.append('')
+    append_transcript_quality_section(lines, reflect_data.get('transcript_quality_handling', {}))
     append_operational_visibility_sections(lines, reflect_data.get('operational_visibility', {}))
     sections = [
         ('Resonance Signals', reflect_data.get('resonance_signals', []), 'target_id'),
@@ -7525,6 +7851,12 @@ def generate_reflect_cycle(changes, prior_reports):
     reflect_data['action_direction_judgments'] = action_direction_judgments
     reflect_data['v1_decision_candidates'] = v1_decision_candidates
     reflect_data['operational_visibility'] = build_operational_visibility(action_direction_judgments, v1_decision_candidates)
+    reflect_data['transcript_quality_handling'] = build_transcript_quality_handling(
+        prior_reports=prior_reports,
+        reflect_data=reflect_data,
+        evidence=analysis,
+        schema=analysis.get('schema', {}),
+    )
     reflect_data = enrich_phase6_reflect_output(reflect_data, analysis, action_inbox)
     reflect_data = enrich_phase7_reflect_output(reflect_data, analysis, action_inbox)
     reflect_data = enrich_specialist_reflect_output(reflect_data, specialist_context)
@@ -7556,6 +7888,7 @@ def generate_reflect_cycle(changes, prior_reports):
             'action_direction_judgments': action_direction_judgments,
             'v1_decision_candidates': v1_decision_candidates,
             'operational_visibility': reflect_data.get('operational_visibility', {}),
+            'transcript_quality_handling': reflect_data.get('transcript_quality_handling', {}),
             'dormant_idea_returns': reflect_data.get('dormant_idea_returns', []),
             'source_weighting': analysis.get('source_weighting', {}),
         },
@@ -7928,6 +8261,8 @@ def context_with_inputs(changes):
     pieces.append('- Respect explicit interaction, architecture, privacy, battery, latency, trust, and usability constraints from the current project inputs.\n')
     pieces.append('- Prefer core-deepening work over broad feature expansion unless the project docs justify a broader move.\n')
     pieces.append('- Keep suggestions concrete, inspectable, and tied to the current project instance rather than generic product advice.\n')
+    pieces.append('\n')
+    pieces.append(render_transcript_quality_context())
     pieces.append('\n')
     pieces.append('# Operator Guidance\n')
     if operator_guidance and operator_guidance.get('mode') and operator_guidance.get('mode') != 'best_effort':
