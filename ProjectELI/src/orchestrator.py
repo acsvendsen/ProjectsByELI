@@ -520,6 +520,7 @@ V1_DECISION_REVIEW_PATH = PROJECT_STATE_DIR / "v1_decision_review.json"
 IMPLEMENTATION_ARTIFACT_REVIEW_PATH = PROJECT_STATE_DIR / "implementation_artifact_review.json"
 OPTION_READINESS_REVIEW_PATH = PROJECT_STATE_DIR / "option_readiness_review.json"
 ARTIFACT_EMISSION_READINESS_PATH = PROJECT_STATE_DIR / "artifact_emission_readiness.json"
+DRAFT_ARTIFACT_REVIEW_PATH = PROJECT_STATE_DIR / "draft_artifact_review.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -749,6 +750,11 @@ DEFAULT_COGNITION_SCHEMA = {
             'minimum_grounding_for_draft': 'grounded',
             'require_bounded_detail_for_draft': True,
             'require_repo_or_runtime_for_technical_drafts': True,
+        },
+        'draft_artifact_emission': {
+            'enabled': True,
+            'max_visible': 4,
+            'allowed_forms': ['structured_design_brief'],
         },
         'runtime_retention': {
             'reports': {
@@ -1006,6 +1012,11 @@ control:
     minimum_grounding_for_draft: grounded
     require_bounded_detail_for_draft: true
     require_repo_or_runtime_for_technical_drafts: true
+  draft_artifact_emission:
+    enabled: true
+    max_visible: 4
+    allowed_forms:
+      - structured_design_brief
   runtime_retention:
     reports:
       enabled: true
@@ -4839,10 +4850,16 @@ def enrich_action_inbox_with_reflection(analysis):
     )
     save_implementation_artifact_review_state(artifact_review_state)
     save_option_readiness_review_state(option_readiness_state)
-    save_artifact_emission_readiness_state(
-        build_artifact_emission_readiness_state(
+    artifact_emission_state = build_artifact_emission_readiness_state(
+        artifact_review_state,
+        option_readiness_state,
+        schema=analysis.get('schema', {}),
+    )
+    save_artifact_emission_readiness_state(artifact_emission_state)
+    save_draft_artifact_review_state(
+        build_draft_artifact_review_state(
+            artifact_emission_state,
             artifact_review_state,
-            option_readiness_state,
             schema=analysis.get('schema', {}),
         )
     )
@@ -6248,6 +6265,126 @@ def save_artifact_emission_readiness_state(data):
     payload = data if isinstance(data, dict) else {'artifact_emission_readiness': []}
     payload['updated_at'] = now_iso()
     ARTIFACT_EMISSION_READINESS_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def draft_artifact_emission_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('draft_artifact_emission', {}) if isinstance(control.get('draft_artifact_emission', {}), dict) else {}
+    allowed_forms = cfg.get('allowed_forms', ['structured_design_brief'])
+    if not isinstance(allowed_forms, list):
+        allowed_forms = ['structured_design_brief']
+    normalized = [str(item) for item in allowed_forms if str(item) in DRAFT_ARTIFACT_FORMS]
+    if not normalized:
+        normalized = ['structured_design_brief']
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'max_visible': max(1, safe_int(cfg.get('max_visible', 4), 4)),
+        'allowed_forms': normalized,
+    }
+
+
+def default_draft_artifact_review_state():
+    return {
+        'generated_at': '',
+        'allowed_forms': ['structured_design_brief'],
+        'scope_note': 'This surface only emits provisional structured design brief drafts. It does not emit technical engineering drafts or final design commitments.',
+        'emitted_drafts': [],
+        'counts': {'structured_design_brief': 0},
+    }
+
+
+def load_draft_artifact_review_state():
+    data = load_json_file(DRAFT_ARTIFACT_REVIEW_PATH, default_draft_artifact_review_state())
+    if not isinstance(data, dict):
+        data = default_draft_artifact_review_state()
+    if not isinstance(data.get('emitted_drafts'), list):
+        data['emitted_drafts'] = []
+    if not isinstance(data.get('counts'), dict):
+        data['counts'] = default_draft_artifact_review_state().get('counts', {})
+    if not isinstance(data.get('allowed_forms'), list):
+        data['allowed_forms'] = ['structured_design_brief']
+    return data
+
+
+def build_structured_design_brief_summary(emission_row, artifact_row):
+    emission_row = emission_row if isinstance(emission_row, dict) else {}
+    artifact_row = artifact_row if isinstance(artifact_row, dict) else {}
+    label = emission_row.get('label', artifact_row.get('label', 'This artifact'))
+    artifact_type_label = artifact_row.get('artifact_type_label', artifact_row.get('artifact_type', 'artifact').replace('_', ' '))
+    framing = artifact_row.get('bounded_framing', '')
+    current_direction = ''
+    directions = artifact_row.get('candidate_directions', []) or []
+    if directions:
+        current_direction = directions[0]
+    parts = [
+        f"{label} is mature enough for a provisional {artifact_type_label.lower()} design brief.",
+    ]
+    if framing:
+        parts.append(f"Focus the brief on: {compact_text_excerpt(framing, 180)}.")
+    if current_direction:
+        parts.append(f"Current leading direction: {current_direction}.")
+    if artifact_row.get('open_constraints'):
+        parts.append(f"Keep active constraints explicit: {', '.join(artifact_row.get('open_constraints', [])[:3])}.")
+    parts.append('This draft remains review-oriented and revisable, not a final implementation commitment.')
+    return ' '.join(parts)
+
+
+def build_draft_artifact_review_state(artifact_emission_state, artifact_review_state, schema=None):
+    schema = schema or load_cognition_schema()
+    cfg = draft_artifact_emission_config(schema)
+    if not cfg.get('enabled', True):
+        return default_draft_artifact_review_state()
+    allowed_forms = set(cfg.get('allowed_forms', ['structured_design_brief']))
+    artifact_rows = artifact_review_state.get('implementation_artifact_candidates', []) if isinstance(artifact_review_state, dict) else []
+    artifact_by_id = {
+        row.get('artifact_id', ''): row
+        for row in artifact_rows
+        if isinstance(row, dict) and row.get('artifact_id')
+    }
+    emitted = []
+    for row in (artifact_emission_state.get('artifact_emission_readiness', []) if isinstance(artifact_emission_state, dict) else []):
+        if not isinstance(row, dict):
+            continue
+        if row.get('draft_readiness_state') != 'draft_candidate':
+            continue
+        if row.get('suggested_draft_form') not in allowed_forms:
+            continue
+        artifact = artifact_by_id.get(row.get('artifact_id', ''), {})
+        emitted.append({
+            'artifact_id': row.get('artifact_id', ''),
+            'source_artifact_type': row.get('artifact_type', artifact.get('artifact_type', '')),
+            'source_artifact_type_label': artifact.get('artifact_type_label', row.get('artifact_type', '').replace('_', ' ')),
+            'emitted_draft_form': row.get('suggested_draft_form', ''),
+            'title': f"{row.get('label', 'Artifact')} Draft Design Brief",
+            'label': row.get('label', ''),
+            'bounded_framing': artifact.get('bounded_framing', ''),
+            'draft_summary': build_structured_design_brief_summary(row, artifact),
+            'why_emitted_now': compact_text_excerpt(row.get('draft_readiness_reason', ''), 320),
+            'current_constraints': artifact.get('open_constraints', row.get('blocking_constraints', []))[:4],
+            'candidate_directions': artifact.get('candidate_directions', [])[:4],
+            'relevant_interfaces': artifact.get('relevant_interfaces', [])[:4],
+            'provisional': True,
+            'revisable': bool(row.get('revisable', artifact.get('revisable', True))),
+            'evidence_to_strengthen_or_revise': row.get('evidence_to_progress', [])[:4],
+            'linked_review_id': row.get('linked_review_id', ''),
+            'linked_decision_label': row.get('linked_decision_label', ''),
+        })
+    emitted = emitted[:cfg.get('max_visible', 4)]
+    return {
+        'generated_at': now_iso(),
+        'allowed_forms': cfg.get('allowed_forms', ['structured_design_brief']),
+        'scope_note': 'This surface only emits provisional structured design brief drafts. It does not emit technical engineering drafts or final design commitments.',
+        'emitted_drafts': emitted,
+        'counts': {'structured_design_brief': len(emitted)},
+    }
+
+
+def save_draft_artifact_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else {'emitted_drafts': []}
+    payload['updated_at'] = now_iso()
+    DRAFT_ARTIFACT_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
 
 
 def load_specialist_consultation_history():

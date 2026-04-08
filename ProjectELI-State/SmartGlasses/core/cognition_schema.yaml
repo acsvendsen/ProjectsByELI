@@ -131,6 +131,11 @@ control:
     minimum_grounding_for_draft: grounded
     require_bounded_detail_for_draft: true
     require_repo_or_runtime_for_technical_drafts: true
+  draft_artifact_emission:
+    enabled: true
+    max_visible: 4
+    allowed_forms:
+      - structured_design_brief
   v1_human_review:
     enabled: true
     keep_revisable_by_default: true

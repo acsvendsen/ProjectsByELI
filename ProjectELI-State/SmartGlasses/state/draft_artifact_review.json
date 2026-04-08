@@ -1,0 +1,103 @@
+{
+  "generated_at": "2026-04-08T22:15:41",
+  "allowed_forms": [
+    "structured_design_brief"
+  ],
+  "scope_note": "This surface only emits provisional structured design brief drafts. It does not emit technical engineering drafts or final design commitments.",
+  "emitted_drafts": [
+    {
+      "artifact_id": "confidence_object_spec-confidence-display",
+      "source_artifact_type": "confidence_object_spec",
+      "source_artifact_type_label": "Confidence Object Spec",
+      "emitted_draft_form": "structured_design_brief",
+      "title": "V1 Confidence Display Format Draft Design Brief",
+      "label": "V1 Confidence Display Format",
+      "bounded_framing": "What confidence format should V1 use by default during live subtitle support?",
+      "draft_summary": "V1 Confidence Display Format is mature enough for a provisional confidence object spec design brief. Focus the brief on: What confidence format should V1 use by default during live subtitle support?. Current leading direction: Label Only. Keep active constraints explicit: discreet ux vs visual clarity, latency vs richness, core deepening over sprawl. This draft remains review-oriented and revisable, not a final implementation commitment.",
+      "why_emitted_now": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.",
+      "current_constraints": [
+        "discreet ux vs visual clarity",
+        "latency vs richness",
+        "core deepening over sprawl"
+      ],
+      "candidate_directions": [
+        "Label Only",
+        "Label + Reason"
+      ],
+      "relevant_interfaces": [],
+      "provisional": true,
+      "revisable": true,
+      "evidence_to_strengthen_or_revise": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully lower resistance"
+      ],
+      "linked_review_id": "confidence_object_spec-confidence-display",
+      "linked_decision_label": "V1 Confidence Display Format"
+    },
+    {
+      "artifact_id": "visual_layout_rule-subtitle-placement",
+      "source_artifact_type": "visual_layout_rule",
+      "source_artifact_type_label": "Visual Layout Rule",
+      "emitted_draft_form": "structured_design_brief",
+      "title": "V1 Default Subtitle Position Draft Design Brief",
+      "label": "V1 Default Subtitle Position",
+      "bounded_framing": "What should the default subtitle position behavior be for V1 live use?",
+      "draft_summary": "V1 Default Subtitle Position is mature enough for a provisional visual layout rule design brief. Focus the brief on: What should the default subtitle position behavior be for V1 live use?. Current leading direction: Stable Default. Keep active constraints explicit: latency vs richness, discreet ux vs visual clarity, core deepening over sprawl. This draft remains review-oriented and revisable, not a final implementation commitment.",
+      "why_emitted_now": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.",
+      "current_constraints": [
+        "latency vs richness",
+        "discreet ux vs visual clarity",
+        "core deepening over sprawl"
+      ],
+      "candidate_directions": [
+        "Stable Default",
+        "More Prominent"
+      ],
+      "relevant_interfaces": [],
+      "provisional": true,
+      "revisable": true,
+      "evidence_to_strengthen_or_revise": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ],
+      "linked_review_id": "visual_layout_rule-subtitle-placement",
+      "linked_decision_label": "V1 Default Subtitle Position"
+    },
+    {
+      "artifact_id": "visual_layout_rule-visual-hierarchy",
+      "source_artifact_type": "visual_layout_rule",
+      "source_artifact_type_label": "Visual Layout Rule",
+      "emitted_draft_form": "structured_design_brief",
+      "title": "V1 Visual Hierarchy Default Draft Design Brief",
+      "label": "V1 Visual Hierarchy Default",
+      "bounded_framing": "What should the default visual hierarchy be for V1 overlays during live conversation?",
+      "draft_summary": "V1 Visual Hierarchy Default is mature enough for a provisional visual layout rule design brief. Focus the brief on: What should the default visual hierarchy be for V1 overlays during live conversation?. Current leading direction: Subtitles Dominate. Keep active constraints explicit: discreet ux vs visual clarity, core deepening over sprawl. This draft remains review-oriented and revisable, not a final implementation commitment.",
+      "why_emitted_now": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.",
+      "current_constraints": [
+        "discreet ux vs visual clarity",
+        "core deepening over sprawl"
+      ],
+      "candidate_directions": [
+        "Subtitles Dominate",
+        "Balanced Overlay"
+      ],
+      "relevant_interfaces": [],
+      "provisional": true,
+      "revisable": true,
+      "evidence_to_strengthen_or_revise": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully lower resistance"
+      ],
+      "linked_review_id": "visual_layout_rule-visual-hierarchy",
+      "linked_decision_label": "V1 Visual Hierarchy Default"
+    }
+  ],
+  "counts": {
+    "structured_design_brief": 3
+  },
+  "updated_at": "2026-04-08T22:15:41"
+}
