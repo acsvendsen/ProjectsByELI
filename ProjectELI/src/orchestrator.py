@@ -111,6 +111,14 @@ VISIBLE_V1_DECISION_STATUSES = (
     'held_by_human_review',
     'revise_options_requested',
 )
+V1_REVIEW_TRANSITION_REASONS = (
+    'no_longer_qualified',
+    'moved_to_hold',
+    'moved_to_artifact_review',
+    'superseded',
+    'human_review_resolved',
+    'weak_grounding',
+)
 IMPLEMENTATION_ARTIFACT_TYPES = (
     'subsystem_breakdown',
     'interface_map',
@@ -683,6 +691,11 @@ DEFAULT_COGNITION_SCHEMA = {
                 'revise_options': True,
             },
         },
+        'v1_decision_review_continuity': {
+            'enabled': True,
+            'max_recently_changed': 6,
+            'carry_forward_recently_changed': True,
+        },
         'runtime_retention': {
             'reports': {
                 'enabled': True,
@@ -914,6 +927,10 @@ control:
       reject_for_now: true
       hold: true
       revise_options: true
+  v1_decision_review_continuity:
+    enabled: true
+    max_recently_changed: 6
+    carry_forward_recently_changed: true
   runtime_retention:
     reports:
       enabled: true
@@ -4605,7 +4622,20 @@ def enrich_action_inbox_with_reflection(analysis):
 
     judgment_rows.sort(key=lambda entry: entry.get('rank', 0) or 999)
     v1_decision_candidates, updated_items = build_v1_decision_candidates(updated_items, analysis)
-    save_v1_decision_review_state(build_v1_decision_review_state(v1_decision_candidates))
+    implementation_artifact_candidates = build_implementation_artifact_candidates(
+        judgment_rows,
+        v1_decision_candidates,
+        analysis=analysis,
+        schema=analysis.get('schema', {}),
+    )
+    save_v1_decision_review_state(
+        build_v1_decision_review_state(
+            v1_decision_candidates,
+            current_items=updated_items,
+            implementation_artifact_candidates=implementation_artifact_candidates,
+            schema=analysis.get('schema', {}),
+        )
+    )
     data['items'] = updated_items
     data['judged_at'] = judged_at
     data['v1_decision_candidates'] = v1_decision_candidates
@@ -5101,7 +5131,137 @@ def apply_v1_human_response_context(items, response_state, schema=None):
     return enriched_items
 
 
-def build_v1_decision_review_state(candidate_rows):
+def v1_decision_review_continuity_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('v1_decision_review_continuity', {}) if isinstance(control.get('v1_decision_review_continuity', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'max_recently_changed': max(1, safe_int(cfg.get('max_recently_changed', 6), 6)),
+        'carry_forward_recently_changed': bool(cfg.get('carry_forward_recently_changed', True)),
+    }
+
+
+def default_v1_decision_review_state():
+    return {
+        'generated_at': '',
+        'response_path': str(V1_DECISION_HUMAN_RESPONSES_PATH),
+        'allowed_responses': list(V1_DECISION_HUMAN_RESPONSE_VALUES),
+        'pending_v1_decisions': [],
+        'recently_changed_v1_decisions': [],
+        'counts': {
+            'pending_v1_decisions': 0,
+            'recently_changed_v1_decisions': 0,
+            'human_responded': 0,
+        },
+    }
+
+
+def load_v1_decision_review_state():
+    data = load_json_file(V1_DECISION_REVIEW_PATH, default_v1_decision_review_state())
+    if not isinstance(data, dict):
+        data = default_v1_decision_review_state()
+    if not isinstance(data.get('pending_v1_decisions'), list):
+        data['pending_v1_decisions'] = []
+    if not isinstance(data.get('recently_changed_v1_decisions'), list):
+        data['recently_changed_v1_decisions'] = []
+    if not isinstance(data.get('counts'), dict):
+        data['counts'] = default_v1_decision_review_state().get('counts', {})
+    return data
+
+
+def v1_decision_review_key(row):
+    if not isinstance(row, dict):
+        return ''
+    for value in (
+        row.get('decision_id', ''),
+        row.get('action_id', ''),
+        normalize_signal_key(row.get('action_domain', '')),
+        normalize_signal_key(row.get('label', '')),
+    ):
+        if value:
+            return str(value)
+    return ''
+
+
+def build_v1_decision_review_transition(previous_row, current_item=None, artifact_candidate=None, replacement_candidate=None):
+    current_item = current_item if isinstance(current_item, dict) else {}
+    artifact_candidate = artifact_candidate if isinstance(artifact_candidate, dict) else {}
+    replacement_candidate = replacement_candidate if isinstance(replacement_candidate, dict) else {}
+    human_response = current_item.get('v1_human_response', '') or previous_row.get('human_response', '')
+    current_candidate_status = current_item.get('v1_decision_candidate_status', '')
+    grounding_status = normalize_scorecard_grounding_status(current_item.get('v1_decision_candidate_grounding_status', 'unknown'))
+    transition_reason = 'no_longer_qualified'
+    current_location = 'not_currently_pending'
+    transition_summary = current_item.get('v1_decision_candidate_reason', '') or previous_row.get('reason', '')
+
+    if replacement_candidate:
+        transition_reason = 'superseded'
+        current_location = 'pending_v1_decisions'
+        transition_summary = (
+            f"This decision is no longer the current bounded review focus. "
+            f"{replacement_candidate.get('label', 'A newer decision surface')} is now the active pending decision in this area."
+        )
+    elif current_item.get('grounding_hold_active') or current_candidate_status == 'held_pending_grounding' or human_response == 'hold':
+        transition_reason = 'moved_to_hold'
+        current_location = 'held_pending_grounding'
+        transition_summary = (
+            current_item.get('grounding_hold_reason', '')
+            or current_item.get('v1_human_response_reason', '')
+            or current_item.get('v1_decision_candidate_reason', '')
+            or 'This decision remains meaningful but is now held until grounding improves.'
+        )
+    elif artifact_candidate:
+        transition_reason = 'moved_to_artifact_review'
+        current_location = 'implementation_artifact_candidates'
+        transition_summary = (
+            artifact_candidate.get('reason', '')
+            or 'This decision is no longer a direct pending review item because ELI parked it in the implementation-artifact review lane.'
+        )
+    elif human_response in ('accept_for_v1', 'reject_for_now', 'revise_options'):
+        transition_reason = 'human_review_resolved'
+        current_location = 'human_review_response'
+        transition_summary = current_item.get('v1_human_response_reason', '') or {
+            'accept_for_v1': 'A human review accepted this bounded V1 default for now while keeping it revisable.',
+            'reject_for_now': 'A human review rejected this bounded V1 default for now pending better grounding.',
+            'revise_options': 'A human review requested revised bounded options before reconsideration.',
+        }.get(human_response, 'A human review response changed the current review state.')
+    elif grounding_status in ('unknown', 'limited_evidence'):
+        transition_reason = 'weak_grounding'
+        current_location = 'not_currently_pending'
+        transition_summary = (
+            current_item.get('v1_decision_candidate_reason', '')
+            or 'This decision no longer has enough current grounding to stay in the active pending review set.'
+        )
+
+    return {
+        'decision_id': previous_row.get('decision_id', current_item.get('v1_decision_candidate_id', '')),
+        'label': previous_row.get('label', current_item.get('v1_decision_candidate_label', '')),
+        'action_id': previous_row.get('action_id', current_item.get('id', '')),
+        'action_title': previous_row.get('action_title', current_item.get('title', '')),
+        'action_domain': previous_row.get('action_domain', current_item.get('domain', '')),
+        'previous_candidate_status': previous_row.get('candidate_status', ''),
+        'current_candidate_status': current_candidate_status or 'not_currently_pending',
+        'transition_reason': transition_reason,
+        'transition_summary': compact_text_excerpt(transition_summary, 320),
+        'current_location': current_location,
+        'parked_in': current_location if current_location not in ('not_currently_pending', 'pending_v1_decisions') else '',
+        'replacement_decision_id': replacement_candidate.get('decision_id', ''),
+        'replacement_label': replacement_candidate.get('label', ''),
+        'human_response': current_item.get('v1_human_response', previous_row.get('human_response', '')),
+        'human_response_at': current_item.get('v1_human_response_at', previous_row.get('human_response_at', '')),
+        'human_response_note': current_item.get('v1_human_response_note', previous_row.get('human_response_note', '')),
+        'human_response_choice_label': current_item.get('v1_human_response_choice_label', previous_row.get('human_response_choice_label', '')),
+        'revisable': bool(current_item.get('v1_human_response_revisable', previous_row.get('revisable', True))),
+        'revision_signals': current_item.get('v1_decision_candidate_revision_signals', previous_row.get('revision_signals', [])),
+        'transition_at': now_iso(),
+    }
+
+
+def build_v1_decision_review_state(candidate_rows, current_items=None, implementation_artifact_candidates=None, schema=None):
+    schema = schema or load_cognition_schema()
+    continuity_cfg = v1_decision_review_continuity_config(schema)
+    prior_review = load_v1_decision_review_state() if continuity_cfg.get('enabled', True) else default_v1_decision_review_state()
     review_rows = []
     for row in candidate_rows or []:
         if not isinstance(row, dict):
@@ -5131,13 +5291,80 @@ def build_v1_decision_review_state(candidate_rows):
             'revision_signals': row.get('revision_signals', []),
             'confidence': row.get('confidence', 0.0),
         })
+    pending_by_key = {v1_decision_review_key(row): row for row in review_rows if v1_decision_review_key(row)}
+    items_by_key = {}
+    items_by_domain = {}
+    for item in current_items or []:
+        if not isinstance(item, dict):
+            continue
+        for key in (
+            item.get('v1_decision_candidate_id', ''),
+            item.get('id', ''),
+            normalize_signal_key(item.get('domain', '')),
+        ):
+            if key:
+                items_by_key.setdefault(str(key), item)
+        domain_key = normalize_signal_key(item.get('domain', ''))
+        if domain_key:
+            items_by_domain.setdefault(domain_key, item)
+    artifact_by_key = {}
+    artifact_by_domain = {}
+    for item in implementation_artifact_candidates or []:
+        if not isinstance(item, dict):
+            continue
+        for key in (
+            item.get('source_action_id', ''),
+            normalize_signal_key(item.get('source_domain', '')),
+        ):
+            if key:
+                artifact_by_key.setdefault(str(key), item)
+        domain_key = normalize_signal_key(item.get('source_domain', ''))
+        if domain_key:
+            artifact_by_domain.setdefault(domain_key, item)
+
+    recent_rows = []
+    recent_by_key = {}
+    if continuity_cfg.get('enabled', True):
+        for previous_row in prior_review.get('pending_v1_decisions', []):
+            if not isinstance(previous_row, dict):
+                continue
+            key = v1_decision_review_key(previous_row)
+            if not key or key in pending_by_key:
+                continue
+            current_item = items_by_key.get(key) or items_by_domain.get(normalize_signal_key(previous_row.get('action_domain', '')), {})
+            artifact_candidate = artifact_by_key.get(previous_row.get('action_id', '')) or artifact_by_domain.get(normalize_signal_key(previous_row.get('action_domain', '')), {})
+            replacement_candidate = None
+            domain_key = normalize_signal_key(previous_row.get('action_domain', ''))
+            if domain_key:
+                for candidate in review_rows:
+                    if normalize_signal_key(candidate.get('action_domain', '')) == domain_key and candidate.get('decision_id') != previous_row.get('decision_id'):
+                        replacement_candidate = candidate
+                        break
+            transition = build_v1_decision_review_transition(previous_row, current_item, artifact_candidate, replacement_candidate)
+            recent_rows.append(transition)
+            recent_by_key[key] = transition
+        if continuity_cfg.get('carry_forward_recently_changed', True):
+            for previous_row in prior_review.get('recently_changed_v1_decisions', []):
+                if not isinstance(previous_row, dict):
+                    continue
+                key = v1_decision_review_key(previous_row)
+                if not key or key in pending_by_key or key in recent_by_key:
+                    continue
+                carried = dict(previous_row)
+                carried.setdefault('transition_at', prior_review.get('updated_at', prior_review.get('generated_at', '')) or now_iso())
+                recent_rows.append(carried)
+                recent_by_key[key] = carried
+        recent_rows.sort(key=lambda row: row.get('transition_at', ''), reverse=True)
+        recent_rows = recent_rows[:continuity_cfg.get('max_recently_changed', 6)]
     return {
         'generated_at': now_iso(),
         'response_path': str(V1_DECISION_HUMAN_RESPONSES_PATH),
         'allowed_responses': list(V1_DECISION_HUMAN_RESPONSE_VALUES),
         'pending_v1_decisions': review_rows,
+        'recently_changed_v1_decisions': recent_rows,
         'counts': {
             'pending_v1_decisions': len(review_rows),
+            'recently_changed_v1_decisions': len(recent_rows),
             'human_responded': sum(1 for row in review_rows if row.get('human_response')),
         },
     }

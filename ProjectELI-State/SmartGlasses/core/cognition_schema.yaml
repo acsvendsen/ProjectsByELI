@@ -119,6 +119,10 @@ control:
       reject_for_now: true
       hold: true
       revise_options: true
+  v1_decision_review_continuity:
+    enabled: true
+    max_recently_changed: 6
+    carry_forward_recently_changed: true
   runtime_retention:
     reports:
       enabled: true
