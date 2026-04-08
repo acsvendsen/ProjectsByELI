@@ -515,6 +515,22 @@ DEFAULT_COGNITION_SCHEMA = {
             'return_delta': 0.01,
             'max_target_score_for_return_delta': 0.78,
         },
+        'grounding_hold': {
+            'enabled': True,
+            'meaningful_alignment_min': 0.58,
+            'meaningful_pull_min': 0.42,
+            'repeat_appearance_min': 2,
+            'repeat_consecutive_min': 2,
+            'weak_repo_grounding_max': 0.22,
+            'weak_source_diversity_max': 1,
+            'material_repo_grounding_delta': 0.16,
+            'material_evidence_delta': 0.1,
+            'material_pull_delta': 0.08,
+            'material_resistance_drop': 0.08,
+            'field_repeat_window': 12,
+            'field_min_weighted_evidence_gain': 0.22,
+            'field_min_added_source_types': 1,
+        },
         'phase7_repo_alignment': {
             'enabled': True,
             'diff_alignment': {
@@ -637,6 +653,21 @@ control:
       - core_deepening
     return_delta: 0.01
     max_target_score_for_return_delta: 0.78
+  grounding_hold:
+    enabled: true
+    meaningful_alignment_min: 0.58
+    meaningful_pull_min: 0.42
+    repeat_appearance_min: 2
+    repeat_consecutive_min: 2
+    weak_repo_grounding_max: 0.22
+    weak_source_diversity_max: 1
+    material_repo_grounding_delta: 0.16
+    material_evidence_delta: 0.1
+    material_pull_delta: 0.08
+    material_resistance_drop: 0.08
+    field_repeat_window: 12
+    field_min_weighted_evidence_gain: 0.22
+    field_min_added_source_types: 1
   phase7_repo_alignment:
     enabled: true
     diff_alignment:
@@ -997,6 +1028,11 @@ def render_cognition_schema_context(schema):
     lines.append('## Dormant Returns')
     lines.append(
         f"- promising_pull_min: {dormant_returns.get('promising_pull_min')} | constraint_release_resistance_max: {dormant_returns.get('constraint_release_resistance_max')} | return_delta: {dormant_returns.get('return_delta')}"
+    )
+    grounding_hold = control.get('grounding_hold', {})
+    lines.append('## Grounding Hold Discipline')
+    lines.append(
+        f"- enabled: {grounding_hold.get('enabled')} | meaningful_alignment_min: {grounding_hold.get('meaningful_alignment_min')} | meaningful_pull_min: {grounding_hold.get('meaningful_pull_min')} | material_repo_grounding_delta: {grounding_hold.get('material_repo_grounding_delta')}"
     )
     repo_alignment = schema.get('phase7_repo_alignment', control.get('phase7_repo_alignment', {}))
     diff_alignment = repo_alignment.get('diff_alignment', {})
@@ -2499,6 +2535,199 @@ def action_candidate_signature(item):
     return sha256_text(lower_text(text))[:16]
 
 
+def action_evidence_sources(links, analysis):
+    source_types = set()
+    weighted_scores = []
+    for field in ('attractors', 'tensions', 'modes'):
+        for target_id in links.get(field, []):
+            profile = evidence_profile_for_target(analysis, field, target_id)
+            source_types.update(profile.get('source_types', []))
+            weighted_scores.append(safe_float(profile.get('weighted_score', 0.0), 0.0))
+    return {
+        'source_types': sorted(source_types),
+        'source_diversity_count': len(source_types),
+        'weighted_evidence_score': round(average_score(weighted_scores), 3),
+    }
+
+
+def build_grounding_hold_state(item, links, analysis, repo_grounding, resurfacing_state, base_alignment_score, base_resistance_score, base_pull_score):
+    schema = analysis.get('schema', load_cognition_schema())
+    cfg = schema.get('control', {}).get('grounding_hold', {})
+    evidence_state = action_evidence_sources(links, analysis)
+    source_types = set(evidence_state.get('source_types', []))
+    previous_source_types = {
+        str(value)
+        for value in item.get('grounding_source_types', [])
+        if value
+    }
+    added_source_types = sorted(source_types - previous_source_types)
+    source_diversity_count = evidence_state.get('source_diversity_count', 0)
+    previous_source_diversity_count = safe_int(item.get('source_diversity_count', source_diversity_count), source_diversity_count)
+    source_diversity_delta = source_diversity_count - previous_source_diversity_count
+    weighted_evidence_score = safe_float(evidence_state.get('weighted_evidence_score', 0.0), 0.0)
+    previous_weighted_evidence_score = safe_float(item.get('weighted_evidence_score', weighted_evidence_score), weighted_evidence_score)
+    weighted_evidence_delta = round(weighted_evidence_score - previous_weighted_evidence_score, 3)
+    repo_grounding_score = safe_float(repo_grounding.get('repo_grounding_score', 0.0), 0.0)
+    previous_repo_grounding_score = safe_float(item.get('repo_grounding_score', repo_grounding_score), repo_grounding_score)
+    repo_grounding_delta = round(repo_grounding_score - previous_repo_grounding_score, 3)
+    previous_base_resistance_score = safe_float(item.get('base_resistance_score', item.get('resistance_score', base_resistance_score)), base_resistance_score)
+    resistance_drop = round(previous_base_resistance_score - base_resistance_score, 3)
+    appearance_count = max(1, safe_int(item.get('appearance_count', 0), 0))
+    consecutive_appearances = max(1, safe_int(item.get('consecutive_appearances', 0), 0))
+    evidence_delta = safe_float(resurfacing_state.get('evidence_delta', 0.0), 0.0)
+    previous_base_pull_score = safe_float(item.get('base_architectural_pull_score', item.get('architectural_pull_score', base_pull_score)), base_pull_score)
+    base_pull_delta = round(base_pull_score - previous_base_pull_score, 3)
+    meaningful_alignment_min = safe_float(cfg.get('meaningful_alignment_min', 0.58), 0.58)
+    meaningful_pull_min = safe_float(cfg.get('meaningful_pull_min', 0.42), 0.42)
+    repeat_appearance_min = int(cfg.get('repeat_appearance_min', 2) or 2)
+    repeat_consecutive_min = int(cfg.get('repeat_consecutive_min', 2) or 2)
+    weak_repo_grounding_max = safe_float(cfg.get('weak_repo_grounding_max', 0.22), 0.22)
+    weak_source_diversity_max = int(cfg.get('weak_source_diversity_max', 1) or 1)
+    material_repo_grounding_delta = safe_float(cfg.get('material_repo_grounding_delta', 0.16), 0.16)
+    material_evidence_delta = safe_float(cfg.get('material_evidence_delta', 0.1), 0.1)
+    material_pull_delta = safe_float(cfg.get('material_pull_delta', 0.08), 0.08)
+    material_resistance_drop = safe_float(cfg.get('material_resistance_drop', 0.08), 0.08)
+
+    meaningful = base_alignment_score >= meaningful_alignment_min or base_pull_score >= meaningful_pull_min
+    repeated = appearance_count >= repeat_appearance_min or consecutive_appearances >= repeat_consecutive_min
+    material_repo_change = (
+        repo_grounding_delta >= material_repo_grounding_delta
+        or (repo_grounding.get('repo_structural_progress', False) and repo_grounding_score > previous_repo_grounding_score)
+    )
+    material_new_sources = bool(added_source_types)
+    material_field_shift = (
+        evidence_delta >= material_evidence_delta
+        or base_pull_delta >= material_pull_delta
+        or resistance_drop >= material_resistance_drop
+        or resurfacing_state.get('resurfacing_classification') == 'genuine_reemergence'
+    )
+    material_change = material_repo_change or material_new_sources or material_field_shift
+
+    if material_change:
+        grounding_novelty_classification = 'new_grounding'
+    elif repo_grounding_score <= weak_repo_grounding_max and source_diversity_count <= weak_source_diversity_max:
+        grounding_novelty_classification = 'weak_grounding'
+    else:
+        grounding_novelty_classification = 'unchanged_grounding'
+
+    novelty_components = [
+        clamp_number(repo_grounding_delta / max(material_repo_grounding_delta, 0.001), 0.0, 1.0),
+        1.0 if added_source_types else 0.0,
+        clamp_number(evidence_delta / max(material_evidence_delta, 0.001), 0.0, 1.0),
+        clamp_number(base_pull_delta / max(material_pull_delta, 0.001), 0.0, 1.0),
+        clamp_number(resistance_drop / max(material_resistance_drop, 0.001), 0.0, 1.0),
+    ]
+    grounding_novelty_score = round(max(novelty_components), 3)
+
+    hold_applies = bool(
+        cfg.get('enabled', True)
+        and meaningful
+        and repeated
+        and not material_change
+        and resurfacing_state.get('resurfacing_classification') != 'genuine_reemergence'
+    )
+    hold_reason_parts = []
+    if hold_applies:
+        hold_reason_parts.append('still meaningful, but not newly actionable yet')
+        if grounding_novelty_classification == 'weak_grounding':
+            hold_reason_parts.append('repo grounding and source diversity are still too weak')
+        else:
+            hold_reason_parts.append('repo grounding and field evidence have not materially improved')
+        if resurfacing_state.get('resurfacing_classification') == 'noisy_repetition':
+            hold_reason_parts.append('resurfacing is repeating without better conditions')
+
+    release_signals = []
+    if not material_repo_change:
+        release_signals.append('real repo change or stronger repo grounding')
+    if not material_new_sources:
+        release_signals.append('a new source type such as runtime truth or code-config evidence')
+    if base_pull_delta < material_pull_delta:
+        release_signals.append('meaningfully stronger architectural pull')
+    if resistance_drop < material_resistance_drop:
+        release_signals.append('meaningfully lower resistance')
+
+    return {
+        'grounding_novelty_classification': grounding_novelty_classification,
+        'grounding_novelty_score': grounding_novelty_score,
+        'grounding_hold_active': hold_applies,
+        'grounding_hold_reason': '; '.join(hold_reason_parts),
+        'grounding_release_signals': release_signals[:4],
+        'grounding_source_types': evidence_state.get('source_types', []),
+        'source_diversity_count': source_diversity_count,
+        'source_diversity_delta': source_diversity_delta,
+        'weighted_evidence_score': weighted_evidence_score,
+        'weighted_evidence_delta': weighted_evidence_delta,
+        'added_source_types': added_source_types,
+        'repo_grounding_delta': repo_grounding_delta,
+        'resistance_drop': resistance_drop,
+        'base_pull_delta': base_pull_delta,
+        'material_change_detected': material_change,
+    }
+
+
+def consultation_decision_signature(decision):
+    parts = [
+        decision.get('action_id', ''),
+        decision.get('action_domain', ''),
+        decision.get('consultation_purpose', ''),
+        decision.get('specialist_id', ''),
+        decision.get('consultation_mode', ''),
+        decision.get('decision', ''),
+        reason_signature(decision.get('reason', '')),
+        decision.get('grounding_novelty_classification', ''),
+        'hold' if decision.get('grounding_hold_active') else 'open',
+    ]
+    return '|'.join(str(part) for part in parts)
+
+
+def latest_specialist_decision_entry(history_entries, action_id, action_domain):
+    for entry in reversed(history_entries):
+        if entry.get('kind') != 'decision':
+            continue
+        if action_id and entry.get('action_id') == action_id:
+            return entry
+        if action_domain and entry.get('action_domain') == action_domain:
+            return entry
+    return {}
+
+
+def field_delta_hold_state(history_entries, field, target_id, direction, evidence_profile, schema):
+    cfg = schema.get('control', {}).get('grounding_hold', {})
+    window = int(cfg.get('field_repeat_window', 12) or 12)
+    recent = target_history_entries(history_entries, field, target_id, direction, limit=window)
+    if not recent:
+        return {
+            'hold_applies': False,
+            'hold_reason': '',
+        }
+    latest = recent[-1]
+    current_sources = set(evidence_profile.get('source_types', []))
+    previous_sources = set(latest.get('evidence_sources', []))
+    added_source_types = sorted(current_sources - previous_sources)
+    weighted_evidence_gain = round(
+        safe_float(evidence_profile.get('weighted_score', 0.0), 0.0)
+        - safe_float(latest.get('weighted_evidence_score', 0.0), 0.0),
+        3,
+    )
+    if (
+        not added_source_types
+        and weighted_evidence_gain < safe_float(cfg.get('field_min_weighted_evidence_gain', 0.22), 0.22)
+        and len(recent) >= 2
+    ):
+        return {
+            'hold_applies': True,
+            'hold_reason': 'same field target is being pressured again without materially improved grounding',
+            'added_source_types': added_source_types,
+            'weighted_evidence_gain': weighted_evidence_gain,
+        }
+    return {
+        'hold_applies': False,
+        'hold_reason': '',
+        'added_source_types': added_source_types,
+        'weighted_evidence_gain': weighted_evidence_gain,
+    }
+
+
 def classify_action_resurfacing(item, field_evidence_score, base_alignment_score, base_pull_score):
     previous_judgment = item.get('direction_judgment', '')
     appearance_count = max(1, safe_int(item.get('appearance_count', 0), 0))
@@ -2507,7 +2736,7 @@ def classify_action_resurfacing(item, field_evidence_score, base_alignment_score
     previous_pull_score = safe_float(item.get('architectural_pull_score', base_pull_score), base_pull_score)
     evidence_delta = round(field_evidence_score - previous_evidence_score, 3)
     pull_delta = round(base_pull_score - previous_pull_score, 3)
-    resurfacing_despite_resistance = previous_judgment in ('pause', 'kill') and appearance_count >= 2
+    resurfacing_despite_resistance = previous_judgment in ('pause', 'kill', 'hold_until_new_grounding') and appearance_count >= 2
 
     if not previous_judgment or appearance_count <= 1:
         resurfacing_classification = 'first_seen'
@@ -2574,6 +2803,15 @@ def historical_action_influence(item, resurfacing_state):
             resistance_adjustment += 0.06
             influence_state = 'damped'
             influence_reason = 'Earlier kill softly damps resurfacing until new evidence appears.'
+    elif previous_judgment == 'hold_until_new_grounding':
+        if resurfacing_classification == 'genuine_reemergence':
+            influence_state = 'visible'
+            influence_reason = 'Earlier hold is lifted because conditions now show genuine re-emergence.'
+        else:
+            pull_adjustment -= 0.05
+            resistance_adjustment += 0.02
+            influence_state = 'held'
+            influence_reason = 'Prior hold keeps the candidate meaningful but out of repeated pseudo-motion until grounding improves.'
 
     return {
         'alignment_adjustment': round(alignment_adjustment, 3),
@@ -2685,6 +2923,16 @@ def build_action_direction_judgment(item, analysis, specialist_signal=None):
         1.0,
     ), 3)
     resurfacing_state = classify_action_resurfacing(item, field_evidence_score, base_alignment_score, base_pull_score)
+    grounding_hold = build_grounding_hold_state(
+        item,
+        links,
+        analysis,
+        repo_grounding,
+        resurfacing_state,
+        base_alignment_score,
+        base_resistance_score,
+        base_pull_score,
+    )
     influence = historical_action_influence(item, resurfacing_state)
     alignment_score = round(clamp_number(
         base_alignment_score
@@ -2723,7 +2971,9 @@ def build_action_direction_judgment(item, analysis, specialist_signal=None):
         1.0,
     ), 3)
 
-    if resistance_score >= 0.82 and architectural_pull_score <= 0.22:
+    if grounding_hold.get('grounding_hold_active'):
+        direction_judgment = 'hold_until_new_grounding'
+    elif resistance_score >= 0.82 and architectural_pull_score <= 0.22:
         direction_judgment = 'kill'
     elif architectural_pull_score >= 0.62 and alignment_score >= 0.78:
         direction_judgment = 'continue'
@@ -2752,8 +3002,16 @@ def build_action_direction_judgment(item, analysis, specialist_signal=None):
         reason_parts.append(specialist_signal.get('specialist_signal_reason'))
     elif specialist_signal.get('specialist_consultation_reason') and specialist_signal.get('specialist_consultation_decision') == 'recommend_consultation':
         reason_parts.append(specialist_signal.get('specialist_consultation_reason'))
+    if grounding_hold.get('grounding_hold_reason'):
+        reason_parts.append(grounding_hold.get('grounding_hold_reason'))
     if not reason_parts:
         reason_parts.append('has limited field evidence either for or against it')
+
+    influence_state = influence.get('influence_state', 'neutral')
+    influence_reason = influence.get('influence_reason', '')
+    if grounding_hold.get('grounding_hold_active'):
+        influence_state = 'held'
+        influence_reason = grounding_hold.get('grounding_hold_reason', influence_reason) or influence_reason
 
     return {
         'alignment_score': alignment_score,
@@ -2765,11 +3023,25 @@ def build_action_direction_judgment(item, analysis, specialist_signal=None):
         'base_alignment_score': base_alignment_score,
         'base_resistance_score': base_resistance_score,
         'base_architectural_pull_score': base_pull_score,
-        'influence_state': influence.get('influence_state', 'neutral'),
-        'influence_reason': influence.get('influence_reason', ''),
+        'influence_state': influence_state,
+        'influence_reason': influence_reason,
         'alignment_adjustment': influence.get('alignment_adjustment', 0.0),
         'resistance_adjustment': influence.get('resistance_adjustment', 0.0),
         'pull_adjustment': influence.get('pull_adjustment', 0.0),
+        'grounding_novelty_classification': grounding_hold.get('grounding_novelty_classification', ''),
+        'grounding_novelty_score': grounding_hold.get('grounding_novelty_score', 0.0),
+        'grounding_hold_active': grounding_hold.get('grounding_hold_active', False),
+        'grounding_hold_reason': grounding_hold.get('grounding_hold_reason', ''),
+        'grounding_release_signals': grounding_hold.get('grounding_release_signals', []),
+        'grounding_source_types': grounding_hold.get('grounding_source_types', []),
+        'source_diversity_count': grounding_hold.get('source_diversity_count', 0),
+        'source_diversity_delta': grounding_hold.get('source_diversity_delta', 0),
+        'weighted_evidence_score': grounding_hold.get('weighted_evidence_score', 0.0),
+        'weighted_evidence_delta': grounding_hold.get('weighted_evidence_delta', 0.0),
+        'added_source_types': grounding_hold.get('added_source_types', []),
+        'repo_grounding_delta': grounding_hold.get('repo_grounding_delta', 0.0),
+        'resistance_drop': grounding_hold.get('resistance_drop', 0.0),
+        'material_change_detected': grounding_hold.get('material_change_detected', False),
         'repo_grounding_score': repo_grounding.get('repo_grounding_score', 0.0),
         'repo_alignment_classification': repo_grounding.get('repo_alignment_classification', ''),
         'repo_grounding_reason': repo_grounding.get('repo_grounding_reason', ''),
@@ -2935,6 +3207,8 @@ def action_uncertainty_score(item):
     uncertainty = (1.0 - abs(alignment_score - resistance_score)) * 0.45
     if item.get('direction_judgment') == 'pause':
         uncertainty += 0.2
+    elif item.get('direction_judgment') == 'hold_until_new_grounding':
+        uncertainty += 0.08
     if 0.35 <= pull_score <= 0.65:
         uncertainty += 0.14
     if item.get('repo_alignment_classification') == 'productive_resistance':
@@ -3176,8 +3450,18 @@ def build_specialist_consultation_decisions(judged_items, analysis, registry, ro
             'reason': 'No specialist cleared the minimum expected-gain and semantic-match thresholds.',
             'competitive_alternative_id': '',
             'competitive_alternative_label': '',
+            'grounding_novelty_classification': item.get('grounding_novelty_classification', ''),
+            'grounding_hold_active': bool(item.get('grounding_hold_active', False)),
             'confidence': 0.48,
         }
+        if item.get('grounding_hold_active') and item.get('direction_judgment') == 'hold_until_new_grounding':
+            decision['reason'] = (
+                item.get('grounding_hold_reason', '')
+                or 'Candidate remains meaningful, but consultation is held until new grounding appears.'
+            )
+            decision['confidence'] = round(clamp_number(0.58 + (safe_float(item.get('grounding_novelty_score', 0.0), 0.0) * 0.12), 0.52, 0.78), 3)
+            decisions.append(decision)
+            continue
         if top:
             recommend = (
                 top.get('expected_gain', 0.0) >= min_expected_gain
@@ -3244,7 +3528,7 @@ def build_specialist_consultation_decisions(judged_items, analysis, registry, ro
 def record_specialist_consultation_decisions(history, decisions, timestamp):
     entries = history.setdefault('entries', [])
     for decision in decisions:
-        entries.append({
+        entry = {
             'kind': 'decision',
             'timestamp': timestamp,
             'decision_id': decision.get('decision_id', ''),
@@ -3265,8 +3549,14 @@ def record_specialist_consultation_decisions(history, decisions, timestamp):
             'hallucination_risk': decision.get('hallucination_risk', 0.0),
             'reason': decision.get('reason', ''),
             'related_repo_paths': decision.get('related_repo_paths', []),
+            'grounding_novelty_classification': decision.get('grounding_novelty_classification', ''),
+            'grounding_hold_active': bool(decision.get('grounding_hold_active', False)),
             'confidence': decision.get('confidence', 0.5),
-        })
+        }
+        latest = latest_specialist_decision_entry(entries, entry.get('action_id', ''), entry.get('action_domain', ''))
+        if latest and consultation_decision_signature(latest) == consultation_decision_signature(entry):
+            continue
+        entries.append(entry)
     return history
 
 
@@ -3495,6 +3785,7 @@ def enrich_action_inbox_with_reflection(analysis):
     sorted_items = sorted(
         ranked_items,
         key=lambda entry: (
+            {'continue': 0, 'pause': 1, 'hold_until_new_grounding': 2, 'kill': 3}.get(entry.get('direction_judgment', 'pause'), 4),
             -safe_float(entry.get('architectural_pull_score', 0.0), 0.0),
             safe_float(entry.get('resistance_score', 0.0), 0.0),
             entry.get('title', ''),
@@ -3520,8 +3811,14 @@ def enrich_action_inbox_with_reflection(analysis):
             'architectural_pull_score': enriched.get('architectural_pull_score', 0.0),
             'direction_judgment': enriched.get('direction_judgment', 'pause'),
             'repo_grounding_score': enriched.get('repo_grounding_score', 0.0),
+            'repo_grounding_delta': enriched.get('repo_grounding_delta', 0.0),
             'repo_alignment_classification': enriched.get('repo_alignment_classification', ''),
             'repo_change_count': enriched.get('repo_change_count', 0),
+            'grounding_novelty_classification': enriched.get('grounding_novelty_classification', ''),
+            'grounding_novelty_score': enriched.get('grounding_novelty_score', 0.0),
+            'grounding_hold_active': enriched.get('grounding_hold_active', False),
+            'grounding_hold_reason': enriched.get('grounding_hold_reason', ''),
+            'grounding_release_signals': enriched.get('grounding_release_signals', []),
             'specialist_consultation_decision': enriched.get('specialist_consultation_decision', 'no_consultation'),
             'specialist_recommended_specialist_label': enriched.get('specialist_recommended_specialist_label', ''),
             'specialist_consultation_mode': enriched.get('specialist_consultation_mode', ''),
@@ -3530,6 +3827,7 @@ def enrich_action_inbox_with_reflection(analysis):
             'reason': '; '.join(part for part in [
                 enriched.get('judgment_reason', ''),
                 enriched.get('influence_reason', ''),
+                enriched.get('grounding_hold_reason', '') if enriched.get('grounding_hold_active') else '',
                 enriched.get('resurfacing_reason', '') if enriched.get('resurfacing_classification') in ('noisy_repetition', 'genuine_reemergence') else '',
             ] if part),
             'influence_state': enriched.get('influence_state', 'neutral'),
@@ -4074,6 +4372,17 @@ def sync_action_inbox_from_dream(dream_body):
             'judgment_reason': preserved.get('judgment_reason', ''),
             'judgment_rank': preserved.get('judgment_rank', 0),
             'field_evidence_score': preserved.get('field_evidence_score', 0.0),
+            'repo_grounding_score': preserved.get('repo_grounding_score', 0.0),
+            'repo_grounding_delta': preserved.get('repo_grounding_delta', 0.0),
+            'repo_alignment_classification': preserved.get('repo_alignment_classification', ''),
+            'grounding_novelty_classification': preserved.get('grounding_novelty_classification', ''),
+            'grounding_novelty_score': preserved.get('grounding_novelty_score', 0.0),
+            'grounding_hold_active': preserved.get('grounding_hold_active', False),
+            'grounding_hold_reason': preserved.get('grounding_hold_reason', ''),
+            'grounding_release_signals': preserved.get('grounding_release_signals', []),
+            'grounding_source_types': preserved.get('grounding_source_types', []),
+            'source_diversity_count': preserved.get('source_diversity_count', 0),
+            'weighted_evidence_score': preserved.get('weighted_evidence_score', 0.0),
             'influence_state': preserved.get('influence_state', 'neutral'),
             'influence_reason': preserved.get('influence_reason', ''),
             'resurfacing_despite_resistance': preserved.get('resurfacing_despite_resistance', False),
@@ -4356,8 +4665,14 @@ def normalize_reflect_output(payload):
             'architectural_pull_score': 0.0,
             'direction_judgment': 'pause',
             'repo_grounding_score': 0.0,
+            'repo_grounding_delta': 0.0,
             'repo_alignment_classification': '',
             'repo_change_count': 0,
+            'grounding_novelty_classification': '',
+            'grounding_novelty_score': 0.0,
+            'grounding_hold_active': False,
+            'grounding_hold_reason': '',
+            'grounding_release_signals': [],
             'reason': '',
             'influence_state': 'neutral',
             'influence_reason': '',
@@ -4814,7 +5129,7 @@ def enrich_specialist_reflect_output(reflect_data, specialist_context):
             'confidence': item.get('confidence', 0.5),
         }
         for item in specialist_context.get('decisions', [])
-        if item.get('decision') == 'recommend_consultation'
+        if item.get('decision') == 'recommend_consultation' or item.get('grounding_hold_active')
     ][:5]
     reflect_data['specialist_consultation_evaluations'] = [
         {
@@ -4865,6 +5180,37 @@ def apply_reflect_field_deltas(reflect_data, source_report_paths, analysis):
             diversity_state = diversity_gate_state(history_entries, field, target_id, direction, delta.get('reason', ''), evidence_profile, schema)
             if field == 'attractors':
                 saturation_state = attractor_saturation_state(previous_value, evidence_profile, schema)
+        grounding_hold_state = field_delta_hold_state(history_entries, field, target_id, direction, evidence_profile, schema)
+        if grounding_hold_state.get('hold_applies'):
+            applied_entries.append({
+                'timestamp': now_iso(),
+                'cycle': 'reflect',
+                'field': field,
+                'target_id': target_id,
+                'target_label': item.get('label', target_id),
+                'previous_value': previous_value,
+                'requested_delta': requested_delta,
+                'applied_delta': 0.0,
+                'new_value': previous_value,
+                'reason': grounding_hold_state.get('hold_reason', ''),
+                'confidence': confidence,
+                'control_kind': delta.get('control_kind', ''),
+                'linked_source_reports': source_report_paths,
+                'support_count': support_count,
+                'effective_support_count': effective_support_count,
+                'evidence_weight': evidence_weight,
+                'evidence_sources': evidence_profile.get('source_types', []),
+                'weighted_evidence_score': evidence_profile.get('weighted_score', 0.0),
+                'resonance_kind': evidence_profile.get('repetition_kind', 'weak_signal'),
+                'diversity_multiplier': diversity_state.get('multiplier', 1.0),
+                'diversity_notes': diversity_state.get('notes', []),
+                'saturation_multiplier': saturation_state.get('multiplier', 1.0),
+                'saturation_notes': saturation_state.get('notes', []),
+                'change_type': 'held_until_new_grounding',
+                'added_source_types': grounding_hold_state.get('added_source_types', []),
+                'weighted_evidence_gain': grounding_hold_state.get('weighted_evidence_gain', 0.0),
+            })
+            continue
         applied_delta = conservative_applied_delta(field, requested_delta, confidence, effective_support_count)
         applied_delta = round_delta(applied_delta * evidence_weight)
         if direction > 0:
@@ -4992,6 +5338,8 @@ def render_reflect_markdown(reflect_data, applied_entries):
             continue
         for item in items:
             label = item.get('label') or item.get(key or '', '') or 'item'
+            if heading == 'Specialist Consultation Decisions' and label == 'item':
+                label = item.get('action_title') or item.get('action_domain') or 'consultation'
             detail = item.get('reason', '')
             confidence = item.get('confidence', '')
             extra = ''
@@ -5054,6 +5402,15 @@ def render_reflect_markdown(reflect_data, applied_entries):
                         f" | repo {item.get('repo_alignment_classification', '')}"
                         f" | repo_score {item.get('repo_grounding_score', '')}"
                     )
+                if item.get('grounding_novelty_classification'):
+                    extra += (
+                        f" | grounding {item.get('grounding_novelty_classification', '')}"
+                        f" | grounding_score {item.get('grounding_novelty_score', '')}"
+                    )
+                if item.get('grounding_hold_active'):
+                    extra += f" | hold_reason {item.get('grounding_hold_reason', '')}"
+                    if item.get('grounding_release_signals'):
+                        extra += f" | release_on {', '.join(item.get('grounding_release_signals', []))}"
                 if item.get('specialist_recommended_specialist_label'):
                     extra += (
                         f" | specialist {item.get('specialist_recommended_specialist_label', '')}"
@@ -5093,7 +5450,13 @@ def render_reflect_markdown(reflect_data, applied_entries):
         lines.append('- none')
     else:
         for entry in applied_entries:
-            if entry.get('change_type') == 'mode_switch':
+            if entry.get('change_type') == 'held_until_new_grounding':
+                added_sources = ', '.join(entry.get('added_source_types', [])) or 'none'
+                kind_suffix = f" | kind {entry.get('control_kind')}" if entry.get('control_kind') else ''
+                lines.append(
+                    f"- {entry.get('field')}/{entry.get('target_id')}: held_until_new_grounding | previous {entry.get('previous_value')} | requested_delta {entry.get('requested_delta')}{kind_suffix} | weighted_evidence_gain {entry.get('weighted_evidence_gain', 0.0)} | added_source_types {added_sources} | reason: {entry.get('reason')} | confidence {entry.get('confidence')}"
+                )
+            elif entry.get('change_type') == 'mode_switch':
                 lines.append(
                     f"- modes/{entry.get('target_id')}: switched current mode from {entry.get('previous_value')} to {entry.get('new_value')} | reason: {entry.get('reason')} | confidence {entry.get('confidence')}"
                 )

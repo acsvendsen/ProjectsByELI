@@ -41,6 +41,21 @@ control:
       low_friction_assistance:
         - discreet_ux_vs_visual_clarity
         - privacy_vs_usefulness
+  grounding_hold:
+    enabled: true
+    meaningful_alignment_min: 0.58
+    meaningful_pull_min: 0.42
+    repeat_appearance_min: 2
+    repeat_consecutive_min: 2
+    weak_repo_grounding_max: 0.22
+    weak_source_diversity_max: 1
+    material_repo_grounding_delta: 0.16
+    material_evidence_delta: 0.10
+    material_pull_delta: 0.08
+    material_resistance_drop: 0.08
+    field_repeat_window: 12
+    field_min_weighted_evidence_gain: 0.22
+    field_min_added_source_types: 1
 
 specialist_consultation:
   enabled: true
