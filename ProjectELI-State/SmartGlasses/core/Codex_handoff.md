@@ -104,6 +104,35 @@ Specialists are optional extensions of reach.
 
 ---
 
+
+## Host independence and interface surfaces
+
+ELI must not be structurally reduced to any single host interface, IDE, chat surface, dashboard, or tool integration.
+
+ELI’s identity should live in the core project cognition layer:
+- field logic
+- memory
+- review surfaces
+- readiness judgment
+- artifact surfacing
+- trust-preserving synthesis
+
+External interfaces are surfaces of access, not the locus of identity.
+
+This means:
+- Xcode may become one useful ELI surface
+- chat may become one useful ELI surface
+- dashboards, mobile/web UIs, artifact pipelines, or other tooling may also become ELI surfaces
+- no single host should define ELI’s full shape or constrain ELI to that host’s native assumptions
+
+Important constraints:
+- host integrations should expose appropriate slices of ELI, not replace ELI core judgment
+- ELI should remain consistent across interfaces even when each surface exposes different capabilities
+- code-first interfaces must not collapse ELI into a repo-only or IDE-only intelligence
+- the core architecture should remain host-independent and surface-flexible
+
+---
+
 ## Specialist consultation model
 
 ### Specialist consultation exists to:
