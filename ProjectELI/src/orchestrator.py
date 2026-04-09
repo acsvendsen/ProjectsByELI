@@ -146,6 +146,18 @@ ARTIFACT_EMISSION_READINESS_STATES = (
     'draft_candidate',
     'not_ready_for_draft',
 )
+STATE_SYNC_STATUS_VALUES = (
+    'in_sync',
+    'settling',
+    'stale',
+    'cross_surface_mismatch',
+    'provisional',
+)
+STATE_TRUST_STATUS_VALUES = (
+    'operational',
+    'provisional',
+    'caution',
+)
 DRAFT_ARTIFACT_FORMS = (
     'pdf_summary',
     'structured_design_brief',
@@ -521,6 +533,7 @@ IMPLEMENTATION_ARTIFACT_REVIEW_PATH = PROJECT_STATE_DIR / "implementation_artifa
 OPTION_READINESS_REVIEW_PATH = PROJECT_STATE_DIR / "option_readiness_review.json"
 ARTIFACT_EMISSION_READINESS_PATH = PROJECT_STATE_DIR / "artifact_emission_readiness.json"
 DRAFT_ARTIFACT_REVIEW_PATH = PROJECT_STATE_DIR / "draft_artifact_review.json"
+STATE_SYNC_SUMMARY_PATH = PROJECT_STATE_DIR / "state_sync_summary.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -4863,6 +4876,7 @@ def enrich_action_inbox_with_reflection(analysis):
             schema=analysis.get('schema', {}),
         )
     )
+    refresh_review_state_sync_metadata(schema=analysis.get('schema', {}))
     data['items'] = updated_items
     data['judged_at'] = judged_at
     data['v1_decision_candidates'] = v1_decision_candidates
@@ -5376,6 +5390,7 @@ def default_v1_decision_review_state():
         'allowed_responses': list(V1_DECISION_HUMAN_RESPONSE_VALUES),
         'pending_v1_decisions': [],
         'recently_changed_v1_decisions': [],
+        'sync_metadata': {},
         'counts': {
             'pending_v1_decisions': 0,
             'recently_changed_v1_decisions': 0,
@@ -5392,6 +5407,8 @@ def load_v1_decision_review_state():
         data['pending_v1_decisions'] = []
     if not isinstance(data.get('recently_changed_v1_decisions'), list):
         data['recently_changed_v1_decisions'] = []
+    if not isinstance(data.get('sync_metadata'), dict):
+        data['sync_metadata'] = {}
     if not isinstance(data.get('counts'), dict):
         data['counts'] = default_v1_decision_review_state().get('counts', {})
     return data
@@ -6096,6 +6113,7 @@ def default_artifact_emission_readiness_state():
         'allowed_states': list(ARTIFACT_EMISSION_READINESS_STATES),
         'suggested_forms': list(DRAFT_ARTIFACT_FORMS),
         'artifact_emission_readiness': [],
+        'sync_metadata': {},
         'counts': {state: 0 for state in ARTIFACT_EMISSION_READINESS_STATES},
     }
 
@@ -6106,6 +6124,8 @@ def load_artifact_emission_readiness_state():
         data = default_artifact_emission_readiness_state()
     if not isinstance(data.get('artifact_emission_readiness'), list):
         data['artifact_emission_readiness'] = []
+    if not isinstance(data.get('sync_metadata'), dict):
+        data['sync_metadata'] = {}
     if not isinstance(data.get('counts'), dict):
         data['counts'] = default_artifact_emission_readiness_state().get('counts', {})
     if not isinstance(data.get('allowed_states'), list):
@@ -6292,6 +6312,7 @@ def default_draft_artifact_review_state():
         'scope_note': 'This surface only emits provisional structured design brief drafts. It does not emit technical engineering drafts or final design commitments.',
         'emitted_drafts': [],
         'pending_v1_decision_alignment': [],
+        'sync_metadata': {},
         'counts': {'structured_design_brief': 0},
     }
 
@@ -6304,6 +6325,8 @@ def load_draft_artifact_review_state():
         data['emitted_drafts'] = []
     if not isinstance(data.get('pending_v1_decision_alignment'), list):
         data['pending_v1_decision_alignment'] = []
+    if not isinstance(data.get('sync_metadata'), dict):
+        data['sync_metadata'] = {}
     if not isinstance(data.get('counts'), dict):
         data['counts'] = default_draft_artifact_review_state().get('counts', {})
     if not isinstance(data.get('allowed_forms'), list):
@@ -6642,6 +6665,339 @@ def save_draft_artifact_review_state(data):
     payload = data if isinstance(data, dict) else {'emitted_drafts': []}
     payload['updated_at'] = now_iso()
     DRAFT_ARTIFACT_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def state_sync_trust_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('state_sync_trust', {}) if isinstance(control.get('state_sync_trust', {}), dict) else {}
+    settling_seconds = max(30, safe_int(cfg.get('settling_window_seconds', 180), 180))
+    stale_seconds = max(settling_seconds + 60, safe_int(cfg.get('stale_window_seconds', 900), 900))
+    return {
+        'settling_window_seconds': settling_seconds,
+        'stale_window_seconds': stale_seconds,
+    }
+
+
+def default_state_sync_summary():
+    return {
+        'generated_at': '',
+        'surfaces': {},
+        'overall_sync_status': 'provisional',
+        'overall_trust_status': 'provisional',
+        'summary': '',
+    }
+
+
+def state_surface_generated_at(payload):
+    if not isinstance(payload, dict):
+        return ''
+    return str(payload.get('generated_at') or payload.get('updated_at') or '').strip()
+
+
+def state_surface_cycle_id(timestamp):
+    parsed = parse_iso_datetime(timestamp)
+    if not parsed:
+        return ''
+    return parsed.strftime('%Y%m%dT%H%M%S')
+
+
+def review_surface_dependency_map():
+    return {
+        'v1_decision_review': ['artifact_emission_readiness', 'draft_artifact_review', 'reflect_state'],
+        'artifact_emission_readiness': ['v1_decision_review', 'draft_artifact_review', 'reflect_state'],
+        'draft_artifact_review': ['v1_decision_review', 'artifact_emission_readiness', 'reflect_state'],
+    }
+
+
+def state_surface_time_relation(target_dt, other_dt, cfg):
+    if not target_dt or not other_dt:
+        return 'unavailable'
+    delta_seconds = abs((target_dt - other_dt).total_seconds())
+    if delta_seconds <= safe_int(cfg.get('settling_window_seconds', 180), 180):
+        return 'nearby'
+    return 'linked_surface_newer' if other_dt > target_dt else 'linked_surface_older'
+
+
+def raw_review_surface_payload(path, fallback):
+    data = load_json_file(path, fallback)
+    return data if isinstance(data, dict) else dict(fallback)
+
+
+def review_surface_rows(payload, key):
+    rows = payload.get(key, []) if isinstance(payload, dict) else []
+    return rows if isinstance(rows, list) else []
+
+
+def review_surface_pending_decision_keys(payload):
+    return {
+        pending_v1_decision_emission_key(row)
+        for row in review_surface_rows(payload, 'pending_v1_decisions')
+        if pending_v1_decision_emission_key(row)
+    }
+
+
+def review_surface_artifact_emission_keys(payload):
+    return {
+        pending_v1_decision_emission_key(row)
+        for row in review_surface_rows(payload, 'artifact_emission_readiness')
+        if pending_v1_decision_emission_key(row)
+    }
+
+
+def review_surface_draft_emitted_rows_by_key(payload):
+    rows = {}
+    for row in review_surface_rows(payload, 'emitted_drafts'):
+        key = pending_v1_decision_emission_key(row)
+        if key:
+            rows[key] = row
+    return rows
+
+
+def review_surface_draft_alignment_rows_by_key(payload):
+    rows = {}
+    for row in review_surface_rows(payload, 'pending_v1_decision_alignment'):
+        key = pending_v1_decision_emission_key(row)
+        if key:
+            rows[key] = row
+    return rows
+
+
+def build_review_surface_semantic_flags(v1_payload, artifact_emission_payload, draft_payload):
+    flags = {
+        'v1_decision_review': {'hard_issues': [], 'explained_differences': []},
+        'artifact_emission_readiness': {'hard_issues': [], 'explained_differences': []},
+        'draft_artifact_review': {'hard_issues': [], 'explained_differences': []},
+    }
+    pending_keys = review_surface_pending_decision_keys(v1_payload)
+    emission_keys = review_surface_artifact_emission_keys(artifact_emission_payload)
+    emitted_by_key = review_surface_draft_emitted_rows_by_key(draft_payload)
+    alignment_by_key = review_surface_draft_alignment_rows_by_key(draft_payload)
+    alignment_keys = set(alignment_by_key.keys())
+
+    orphaned_emission = sorted(emission_keys - pending_keys)
+    if orphaned_emission:
+        joined = ', '.join(orphaned_emission[:3])
+        flags['artifact_emission_readiness']['hard_issues'].append(
+            f"Linked draft-candidate decisions no longer appear in current V1 review: {joined}."
+        )
+        flags['v1_decision_review']['hard_issues'].append(
+            f"Artifact-emission readiness still reflects older linked V1 decision state: {joined}."
+        )
+
+    missing_alignment = sorted(pending_keys - alignment_keys)
+    if missing_alignment:
+        joined = ', '.join(missing_alignment[:3])
+        flags['draft_artifact_review']['hard_issues'].append(
+            f"Pending V1 decisions are missing explicit draft-emission alignment rows: {joined}."
+        )
+        flags['v1_decision_review']['hard_issues'].append(
+            f"Draft-artifact review is missing alignment rows for current pending V1 decisions: {joined}."
+        )
+
+    stale_alignment = sorted(alignment_keys - pending_keys)
+    if stale_alignment:
+        joined = ', '.join(stale_alignment[:3])
+        flags['draft_artifact_review']['hard_issues'].append(
+            f"Draft-emission alignment rows still reference decisions that are no longer pending: {joined}."
+        )
+        flags['v1_decision_review']['hard_issues'].append(
+            f"Draft-artifact review still carries older pending-decision alignment rows: {joined}."
+        )
+
+    explained_orphans = []
+    unexplained_orphans = []
+    for key, row in emitted_by_key.items():
+        if key in pending_keys:
+            continue
+        status = str(row.get('pending_v1_decision_alignment_status', '')).strip()
+        label = row.get('label', key)
+        if status in ('emitted_without_current_pending_decision', 'linked_to_recently_changed_decision'):
+            explained_orphans.append(label)
+        else:
+            unexplained_orphans.append(label)
+    if explained_orphans:
+        flags['draft_artifact_review']['explained_differences'].append(
+            "Some emitted draft briefs are intentionally preserved as provisional context without a current pending V1 decision: "
+            + ', '.join(explained_orphans[:3]) + '.'
+        )
+    if unexplained_orphans:
+        flags['draft_artifact_review']['hard_issues'].append(
+            "Some emitted draft briefs no longer match current pending V1 decision state and are not explicitly explained: "
+            + ', '.join(unexplained_orphans[:3]) + '.'
+        )
+        flags['v1_decision_review']['hard_issues'].append(
+            "Draft-artifact review still emits briefs that no longer match current V1 decision state: "
+            + ', '.join(unexplained_orphans[:3]) + '.'
+        )
+
+    return flags
+
+
+def build_review_surface_sync_metadata(surface_name, payloads, semantic_flags, cfg):
+    payload = payloads.get(surface_name, {})
+    generated_at = state_surface_generated_at(payload)
+    target_dt = parse_iso_datetime(generated_at)
+    dependencies = review_surface_dependency_map().get(surface_name, [])
+    hard_issues = list(semantic_flags.get(surface_name, {}).get('hard_issues', []))
+    explained_differences = list(semantic_flags.get(surface_name, {}).get('explained_differences', []))
+    checked_against = []
+    newer_by_stale_window = False
+    time_drift_detected = False
+    for dependency in dependencies:
+        other_payload = payloads.get(dependency, {})
+        other_generated_at = state_surface_generated_at(other_payload)
+        other_dt = parse_iso_datetime(other_generated_at)
+        relation = state_surface_time_relation(target_dt, other_dt, cfg)
+        if relation not in ('nearby', 'unavailable'):
+            time_drift_detected = True
+        if relation == 'linked_surface_newer' and target_dt and other_dt:
+            if (other_dt - target_dt).total_seconds() > safe_int(cfg.get('stale_window_seconds', 900), 900):
+                newer_by_stale_window = True
+        checked_against.append({
+            'surface': dependency,
+            'generated_at': other_generated_at,
+            'comparison_status': relation,
+        })
+
+    if not target_dt:
+        sync_status = 'provisional'
+    elif hard_issues:
+        sync_status = 'cross_surface_mismatch'
+    elif newer_by_stale_window:
+        sync_status = 'stale'
+    elif explained_differences or time_drift_detected:
+        sync_status = 'settling'
+    else:
+        sync_status = 'in_sync'
+
+    reflect_dt = parse_iso_datetime(state_surface_generated_at(payloads.get('reflect_state', {})))
+    fresh_against_reflect = bool(target_dt and reflect_dt and abs((target_dt - reflect_dt).total_seconds()) <= safe_int(cfg.get('settling_window_seconds', 180), 180))
+    freshest_of_review_set = False
+    if target_dt:
+        review_dts = [
+            parse_iso_datetime(state_surface_generated_at(payloads.get(name, {})))
+            for name in ('v1_decision_review', 'artifact_emission_readiness', 'draft_artifact_review')
+        ]
+        review_dts = [value for value in review_dts if value]
+        freshest_of_review_set = bool(review_dts and target_dt >= max(review_dts))
+
+    if sync_status == 'in_sync':
+        trust_status = 'operational'
+        trust_reason = 'This file is close enough to its linked review surfaces to compare operationally.'
+    elif sync_status == 'settling':
+        trust_status = 'provisional'
+        if explained_differences:
+            trust_reason = compact_text_excerpt(
+                explained_differences[0]
+                + ' The file is still usable, but cross-surface comparison should remain provisional while linked surfaces settle.',
+                320,
+            )
+        else:
+            trust_reason = 'This file is recent enough to use provisionally, but linked review surfaces are not yet close enough in time to treat as one settled comparison set.'
+    elif sync_status == 'cross_surface_mismatch':
+        if fresh_against_reflect and freshest_of_review_set:
+            trust_status = 'operational'
+            trust_reason = compact_text_excerpt(
+                (hard_issues[0] if hard_issues else 'Linked review surfaces still reflect older state.')
+                + ' Treat this file as the fresher operational surface, and treat cross-surface comparison as provisional until downstream files refresh.',
+                320,
+            )
+        else:
+            trust_status = 'caution'
+            trust_reason = compact_text_excerpt(
+                (hard_issues[0] if hard_issues else 'This file disagrees with linked review surfaces.')
+                + ' Do not use it as current cross-surface truth without caution.',
+                320,
+            )
+    elif sync_status == 'stale':
+        trust_status = 'caution'
+        trust_reason = 'This file is older than linked reflect-owned state by more than the settling window and should not guide current comparison without caution.'
+    else:
+        trust_status = 'provisional'
+        trust_reason = 'This file does not yet have enough stable linked timing information to treat as settled current truth.'
+
+    return {
+        'surface': surface_name,
+        'cycle_id': state_surface_cycle_id(generated_at),
+        'generated_from_cycle': state_surface_cycle_id(generated_at),
+        'generated_at': generated_at,
+        'depends_on': dependencies,
+        'checked_against': checked_against,
+        'sync_status': sync_status,
+        'trust_status': trust_status,
+        'hard_issues': hard_issues,
+        'explained_differences': explained_differences,
+        'trust_reason': trust_reason,
+    }
+
+
+def build_review_state_sync_summary(payloads, metadata_by_surface):
+    surface_rows = {}
+    overall_sync_status = 'in_sync'
+    overall_trust_status = 'operational'
+    for surface_name in ('v1_decision_review', 'artifact_emission_readiness', 'draft_artifact_review'):
+        metadata = metadata_by_surface.get(surface_name, {})
+        surface_rows[surface_name] = {
+            'generated_at': metadata.get('generated_at', ''),
+            'cycle_id': metadata.get('cycle_id', ''),
+            'sync_status': metadata.get('sync_status', 'provisional'),
+            'trust_status': metadata.get('trust_status', 'provisional'),
+            'trust_reason': metadata.get('trust_reason', ''),
+        }
+        if metadata.get('sync_status') == 'cross_surface_mismatch':
+            overall_sync_status = 'cross_surface_mismatch'
+        elif metadata.get('sync_status') == 'stale' and overall_sync_status != 'cross_surface_mismatch':
+            overall_sync_status = 'stale'
+        elif metadata.get('sync_status') == 'settling' and overall_sync_status not in ('cross_surface_mismatch', 'stale'):
+            overall_sync_status = 'settling'
+        if metadata.get('trust_status') == 'caution':
+            overall_trust_status = 'caution'
+        elif metadata.get('trust_status') == 'provisional' and overall_trust_status != 'caution':
+            overall_trust_status = 'provisional'
+
+    if overall_sync_status == 'in_sync':
+        summary = 'The current review-state files are close enough in time and linkage to compare operationally.'
+    elif overall_sync_status == 'settling':
+        summary = 'The current review-state files are still settling. Use them provisionally and avoid over-reading cross-surface differences.'
+    elif overall_sync_status == 'stale':
+        summary = 'At least one review-state file is stale relative to linked reflect-owned state. Cross-surface comparison should be cautious.'
+    else:
+        summary = 'The current review-state files do not form one clean comparison set. Treat fresher surfaces as operational and older linked surfaces as provisional until they refresh.'
+
+    return {
+        'generated_at': now_iso(),
+        'surfaces': surface_rows,
+        'overall_sync_status': overall_sync_status,
+        'overall_trust_status': overall_trust_status,
+        'summary': summary,
+    }
+
+
+def refresh_review_state_sync_metadata(schema=None):
+    cfg = state_sync_trust_config(schema)
+    payloads = {
+        'v1_decision_review': raw_review_surface_payload(V1_DECISION_REVIEW_PATH, default_v1_decision_review_state()),
+        'artifact_emission_readiness': raw_review_surface_payload(ARTIFACT_EMISSION_READINESS_PATH, default_artifact_emission_readiness_state()),
+        'draft_artifact_review': raw_review_surface_payload(DRAFT_ARTIFACT_REVIEW_PATH, default_draft_artifact_review_state()),
+        'reflect_state': raw_review_surface_payload(REFLECT_STATE_PATH, {'generated_at': ''}),
+    }
+    semantic_flags = build_review_surface_semantic_flags(
+        payloads.get('v1_decision_review', {}),
+        payloads.get('artifact_emission_readiness', {}),
+        payloads.get('draft_artifact_review', {}),
+    )
+    metadata_by_surface = {}
+    for surface_name in ('v1_decision_review', 'artifact_emission_readiness', 'draft_artifact_review'):
+        metadata_by_surface[surface_name] = build_review_surface_sync_metadata(surface_name, payloads, semantic_flags, cfg)
+        payloads[surface_name]['sync_metadata'] = metadata_by_surface[surface_name]
+
+    V1_DECISION_REVIEW_PATH.write_text(json.dumps(payloads['v1_decision_review'], indent=2) + "\n", encoding='utf-8')
+    ARTIFACT_EMISSION_READINESS_PATH.write_text(json.dumps(payloads['artifact_emission_readiness'], indent=2) + "\n", encoding='utf-8')
+    DRAFT_ARTIFACT_REVIEW_PATH.write_text(json.dumps(payloads['draft_artifact_review'], indent=2) + "\n", encoding='utf-8')
+    summary = build_review_state_sync_summary(payloads, metadata_by_surface)
+    STATE_SYNC_SUMMARY_PATH.write_text(json.dumps(summary, indent=2) + "\n", encoding='utf-8')
+    return summary
 
 
 def load_specialist_consultation_history():

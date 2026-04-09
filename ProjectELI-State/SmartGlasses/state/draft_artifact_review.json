@@ -180,5 +180,43 @@
     "structured_design_brief": 3,
     "emitted_without_current_pending_decision": 1
   },
-  "updated_at": "2026-04-08T22:44:59"
+  "updated_at": "2026-04-08T22:44:59",
+  "sync_metadata": {
+    "surface": "draft_artifact_review",
+    "cycle_id": "20260408T224459",
+    "generated_from_cycle": "20260408T224459",
+    "generated_at": "2026-04-08T22:44:59",
+    "depends_on": [
+      "v1_decision_review",
+      "artifact_emission_readiness",
+      "reflect_state"
+    ],
+    "checked_against": [
+      {
+        "surface": "v1_decision_review",
+        "generated_at": "2026-04-08T23:09:04",
+        "comparison_status": "linked_surface_newer"
+      },
+      {
+        "surface": "artifact_emission_readiness",
+        "generated_at": "2026-04-08T22:44:38",
+        "comparison_status": "nearby"
+      },
+      {
+        "surface": "reflect_state",
+        "generated_at": "2026-04-08T23:09:04",
+        "comparison_status": "linked_surface_newer"
+      }
+    ],
+    "sync_status": "cross_surface_mismatch",
+    "trust_status": "caution",
+    "hard_issues": [
+      "Draft-emission alignment rows still reference decisions that are no longer pending: v1_default_subtitle_position.",
+      "Some emitted draft briefs no longer match current pending V1 decision state and are not explicitly explained: V1 Default Subtitle Position."
+    ],
+    "explained_differences": [
+      "Some emitted draft briefs are intentionally preserved as provisional context without a current pending V1 decision: V1 Visual Hierarchy Default."
+    ],
+    "trust_reason": "Draft-emission alignment rows still reference decisions that are no longer pending: v1_default_subtitle_position. Do not use it as current cross-surface truth without caution."
+  }
 }
