@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-09T07:18:38",
+  "generated_at": "2026-04-09T07:26:12",
   "response_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/state/v1_decision_human_responses.json",
   "allowed_responses": [
     "accept_for_v1",
@@ -17,7 +17,7 @@
       "action_title": "Confidence Display",
       "action_domain": "confidence display",
       "candidate_status": "pending_v1_decision",
-      "candidate_cycle_state": "new_candidate",
+      "candidate_cycle_state": "refreshed_candidate",
       "grounding_status": "grounded",
       "feasibility": "feasible_now",
       "reason": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit V1 options. promoting it to a decision candidate should reduce repeated abstract re-probing. this does not reopen it as an action even though current action judgment is kill.",
@@ -45,50 +45,48 @@
         "meaningfully lower resistance"
       ],
       "confidence": 0.793
-    },
-    {
-      "decision_id": "v1_default_subtitle_position",
-      "label": "V1 Default Subtitle Position",
-      "question": "What should the default subtitle position behavior be for V1 live use?",
-      "scope": "v1_default",
-      "action_id": "subtitle-placement",
-      "action_title": "Subtitle Placement",
-      "action_domain": "subtitle placement",
-      "candidate_status": "pending_v1_decision",
-      "candidate_cycle_state": "new_candidate",
-      "grounding_status": "grounded",
-      "feasibility": "feasible_now",
-      "reason": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit V1 options. promoting it to a decision candidate should reduce repeated abstract re-probing. this does not reopen it as an action even though current action judgment is kill.",
-      "options": [
-        {
-          "id": "stable_default",
-          "label": "Stable Default"
-        },
-        {
-          "id": "more_prominent",
-          "label": "More Prominent"
-        }
-      ],
-      "selected_choice_id": "more_prominent",
-      "selected_choice_label": "More Prominent",
-      "human_response": "",
-      "human_response_at": "",
-      "human_response_note": "",
-      "human_response_choice_id": "",
-      "human_response_choice_label": "",
-      "revisable": true,
-      "revision_signals": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully stronger architectural pull",
-        "meaningfully lower resistance"
-      ],
-      "confidence": 0.78
     }
   ],
   "counts": {
-    "pending_v1_decisions": 2,
+    "pending_v1_decisions": 1,
     "human_responded": 0
   },
-  "updated_at": "2026-04-09T07:18:38"
+  "updated_at": "2026-04-09T07:26:12",
+  "sync_metadata": {
+    "surface": "v1_decision_review",
+    "cycle_id": "20260409T072612",
+    "generated_from_cycle": "20260409T072612",
+    "generated_at": "2026-04-09T07:26:12",
+    "depends_on": [
+      "artifact_emission_readiness",
+      "draft_artifact_review",
+      "reflect_state"
+    ],
+    "checked_against": [
+      {
+        "surface": "artifact_emission_readiness",
+        "generated_at": "2026-04-08T22:44:38",
+        "comparison_status": "linked_surface_older"
+      },
+      {
+        "surface": "draft_artifact_review",
+        "generated_at": "2026-04-08T22:44:59",
+        "comparison_status": "linked_surface_older"
+      },
+      {
+        "surface": "reflect_state",
+        "generated_at": "2026-04-09T07:26:12",
+        "comparison_status": "nearby"
+      }
+    ],
+    "sync_status": "cross_surface_mismatch",
+    "trust_status": "operational",
+    "hard_issues": [
+      "Artifact-emission readiness still reflects older linked V1 decision state: v1_default_subtitle_position, v1_visual_hierarchy_default.",
+      "Draft-artifact review still carries older pending-decision alignment rows: v1_default_subtitle_position.",
+      "Draft-artifact review still emits briefs that no longer match current V1 decision state: V1 Default Subtitle Position."
+    ],
+    "explained_differences": [],
+    "trust_reason": "Artifact-emission readiness still reflects older linked V1 decision state: v1_default_subtitle_position, v1_visual_hierarchy_default. Treat this file as the fresher operational surface, and treat cross-surface comparison as provisional until downstream files refresh."
+  }
 }

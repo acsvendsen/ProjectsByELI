@@ -158,6 +158,13 @@ STATE_TRUST_STATUS_VALUES = (
     'provisional',
     'caution',
 )
+REVIEW_SURFACE_CONSUMPTION_VALUES = (
+    'current_truth',
+    'provisional_context',
+    'caution_context',
+    'stale_context',
+    'withheld_from_cross_surface_synthesis',
+)
 DRAFT_ARTIFACT_FORMS = (
     'pdf_summary',
     'structured_design_brief',
@@ -5617,6 +5624,9 @@ def build_v1_decision_review_state(candidate_rows, current_items=None, implement
 def save_v1_decision_review_state(data):
     PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else {'pending_v1_decisions': []}
+    existing = load_json_file(V1_DECISION_REVIEW_PATH, {})
+    if isinstance(existing, dict) and isinstance(existing.get('sync_metadata'), dict) and existing.get('sync_metadata') and not payload.get('sync_metadata'):
+        payload['sync_metadata'] = existing.get('sync_metadata', {})
     payload['updated_at'] = now_iso()
     V1_DECISION_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
 
@@ -6284,6 +6294,9 @@ def build_artifact_emission_readiness_state(artifact_review_state, option_readin
 def save_artifact_emission_readiness_state(data):
     PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else {'artifact_emission_readiness': []}
+    existing = load_json_file(ARTIFACT_EMISSION_READINESS_PATH, {})
+    if isinstance(existing, dict) and isinstance(existing.get('sync_metadata'), dict) and existing.get('sync_metadata') and not payload.get('sync_metadata'):
+        payload['sync_metadata'] = existing.get('sync_metadata', {})
     payload['updated_at'] = now_iso()
     ARTIFACT_EMISSION_READINESS_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
 
@@ -6663,6 +6676,9 @@ def build_draft_artifact_review_state(artifact_emission_state, artifact_review_s
 def save_draft_artifact_review_state(data):
     PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else {'emitted_drafts': []}
+    existing = load_json_file(DRAFT_ARTIFACT_REVIEW_PATH, {})
+    if isinstance(existing, dict) and isinstance(existing.get('sync_metadata'), dict) and existing.get('sync_metadata') and not payload.get('sync_metadata'):
+        payload['sync_metadata'] = existing.get('sync_metadata', {})
     payload['updated_at'] = now_iso()
     DRAFT_ARTIFACT_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
 
@@ -6932,18 +6948,96 @@ def build_review_surface_sync_metadata(surface_name, payloads, semantic_flags, c
     }
 
 
+def classify_review_surface_consumption(sync_metadata):
+    metadata = sync_metadata if isinstance(sync_metadata, dict) else {}
+    sync_status = str(metadata.get('sync_status', 'provisional') or 'provisional')
+    trust_status = str(metadata.get('trust_status', 'provisional') or 'provisional')
+    reason = str(metadata.get('trust_reason', '') or '').strip()
+    if sync_status == 'stale':
+        return 'stale_context', reason or 'This surface is stale relative to linked state and should not guide current cross-surface synthesis.'
+    if sync_status == 'cross_surface_mismatch' and trust_status == 'caution':
+        return 'withheld_from_cross_surface_synthesis', reason or 'This surface currently disagrees with fresher linked state and should be withheld from current cross-surface synthesis.'
+    if trust_status == 'caution':
+        return 'caution_context', reason or 'Use this surface only cautiously and do not let it override fresher linked state.'
+    if trust_status == 'operational':
+        return 'current_truth', reason or 'This surface is currently safe to use as the active truth source for its lane.'
+    return 'provisional_context', reason or 'This surface is still usable, but only as provisional context rather than settled cross-surface truth.'
+
+
+def load_review_state_consumption_snapshot():
+    summary = load_json_file(STATE_SYNC_SUMMARY_PATH, default_state_sync_summary())
+    if not isinstance(summary, dict):
+        summary = default_state_sync_summary()
+    summary_surfaces = summary.get('surfaces', {}) if isinstance(summary.get('surfaces', {}), dict) else {}
+    payloads = {
+        'v1_decision_review': load_v1_decision_review_state(),
+        'artifact_emission_readiness': load_artifact_emission_readiness_state(),
+        'draft_artifact_review': load_draft_artifact_review_state(),
+    }
+    surfaces = {}
+    for surface_name, payload in payloads.items():
+        file_metadata = payload.get('sync_metadata', {}) if isinstance(payload, dict) else {}
+        summary_metadata = summary_surfaces.get(surface_name, {}) if isinstance(summary_surfaces.get(surface_name, {}), dict) else {}
+        metadata = file_metadata if isinstance(file_metadata, dict) and file_metadata.get('sync_status') else summary_metadata
+        consumption_state, consumption_reason = classify_review_surface_consumption(metadata)
+        surfaces[surface_name] = {
+            'payload': payload,
+            'sync_metadata': metadata,
+            'consumption_state': consumption_state,
+            'consumption_reason': consumption_reason,
+        }
+    return {
+        'generated_at': summary.get('generated_at', ''),
+        'overall_sync_status': summary.get('overall_sync_status', 'provisional'),
+        'overall_trust_status': summary.get('overall_trust_status', 'provisional'),
+        'summary': summary.get('summary', ''),
+        'surfaces': surfaces,
+    }
+
+
+def render_review_state_consumption_context(snapshot=None, include_header=True):
+    snapshot = snapshot if isinstance(snapshot, dict) else load_review_state_consumption_snapshot()
+    surfaces = snapshot.get('surfaces', {}) if isinstance(snapshot.get('surfaces', {}), dict) else {}
+    labels = {
+        'v1_decision_review': 'V1 decision review',
+        'artifact_emission_readiness': 'artifact emission readiness',
+        'draft_artifact_review': 'draft artifact review',
+    }
+    lines = ['# Review State Consumption Policy'] if include_header else []
+    summary_line = str(snapshot.get('summary', '') or '').strip()
+    if summary_line:
+        lines.append(f"- overall: {summary_line}")
+    for surface_name in ('v1_decision_review', 'artifact_emission_readiness', 'draft_artifact_review'):
+        surface = surfaces.get(surface_name, {})
+        metadata = surface.get('sync_metadata', {}) if isinstance(surface.get('sync_metadata', {}), dict) else {}
+        lines.append(
+            f"- {labels.get(surface_name, surface_name)}: use as `{surface.get('consumption_state', 'provisional_context')}` | "
+            f"sync `{metadata.get('sync_status', 'provisional')}` | trust `{metadata.get('trust_status', 'provisional')}`"
+        )
+        reason = str(surface.get('consumption_reason', '') or '').strip()
+        if reason:
+            lines.append(f"  note: {reason}")
+    lines.append('- Only surfaces marked `current_truth` should drive current cross-surface synthesis.')
+    lines.append('- `provisional_context` may inform bounded explanation, but should not override fresher operational surfaces.')
+    lines.append('- `caution_context`, `stale_context`, and `withheld_from_cross_surface_synthesis` should not be promoted into current truth.')
+    return '\n'.join(lines) + '\n'
+
+
 def build_review_state_sync_summary(payloads, metadata_by_surface):
     surface_rows = {}
     overall_sync_status = 'in_sync'
     overall_trust_status = 'operational'
     for surface_name in ('v1_decision_review', 'artifact_emission_readiness', 'draft_artifact_review'):
         metadata = metadata_by_surface.get(surface_name, {})
+        recommended_use, recommended_reason = classify_review_surface_consumption(metadata)
         surface_rows[surface_name] = {
             'generated_at': metadata.get('generated_at', ''),
             'cycle_id': metadata.get('cycle_id', ''),
             'sync_status': metadata.get('sync_status', 'provisional'),
             'trust_status': metadata.get('trust_status', 'provisional'),
             'trust_reason': metadata.get('trust_reason', ''),
+            'recommended_use': recommended_use,
+            'recommended_use_reason': recommended_reason,
         }
         if metadata.get('sync_status') == 'cross_surface_mismatch':
             overall_sync_status = 'cross_surface_mismatch'
@@ -10485,6 +10579,7 @@ def context_with_inputs(changes):
     persistent_inputs = persistent_eli_context()
     operator_guidance = load_operator_guidance()
     action_inbox = load_action_inbox()
+    review_state_consumption = load_review_state_consumption_snapshot()
     pieces = ['# Core Field\n', core_text(), '\n']
     pieces.append(render_field_layer_context())
     pieces.append(f'# {PROJECT_DISPLAY_NAME} Project Guardrails\n')
@@ -10507,6 +10602,8 @@ def context_with_inputs(changes):
     else:
         pieces.append('- No active operator guidance. Use best effort and choose the strongest project-specific direction.\n')
     pieces.append('\n')
+    pieces.append(render_review_state_consumption_context(review_state_consumption))
+    pieces.append('\n')
     pieces.append('# Action Inbox\n')
     action_items = action_inbox.get('items', [])
     if not action_items:
@@ -10522,7 +10619,19 @@ def context_with_inputs(changes):
                 pieces.append(f"- {title}: no operator choice selected; use best effort within `{domain}`.\n")
     pieces.append('\n')
     pieces.append('# Pending V1 Decisions\n')
-    v1_candidates = action_inbox.get('v1_decision_candidates', [])
+    v1_surface = review_state_consumption.get('surfaces', {}).get('v1_decision_review', {})
+    v1_consumption_state = v1_surface.get('consumption_state', 'provisional_context')
+    v1_payload = v1_surface.get('payload', {}) if isinstance(v1_surface.get('payload', {}), dict) else {}
+    if v1_consumption_state in ('current_truth', 'provisional_context'):
+        v1_candidates = v1_payload.get('pending_v1_decisions', [])
+        pieces.append(
+            f"- source: canonical `v1_decision_review.json` as `{v1_consumption_state}`.\n"
+        )
+    else:
+        v1_candidates = action_inbox.get('v1_decision_candidates', [])
+        pieces.append(
+            f"- source: fallback action inbox view because canonical `v1_decision_review.json` is `{v1_consumption_state}`.\n"
+        )
     if not v1_candidates:
         pieces.append('- No pending V1 decision candidates are currently surfaced.\n')
     else:
@@ -10692,6 +10801,7 @@ def daily_snapshot():
         )
     append_operational_visibility_sections(body, operational_visibility)
     append_option_readiness_sections(body, load_option_readiness_review_state())
+    body.extend(['## Review State Consumption', render_review_state_consumption_context(load_review_state_consumption_snapshot(), include_header=False), ''])
     alias_cfg = runtime_alias_config()
     excerpt_limit = alias_cfg.get('daily_snapshot', {}).get('excerpt_chars', 1800)
     if alias_cfg.get('daily_snapshot', {}).get('embed_latest_scorecard_excerpt', True):

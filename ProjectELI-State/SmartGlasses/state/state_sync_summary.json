@@ -1,26 +1,32 @@
 {
-  "generated_at": "2026-04-08T23:09:55",
+  "generated_at": "2026-04-09T07:26:55",
   "surfaces": {
     "v1_decision_review": {
-      "generated_at": "2026-04-08T23:09:04",
-      "cycle_id": "20260408T230904",
+      "generated_at": "2026-04-09T07:26:12",
+      "cycle_id": "20260409T072612",
       "sync_status": "cross_surface_mismatch",
       "trust_status": "operational",
-      "trust_reason": "Artifact-emission readiness still reflects older linked V1 decision state: v1_default_subtitle_position, v1_visual_hierarchy_default. Treat this file as the fresher operational surface, and treat cross-surface comparison as provisional until downstream files refresh."
+      "trust_reason": "Artifact-emission readiness still reflects older linked V1 decision state: v1_default_subtitle_position, v1_visual_hierarchy_default. Treat this file as the fresher operational surface, and treat cross-surface comparison as provisional until downstream files refresh.",
+      "recommended_use": "current_truth",
+      "recommended_use_reason": "Artifact-emission readiness still reflects older linked V1 decision state: v1_default_subtitle_position, v1_visual_hierarchy_default. Treat this file as the fresher operational surface, and treat cross-surface comparison as provisional until downstream files refresh."
     },
     "artifact_emission_readiness": {
       "generated_at": "2026-04-08T22:44:38",
       "cycle_id": "20260408T224438",
       "sync_status": "cross_surface_mismatch",
       "trust_status": "caution",
-      "trust_reason": "Linked draft-candidate decisions no longer appear in current V1 review: v1_default_subtitle_position, v1_visual_hierarchy_default. Do not use it as current cross-surface truth without caution."
+      "trust_reason": "Linked draft-candidate decisions no longer appear in current V1 review: v1_default_subtitle_position, v1_visual_hierarchy_default. Do not use it as current cross-surface truth without caution.",
+      "recommended_use": "withheld_from_cross_surface_synthesis",
+      "recommended_use_reason": "Linked draft-candidate decisions no longer appear in current V1 review: v1_default_subtitle_position, v1_visual_hierarchy_default. Do not use it as current cross-surface truth without caution."
     },
     "draft_artifact_review": {
       "generated_at": "2026-04-08T22:44:59",
       "cycle_id": "20260408T224459",
       "sync_status": "cross_surface_mismatch",
       "trust_status": "caution",
-      "trust_reason": "Draft-emission alignment rows still reference decisions that are no longer pending: v1_default_subtitle_position. Do not use it as current cross-surface truth without caution."
+      "trust_reason": "Draft-emission alignment rows still reference decisions that are no longer pending: v1_default_subtitle_position. Do not use it as current cross-surface truth without caution.",
+      "recommended_use": "withheld_from_cross_surface_synthesis",
+      "recommended_use_reason": "Draft-emission alignment rows still reference decisions that are no longer pending: v1_default_subtitle_position. Do not use it as current cross-surface truth without caution."
     }
   },
   "overall_sync_status": "cross_surface_mismatch",
