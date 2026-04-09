@@ -3,6 +3,7 @@ import argparse
 import datetime as dt
 import json
 import pathlib
+import re
 import sqlite3
 import subprocess
 from http import HTTPStatus
@@ -27,6 +28,14 @@ from orchestrator import (
 UI_DIR = BASE / "ui"
 HTML_PATH = UI_DIR / "dashboard.html"
 ENGINE_STATE_DIR = BASE / "state"
+SCORECARD_REPORT_RE = re.compile(r"^(?P<stamp>\d{8}_\d{6})_scorecard\.md$")
+SCORECARD_META_SECTIONS = {
+    "Inputs Used This Cycle",
+    "Project Summary",
+    "Transcript Quality & Transparent Inference",
+}
+SCORECARD_HISTORY_WINDOW = 12
+SCORECARD_HISTORY_LOOKBACK = 24
 
 
 def read_json(path, fallback):
@@ -72,6 +81,121 @@ def read_text_excerpt(path, limit=420):
         return ""
     text = " ".join(text.split())
     return text[:limit]
+
+
+def normalize_token(value):
+    return re.sub(r"[^a-z0-9]+", "_", str(value or "").strip().lower()).strip("_")
+
+
+def parse_scorecard_report_stamp(path):
+    match = SCORECARD_REPORT_RE.match(path.name)
+    if not match:
+        return None
+    try:
+        return dt.datetime.strptime(match.group("stamp"), "%Y%m%d_%H%M%S")
+    except Exception:
+        return None
+
+
+def parse_scorecard_report_dimensions(path):
+    try:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+    except Exception:
+        return {}
+
+    headings = list(re.finditer(r"^## (.+)$", text, re.MULTILINE))
+    parsed = {}
+    for idx, match in enumerate(headings):
+        heading = match.group(1).strip()
+        if heading in SCORECARD_META_SECTIONS:
+            continue
+        start = match.end()
+        end = headings[idx + 1].start() if idx + 1 < len(headings) else len(text)
+        body = text[start:end]
+        status_match = re.search(r"^- status:\s*([a-z_]+)", body, re.MULTILINE)
+        grounding_match = re.search(r"^- grounding:\s*([a-z_]+)", body, re.MULTILINE)
+        confidence_match = re.search(r"^- confidence:\s*([0-9]+(?:\.[0-9]+)?)", body, re.MULTILINE)
+        parsed[normalize_token(heading)] = {
+            "label": heading,
+            "status": status_match.group(1) if status_match else "unknown",
+            "grounding_status": grounding_match.group(1) if grounding_match else "unknown",
+            "confidence": round(float(confidence_match.group(1)), 3) if confidence_match else None,
+        }
+    return parsed
+
+
+def classify_confidence_trend(values):
+    usable = [float(value) for value in values if isinstance(value, (int, float))]
+    if len(usable) < 4:
+        return ""
+    delta = usable[-1] - usable[0]
+    span = max(usable) - min(usable)
+    if delta >= 0.08:
+        return "rising"
+    if delta <= -0.08:
+        return "falling"
+    if abs(delta) < 0.04 and span < 0.08:
+        return "flat"
+    return ""
+
+
+def build_scorecard_history(scorecard):
+    dimensions = scorecard.get("dimensions", []) if isinstance(scorecard, dict) else []
+    if not isinstance(dimensions, list) or not dimensions:
+        return scorecard
+
+    aliases = {}
+    for dim in dimensions:
+        dim_id = str(dim.get("id") or normalize_token(dim.get("label", "")))
+        aliases[normalize_token(dim_id)] = dim_id
+        aliases[normalize_token(dim.get("label", ""))] = dim_id
+
+    report_paths = []
+    for path in sorted(REPORTS_DIR.glob("*_scorecard.md")):
+        if not SCORECARD_REPORT_RE.match(path.name):
+            continue
+        stamp = parse_scorecard_report_stamp(path)
+        if not stamp:
+            continue
+        report_paths.append((stamp, path))
+    report_paths = report_paths[-SCORECARD_HISTORY_LOOKBACK:]
+
+    history_by_dimension = {str(dim.get("id") or normalize_token(dim.get("label", ""))): [] for dim in dimensions}
+    for stamp, path in report_paths:
+        parsed = parse_scorecard_report_dimensions(path)
+        if not parsed:
+            continue
+        for parsed_key, payload in parsed.items():
+            dim_id = aliases.get(parsed_key)
+            if not dim_id:
+                continue
+            history_by_dimension.setdefault(dim_id, []).append({
+                "timestamp": stamp.isoformat(timespec="seconds"),
+                "report_name": path.name,
+                "status": payload.get("status", "unknown"),
+                "grounding_status": payload.get("grounding_status", "unknown"),
+                "confidence": payload.get("confidence"),
+            })
+
+    for dim in dimensions:
+        dim_id = str(dim.get("id") or normalize_token(dim.get("label", "")))
+        points = history_by_dimension.get(dim_id, [])
+        if not points and isinstance(dim.get("confidence"), (int, float)):
+            points = [{
+                "timestamp": scorecard.get("generated_at", ""),
+                "report_name": "",
+                "status": dim.get("status", "unknown"),
+                "grounding_status": dim.get("grounding_status", "unknown"),
+                "confidence": round(float(dim.get("confidence", 0.0)), 3),
+            }]
+        points = points[-SCORECARD_HISTORY_WINDOW:]
+        dim["history"] = {
+            "sample_count": len(points),
+            "window_label": f"Recent {len(points)} scorecards" if points else "No retained scorecard history",
+            "trend_label": classify_confidence_trend([point.get("confidence") for point in points]),
+            "points": points,
+        }
+    return scorecard
 
 
 def module_state(last_run, runtime_state, interval_minutes):
@@ -196,6 +320,7 @@ def load_dashboard_data():
     operator_guidance = read_json(OPERATOR_GUIDANCE_PATH, {"mode": "best_effort"})
     action_inbox = load_action_inbox_data()
     scorecard = read_json(SCORECARD_STATE_PATH, {"project_summary": "", "dimensions": []})
+    scorecard = build_scorecard_history(scorecard if isinstance(scorecard, dict) else {"project_summary": "", "dimensions": []})
     telemetry = collect_process_telemetry()
     interval_minutes = int(CFG.get("cycles", {}).get("interval_minutes", 60))
     con = sqlite3.connect(DB_PATH)

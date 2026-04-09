@@ -200,6 +200,11 @@
       background: rgba(255,255,255,0.74);
     }
 
+    .scorecard-card {
+      display: grid;
+      gap: 10px;
+    }
+
     .telemetry-grid {
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     }
@@ -233,6 +238,115 @@
       margin-top: 18px;
       font-size: 0.86rem;
       color: var(--muted);
+    }
+
+    .scorecard-history {
+      border: 1px solid rgba(31, 38, 36, 0.08);
+      border-radius: 14px;
+      padding: 10px 10px 9px;
+      background: rgba(247, 243, 235, 0.9);
+      display: grid;
+      gap: 8px;
+    }
+
+    .scorecard-history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .trend-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(92, 104, 95, 0.1);
+      color: var(--muted);
+    }
+
+    .trend-chip.rising { background: rgba(23,100,58,0.12); color: var(--good); }
+    .trend-chip.falling { background: rgba(179,58,58,0.12); color: var(--danger); }
+    .trend-chip.flat { background: rgba(13,124,102,0.11); color: var(--accent); }
+
+    .sparkline-shell {
+      position: relative;
+      height: 32px;
+      border-radius: 10px;
+      background:
+        linear-gradient(180deg, rgba(13,124,102,0.07), rgba(13,124,102,0.01)),
+        rgba(255,255,255,0.9);
+      border: 1px solid rgba(31,38,36,0.06);
+      overflow: hidden;
+    }
+
+    .sparkline-shell svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .history-row {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .history-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .history-band {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
+      gap: 4px;
+      min-height: 12px;
+    }
+
+    .history-step {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(92,104,95,0.16);
+      border: 1px solid rgba(31,38,36,0.06);
+    }
+
+    .history-step.grounded,
+    .history-step.on_track {
+      background: rgba(23,100,58,0.78);
+    }
+
+    .history-step.weakly_grounded {
+      background: rgba(13,124,102,0.58);
+    }
+
+    .history-step.limited_evidence,
+    .history-step.needs_attention {
+      background: rgba(181,106,45,0.74);
+    }
+
+    .history-step.blocked {
+      background: rgba(179,58,58,0.82);
+    }
+
+    .history-step.unknown {
+      background: rgba(92,104,95,0.2);
+    }
+
+    .history-meta {
+      font-size: 0.77rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .mono { font-family: var(--font-mono); }
@@ -356,6 +470,88 @@
 
     function statCard(label, value, hint) {
       return `<div class="stat"><div class="label">${label}</div><strong>${value}</strong><div class="footer">${hint || ""}</div></div>`;
+    }
+
+    function humanizeToken(value) {
+      return String(value || "unknown").replaceAll("_", " ");
+    }
+
+    function formatConfidence(value) {
+      return typeof value === "number" ? value.toFixed(2) : "n/a";
+    }
+
+    function renderConfidenceSparkline(points) {
+      const values = (points || [])
+        .map((point, index, source) => {
+          if (typeof point.confidence !== "number") return null;
+          return { value: Math.max(0, Math.min(1, point.confidence)), index, total: source.length };
+        })
+        .filter(Boolean);
+      if (!values.length) {
+        return `<div class="sparkline-shell"></div>`;
+      }
+      const width = 160;
+      const height = 32;
+      const padX = 6;
+      const padY = 5;
+      const innerWidth = width - padX * 2;
+      const innerHeight = height - padY * 2;
+      const xFor = (index, total) => total <= 1 ? width / 2 : padX + (innerWidth * index) / (total - 1);
+      const min = Math.min(...values.map(point => point.value));
+      const max = Math.max(...values.map(point => point.value));
+      const constant = Math.abs(max - min) < 0.001;
+      const span = Math.max(max - min, 0.001);
+      const yFor = value => constant ? padY + innerHeight / 2 : padY + innerHeight - ((value - min) / span) * innerHeight;
+      const coords = values.map(point => `${xFor(point.index, point.total).toFixed(1)},${yFor(point.value).toFixed(1)}`);
+      const last = values[values.length - 1];
+      const lastX = xFor(last.index, last.total).toFixed(1);
+      const lastY = yFor(last.value).toFixed(1);
+      const baseline = (padY + innerHeight / 2).toFixed(1);
+      return `
+        <div class="sparkline-shell">
+          <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="${padX}" y1="${baseline}" x2="${width - padX}" y2="${baseline}" stroke="rgba(31,38,36,0.08)" stroke-dasharray="2 3"></line>
+            <polyline fill="none" stroke="rgba(13,124,102,0.95)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" points="${coords.join(" ")}"></polyline>
+            <circle cx="${lastX}" cy="${lastY}" r="2.8" fill="rgba(13,124,102,1)"></circle>
+          </svg>
+        </div>
+      `;
+    }
+
+    function renderHistoryBand(points, key, label) {
+      if (!points || points.length < 2) return "";
+      const steps = points.map(point => {
+        const value = String(point[key] || "unknown");
+        const title = [point.timestamp || "", humanizeToken(value)].filter(Boolean).join(" · ");
+        return `<span class="history-step ${value}" title="${title}"></span>`;
+      }).join("");
+      return `
+        <div class="history-row">
+          <div class="history-label">${label}</div>
+          <div class="history-band">${steps}</div>
+        </div>
+      `;
+    }
+
+    function renderScorecardHistory(history) {
+      const points = (history && history.points) || [];
+      if (points.length < 2) return "";
+      const trend = history.trend_label || "";
+      return `
+        <section class="scorecard-history">
+          <div class="scorecard-history-header">
+            <div class="label">Evolution</div>
+            ${trend ? `<span class="trend-chip ${trend}">${trend}</span>` : ""}
+          </div>
+          ${renderConfidenceSparkline(points)}
+          ${renderHistoryBand(points, "grounding_status", "Ground")}
+          ${renderHistoryBand(points, "status", "Status")}
+          <div class="history-meta">
+            <span>${history.window_label || ""}</span>
+            <span>Confidence trend uses retained scorecard runs only.</span>
+          </div>
+        </section>
+      `;
     }
 
     function renderGuidance(status) {
@@ -487,15 +683,17 @@
             <strong>${dim.label || dim.id}</strong>
             <span class="badge ${badgeClass(
               dim.status === "on_track" ? "healthy" :
-              dim.status === "needs_attention" ? "stale" :
-              dim.status === "blocked" ? "error" : "unknown"
+            dim.status === "needs_attention" ? "stale" :
+            dim.status === "blocked" ? "error" : "unknown"
             )}">${dim.status || "unknown"}</span>
           </div>
+          ${renderScorecardHistory(dim.history)}
+          <div class="footer"><strong>Grounding:</strong> ${humanizeToken(dim.grounding_status || "unknown")}</div>
           <div class="footer"><strong>Goal:</strong> ${dim.goal || "n/a"}</div>
           <div class="footer"><strong>Pressure:</strong> ${dim.limitation_pressure || "n/a"}</div>
           <div style="margin-top:10px">${dim.progress_summary || ""}</div>
           <div class="footer"><strong>Next focus:</strong> ${dim.next_focus || "n/a"}</div>
-          <div class="footer"><strong>Confidence:</strong> ${dim.confidence ?? "n/a"}</div>
+          <div class="footer"><strong>Confidence:</strong> ${formatConfidence(dim.confidence)}</div>
         </article>
       `).join("");
     }
