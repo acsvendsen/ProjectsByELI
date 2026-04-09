@@ -548,6 +548,7 @@ ARTIFACT_EMISSION_READINESS_PATH = PROJECT_STATE_DIR / "artifact_emission_readin
 DRAFT_ARTIFACT_REVIEW_PATH = PROJECT_STATE_DIR / "draft_artifact_review.json"
 STATE_SYNC_SUMMARY_PATH = PROJECT_STATE_DIR / "state_sync_summary.json"
 EXECUTION_RESUME_PATH = PROJECT_STATE_DIR / "execution_resume.json"
+VERIFICATION_SUMMARY_PATH = PROJECT_STATE_DIR / "verification_summary.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -7162,6 +7163,360 @@ def save_execution_resume_state(data):
     EXECUTION_RESUME_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
 
 
+def default_verification_summary_state():
+    return {
+        'generated_at': '',
+        'source_generated_at': {},
+        'summary': '',
+        'subsystem_card_source': {},
+        'current_truth_sources': [],
+        'supporting_context_sources': [],
+        'recent_transitions': [],
+        'lane_explanations': {
+            'active': [],
+            'held': [],
+            'blocked': [],
+        },
+        'recent_source_wins': [],
+        'surfaces_with_caution': [],
+        'representation_risks': [],
+        'operator_checks': [],
+        'counts': {
+            'current_truth_sources': 0,
+            'supporting_context_sources': 0,
+            'recent_transitions': 0,
+            'surfaces_with_caution': 0,
+        },
+    }
+
+
+def load_verification_summary_state():
+    data = load_json_file(VERIFICATION_SUMMARY_PATH, default_verification_summary_state())
+    if not isinstance(data, dict):
+        data = default_verification_summary_state()
+    for key in (
+        'current_truth_sources',
+        'supporting_context_sources',
+        'recent_transitions',
+        'recent_source_wins',
+        'surfaces_with_caution',
+        'representation_risks',
+        'operator_checks',
+    ):
+        if not isinstance(data.get(key), list):
+            data[key] = []
+    if not isinstance(data.get('lane_explanations'), dict):
+        data['lane_explanations'] = default_verification_summary_state().get('lane_explanations', {})
+    for key in ('active', 'held', 'blocked'):
+        if not isinstance(data['lane_explanations'].get(key), list):
+            data['lane_explanations'][key] = []
+    if not isinstance(data.get('subsystem_card_source'), dict):
+        data['subsystem_card_source'] = {}
+    if not isinstance(data.get('source_generated_at'), dict):
+        data['source_generated_at'] = {}
+    if not isinstance(data.get('counts'), dict):
+        data['counts'] = default_verification_summary_state().get('counts', {})
+    return data
+
+
+def save_verification_summary_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_verification_summary_state()
+    payload['updated_at'] = now_iso()
+    VERIFICATION_SUMMARY_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def build_verification_source_entry(question, source_surface, use_state, reason, generated_at, supporting_surfaces=None, sample_titles=None):
+    return {
+        'question': question,
+        'source_surface': source_surface,
+        'use_state': use_state,
+        'generated_at': generated_at or '',
+        'why': compact_text_excerpt(reason, 260),
+        'supporting_surfaces': [str(item) for item in (supporting_surfaces or []) if item],
+        'sample_titles': [str(item) for item in (sample_titles or []) if item][:3],
+    }
+
+
+def build_verification_transition_rows(v1_review_state, artifact_review_state, limit=6):
+    rows = []
+    for item in v1_review_state.get('recently_changed_v1_decisions', []) if isinstance(v1_review_state, dict) else []:
+        if not isinstance(item, dict):
+            continue
+        rows.append({
+            'kind': 'v1_decision_transition',
+            'title': item.get('label', ''),
+            'source_surface': 'v1_decision_review',
+            'transition_reason': item.get('transition_reason', ''),
+            'summary': compact_text_excerpt(item.get('transition_summary', ''), 220),
+            'current_location': item.get('current_location', ''),
+            'happened_at': item.get('transition_at', ''),
+        })
+    for item in artifact_review_state.get('recently_changed_implementation_artifact_candidates', []) if isinstance(artifact_review_state, dict) else []:
+        if not isinstance(item, dict):
+            continue
+        rows.append({
+            'kind': 'implementation_artifact_transition',
+            'title': item.get('label', ''),
+            'source_surface': 'implementation_artifact_review',
+            'transition_reason': item.get('transition_reason', ''),
+            'summary': compact_text_excerpt(item.get('transition_summary', ''), 220),
+            'current_location': item.get('current_location', ''),
+            'happened_at': item.get('transition_at', ''),
+        })
+    rows.sort(key=lambda row: row.get('happened_at', ''), reverse=True)
+    return rows[:max(1, limit)]
+
+
+def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None):
+    schema = schema or load_cognition_schema()
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
+
+    reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
+    scorecard_state = load_scorecard_state()
+    v1_review_state = load_v1_decision_review_state()
+    artifact_review_state = load_implementation_artifact_review_state()
+    emission_state = load_artifact_emission_readiness_state()
+    draft_state = load_draft_artifact_review_state()
+
+    exec_cfg = execution_resume_config(schema)
+    scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
+    artifact_review_use, artifact_review_reason = supporting_artifact_review_posture(artifact_review_state, reflect_state)
+
+    review_surfaces = review_snapshot.get('surfaces', {}) if isinstance(review_snapshot.get('surfaces', {}), dict) else {}
+    v1_surface = review_surfaces.get('v1_decision_review', {})
+    emission_surface = review_surfaces.get('artifact_emission_readiness', {})
+    draft_surface = review_surfaces.get('draft_artifact_review', {})
+
+    pending_rows = v1_review_state.get('pending_v1_decisions', []) if isinstance(v1_review_state.get('pending_v1_decisions', []), list) else []
+    draft_rows = draft_state.get('emitted_drafts', []) if isinstance(draft_state.get('emitted_drafts', []), list) else []
+    emission_rows = emission_state.get('artifact_emission_readiness', []) if isinstance(emission_state.get('artifact_emission_readiness', []), list) else []
+    scorecard_dimensions = scorecard_state.get('dimensions', []) if isinstance(scorecard_state.get('dimensions', []), list) else []
+
+    current_truth_sources = []
+    supporting_context_sources = []
+    recent_source_wins = []
+    surfaces_with_caution = []
+    representation_risks = []
+    operator_checks = []
+
+    current_truth_sources.append(build_verification_source_entry(
+        'Held lanes and action judgment',
+        'reflect_state',
+        'current_truth',
+        'Reflect-owned action judgment remains the authoritative source for whether a lane is active, held, killed, or still unresolved.',
+        state_surface_generated_at(reflect_state),
+        sample_titles=[row.get('title', '') for row in resume_state.get('held_lanes', [])[:2]],
+    ))
+
+    subsystem_card_source = {
+        'source_surface': 'project_scorecard',
+        'use_state': scorecard_use,
+        'generated_at': state_surface_generated_at(scorecard_state),
+        'why': scorecard_reason,
+    }
+    scorecard_titles = [row.get('label', '') for row in scorecard_dimensions[:3] if isinstance(row, dict)]
+    scorecard_entry = build_verification_source_entry(
+        'Subsystem cards and readiness',
+        'project_scorecard',
+        scorecard_use,
+        scorecard_reason,
+        subsystem_card_source.get('generated_at', ''),
+        supporting_surfaces=['reflect_state'] if scorecard_use != 'current_truth' else [],
+        sample_titles=scorecard_titles,
+    )
+    if scorecard_use == 'current_truth':
+        current_truth_sources.append(scorecard_entry)
+    else:
+        supporting_context_sources.append(scorecard_entry)
+
+    if v1_surface.get('consumption_state') == 'current_truth':
+        current_truth_sources.append(build_verification_source_entry(
+            'Pending V1 decisions and active review front',
+            'v1_decision_review',
+            'current_truth',
+            v1_surface.get('consumption_reason', ''),
+            state_surface_generated_at(v1_review_state),
+            sample_titles=[row.get('label', '') for row in pending_rows[:3]],
+        ))
+    else:
+        supporting_context_sources.append(build_verification_source_entry(
+            'Pending V1 decisions and active review front',
+            'v1_decision_review',
+            v1_surface.get('consumption_state', 'provisional_context'),
+            v1_surface.get('consumption_reason', ''),
+            state_surface_generated_at(v1_review_state),
+            sample_titles=[row.get('label', '') for row in pending_rows[:3]],
+        ))
+
+    if draft_surface.get('consumption_state') == 'current_truth':
+        current_truth_sources.append(build_verification_source_entry(
+            'Emitted structured design brief drafts',
+            'draft_artifact_review',
+            'current_truth',
+            draft_surface.get('consumption_reason', ''),
+            state_surface_generated_at(draft_state),
+            supporting_surfaces=['artifact_emission_readiness'],
+            sample_titles=[row.get('label', row.get('title', '')) for row in draft_rows[:3]],
+        ))
+    else:
+        supporting_context_sources.append(build_verification_source_entry(
+            'Emitted structured design brief drafts',
+            'draft_artifact_review',
+            draft_surface.get('consumption_state', 'provisional_context'),
+            draft_surface.get('consumption_reason', ''),
+            state_surface_generated_at(draft_state),
+            supporting_surfaces=['artifact_emission_readiness'],
+            sample_titles=[row.get('label', row.get('title', '')) for row in draft_rows[:3]],
+        ))
+
+    if emission_surface.get('consumption_state') == 'current_truth':
+        current_truth_sources.append(build_verification_source_entry(
+            'Artifact draft-emission readiness',
+            'artifact_emission_readiness',
+            'current_truth',
+            emission_surface.get('consumption_reason', ''),
+            state_surface_generated_at(emission_state),
+            sample_titles=[row.get('label', '') for row in emission_rows[:3]],
+        ))
+    else:
+        supporting_context_sources.append(build_verification_source_entry(
+            'Artifact draft-emission readiness',
+            'artifact_emission_readiness',
+            emission_surface.get('consumption_state', 'provisional_context'),
+            emission_surface.get('consumption_reason', ''),
+            state_surface_generated_at(emission_state),
+            sample_titles=[row.get('label', '') for row in emission_rows[:3]],
+        ))
+
+    if artifact_review_use != 'current_truth':
+        supporting_context_sources.append(build_verification_source_entry(
+            'Implementation-artifact review candidates',
+            'implementation_artifact_review',
+            artifact_review_use,
+            artifact_review_reason,
+            state_surface_generated_at(artifact_review_state),
+            sample_titles=[row.get('label', '') for row in artifact_review_state.get('implementation_artifact_candidates', [])[:3]],
+        ))
+
+    for surface_name, surface in review_surfaces.items():
+        if not isinstance(surface, dict):
+            continue
+        consumption_state = surface.get('consumption_state', 'provisional_context')
+        if consumption_state not in ('caution_context', 'stale_context', 'withheld_from_cross_surface_synthesis'):
+            continue
+        surfaces_with_caution.append({
+            'surface': surface_name,
+            'use_state': consumption_state,
+            'generated_at': state_surface_generated_at(surface.get('payload', {})),
+            'reason': compact_text_excerpt(surface.get('consumption_reason', ''), 240),
+        })
+    if scorecard_use != 'current_truth':
+        surfaces_with_caution.append({
+            'surface': 'project_scorecard',
+            'use_state': scorecard_use,
+            'generated_at': state_surface_generated_at(scorecard_state),
+            'reason': compact_text_excerpt(scorecard_reason, 240),
+        })
+    if artifact_review_use in ('stale_context', 'provisional_context'):
+        surfaces_with_caution.append({
+            'surface': 'implementation_artifact_review',
+            'use_state': artifact_review_use,
+            'generated_at': state_surface_generated_at(artifact_review_state),
+            'reason': compact_text_excerpt(artifact_review_reason, 240),
+        })
+
+    recent_transitions = build_verification_transition_rows(v1_review_state, artifact_review_state, limit=6)
+
+    recent_source_wins.append({
+        'question': 'Held lanes and action judgment',
+        'winning_surface': 'reflect_state',
+        'supporting_surfaces': ['execution_resume'],
+        'why': 'Reflect-owned action judgment is the authoritative source for held, killed, or continuing lanes.',
+    })
+    recent_source_wins.append({
+        'question': 'Subsystem readiness cards',
+        'winning_surface': subsystem_card_source.get('source_surface', 'project_scorecard'),
+        'supporting_surfaces': ['reflect_state'] if scorecard_use != 'current_truth' else [],
+        'why': compact_text_excerpt(scorecard_reason, 220),
+    })
+    recent_source_wins.append({
+        'question': 'Pending review front',
+        'winning_surface': 'v1_decision_review',
+        'supporting_surfaces': ['draft_artifact_review', 'artifact_emission_readiness'],
+        'why': compact_text_excerpt(v1_surface.get('consumption_reason', ''), 220),
+    })
+
+    representation_risks.append('Confidence trend is supporting context only; read the current status and grounding endpoints before inferring improvement from repeated markers.')
+    representation_risks.append('A flat evolution strip can mean stable, stalled, or simply repeating. Verify with the endpoint labels and held or blocked reasons.')
+    if surfaces_with_caution:
+        representation_risks.append('Cautionary or provisional surfaces stay visible for continuity, but they should not override current-truth sources.')
+
+    operator_checks.append('Use current truth sources to verify which surface currently owns each question before trusting the UI impression.')
+    operator_checks.append('Use recent transitions to check what actually changed, rather than reading repeated markers as progress by themselves.')
+    if resume_state.get('blocked_lanes'):
+        operator_checks.append('For a subsystem marked needs_attention, read the blocked-lane reason and next focus before interpreting the confidence strip.')
+    if resume_state.get('held_lanes'):
+        operator_checks.append('For held lanes, verify the release signals before trying to reopen the lane as active work.')
+
+    lane_explanations = {
+        'active': [{
+            'title': row.get('title', ''),
+            'source_surface': row.get('source_surface', ''),
+            'why': compact_text_excerpt(row.get('why_active_now', row.get('review_question', '')), 220),
+        } for row in (resume_state.get('active_review_front', []) or [])[:3]],
+        'held': [{
+            'title': row.get('title', ''),
+            'source_surface': row.get('source_surface', ''),
+            'why': compact_text_excerpt(row.get('why_held', ''), 220),
+            'release_on': row.get('release_on', [])[:3],
+        } for row in (resume_state.get('held_lanes', []) or [])[:3]],
+        'blocked': [{
+            'title': row.get('title', ''),
+            'source_surface': row.get('source_surface', ''),
+            'status': row.get('status', ''),
+            'why': compact_text_excerpt(row.get('blocking_reason', ''), 220),
+        } for row in (resume_state.get('blocked_lanes', []) or [])[:3]],
+    }
+
+    summary = str(review_snapshot.get('summary', '') or '').strip()
+    if scorecard_use != 'current_truth':
+        summary = compact_text_excerpt(f"{summary} Subsystem cards are currently supporting context, not current-truth authority.", 240)
+    elif not summary:
+        summary = 'Current-truth and supporting-context lanes are distinct enough to verify operationally without flattening them into one state.'
+
+    return {
+        'generated_at': now_iso(),
+        'source_generated_at': {
+            'review_state_consumption': review_snapshot.get('generated_at', ''),
+            'execution_resume': resume_state.get('generated_at', ''),
+            'reflect_state': state_surface_generated_at(reflect_state),
+            'project_scorecard': state_surface_generated_at(scorecard_state),
+            'v1_decision_review': state_surface_generated_at(v1_review_state),
+            'implementation_artifact_review': state_surface_generated_at(artifact_review_state),
+            'artifact_emission_readiness': state_surface_generated_at(emission_state),
+            'draft_artifact_review': state_surface_generated_at(draft_state),
+        },
+        'summary': summary,
+        'subsystem_card_source': subsystem_card_source,
+        'current_truth_sources': current_truth_sources[:5],
+        'supporting_context_sources': supporting_context_sources[:5],
+        'recent_transitions': recent_transitions,
+        'lane_explanations': lane_explanations,
+        'recent_source_wins': recent_source_wins[:4],
+        'surfaces_with_caution': surfaces_with_caution[:5],
+        'representation_risks': list(dict.fromkeys(item for item in representation_risks if item))[:4],
+        'operator_checks': list(dict.fromkeys(item for item in operator_checks if item))[:4],
+        'counts': {
+            'current_truth_sources': len(current_truth_sources[:5]),
+            'supporting_context_sources': len(supporting_context_sources[:5]),
+            'recent_transitions': len(recent_transitions),
+            'surfaces_with_caution': len(surfaces_with_caution[:5]),
+        },
+    }
+
+
 def scorecard_resume_posture(scorecard_state, reflect_state, cfg):
     scorecard_generated_at = state_surface_generated_at(scorecard_state)
     reflect_generated_at = state_surface_generated_at(reflect_state)
@@ -7687,7 +8042,10 @@ def refresh_review_state_sync_metadata(schema=None):
     DRAFT_ARTIFACT_REVIEW_PATH.write_text(json.dumps(payloads['draft_artifact_review'], indent=2) + "\n", encoding='utf-8')
     summary = build_review_state_sync_summary(payloads, metadata_by_surface)
     STATE_SYNC_SUMMARY_PATH.write_text(json.dumps(summary, indent=2) + "\n", encoding='utf-8')
-    save_execution_resume_state(build_execution_resume_state(schema=schema, review_snapshot=load_review_state_consumption_snapshot()))
+    review_snapshot = load_review_state_consumption_snapshot()
+    resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
+    save_execution_resume_state(resume_state)
+    save_verification_summary_state(build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
     return summary
 
 
@@ -10014,7 +10372,11 @@ def generate_scorecard_cycle(changes, prior_reports):
     scorecard['generation_effort'] = compact_effort_metadata(effort_selection)
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     SCORECARD_STATE_PATH.write_text(json.dumps(scorecard, indent=2), encoding='utf-8')
-    save_execution_resume_state(build_execution_resume_state(schema=load_cognition_schema(), review_snapshot=load_review_state_consumption_snapshot()))
+    schema = load_cognition_schema()
+    review_snapshot = load_review_state_consumption_snapshot()
+    resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
+    save_execution_resume_state(resume_state)
+    save_verification_summary_state(build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
     return render_scorecard_markdown(scorecard), effort_selection
 
 

@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-04-09T23:02:49",
+  "generated_at": "2026-04-09T23:51:31",
   "source_generated_at": {
     "review_state_consumption": "2026-04-09T23:02:49",
-    "reflect_state": "2026-04-09T23:01:23",
-    "project_scorecard": "2026-04-09T23:02:11",
+    "reflect_state": "2026-04-09T23:50:44",
+    "project_scorecard": "2026-04-09T23:46:57",
     "implementation_artifact_review": "2026-04-09T23:02:49",
-    "v1_decision_review": "2026-04-09T23:01:23",
+    "v1_decision_review": "2026-04-09T23:50:44",
     "artifact_emission_readiness": "2026-04-09T23:02:49",
     "draft_artifact_review": "2026-04-09T23:02:49"
   },
@@ -22,17 +22,30 @@
     "cautionary_surfaces": [],
     "scorecard_use": "current_truth",
     "scorecard_reason": "The scorecard is fresh enough to use as current subsystem-readiness context.",
-    "implementation_artifact_review_use": "provisional_context",
-    "implementation_artifact_review_reason": "Implementation artifact review is close enough to current reflect state to use as bounded supporting context."
+    "implementation_artifact_review_use": "stale_context",
+    "implementation_artifact_review_reason": "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history."
   },
   "current_truth_summary": [
     "The current review-state files are close enough in time and linkage to compare operationally.",
-    "2 pending V1 decision(s) currently define the active review front: V1 Confidence Display Format, V1 Default Subtitle Position.",
+    "3 pending V1 decision(s) currently define the active review front: V1 Visual Hierarchy Default, V1 Confidence Display Format, V1 Default Subtitle Position.",
     "2 provisional structured design brief draft(s) are available for review without becoming implementation commitments.",
-    "3 meaningful lane(s) are currently held until new grounding appears rather than being treated as solved or dead.",
+    "1 meaningful lane(s) are currently held until new grounding appears rather than being treated as solved or dead.",
     "Fresh scorecard context still grounds Hardware Stack, Subtitle System most strongly."
   ],
   "active_review_front": [
+    {
+      "lane": "pending_v1_decision",
+      "title": "V1 Visual Hierarchy Default",
+      "source_surface": "v1_decision_review",
+      "trust_use": "current_truth",
+      "why_active_now": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit...",
+      "current_direction": "Subtitles Dominate",
+      "bounded_options": [
+        "Subtitles Dominate",
+        "Balanced Overlay"
+      ],
+      "revisable": true
+    },
     {
       "lane": "pending_v1_decision",
       "title": "V1 Confidence Display Format",
@@ -66,30 +79,6 @@
       "source_surface": "reflect_state",
       "judgment": "hold_until_new_grounding",
       "why_held": "aligns with Trustworthy memory support; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs usefulness, Latency vs richness; still meaningful, but not newly a...",
-      "release_on": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully stronger architectural pull",
-        "meaningfully lower resistance"
-      ]
-    },
-    {
-      "title": "Visual Hierarchy",
-      "source_surface": "reflect_state",
-      "judgment": "hold_until_new_grounding",
-      "why_held": "aligns with Real-time subtitle clarity, Low-friction assistance; also addresses under-attended pressure in Discreet UX vs visual clarity; meets resistance from Discreet UX vs visual clarity; needs counterweight discip...",
-      "release_on": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully stronger architectural pull",
-        "meaningfully lower resistance"
-      ]
-    },
-    {
-      "title": "Phone/Cloud Boundary",
-      "source_surface": "reflect_state",
-      "judgment": "hold_until_new_grounding",
-      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Latency vs richness, Privacy vs usefulness; needs counterweight discipline on Latency vs richness, Privacy vs usefulness; still...",
       "release_on": [
         "real repo change or stronger repo grounding",
         "a new source type such as runtime truth or code-config evidence",
@@ -134,12 +123,19 @@
   ],
   "unblocked_next": {
     "kind": "pending_v1_decision",
-    "title": "V1 Confidence Display Format",
+    "title": "V1 Visual Hierarchy Default",
     "source_surface": "v1_decision_review",
-    "why_now": "What confidence format should V1 use by default during live subtitle support?",
+    "why_now": "What should the default visual hierarchy be for V1 overlays during live conversation?",
     "revisable": true
   },
   "needs_human_review": [
+    {
+      "kind": "pending_v1_decision",
+      "title": "V1 Visual Hierarchy Default",
+      "source_surface": "v1_decision_review",
+      "review_question": "What should the default visual hierarchy be for V1 overlays during live conversation?",
+      "revisable": true
+    },
     {
       "kind": "pending_v1_decision",
       "title": "V1 Confidence Display Format",
@@ -156,13 +152,13 @@
     }
   ],
   "resume_notes": [
-    "Implementation artifact review is close enough to current reflect state to use as bounded supporting context."
+    "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history."
   ],
   "counts": {
-    "active_review_front": 2,
-    "held_lanes": 3,
+    "active_review_front": 3,
+    "held_lanes": 1,
     "blocked_lanes": 4,
-    "needs_human_review": 2
+    "needs_human_review": 3
   },
-  "updated_at": "2026-04-09T23:02:49"
+  "updated_at": "2026-04-09T23:51:31"
 }

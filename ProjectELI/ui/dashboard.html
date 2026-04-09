@@ -262,8 +262,7 @@
       padding: 4px 8px;
       border-radius: 999px;
       font-size: 0.72rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
+      letter-spacing: 0.02em;
       background: rgba(92, 104, 95, 0.1);
       color: var(--muted);
     }
@@ -274,10 +273,10 @@
 
     .sparkline-shell {
       position: relative;
-      height: 32px;
+      height: 26px;
       border-radius: 10px;
       background:
-        linear-gradient(180deg, rgba(13,124,102,0.07), rgba(13,124,102,0.01)),
+        linear-gradient(180deg, rgba(13,124,102,0.045), rgba(13,124,102,0.01)),
         rgba(255,255,255,0.9);
       border: 1px solid rgba(31,38,36,0.06);
       overflow: hidden;
@@ -291,7 +290,7 @@
 
     .history-row {
       display: grid;
-      grid-template-columns: 52px 1fr;
+      grid-template-columns: 52px 1fr auto;
       gap: 8px;
       align-items: center;
     }
@@ -318,6 +317,20 @@
       border: 1px solid rgba(31,38,36,0.06);
     }
 
+    .history-band.grounding .history-step {
+      height: 10px;
+      border-radius: 999px;
+      margin-top: 1px;
+      opacity: 0.9;
+    }
+
+    .history-band.status .history-step {
+      height: 13px;
+      border-radius: 4px;
+      border-width: 1.5px;
+      box-shadow: inset 0 -1px 0 rgba(31,38,36,0.12);
+    }
+
     .history-step.grounded,
     .history-step.on_track {
       background: rgba(23,100,58,0.78);
@@ -340,6 +353,39 @@
       background: rgba(92,104,95,0.2);
     }
 
+    .history-endpoint {
+      font-size: 0.72rem;
+      line-height: 1;
+      color: var(--muted);
+      padding: 3px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(31,38,36,0.08);
+      background: rgba(255,255,255,0.82);
+      white-space: nowrap;
+    }
+
+    .history-endpoint.grounded,
+    .history-endpoint.on_track {
+      color: var(--good);
+      background: rgba(23,100,58,0.08);
+    }
+
+    .history-endpoint.weakly_grounded {
+      color: var(--accent);
+      background: rgba(13,124,102,0.08);
+    }
+
+    .history-endpoint.limited_evidence,
+    .history-endpoint.needs_attention {
+      color: var(--late);
+      background: rgba(181,106,45,0.1);
+    }
+
+    .history-endpoint.blocked {
+      color: var(--danger);
+      background: rgba(179,58,58,0.1);
+    }
+
     .history-meta {
       font-size: 0.77rem;
       color: var(--muted);
@@ -347,6 +393,74 @@
       justify-content: space-between;
       gap: 10px;
       flex-wrap: wrap;
+    }
+
+    .verification-group {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .verification-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .verification-heading {
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .verification-note {
+      border: 1px solid rgba(31, 38, 36, 0.08);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,0.7);
+      display: grid;
+      gap: 7px;
+    }
+
+    .mini-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .mini-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 7px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      border: 1px solid rgba(31,38,36,0.08);
+      background: rgba(255,255,255,0.82);
+      color: var(--muted);
+    }
+
+    .mini-pill.current_truth,
+    .mini-pill.operational {
+      color: var(--good);
+      background: rgba(23,100,58,0.08);
+    }
+
+    .mini-pill.provisional_context,
+    .mini-pill.provisional {
+      color: var(--accent);
+      background: rgba(13,124,102,0.08);
+    }
+
+    .mini-pill.stale_context,
+    .mini-pill.caution,
+    .mini-pill.needs_attention {
+      color: var(--late);
+      background: rgba(181,106,45,0.1);
+    }
+
+    .mini-pill.withheld_from_cross_surface_synthesis,
+    .mini-pill.blocked {
+      color: var(--danger);
+      background: rgba(179,58,58,0.1);
     }
 
     .mono { font-family: var(--font-mono); }
@@ -445,9 +559,9 @@
         <div class="footer mono" id="runtimeFooter"></div>
       </div>
       <div class="panel">
-        <div class="label">System Notes</div>
-        <h2>Helpful Context</h2>
-        <div class="notes" id="systemNotes"></div>
+        <div class="label">Verification</div>
+        <h2>Why This UI Is Saying This</h2>
+        <div class="notes" id="verification"></div>
       </div>
     </section>
   </div>
@@ -480,6 +594,49 @@
       return typeof value === "number" ? value.toFixed(2) : "n/a";
     }
 
+    function shortGroundingLabel(value) {
+      const map = {
+        grounded: "grounded",
+        weakly_grounded: "weak",
+        limited_evidence: "limited",
+        unknown: "unknown"
+      };
+      return map[String(value || "unknown")] || humanizeToken(value);
+    }
+
+    function shortStatusLabel(value) {
+      const map = {
+        on_track: "on track",
+        needs_attention: "attention",
+        blocked: "blocked",
+        held: "held",
+        unknown: "unknown"
+      };
+      return map[String(value || "unknown")] || humanizeToken(value);
+    }
+
+    function contextualTrendCue(points, trend) {
+      if (!trend || !points || !points.length) return "";
+      const latest = points[points.length - 1] || {};
+      const grounding = String(latest.grounding_status || "unknown");
+      const status = String(latest.status || "unknown");
+      if (trend === "flat") {
+        if (status === "needs_attention" || status === "blocked" || status === "held") return shortStatusLabel(status);
+        if (grounding !== "grounded" && grounding !== "unknown") return shortGroundingLabel(grounding);
+        return "stable";
+      }
+      if (trend === "rising") {
+        if (grounding === "grounded") return "grounded";
+        if (grounding !== "unknown") return shortGroundingLabel(grounding);
+        return "";
+      }
+      if (trend === "falling") {
+        if (status === "needs_attention" || status === "blocked" || status === "held") return shortStatusLabel(status);
+        if (grounding !== "grounded" && grounding !== "unknown") return shortGroundingLabel(grounding);
+      }
+      return "";
+    }
+
     function renderConfidenceSparkline(points) {
       const values = (points || [])
         .map((point, index, source) => {
@@ -491,9 +648,9 @@
         return `<div class="sparkline-shell"></div>`;
       }
       const width = 160;
-      const height = 32;
+      const height = 26;
       const padX = 6;
-      const padY = 5;
+      const padY = 4;
       const innerWidth = width - padX * 2;
       const innerHeight = height - padY * 2;
       const xFor = (index, total) => total <= 1 ? width / 2 : padX + (innerWidth * index) / (total - 1);
@@ -518,8 +675,10 @@
       `;
     }
 
-    function renderHistoryBand(points, key, label) {
+    function renderHistoryBand(points, key, label, kind, endpointFormatter) {
       if (!points || points.length < 2) return "";
+      const latest = points[points.length - 1] || {};
+      const latestValue = String(latest[key] || "unknown");
       const steps = points.map(point => {
         const value = String(point[key] || "unknown");
         const title = [point.timestamp || "", humanizeToken(value)].filter(Boolean).join(" · ");
@@ -528,7 +687,8 @@
       return `
         <div class="history-row">
           <div class="history-label">${label}</div>
-          <div class="history-band">${steps}</div>
+          <div class="history-band ${kind || ""}">${steps}</div>
+          <div class="history-endpoint ${latestValue}">${endpointFormatter ? endpointFormatter(latestValue) : humanizeToken(latestValue)}</div>
         </div>
       `;
     }
@@ -537,21 +697,171 @@
       const points = (history && history.points) || [];
       if (points.length < 2) return "";
       const trend = history.trend_label || "";
+      const trendCue = contextualTrendCue(points, trend);
+      const trendLabel = trend ? `${trend}${trendCue ? ` / ${trendCue}` : ""}` : "";
       return `
         <section class="scorecard-history">
           <div class="scorecard-history-header">
             <div class="label">Evolution</div>
-            ${trend ? `<span class="trend-chip ${trend}">${trend}</span>` : ""}
+            ${trend ? `<span class="trend-chip ${trend}">${trendLabel}</span>` : ""}
           </div>
           ${renderConfidenceSparkline(points)}
-          ${renderHistoryBand(points, "grounding_status", "Ground")}
-          ${renderHistoryBand(points, "status", "Status")}
+          ${renderHistoryBand(points, "grounding_status", "Ground", "grounding", shortGroundingLabel)}
+          ${renderHistoryBand(points, "status", "Status", "status", shortStatusLabel)}
           <div class="history-meta">
             <span>${history.window_label || ""}</span>
             <span>Confidence trend uses retained scorecard runs only.</span>
           </div>
         </section>
       `;
+    }
+
+    function renderVerificationSourceRow(row) {
+      if (!row) return "";
+      const sourceSurface = row.source_surface || "unknown";
+      const useState = row.use_state || "provisional_context";
+      const pills = `
+        <div class="mini-pills">
+          <span class="mini-pill ${useState}">${humanizeToken(useState)}</span>
+          <span class="mini-pill">${sourceSurface}</span>
+        </div>
+      `;
+      const support = (row.supporting_surfaces || []).length
+        ? `<div class="footer"><strong>Supporting context:</strong> ${(row.supporting_surfaces || []).join(", ")}</div>`
+        : "";
+      const samples = (row.sample_titles || []).length
+        ? `<div class="footer"><strong>Seen here:</strong> ${(row.sample_titles || []).join(", ")}</div>`
+        : "";
+      return `
+        <article class="verification-note">
+          <strong>${row.question || "Current truth source"}</strong>
+          ${pills}
+          <div>${row.why || ""}</div>
+          ${support}
+          ${samples}
+        </article>
+      `;
+    }
+
+    function renderVerificationTransitionRow(row) {
+      if (!row) return "";
+      const reason = row.transition_reason ? `<span class="mini-pill">${humanizeToken(row.transition_reason)}</span>` : "";
+      return `
+        <article class="verification-note">
+          <strong>${row.title || "Recent transition"}</strong>
+          <div class="mini-pills">
+            <span class="mini-pill">${row.source_surface || "unknown"}</span>
+            ${reason}
+          </div>
+          <div>${row.summary || ""}</div>
+          ${row.current_location ? `<div class="footer"><strong>Now in:</strong> ${humanizeToken(row.current_location)}</div>` : ""}
+        </article>
+      `;
+    }
+
+    function renderVerificationLaneRow(kind, row) {
+      if (!row) return "";
+      const pills = `
+        <div class="mini-pills">
+          <span class="mini-pill">${kind}</span>
+          ${row.status ? `<span class="mini-pill ${row.status}">${humanizeToken(row.status)}</span>` : ""}
+          ${row.source_surface ? `<span class="mini-pill">${row.source_surface}</span>` : ""}
+        </div>
+      `;
+      const release = (row.release_on || []).length
+        ? `<div class="footer"><strong>Release on:</strong> ${(row.release_on || []).join(", ")}</div>`
+        : "";
+      return `
+        <article class="verification-note">
+          <strong>${row.title || "Lane"}</strong>
+          ${pills}
+          <div>${row.why || ""}</div>
+          ${release}
+        </article>
+      `;
+    }
+
+    function renderVerification(status) {
+      const verification = status.verification_summary || {};
+      const currentTruth = verification.current_truth_sources || [];
+      const supporting = verification.supporting_context_sources || [];
+      const transitions = verification.recent_transitions || [];
+      const laneExplanations = verification.lane_explanations || {};
+      const cautions = verification.surfaces_with_caution || [];
+      const risks = verification.representation_risks || [];
+      const checks = verification.operator_checks || [];
+      const groups = [];
+
+      if (verification.summary) {
+        groups.push(`
+          <section class="verification-group">
+            <div class="verification-heading">Trust Posture</div>
+            <article class="verification-note">${verification.summary}</article>
+          </section>
+        `);
+      }
+
+      if (currentTruth.length) {
+        groups.push(`
+          <section class="verification-group">
+            <div class="verification-heading">Current Truth Sources</div>
+            ${currentTruth.slice(0, 3).map(renderVerificationSourceRow).join("")}
+          </section>
+        `);
+      }
+
+      if (supporting.length || cautions.length) {
+        groups.push(`
+          <section class="verification-group">
+            <div class="verification-heading">Supporting Or Cautionary Context</div>
+            ${supporting.slice(0, 2).map(renderVerificationSourceRow).join("")}
+            ${cautions.slice(0, 2).map(row => `
+              <article class="verification-note">
+                <strong>${row.surface || "surface"}</strong>
+                <div class="mini-pills">
+                  <span class="mini-pill ${row.use_state || ""}">${humanizeToken(row.use_state || "provisional")}</span>
+                </div>
+                <div>${row.reason || ""}</div>
+              </article>
+            `).join("")}
+          </section>
+        `);
+      }
+
+      const laneRows = [
+        ...(laneExplanations.active || []).slice(0, 1).map(row => ["active", row]),
+        ...(laneExplanations.held || []).slice(0, 1).map(row => ["held", row]),
+        ...(laneExplanations.blocked || []).slice(0, 2).map(row => ["blocked", row]),
+      ];
+      if (laneRows.length) {
+        groups.push(`
+          <section class="verification-group">
+            <div class="verification-heading">Why This Lane Looks This Way</div>
+            ${laneRows.map(([kind, row]) => renderVerificationLaneRow(kind, row)).join("")}
+          </section>
+        `);
+      }
+
+      if (transitions.length) {
+        groups.push(`
+          <section class="verification-group">
+            <div class="verification-heading">Recent Meaningful Transitions</div>
+            ${transitions.slice(0, 3).map(renderVerificationTransitionRow).join("")}
+          </section>
+        `);
+      }
+
+      if (risks.length || checks.length) {
+        groups.push(`
+          <section class="verification-group">
+            <div class="verification-heading">Operator Checks</div>
+            ${risks.slice(0, 2).map(item => `<article class="verification-note"><strong>Representation risk</strong><div>${item}</div></article>`).join("")}
+            ${checks.slice(0, 2).map(item => `<article class="verification-note"><strong>Check</strong><div>${item}</div></article>`).join("")}
+          </section>
+        `);
+      }
+
+      document.getElementById("verification").innerHTML = groups.join("") || `<div class="note">No verification summary is available yet.</div>`;
     }
 
     function renderGuidance(status) {
@@ -783,12 +1093,7 @@
       document.getElementById("runtimeFooter").textContent =
         `runtime state: ${status.runtime_state.state || "unknown"} | current project: ${status.runtime_state.current_project || status.project.current_project || "n/a"} | current cycle: ${status.runtime_state.current_cycle || "none"} | last report: ${status.runtime_state.last_report_path || "n/a"}`;
 
-      document.getElementById("systemNotes").innerHTML = [
-        `<div class="note">If no action choice is pressed, the orchestrator keeps using best effort for that decision domain.</div>`,
-        `<div class="note">Dream is currently the heaviest module when per-domain idea generation is enabled.</div>`,
-        `<div class="note">CPU and RAM telemetry reflects live process load, while module cards reflect recent cycle work.</div>`,
-        `<div class="note">TranscriptLab should remain a glasses simulator. ELI operator controls belong here, not inside the wearer-facing app.</div>`
-      ].join("");
+      renderVerification(status);
 
       renderGuidance(status);
     }

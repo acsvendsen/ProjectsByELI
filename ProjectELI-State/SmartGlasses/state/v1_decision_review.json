@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-09T23:23:19",
+  "generated_at": "2026-04-09T23:50:44",
   "response_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/state/v1_decision_human_responses.json",
   "allowed_responses": [
     "accept_for_v1",
@@ -93,10 +93,10 @@
       "action_title": "Subtitle Placement",
       "action_domain": "subtitle placement",
       "candidate_status": "pending_v1_decision",
-      "candidate_cycle_state": "new_candidate",
+      "candidate_cycle_state": "persistent_candidate",
       "grounding_status": "grounded",
       "feasibility": "feasible_now",
-      "reason": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit V1 options. promoting it to a decision candidate should reduce repeated abstract re-probing. this does not reopen it as an action even though current action judgment is kill.",
+      "reason": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit V1 options. promoting it to a decision candidate should reduce repeated abstract re-probing. this does not reopen it as an action even though current action judgment is kill. it is already a pending V1 decision candidate, so later cycles should keep the question bounded unless grounding changes.",
       "options": [
         {
           "id": "stable_default",
@@ -128,5 +128,5 @@
     "pending_v1_decisions": 3,
     "human_responded": 0
   },
-  "updated_at": "2026-04-09T23:23:19"
+  "updated_at": "2026-04-09T23:50:44"
 }

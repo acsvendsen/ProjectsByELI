@@ -1,0 +1,239 @@
+{
+  "generated_at": "2026-04-09T23:51:31",
+  "source_generated_at": {
+    "review_state_consumption": "2026-04-09T23:02:49",
+    "execution_resume": "2026-04-09T23:51:31",
+    "reflect_state": "2026-04-09T23:50:44",
+    "project_scorecard": "2026-04-09T23:46:57",
+    "v1_decision_review": "2026-04-09T23:50:44",
+    "implementation_artifact_review": "2026-04-09T23:02:49",
+    "artifact_emission_readiness": "2026-04-09T23:02:49",
+    "draft_artifact_review": "2026-04-09T23:02:49"
+  },
+  "summary": "The current review-state files are close enough in time and linkage to compare operationally.",
+  "subsystem_card_source": {
+    "source_surface": "project_scorecard",
+    "use_state": "current_truth",
+    "generated_at": "2026-04-09T23:46:57",
+    "why": "The scorecard is fresh enough to use as current subsystem-readiness context."
+  },
+  "current_truth_sources": [
+    {
+      "question": "Held lanes and action judgment",
+      "source_surface": "reflect_state",
+      "use_state": "current_truth",
+      "generated_at": "2026-04-09T23:50:44",
+      "why": "Reflect-owned action judgment remains the authoritative source for whether a lane is active, held, killed, or still unresolved.",
+      "supporting_surfaces": [],
+      "sample_titles": [
+        "Memory/Cache Policy"
+      ]
+    },
+    {
+      "question": "Subsystem cards and readiness",
+      "source_surface": "project_scorecard",
+      "use_state": "current_truth",
+      "generated_at": "2026-04-09T23:46:57",
+      "why": "The scorecard is fresh enough to use as current subsystem-readiness context.",
+      "supporting_surfaces": [],
+      "sample_titles": [
+        "Hardware Stack",
+        "Software Stack",
+        "Wireless Interface"
+      ]
+    },
+    {
+      "question": "Pending V1 decisions and active review front",
+      "source_surface": "v1_decision_review",
+      "use_state": "current_truth",
+      "generated_at": "2026-04-09T23:50:44",
+      "why": "This file is close enough to its linked review surfaces to compare operationally.",
+      "supporting_surfaces": [],
+      "sample_titles": [
+        "V1 Visual Hierarchy Default",
+        "V1 Confidence Display Format",
+        "V1 Default Subtitle Position"
+      ]
+    },
+    {
+      "question": "Emitted structured design brief drafts",
+      "source_surface": "draft_artifact_review",
+      "use_state": "current_truth",
+      "generated_at": "2026-04-09T23:02:49",
+      "why": "This file is close enough to its linked review surfaces to compare operationally.",
+      "supporting_surfaces": [
+        "artifact_emission_readiness"
+      ],
+      "sample_titles": [
+        "V1 Confidence Display Format",
+        "V1 Default Subtitle Position"
+      ]
+    },
+    {
+      "question": "Artifact draft-emission readiness",
+      "source_surface": "artifact_emission_readiness",
+      "use_state": "current_truth",
+      "generated_at": "2026-04-09T23:02:49",
+      "why": "This file is close enough to its linked review surfaces to compare operationally.",
+      "supporting_surfaces": [],
+      "sample_titles": [
+        "V1 Confidence Display Format",
+        "V1 Default Subtitle Position"
+      ]
+    }
+  ],
+  "supporting_context_sources": [
+    {
+      "question": "Implementation-artifact review candidates",
+      "source_surface": "implementation_artifact_review",
+      "use_state": "stale_context",
+      "generated_at": "2026-04-09T23:02:49",
+      "why": "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history.",
+      "supporting_surfaces": [],
+      "sample_titles": [
+        "V1 Confidence Display Format",
+        "V1 Default Subtitle Position"
+      ]
+    }
+  ],
+  "recent_transitions": [
+    {
+      "kind": "implementation_artifact_transition",
+      "title": "V1 Visual Hierarchy Default",
+      "source_surface": "implementation_artifact_review",
+      "transition_reason": "moved_to_hold",
+      "summary": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
+      "current_location": "held_pending_grounding",
+      "happened_at": "2026-04-09T08:06:54"
+    },
+    {
+      "kind": "implementation_artifact_transition",
+      "title": "V1 Confidence Display Format",
+      "source_surface": "implementation_artifact_review",
+      "transition_reason": "superseded",
+      "summary": "This artifact is no longer the current review surface. V1 Confidence Display Format is now the more relevant implementation-artifact review candidate in this area.",
+      "current_location": "implementation_artifact_candidates",
+      "happened_at": "2026-04-08T18:40:00"
+    },
+    {
+      "kind": "implementation_artifact_transition",
+      "title": "V1 Visual Hierarchy Default",
+      "source_surface": "implementation_artifact_review",
+      "transition_reason": "superseded",
+      "summary": "This artifact is no longer the current review surface. V1 Visual Hierarchy Default is now the more relevant implementation-artifact review candidate in this area.",
+      "current_location": "implementation_artifact_candidates",
+      "happened_at": "2026-04-08T18:40:00"
+    },
+    {
+      "kind": "implementation_artifact_transition",
+      "title": "V1 Default Subtitle Position",
+      "source_surface": "implementation_artifact_review",
+      "transition_reason": "superseded",
+      "summary": "This artifact is no longer the current review surface. V1 Default Subtitle Position is now the more relevant implementation-artifact review candidate in this area.",
+      "current_location": "implementation_artifact_candidates",
+      "happened_at": "2026-04-08T18:40:00"
+    }
+  ],
+  "lane_explanations": {
+    "active": [
+      {
+        "title": "V1 Visual Hierarchy Default",
+        "source_surface": "v1_decision_review",
+        "why": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit..."
+      },
+      {
+        "title": "V1 Confidence Display Format",
+        "source_surface": "v1_decision_review",
+        "why": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit..."
+      },
+      {
+        "title": "V1 Default Subtitle Position",
+        "source_surface": "v1_decision_review",
+        "why": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit..."
+      }
+    ],
+    "held": [
+      {
+        "title": "Memory/Cache Policy",
+        "source_surface": "reflect_state",
+        "why": "aligns with Trustworthy memory support; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs usefulness, Latency vs richness; still meaningful, but not newly a...",
+        "release_on": [
+          "real repo change or stronger repo grounding",
+          "a new source type such as runtime truth or code-config evidence",
+          "meaningfully stronger architectural pull"
+        ]
+      }
+    ],
+    "blocked": [
+      {
+        "title": "Wireless Interface",
+        "source_surface": "project_scorecard",
+        "status": "needs_attention",
+        "why": "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
+      },
+      {
+        "title": "Firmware",
+        "source_surface": "project_scorecard",
+        "status": "needs_attention",
+        "why": "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent."
+      },
+      {
+        "title": "Memory System",
+        "source_surface": "project_scorecard",
+        "status": "needs_attention",
+        "why": "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope."
+      }
+    ]
+  },
+  "recent_source_wins": [
+    {
+      "question": "Held lanes and action judgment",
+      "winning_surface": "reflect_state",
+      "supporting_surfaces": [
+        "execution_resume"
+      ],
+      "why": "Reflect-owned action judgment is the authoritative source for held, killed, or continuing lanes."
+    },
+    {
+      "question": "Subsystem readiness cards",
+      "winning_surface": "project_scorecard",
+      "supporting_surfaces": [],
+      "why": "The scorecard is fresh enough to use as current subsystem-readiness context."
+    },
+    {
+      "question": "Pending review front",
+      "winning_surface": "v1_decision_review",
+      "supporting_surfaces": [
+        "draft_artifact_review",
+        "artifact_emission_readiness"
+      ],
+      "why": "This file is close enough to its linked review surfaces to compare operationally."
+    }
+  ],
+  "surfaces_with_caution": [
+    {
+      "surface": "implementation_artifact_review",
+      "use_state": "stale_context",
+      "generated_at": "2026-04-09T23:02:49",
+      "reason": "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history."
+    }
+  ],
+  "representation_risks": [
+    "Confidence trend is supporting context only; read the current status and grounding endpoints before inferring improvement from repeated markers.",
+    "A flat evolution strip can mean stable, stalled, or simply repeating. Verify with the endpoint labels and held or blocked reasons.",
+    "Cautionary or provisional surfaces stay visible for continuity, but they should not override current-truth sources."
+  ],
+  "operator_checks": [
+    "Use current truth sources to verify which surface currently owns each question before trusting the UI impression.",
+    "Use recent transitions to check what actually changed, rather than reading repeated markers as progress by themselves.",
+    "For a subsystem marked needs_attention, read the blocked-lane reason and next focus before interpreting the confidence strip.",
+    "For held lanes, verify the release signals before trying to reopen the lane as active work."
+  ],
+  "counts": {
+    "current_truth_sources": 5,
+    "supporting_context_sources": 1,
+    "recent_transitions": 4,
+    "surfaces_with_caution": 1
+  },
+  "updated_at": "2026-04-09T23:51:31"
+}

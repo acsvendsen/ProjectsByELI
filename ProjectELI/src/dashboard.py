@@ -21,6 +21,7 @@ from orchestrator import (
     RUNTIME_STATE_PATH,
     SCORECARD_STATE_PATH,
     STATE_DIR,
+    VERIFICATION_SUMMARY_PATH,
     ensure_db,
     watch_roots,
 )
@@ -321,6 +322,18 @@ def load_dashboard_data():
     action_inbox = load_action_inbox_data()
     scorecard = read_json(SCORECARD_STATE_PATH, {"project_summary": "", "dimensions": []})
     scorecard = build_scorecard_history(scorecard if isinstance(scorecard, dict) else {"project_summary": "", "dimensions": []})
+    verification_summary = read_json(VERIFICATION_SUMMARY_PATH, {
+        "summary": "",
+        "subsystem_card_source": {},
+        "current_truth_sources": [],
+        "supporting_context_sources": [],
+        "recent_transitions": [],
+        "lane_explanations": {"active": [], "held": [], "blocked": []},
+        "recent_source_wins": [],
+        "surfaces_with_caution": [],
+        "representation_risks": [],
+        "operator_checks": [],
+    })
     telemetry = collect_process_telemetry()
     interval_minutes = int(CFG.get("cycles", {}).get("interval_minutes", 60))
     con = sqlite3.connect(DB_PATH)
@@ -434,6 +447,7 @@ def load_dashboard_data():
         "operator_guidance": operator_guidance,
         "action_inbox": action_inbox,
         "scorecard": scorecard,
+        "verification_summary": verification_summary,
         "telemetry": telemetry,
         "modules": modules,
         "load": {
