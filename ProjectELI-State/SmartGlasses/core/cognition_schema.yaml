@@ -203,6 +203,16 @@ control:
       critical:
         num_predict: 4200
         timeout_seconds: 240
+  execution_resume:
+    enabled: true
+    max_current_truth_summary: 5
+    max_active_review_front: 4
+    max_held_lanes: 4
+    max_blocked_lanes: 4
+    max_needs_human_review: 4
+    max_resume_notes: 5
+    scorecard_freshness_minutes: 240
+    include_in_daily_snapshot: true
 
 specialist_consultation:
   enabled: true

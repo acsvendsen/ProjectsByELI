@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-09T08:06:54",
+  "generated_at": "2026-04-09T23:02:49",
   "allowed_transition_reasons": [
     "no_longer_qualified",
     "moved_to_hold",
@@ -8,33 +8,98 @@
     "weak_grounding",
     "moved_out_of_review"
   ],
-  "implementation_artifact_candidates": [],
-  "recently_changed_implementation_artifact_candidates": [
+  "implementation_artifact_candidates": [
     {
       "artifact_id": "confidence_object_spec-confidence-display",
       "label": "V1 Confidence Display Format",
       "artifact_type": "confidence_object_spec",
       "artifact_type_label": "Confidence Object Spec",
-      "source_action_id": "confidence-display",
-      "source_domain": "confidence display",
+      "bounded_framing": "What confidence format should V1 use by default during live subtitle support?",
+      "reason": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is grounded.",
+      "addresses": [
+        "What confidence format should V1 use by default during live subtitle support?",
+        "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Discreet UX vs visual clari..."
+      ],
+      "candidate_directions": [
+        "Label Only",
+        "Label + Reason"
+      ],
+      "open_constraints": [
+        "discreet ux vs visual clarity",
+        "latency vs richness",
+        "core deepening over sprawl"
+      ],
+      "relevant_interfaces": [],
+      "candidate_components": [],
+      "escalation_signals": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully lower resistance"
+      ],
       "source_kind": "pending_v1_decision",
-      "previous_review_status": "provisional_review_candidate",
-      "current_review_status": "not_currently_in_review",
-      "transition_reason": "moved_out_of_review",
-      "transition_summary": "This artifact candidate is no longer the current review surface under the latest action judgment.",
-      "current_location": "kill",
-      "linked_decision_id": "",
-      "linked_decision_label": "",
-      "linked_decision_status": "",
-      "replacement_artifact_id": "",
-      "replacement_label": "",
+      "source_domain": "confidence display",
+      "source_action_id": "confidence-display",
       "grounding_status": "grounded",
-      "linked_action_judgment": "kill",
+      "repo_surfaces": [],
+      "pressure_score": 0.441,
+      "review_status": "provisional_review_candidate",
+      "provisional": true,
+      "revisable": true,
+      "rank": 4,
+      "linked_decision_id": "v1_confidence_display_format",
+      "linked_decision_label": "V1 Confidence Display Format",
+      "linked_decision_status": "pending_v1_decision",
       "linked_hold_active": false,
       "linked_hold_reason": "",
-      "revisable": true,
-      "transition_at": "2026-04-09T08:06:54"
+      "linked_action_judgment": "kill"
     },
+    {
+      "artifact_id": "visual_layout_rule-subtitle-placement",
+      "label": "V1 Default Subtitle Position",
+      "artifact_type": "visual_layout_rule",
+      "artifact_type_label": "Visual Layout Rule",
+      "bounded_framing": "What should the default subtitle position behavior be for V1 live use?",
+      "reason": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is grounded.",
+      "addresses": [
+        "What should the default subtitle position behavior be for V1 live use?",
+        "aligns with Real-time subtitle clarity; also addresses under-attended pressure in Discreet UX vs visual clarity; meets resistance from La..."
+      ],
+      "candidate_directions": [
+        "Stable Default",
+        "More Prominent"
+      ],
+      "open_constraints": [
+        "latency vs richness",
+        "discreet ux vs visual clarity",
+        "core deepening over sprawl"
+      ],
+      "relevant_interfaces": [],
+      "candidate_components": [],
+      "escalation_signals": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ],
+      "source_kind": "pending_v1_decision",
+      "source_domain": "subtitle placement",
+      "source_action_id": "subtitle-placement",
+      "grounding_status": "grounded",
+      "repo_surfaces": [],
+      "pressure_score": 0.321,
+      "review_status": "provisional_review_candidate",
+      "provisional": true,
+      "revisable": true,
+      "rank": 5,
+      "linked_decision_id": "v1_default_subtitle_position",
+      "linked_decision_label": "V1 Default Subtitle Position",
+      "linked_decision_status": "pending_v1_decision",
+      "linked_hold_active": false,
+      "linked_hold_reason": "",
+      "linked_action_judgment": "kill"
+    }
+  ],
+  "recently_changed_implementation_artifact_candidates": [
     {
       "artifact_id": "visual_layout_rule-visual-hierarchy",
       "label": "V1 Visual Hierarchy Default",
@@ -57,31 +122,6 @@
       "linked_action_judgment": "hold_until_new_grounding",
       "linked_hold_active": true,
       "linked_hold_reason": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
-      "revisable": true,
-      "transition_at": "2026-04-09T08:06:54"
-    },
-    {
-      "artifact_id": "visual_layout_rule-subtitle-placement",
-      "label": "V1 Default Subtitle Position",
-      "artifact_type": "visual_layout_rule",
-      "artifact_type_label": "Visual Layout Rule",
-      "source_action_id": "subtitle-placement",
-      "source_domain": "subtitle placement",
-      "source_kind": "pending_v1_decision",
-      "previous_review_status": "provisional_review_candidate",
-      "current_review_status": "not_currently_in_review",
-      "transition_reason": "moved_out_of_review",
-      "transition_summary": "This artifact candidate is no longer the current review surface under the latest action judgment.",
-      "current_location": "kill",
-      "linked_decision_id": "",
-      "linked_decision_label": "",
-      "linked_decision_status": "",
-      "replacement_artifact_id": "",
-      "replacement_label": "",
-      "grounding_status": "grounded",
-      "linked_action_judgment": "kill",
-      "linked_hold_active": false,
-      "linked_hold_reason": "",
       "revisable": true,
       "transition_at": "2026-04-09T08:06:54"
     },
@@ -162,9 +202,9 @@
     }
   ],
   "counts": {
-    "implementation_artifact_candidates": 0,
-    "recently_changed_implementation_artifact_candidates": 6,
-    "linked_to_pending_decision": 0
+    "implementation_artifact_candidates": 2,
+    "recently_changed_implementation_artifact_candidates": 4,
+    "linked_to_pending_decision": 2
   },
-  "updated_at": "2026-04-09T08:06:54"
+  "updated_at": "2026-04-09T23:02:49"
 }
