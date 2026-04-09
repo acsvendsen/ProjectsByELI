@@ -7068,7 +7068,106 @@ def build_review_state_sync_summary(payloads, metadata_by_surface):
     }
 
 
+def refresh_artifact_review_derivative_surfaces_if_needed(schema=None):
+    schema = schema or load_cognition_schema()
+    cfg = state_sync_trust_config(schema)
+    reflect_payload = raw_review_surface_payload(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
+    v1_review_state = raw_review_surface_payload(V1_DECISION_REVIEW_PATH, default_v1_decision_review_state())
+    reflect_generated_at = state_surface_generated_at(reflect_payload)
+    v1_generated_at = state_surface_generated_at(v1_review_state)
+    reflect_dt = parse_iso_datetime(reflect_generated_at)
+    v1_dt = parse_iso_datetime(v1_generated_at)
+    if not reflect_dt or not v1_dt:
+        return None
+    if abs((reflect_dt - v1_dt).total_seconds()) > safe_int(cfg.get('settling_window_seconds', 180), 180):
+        return None
+
+    action_inbox = load_action_inbox()
+    action_items = action_inbox.get('items', []) if isinstance(action_inbox, dict) else []
+    evidence_analysis = reflect_payload.get('evidence_analysis', {}) if isinstance(reflect_payload.get('evidence_analysis', {}), dict) else {}
+    action_direction_judgments = evidence_analysis.get('action_direction_judgments', [])
+    pending_v1_decisions = v1_review_state.get('pending_v1_decisions', [])
+    if not isinstance(action_direction_judgments, list):
+        action_direction_judgments = []
+    if not isinstance(pending_v1_decisions, list):
+        pending_v1_decisions = []
+    if not action_direction_judgments and not pending_v1_decisions:
+        return None
+
+    prerequisite_dt = max(reflect_dt, v1_dt)
+    derivative_payloads = {
+        'implementation_artifact_review': raw_review_surface_payload(IMPLEMENTATION_ARTIFACT_REVIEW_PATH, default_implementation_artifact_review_state()),
+        'option_readiness_review': raw_review_surface_payload(OPTION_READINESS_REVIEW_PATH, default_option_readiness_review_state()),
+        'artifact_emission_readiness': raw_review_surface_payload(ARTIFACT_EMISSION_READINESS_PATH, default_artifact_emission_readiness_state()),
+        'draft_artifact_review': raw_review_surface_payload(DRAFT_ARTIFACT_REVIEW_PATH, default_draft_artifact_review_state()),
+    }
+    settling_window = safe_int(cfg.get('settling_window_seconds', 180), 180)
+    needs_refresh = False
+    for payload in derivative_payloads.values():
+        derivative_dt = parse_iso_datetime(state_surface_generated_at(payload))
+        if not derivative_dt:
+            needs_refresh = True
+            break
+        if (prerequisite_dt - derivative_dt).total_seconds() > settling_window:
+            needs_refresh = True
+            break
+    if not needs_refresh:
+        return None
+
+    implementation_artifact_candidates = build_implementation_artifact_candidates(
+        action_direction_judgments,
+        pending_v1_decisions,
+        analysis=evidence_analysis,
+        schema=schema,
+    )
+    artifact_review_state = build_implementation_artifact_review_state(
+        implementation_artifact_candidates,
+        current_items=action_items,
+        pending_v1_decisions=pending_v1_decisions,
+        schema=schema,
+    )
+    save_implementation_artifact_review_state(artifact_review_state)
+
+    option_readiness_state = build_option_readiness_review_state(
+        pending_v1_decisions,
+        artifact_review_state.get('implementation_artifact_candidates', []),
+        current_items=action_items,
+        schema=schema,
+    )
+    save_option_readiness_review_state(option_readiness_state)
+
+    artifact_emission_state = build_artifact_emission_readiness_state(
+        artifact_review_state,
+        option_readiness_state,
+        schema=schema,
+    )
+    save_artifact_emission_readiness_state(artifact_emission_state)
+
+    draft_review_state = build_draft_artifact_review_state(
+        artifact_emission_state,
+        artifact_review_state,
+        v1_review_state=v1_review_state,
+        schema=schema,
+    )
+    save_draft_artifact_review_state(draft_review_state)
+
+    return {
+        'generated_at': now_iso(),
+        'source_generated_at': {
+            'reflect_state': reflect_generated_at,
+            'v1_decision_review': v1_generated_at,
+        },
+        'refreshed_surfaces': [
+            'implementation_artifact_review',
+            'option_readiness_review',
+            'artifact_emission_readiness',
+            'draft_artifact_review',
+        ],
+    }
+
+
 def refresh_review_state_sync_metadata(schema=None):
+    refresh_artifact_review_derivative_surfaces_if_needed(schema=schema)
     cfg = state_sync_trust_config(schema)
     payloads = {
         'v1_decision_review': raw_review_surface_payload(V1_DECISION_REVIEW_PATH, default_v1_decision_review_state()),

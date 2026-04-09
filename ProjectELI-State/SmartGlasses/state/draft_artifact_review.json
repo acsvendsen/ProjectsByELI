@@ -1,191 +1,20 @@
 {
-  "generated_at": "2026-04-08T22:44:59",
+  "generated_at": "2026-04-09T08:06:54",
   "allowed_forms": [
     "structured_design_brief"
   ],
   "scope_note": "This surface only emits provisional structured design brief drafts. It does not emit technical engineering drafts or final design commitments.",
-  "emitted_drafts": [
-    {
-      "artifact_id": "confidence_object_spec-confidence-display",
-      "linked_decision_id": "v1_confidence_display_format",
-      "source_artifact_type": "confidence_object_spec",
-      "source_artifact_type_label": "Confidence Object Spec",
-      "emitted_draft_form": "structured_design_brief",
-      "title": "V1 Confidence Display Format Draft Design Brief",
-      "label": "V1 Confidence Display Format",
-      "bounded_framing": "What confidence format should V1 use by default during live subtitle support?",
-      "draft_summary": "V1 Confidence Display Format is mature enough for a provisional confidence object spec design brief. Focus the brief on: What confidence format should V1 use by default during live subtitle support. Current leading direction: Label Only. Keep active constraints explicit: discreet ux vs visual clarity, latency vs richness, core deepening over sprawl. This draft remains review-oriented and revisable, not a final implementation commitment.",
-      "leading_direction": "Label + Reason",
-      "leading_direction_rationale": "Label + Reason currently leads because it gives this confidence object spec brief a bounded default while staying closer to the active review pressures around discreet ux vs visual clarity, latency vs richness.",
-      "alternative_direction_tradeoff": "Main alternative: Label Only. The real tradeoff is whether Label Only handles discreet ux vs visual clarity better while Label + Reason stays simpler or more stable for the current review scope.",
-      "success_condition": "A reviewer can say whether Label + Reason is a credible default answer to: What confidence format should V1 use by default during live subtitle support, while still respecting discreet ux vs visual clarity, latency vs richness.",
-      "failure_risk": "The current direction may fail if it creates too much pressure against discreet ux vs visual clarity or latency vs richness; likely revision signals include real repo change or stronger repo grounding, a new source type such as runtime t...",
-      "what_would_change_this_choice": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
-      ],
-      "review_question_for_human": "Given the current constraints, should Label + Reason remain the leading default for What confidence format should V1 use by default during live subtitle support?",
-      "why_emitted_now": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.",
-      "current_constraints": [
-        "discreet ux vs visual clarity",
-        "latency vs richness",
-        "core deepening over sprawl"
-      ],
-      "candidate_directions": [
-        "Label Only",
-        "Label + Reason"
-      ],
-      "relevant_interfaces": [],
-      "provisional": true,
-      "revisable": true,
-      "evidence_to_strengthen_or_revise": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
-      ],
-      "linked_review_id": "confidence_object_spec-confidence-display",
-      "linked_decision_label": "V1 Confidence Display Format",
-      "pending_v1_decision_alignment_status": "linked_to_current_pending_decision",
-      "linked_pending_decision": "V1 Confidence Display Format",
-      "linked_pending_decision_status": "pending_v1_decision",
-      "pending_v1_decision_currently_pending": true,
-      "pending_v1_decision_alignment_reason": ""
-    },
-    {
-      "artifact_id": "visual_layout_rule-subtitle-placement",
-      "linked_decision_id": "v1_default_subtitle_position",
-      "source_artifact_type": "visual_layout_rule",
-      "source_artifact_type_label": "Visual Layout Rule",
-      "emitted_draft_form": "structured_design_brief",
-      "title": "V1 Default Subtitle Position Draft Design Brief",
-      "label": "V1 Default Subtitle Position",
-      "bounded_framing": "What should the default subtitle position behavior be for V1 live use?",
-      "draft_summary": "V1 Default Subtitle Position is mature enough for a provisional visual layout rule design brief. Focus the brief on: What should the default subtitle position behavior be for V1 live use. Current leading direction: Stable Default. Keep active constraints explicit: latency vs richness, discreet ux vs visual clarity, core deepening over sprawl. This draft remains review-oriented and revisable, not a final implementation commitment.",
-      "leading_direction": "More Prominent",
-      "leading_direction_rationale": "More Prominent currently leads because it gives this visual layout rule brief a bounded default while staying closer to the active review pressures around latency vs richness, discreet ux vs visual clarity.",
-      "alternative_direction_tradeoff": "Main alternative: Stable Default. The real tradeoff is whether Stable Default handles latency vs richness better while More Prominent stays simpler or more stable for the current review scope.",
-      "success_condition": "A reviewer can say whether More Prominent is a credible default answer to: What should the default subtitle position behavior be for V1 live use, while still respecting latency vs richness, discreet ux vs visual clarity.",
-      "failure_risk": "The current direction may fail if it creates too much pressure against latency vs richness or discreet ux vs visual clarity; likely revision signals include real repo change or stronger repo grounding, a new source type such as runtime t...",
-      "what_would_change_this_choice": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully stronger architectural pull",
-        "meaningfully lower resistance"
-      ],
-      "review_question_for_human": "Given the current constraints, should More Prominent remain the leading default for What should the default subtitle position behavior be for V1 live use?",
-      "why_emitted_now": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.",
-      "current_constraints": [
-        "latency vs richness",
-        "discreet ux vs visual clarity",
-        "core deepening over sprawl"
-      ],
-      "candidate_directions": [
-        "Stable Default",
-        "More Prominent"
-      ],
-      "relevant_interfaces": [],
-      "provisional": true,
-      "revisable": true,
-      "evidence_to_strengthen_or_revise": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully stronger architectural pull",
-        "meaningfully lower resistance"
-      ],
-      "linked_review_id": "visual_layout_rule-subtitle-placement",
-      "linked_decision_label": "V1 Default Subtitle Position",
-      "pending_v1_decision_alignment_status": "linked_to_current_pending_decision",
-      "linked_pending_decision": "V1 Default Subtitle Position",
-      "linked_pending_decision_status": "pending_v1_decision",
-      "pending_v1_decision_currently_pending": true,
-      "pending_v1_decision_alignment_reason": ""
-    },
-    {
-      "artifact_id": "visual_layout_rule-visual-hierarchy",
-      "linked_decision_id": "v1_visual_hierarchy_default",
-      "source_artifact_type": "visual_layout_rule",
-      "source_artifact_type_label": "Visual Layout Rule",
-      "emitted_draft_form": "structured_design_brief",
-      "title": "V1 Visual Hierarchy Default Draft Design Brief",
-      "label": "V1 Visual Hierarchy Default",
-      "bounded_framing": "What should the default visual hierarchy be for V1 overlays during live conversation?",
-      "draft_summary": "V1 Visual Hierarchy Default is mature enough for a provisional visual layout rule design brief. Focus the brief on: What should the default visual hierarchy be for V1 overlays during live conversation. Current leading direction: Subtitles Dominate. Keep active constraints explicit: discreet ux vs visual clarity, core deepening over sprawl. This draft remains review-oriented and revisable, not a final implementation commitment.",
-      "leading_direction": "Subtitles Dominate",
-      "leading_direction_rationale": "Subtitles Dominate currently leads because it gives this visual layout rule brief a bounded default while staying closer to the active review pressures around discreet ux vs visual clarity, core deepening over sprawl.",
-      "alternative_direction_tradeoff": "Main alternative: Balanced Overlay. The real tradeoff is whether Balanced Overlay handles discreet ux vs visual clarity better while Subtitles Dominate stays simpler or more stable for the current review scope.",
-      "success_condition": "A reviewer can say whether Subtitles Dominate is a credible default answer to: What should the default visual hierarchy be for V1 overlays during live conversation, while still respecting discreet ux vs visual clarity, core deepening ove...",
-      "failure_risk": "The current direction may fail if it creates too much pressure against discreet ux vs visual clarity or core deepening over sprawl; likely revision signals include real repo change or stronger repo grounding, a new source type such as ru...",
-      "what_would_change_this_choice": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
-      ],
-      "review_question_for_human": "Given the current constraints, should Subtitles Dominate remain the leading default for What should the default visual hierarchy be for V1 overlays during live conversation?",
-      "why_emitted_now": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.",
-      "current_constraints": [
-        "discreet ux vs visual clarity",
-        "core deepening over sprawl"
-      ],
-      "candidate_directions": [
-        "Subtitles Dominate",
-        "Balanced Overlay"
-      ],
-      "relevant_interfaces": [],
-      "provisional": true,
-      "revisable": true,
-      "evidence_to_strengthen_or_revise": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
-      ],
-      "linked_review_id": "visual_layout_rule-visual-hierarchy",
-      "linked_decision_label": "V1 Visual Hierarchy Default",
-      "pending_v1_decision_alignment_status": "emitted_without_current_pending_decision",
-      "linked_pending_decision": "V1 Visual Hierarchy Default",
-      "linked_pending_decision_status": "",
-      "pending_v1_decision_currently_pending": false,
-      "pending_v1_decision_alignment_reason": "This draft brief remains emitted, but there is no current pending V1 decision row for the linked decision. Treat it as provisional review context rather than an actively pending bounded decision."
-    }
-  ],
-  "pending_v1_decision_alignment": [
-    {
-      "decision_id": "v1_confidence_display_format",
-      "label": "V1 Confidence Display Format",
-      "candidate_status": "pending_v1_decision",
-      "emission_alignment_status": "emitted_as_structured_design_brief",
-      "linked_pending_decision": "V1 Confidence Display Format",
-      "linked_artifact_id": "confidence_object_spec-confidence-display",
-      "linked_emitted_draft_title": "V1 Confidence Display Format Draft Design Brief",
-      "linked_emitted_draft_form": "structured_design_brief",
-      "linked_readiness_state": "draft_candidate",
-      "linked_suggested_draft_form": "structured_design_brief",
-      "not_emitted_reason": ""
-    },
-    {
-      "decision_id": "v1_default_subtitle_position",
-      "label": "V1 Default Subtitle Position",
-      "candidate_status": "pending_v1_decision",
-      "emission_alignment_status": "emitted_as_structured_design_brief",
-      "linked_pending_decision": "V1 Default Subtitle Position",
-      "linked_artifact_id": "visual_layout_rule-subtitle-placement",
-      "linked_emitted_draft_title": "V1 Default Subtitle Position Draft Design Brief",
-      "linked_emitted_draft_form": "structured_design_brief",
-      "linked_readiness_state": "draft_candidate",
-      "linked_suggested_draft_form": "structured_design_brief",
-      "not_emitted_reason": ""
-    }
-  ],
+  "emitted_drafts": [],
+  "pending_v1_decision_alignment": [],
   "counts": {
-    "structured_design_brief": 3,
-    "emitted_without_current_pending_decision": 1
+    "structured_design_brief": 0,
+    "emitted_without_current_pending_decision": 0
   },
-  "updated_at": "2026-04-08T22:44:59",
   "sync_metadata": {
     "surface": "draft_artifact_review",
-    "cycle_id": "20260408T224459",
-    "generated_from_cycle": "20260408T224459",
-    "generated_at": "2026-04-08T22:44:59",
+    "cycle_id": "20260409T080654",
+    "generated_from_cycle": "20260409T080654",
+    "generated_at": "2026-04-09T08:06:54",
     "depends_on": [
       "v1_decision_review",
       "artifact_emission_readiness",
@@ -194,29 +23,25 @@
     "checked_against": [
       {
         "surface": "v1_decision_review",
-        "generated_at": "2026-04-09T07:26:12",
-        "comparison_status": "linked_surface_newer"
+        "generated_at": "2026-04-09T08:05:36",
+        "comparison_status": "nearby"
       },
       {
         "surface": "artifact_emission_readiness",
-        "generated_at": "2026-04-08T22:44:38",
+        "generated_at": "2026-04-09T08:06:54",
         "comparison_status": "nearby"
       },
       {
         "surface": "reflect_state",
-        "generated_at": "2026-04-09T07:26:12",
-        "comparison_status": "linked_surface_newer"
+        "generated_at": "2026-04-09T08:05:36",
+        "comparison_status": "nearby"
       }
     ],
-    "sync_status": "cross_surface_mismatch",
-    "trust_status": "caution",
-    "hard_issues": [
-      "Draft-emission alignment rows still reference decisions that are no longer pending: v1_default_subtitle_position.",
-      "Some emitted draft briefs no longer match current pending V1 decision state and are not explicitly explained: V1 Default Subtitle Position."
-    ],
-    "explained_differences": [
-      "Some emitted draft briefs are intentionally preserved as provisional context without a current pending V1 decision: V1 Visual Hierarchy Default."
-    ],
-    "trust_reason": "Draft-emission alignment rows still reference decisions that are no longer pending: v1_default_subtitle_position. Do not use it as current cross-surface truth without caution."
-  }
+    "sync_status": "in_sync",
+    "trust_status": "operational",
+    "hard_issues": [],
+    "explained_differences": [],
+    "trust_reason": "This file is close enough to its linked review surfaces to compare operationally."
+  },
+  "updated_at": "2026-04-09T08:06:54"
 }
