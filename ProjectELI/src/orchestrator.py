@@ -7396,9 +7396,13 @@ def scorecard_report_quality(content):
 
 
 def reflect_report_diagnostic_status(content):
-    match = re.search(r'(?m)^- status:\s*([a-z_]+)\s*\|', content or '')
-    if match:
-        return normalize_signal_key(match.group(1))
+    text = content or ''
+    section_match = re.search(r'(?ms)^## Reflect Diagnostics\s*\n(.*?)(?=^## |\Z)', text)
+    if section_match:
+        match = re.search(r'(?m)^- status:\s*([a-z_]+)\s*\|', section_match.group(1))
+        if match:
+            return normalize_signal_key(match.group(1))
+        return 'unknown'
     return 'valid'
 
 
