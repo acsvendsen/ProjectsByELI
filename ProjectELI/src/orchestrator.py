@@ -142,6 +142,12 @@ OPTION_READINESS_BANDS = (
     'emerging',
     'too_early',
 )
+EFFORT_BANDS = (
+    'light',
+    'standard',
+    'deep',
+    'critical',
+)
 ARTIFACT_EMISSION_READINESS_STATES = (
     'draft_candidate',
     'not_ready_for_draft',
@@ -807,6 +813,38 @@ DEFAULT_COGNITION_SCHEMA = {
                 'decision_limit': 120,
             },
         },
+        'adaptive_effort': {
+            'enabled': True,
+            'routine_cycles': ['daily_snapshot', 'sleep'],
+            'high_consequence_cycles': ['reflect', 'reality'],
+            'synthesis_cycles': ['dream', 'scorecard'],
+            'pending_v1_for_deep': 1,
+            'pending_v1_for_critical': 3,
+            'artifact_pressure_for_deep': 2,
+            'contradiction_pressure_for_deep': 2,
+            'changed_files_for_deep': 6,
+            'scorecard_stale_minutes': 180,
+            'deep_if_sync_mismatch': True,
+            'deep_if_reflect_repaired_or_fallback': True,
+            'bands': {
+                'light': {
+                    'num_predict': 1400,
+                    'timeout_seconds': 90,
+                },
+                'standard': {
+                    'num_predict': 2200,
+                    'timeout_seconds': 120,
+                },
+                'deep': {
+                    'num_predict': 3200,
+                    'timeout_seconds': 180,
+                },
+                'critical': {
+                    'num_predict': 4200,
+                    'timeout_seconds': 240,
+                },
+            },
+        },
         'phase7_repo_alignment': {
             'enabled': True,
             'diff_alignment': {
@@ -1059,6 +1097,38 @@ control:
       excerpt_chars: 1800
     audit:
       decision_limit: 120
+  adaptive_effort:
+    enabled: true
+    routine_cycles:
+      - daily_snapshot
+      - sleep
+    high_consequence_cycles:
+      - reflect
+      - reality
+    synthesis_cycles:
+      - dream
+      - scorecard
+    pending_v1_for_deep: 1
+    pending_v1_for_critical: 3
+    artifact_pressure_for_deep: 2
+    contradiction_pressure_for_deep: 2
+    changed_files_for_deep: 6
+    scorecard_stale_minutes: 180
+    deep_if_sync_mismatch: true
+    deep_if_reflect_repaired_or_fallback: true
+    bands:
+      light:
+        num_predict: 1400
+        timeout_seconds: 90
+      standard:
+        num_predict: 2200
+        timeout_seconds: 120
+      deep:
+        num_predict: 3200
+        timeout_seconds: 180
+      critical:
+        num_predict: 4200
+        timeout_seconds: 240
   phase7_repo_alignment:
     enabled: true
     diff_alignment:
@@ -2091,16 +2161,28 @@ def changed_files(root):
     return changed
 
 
-def ollama_generate(system_prompt, user_prompt):
+def ollama_generate(system_prompt, user_prompt, effort_selection=None):
     url = CFG['ollama']['base_url'].rstrip('/') + '/api/generate'
-    payload = json.dumps({
+    request_system_prompt = system_prompt
+    payload_object = {
         'model': CFG['ollama']['model'],
-        'system': system_prompt,
+        'system': request_system_prompt,
         'prompt': user_prompt,
         'stream': False,
-    }).encode('utf-8')
+    }
+    timeout_seconds = 120
+    if isinstance(effort_selection, dict) and effort_selection:
+        request_system_prompt = system_prompt.rstrip() + '\n\n# Adaptive Effort Guidance\n' + effort_selection.get('prompt_note', 'Use standard effort. Preserve trust and keep the required output format exactly unchanged.')
+        payload_object['system'] = request_system_prompt
+        model_options = effort_selection.get('model_options', {})
+        if isinstance(model_options, dict) and model_options:
+            payload_object['options'] = {
+                'num_predict': max(600, safe_int(model_options.get('num_predict', 2200), 2200)),
+            }
+            timeout_seconds = max(30, safe_int(model_options.get('timeout_seconds', 120), 120))
+    payload = json.dumps(payload_object).encode('utf-8')
     req = urllib.request.Request(url, data=payload, headers={'Content-Type': 'application/json'})
-    with urllib.request.urlopen(req, timeout=120) as resp:
+    with urllib.request.urlopen(req, timeout=timeout_seconds) as resp:
         data = json.loads(resp.read().decode('utf-8'))
     return data.get('response', '').strip()
 
@@ -7417,6 +7499,279 @@ def runtime_alias_config(schema=None):
     }
 
 
+def normalize_effort_band(value):
+    band = normalize_signal_key(value or 'standard')
+    return band if band in EFFORT_BANDS else 'standard'
+
+
+def effort_band_rank(value):
+    return {
+        'light': 0,
+        'standard': 1,
+        'deep': 2,
+        'critical': 3,
+    }.get(normalize_effort_band(value), 1)
+
+
+def stronger_effort_band(left, right):
+    return normalize_effort_band(left) if effort_band_rank(left) >= effort_band_rank(right) else normalize_effort_band(right)
+
+
+def adaptive_effort_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('adaptive_effort', {}) if isinstance(control.get('adaptive_effort', {}), dict) else {}
+    band_cfg = cfg.get('bands', {}) if isinstance(cfg.get('bands', {}), dict) else {}
+    normalized_bands = {}
+    defaults = {
+        'light': {'num_predict': 1400, 'timeout_seconds': 90},
+        'standard': {'num_predict': 2200, 'timeout_seconds': 120},
+        'deep': {'num_predict': 3200, 'timeout_seconds': 180},
+        'critical': {'num_predict': 4200, 'timeout_seconds': 240},
+    }
+    for band in EFFORT_BANDS:
+        raw = band_cfg.get(band, {}) if isinstance(band_cfg.get(band, {}), dict) else {}
+        normalized_bands[band] = {
+            'num_predict': max(600, safe_int(raw.get('num_predict', defaults[band]['num_predict']), defaults[band]['num_predict'])),
+            'timeout_seconds': max(30, safe_int(raw.get('timeout_seconds', defaults[band]['timeout_seconds']), defaults[band]['timeout_seconds'])),
+        }
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'routine_cycles': [str(item) for item in (cfg.get('routine_cycles', ['daily_snapshot', 'sleep']) or ['daily_snapshot', 'sleep'])],
+        'high_consequence_cycles': [str(item) for item in (cfg.get('high_consequence_cycles', ['reflect', 'reality']) or ['reflect', 'reality'])],
+        'synthesis_cycles': [str(item) for item in (cfg.get('synthesis_cycles', ['dream', 'scorecard']) or ['dream', 'scorecard'])],
+        'pending_v1_for_deep': max(1, safe_int(cfg.get('pending_v1_for_deep', 1), 1)),
+        'pending_v1_for_critical': max(1, safe_int(cfg.get('pending_v1_for_critical', 3), 3)),
+        'artifact_pressure_for_deep': max(1, safe_int(cfg.get('artifact_pressure_for_deep', 2), 2)),
+        'contradiction_pressure_for_deep': max(1, safe_int(cfg.get('contradiction_pressure_for_deep', 2), 2)),
+        'changed_files_for_deep': max(1, safe_int(cfg.get('changed_files_for_deep', 6), 6)),
+        'scorecard_stale_minutes': max(30, safe_int(cfg.get('scorecard_stale_minutes', 180), 180)),
+        'deep_if_sync_mismatch': bool(cfg.get('deep_if_sync_mismatch', True)),
+        'deep_if_reflect_repaired_or_fallback': bool(cfg.get('deep_if_reflect_repaired_or_fallback', True)),
+        'bands': normalized_bands,
+    }
+
+
+def transcript_quality_requires_deeper_effort(payload):
+    if not isinstance(payload, dict):
+        return False
+    status = normalize_signal_key(payload.get('status', ''))
+    input_states = {
+        normalize_signal_key(item)
+        for item in (payload.get('input_quality_states', []) or [])
+        if item
+    }
+    content_states = {
+        normalize_signal_key(item)
+        for item in (payload.get('content_states', []) or [])
+        if item
+    }
+    return bool(
+        status in ('degraded', 'partial')
+        or input_states & {'degraded', 'partial'}
+        or content_states & {'partially_repaired', 'context_inferred', 'too_uncertain'}
+    )
+
+
+def adaptive_effort_task_kind(cycle_name, band, cfg):
+    band = normalize_effort_band(band)
+    if band == 'critical':
+        return 'critical_judgment'
+    if cycle_name in cfg.get('routine_cycles', []):
+        return 'routine_maintenance' if band == 'light' else 'maintenance_with_caution'
+    if cycle_name in cfg.get('high_consequence_cycles', []):
+        return 'high_consequence_synthesis'
+    if cycle_name in cfg.get('synthesis_cycles', []):
+        return 'structured_synthesis'
+    return 'bounded_synthesis'
+
+
+def build_adaptive_effort_selection(cycle_name, changes=None, prior_reports=None, analysis=None, schema=None):
+    schema = schema or load_cognition_schema()
+    cfg = adaptive_effort_config(schema)
+    base = {
+        'cycle': cycle_name,
+        'band': 'standard',
+        'task_kind': 'bounded_synthesis',
+        'reason': 'Use normal bounded effort for this cycle.',
+        'reasons': ['Use normal bounded effort for this cycle.'],
+        'signals': {},
+        'model_options': dict(cfg.get('bands', {}).get('standard', {'num_predict': 2200, 'timeout_seconds': 120})),
+        'prompt_note': 'Use standard effort. Preserve trust and keep the required output format exactly unchanged.',
+    }
+    if not cfg.get('enabled', True):
+        return base
+
+    review_snapshot = load_review_state_consumption_snapshot()
+    review_surfaces = review_snapshot.get('surfaces', {}) if isinstance(review_snapshot.get('surfaces', {}), dict) else {}
+    review_sync_status = normalize_signal_key(review_snapshot.get('overall_sync_status', 'provisional'))
+    v1_use = str((review_surfaces.get('v1_decision_review', {}) or {}).get('recommended_use', 'provisional_context') or 'provisional_context')
+    v1_review_state = load_v1_decision_review_state()
+    pending_v1_count = len(v1_review_state.get('pending_v1_decisions', [])) if v1_use in ('current_truth', 'provisional_context') else 0
+
+    reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
+    reflect_evidence = analysis if isinstance(analysis, dict) else {}
+    if not reflect_evidence:
+        reflect_evidence = reflect_state.get('evidence_analysis', {}) if isinstance(reflect_state.get('evidence_analysis', {}), dict) else {}
+    contradiction_pressure = 0
+    for key in ('contradiction_persistence', 'field_imbalance_patterns', 'neglected_persistent_tensions'):
+        rows = reflect_evidence.get(key, [])
+        if isinstance(rows, list):
+            contradiction_pressure += len(rows)
+    artifact_pressure = len(reflect_evidence.get('implementation_artifact_candidates', [])) if isinstance(reflect_evidence.get('implementation_artifact_candidates', []), list) else 0
+    transcript_payload = reflect_evidence.get('transcript_quality_handling', {})
+    if not isinstance(transcript_payload, dict) or not transcript_payload:
+        transcript_payload = reflect_state.get('reflect', {}).get('transcript_quality_handling', {}) if isinstance(reflect_state.get('reflect', {}), dict) else {}
+    transcript_pressure = transcript_quality_requires_deeper_effort(transcript_payload)
+
+    latest_alias_state = load_latest_alias_state()
+    latest_reflect_status = normalize_signal_key(
+        (((latest_alias_state.get('aliases', {}) or {}).get('reflect', {}) or {}).get('reflect_diagnostic_status', 'valid'))
+    )
+    scorecard_state = load_scorecard_state()
+    reflect_dt = parse_iso_datetime(state_surface_generated_at(reflect_state))
+    scorecard_dt = parse_iso_datetime(state_surface_generated_at(scorecard_state))
+    scorecard_stale = False
+    if cycle_name == 'scorecard':
+        if not scorecard_dt:
+            scorecard_stale = True
+        elif reflect_dt and (reflect_dt - scorecard_dt).total_seconds() > (cfg.get('scorecard_stale_minutes', 180) * 60):
+            scorecard_stale = True
+
+    changed_files = len(changes or [])
+    reasons = []
+    score = 0.0
+    if cycle_name in cfg.get('routine_cycles', []):
+        score -= 0.75
+        reasons.append('this is routine refresh work unless live trust pressure says otherwise')
+    elif cycle_name in cfg.get('high_consequence_cycles', []):
+        score += 1.6
+        reasons.append('this cycle drives high-consequence project synthesis or outward-facing project truth')
+    elif cycle_name in cfg.get('synthesis_cycles', []):
+        score += 0.8
+        reasons.append('this cycle benefits from bounded synthesis instead of a minimal pass')
+    else:
+        reasons.append('this cycle is bounded enough for normal effort unless other pressure promotes it')
+
+    if pending_v1_count >= cfg.get('pending_v1_for_critical', 3):
+        score += 1.4
+        reasons.append('multiple live pending decisions make shallow treatment risky')
+    elif pending_v1_count >= cfg.get('pending_v1_for_deep', 1):
+        score += 0.8
+        reasons.append('live pending decisions increase consequence and expected value')
+
+    if artifact_pressure >= cfg.get('artifact_pressure_for_deep', 2):
+        score += 0.6
+        reasons.append('implementation-artifact pressure is active and benefits from stronger synthesis')
+
+    if contradiction_pressure >= cfg.get('contradiction_pressure_for_deep', 2):
+        score += 0.8
+        reasons.append('contradiction or imbalance pressure is high enough to justify deeper care')
+
+    if review_sync_status in ('cross_surface_mismatch', 'stale') and cfg.get('deep_if_sync_mismatch', True):
+        score += 1.0
+        reasons.append('linked review state is not fully settled, so trust depends on extra care')
+    elif review_sync_status == 'settling':
+        score += 0.4
+        reasons.append('linked review state is still settling, so a lighter pass would be brittle')
+
+    if cycle_name == 'reflect' and latest_reflect_status in ('repaired', 'fallback') and cfg.get('deep_if_reflect_repaired_or_fallback', True):
+        score += 0.9
+        reasons.append('recent reflect generation needed repair or fallback, so freshness should earn replacement honestly')
+
+    if scorecard_stale:
+        score += 0.8
+        reasons.append('the current scorecard state is stale enough that freshness recovery matters')
+
+    if transcript_pressure:
+        score += 0.4
+        reasons.append('transcript trust pressure favors more careful uncertainty handling')
+
+    if changed_files >= cfg.get('changed_files_for_deep', 6):
+        score += 0.4
+        reasons.append('the current change set is broad enough to reward a less shallow pass')
+
+    if score >= 3.4:
+        band = 'critical'
+    elif score >= 1.8:
+        band = 'deep'
+    elif score >= 0.4:
+        band = 'standard'
+    else:
+        band = 'light'
+
+    if cycle_name == 'reflect' and (
+        pending_v1_count > 0
+        or contradiction_pressure >= cfg.get('contradiction_pressure_for_deep', 2)
+        or review_sync_status in ('cross_surface_mismatch', 'stale')
+        or latest_reflect_status in ('repaired', 'fallback')
+    ):
+        band = stronger_effort_band(band, 'deep')
+
+    if cycle_name == 'scorecard' and scorecard_stale:
+        band = stronger_effort_band(band, 'deep')
+
+    if cycle_name != 'daily_snapshot' and (
+        pending_v1_count > 0
+        or contradiction_pressure >= cfg.get('contradiction_pressure_for_deep', 2)
+        or transcript_pressure
+        or review_sync_status in ('cross_surface_mismatch', 'stale')
+    ):
+        band = stronger_effort_band(band, 'standard')
+
+    if cycle_name == 'daily_snapshot' and band == 'critical':
+        band = 'deep'
+
+    task_kind = adaptive_effort_task_kind(cycle_name, band, cfg)
+    reason = compact_text_excerpt('; '.join(dict.fromkeys(reasons)) or 'Use normal bounded effort for this cycle.', 260)
+    prompt_note = (
+        f"Use {band} effort. {reason}. Preserve trust, stay conservative, and keep the required output format exactly unchanged."
+    )
+    return {
+        'cycle': cycle_name,
+        'band': band,
+        'task_kind': task_kind,
+        'reason': reason,
+        'reasons': list(dict.fromkeys(reasons))[:4] or ['Use normal bounded effort for this cycle.'],
+        'signals': {
+            'changed_files': changed_files,
+            'pending_v1_decisions': pending_v1_count,
+            'artifact_pressure': artifact_pressure,
+            'contradiction_pressure': contradiction_pressure,
+            'review_sync_status': review_sync_status,
+            'latest_reflect_status': latest_reflect_status,
+            'scorecard_stale': scorecard_stale,
+            'transcript_pressure': transcript_pressure,
+        },
+        'model_options': dict(cfg.get('bands', {}).get(band, cfg.get('bands', {}).get('standard', {'num_predict': 2200, 'timeout_seconds': 120}))),
+        'prompt_note': prompt_note,
+    }
+
+
+def compact_effort_metadata(selection):
+    if not isinstance(selection, dict):
+        return {}
+    return {
+        'band': normalize_effort_band(selection.get('band', 'standard')),
+        'task_kind': str(selection.get('task_kind', 'bounded_synthesis') or 'bounded_synthesis'),
+        'reason': str(selection.get('reason', '') or ''),
+        'signals': selection.get('signals', {}) if isinstance(selection.get('signals', {}), dict) else {},
+        'model_options': selection.get('model_options', {}) if isinstance(selection.get('model_options', {}), dict) else {},
+    }
+
+
+def render_effort_policy_section(selection, include_header=True):
+    if not isinstance(selection, dict):
+        return ''
+    lines = []
+    if include_header:
+        lines.append('## Effort Policy')
+    lines.append(f"- band: {normalize_effort_band(selection.get('band', 'standard'))}")
+    lines.append(f"- task_kind: {selection.get('task_kind', 'bounded_synthesis')}")
+    lines.append(f"- reason: {selection.get('reason', 'Use normal bounded effort for this cycle.')}")
+    return '\n'.join(lines)
+
+
 def load_latest_alias_state():
     data = load_json_file(LATEST_ALIAS_STATE_PATH, {'aliases': {}, 'entries': []})
     if not isinstance(data, dict):
@@ -9227,7 +9582,8 @@ def normalize_scorecard(scorecard):
 def generate_scorecard_cycle(changes, prior_reports):
     system = load_prompt('scorecard')
     context = scorecard_context(changes, prior_reports)
-    raw = ollama_generate(system, context)
+    effort_selection = build_adaptive_effort_selection('scorecard', changes=changes, prior_reports=prior_reports)
+    raw = ollama_generate(system, context, effort_selection=effort_selection)
     scorecard, scorecard_diagnostics = parse_scorecard_output(raw)
     scorecard = normalize_scorecard(scorecard)
     if scorecard_diagnostics.get('status') != 'valid':
@@ -9239,9 +9595,10 @@ def generate_scorecard_cycle(changes, prior_reports):
     )
     scorecard['generated_at'] = now_iso()
     scorecard['project_name'] = PROJECT_SLUG
+    scorecard['generation_effort'] = compact_effort_metadata(effort_selection)
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     SCORECARD_STATE_PATH.write_text(json.dumps(scorecard, indent=2), encoding='utf-8')
-    return render_scorecard_markdown(scorecard)
+    return render_scorecard_markdown(scorecard), effort_selection
 
 
 def reflect_context(changes, prior_reports, analysis):
@@ -10262,11 +10619,13 @@ def generate_reflect_cycle(changes, prior_reports):
     system = load_prompt('reflect')
     analysis = build_reflection_analysis(changes, prior_reports)
     context = reflect_context(changes, prior_reports, analysis)
-    raw = ollama_generate(system, context)
+    effort_selection = build_adaptive_effort_selection('reflect', changes=changes, prior_reports=prior_reports, analysis=analysis, schema=analysis.get('schema', {}))
+    raw = ollama_generate(system, context, effort_selection=effort_selection)
     parsed_payload, reflect_diagnostics = parse_reflect_output(raw)
     reflect_data = normalize_reflect_output(parsed_payload)
     if reflect_diagnostics.get('status') != 'valid':
         reflect_data['reflect_generation_diagnostics'] = reflect_diagnostics
+    reflect_data['generation_effort'] = compact_effort_metadata(effort_selection)
     reflect_data = enrich_reflect_output(reflect_data, analysis)
     action_direction_judgments, v1_decision_candidates, action_inbox, specialist_context = enrich_action_inbox_with_reflection(analysis)
     reflect_data['action_direction_judgments'] = action_direction_judgments
@@ -10324,8 +10683,9 @@ def generate_reflect_cycle(changes, prior_reports):
     }
     if reflect_diagnostics.get('status') != 'valid':
         reflect_state['reflect_generation_diagnostics'] = reflect_diagnostics
+    reflect_state['generation_effort'] = compact_effort_metadata(effort_selection)
     REFLECT_STATE_PATH.write_text(json.dumps(reflect_state, indent=2), encoding='utf-8')
-    return render_reflect_markdown(reflect_data, applied_entries), reflect_diagnostics
+    return render_reflect_markdown(reflect_data, applied_entries), reflect_diagnostics, effort_selection
 
 
 def store_cycle_run(cycle, started_at, finished_at, status, duration_ms, changed_files, report_path='', error_text=''):
@@ -10592,9 +10952,9 @@ def repair_dream_probe(domain, idea_text):
     return repaired
 
 
-def generate_dream_idea_block(domain, context, base_prompt):
+def generate_dream_idea_block(domain, context, base_prompt, effort_selection=None):
     system = dream_domain_system_prompt(base_prompt, domain)
-    raw = ollama_generate(system, context).strip()
+    raw = ollama_generate(system, context, effort_selection=effort_selection).strip()
     raw = extract_single_idea_block(raw)
     probe = extract_immediate_next_probe(raw)
     if not probe_matches_domain(domain, probe) or probe_mentions_other_domain(domain, probe) or not probe_has_single_target(domain, probe) or not probe_is_decision_shaped(probe):
@@ -10603,12 +10963,13 @@ def generate_dream_idea_block(domain, context, base_prompt):
     return raw.strip()
 
 
-def generate_dream_cycle(changes):
+def generate_dream_cycle(changes, effort_selection=None):
     base_prompt = load_prompt('dream')
     context = context_with_inputs(changes)
+    effort_selection = effort_selection or build_adaptive_effort_selection('dream', changes=changes)
     blocks = []
     for idx, domain in enumerate(DREAM_DOMAINS, start=1):
-        block = generate_dream_idea_block(domain, context, base_prompt)
+        block = generate_dream_idea_block(domain, context, base_prompt, effort_selection=effort_selection)
         blocks.append(f"### Idea {idx}: {dream_domain_title(domain)}\n\n{block}")
     return '\n\n'.join(blocks)
 
@@ -10809,8 +11170,11 @@ def render_inputs_used(changes):
     return '\n'.join(lines)
 
 
-def attach_cycle_metadata(name, changes, content):
+def attach_cycle_metadata(name, changes, content, effort_selection=None):
     header = [f'# {name.title()} cycle', '', render_inputs_used(changes), '']
+    effort_section = render_effort_policy_section(effort_selection)
+    if effort_section:
+        header.extend([effort_section, ''])
     return '\n'.join(header) + content
 
 def store_memory(cycle, title, body, priority=7, confidence=0.7):
@@ -10853,10 +11217,20 @@ def write_report(name, content):
 def run_cycle(name, changes):
     started = dt.datetime.now()
     started_at = started.isoformat(timespec='seconds')
-    write_runtime_state(state='running', current_cycle=name, current_project=PROJECT_SLUG, cycle_started_at=started_at, changed_files=len(changes))
+    effort_selection = build_adaptive_effort_selection(name, changes=changes)
+    write_runtime_state(
+        state='running',
+        current_cycle=name,
+        current_project=PROJECT_SLUG,
+        cycle_started_at=started_at,
+        changed_files=len(changes),
+        current_effort_band=effort_selection.get('band', 'standard'),
+        current_effort_task_kind=effort_selection.get('task_kind', 'bounded_synthesis'),
+        current_effort_reason=effort_selection.get('reason', ''),
+    )
     try:
         if name == 'dream':
-            output = generate_dream_cycle(changes)
+            output = generate_dream_cycle(changes, effort_selection=effort_selection)
             sync_action_inbox_from_dream(output)
         elif name == 'reflect':
             raise RuntimeError('reflect cycle requires prior reports')
@@ -10865,8 +11239,8 @@ def run_cycle(name, changes):
         else:
             system = load_prompt(name)
             context = context_with_inputs(changes)
-            output = ollama_generate(system, context)
-        output = attach_cycle_metadata(name, changes, output)
+            output = ollama_generate(system, context, effort_selection=effort_selection)
+        output = attach_cycle_metadata(name, changes, output, effort_selection=effort_selection)
         title = f'{name.capitalize()} cycle'
         prio = parse_priority(output)
         conf = 0.82 if name == 'reality' else 0.72
@@ -10876,7 +11250,20 @@ def run_cycle(name, changes):
         store_cycle_run(name, started_at, now_iso(), 'ok', duration_ms, len(changes), str(path), '')
         if prio >= CFG.get('notifications', {}).get('min_priority', 8):
             notify(f"{PROJECT_DISPLAY_NAME}: {name}", f'New {name} insight saved: {path.name}')
-        write_runtime_state(state='running', current_cycle=None, current_project=PROJECT_SLUG, last_completed_cycle=name, last_cycle_status='ok', last_cycle_finished_at=now_iso(), last_report_path=str(path), last_error='')
+        write_runtime_state(
+            state='running',
+            current_cycle=None,
+            current_project=PROJECT_SLUG,
+            last_completed_cycle=name,
+            last_cycle_status='ok',
+            last_cycle_finished_at=now_iso(),
+            last_report_path=str(path),
+            last_error='',
+            last_effort_cycle=name,
+            last_effort_band=effort_selection.get('band', 'standard'),
+            last_effort_task_kind=effort_selection.get('task_kind', 'bounded_synthesis'),
+            last_effort_reason=effort_selection.get('reason', ''),
+        )
         return path
     except Exception as exc:
         duration_ms = int((dt.datetime.now() - started).total_seconds() * 1000)
@@ -10888,10 +11275,14 @@ def run_cycle(name, changes):
 def daily_snapshot():
     started = dt.datetime.now()
     started_at = started.isoformat(timespec='seconds')
+    effort_selection = build_adaptive_effort_selection('daily_snapshot', changes=[])
     con = sqlite3.connect(DB_PATH)
     rows = con.execute('SELECT cycle, title, body, priority, confidence, created_at FROM memories ORDER BY id DESC LIMIT 12').fetchall()
     con.close()
     body = ['# Daily Field Snapshot', '']
+    effort_section = render_effort_policy_section(effort_selection)
+    if effort_section:
+        body.extend([effort_section, ''])
     reflect_state = load_json_file(REFLECT_STATE_PATH, {})
     evidence = reflect_state.get('evidence_analysis', {}) if isinstance(reflect_state, dict) else {}
     operational_visibility = evidence.get('operational_visibility', {}) if isinstance(evidence, dict) else {}
@@ -10926,7 +11317,20 @@ def daily_snapshot():
     path = write_report('daily_snapshot', '\n'.join(body))
     duration_ms = int((dt.datetime.now() - started).total_seconds() * 1000)
     store_cycle_run('daily_snapshot', started_at, now_iso(), 'ok', duration_ms, 0, str(path), '')
-    write_runtime_state(state='waiting', current_cycle=None, current_project=PROJECT_SLUG, last_completed_cycle='daily_snapshot', last_cycle_status='ok', last_cycle_finished_at=now_iso(), last_report_path=str(path), last_error='')
+    write_runtime_state(
+        state='waiting',
+        current_cycle=None,
+        current_project=PROJECT_SLUG,
+        last_completed_cycle='daily_snapshot',
+        last_cycle_status='ok',
+        last_cycle_finished_at=now_iso(),
+        last_report_path=str(path),
+        last_error='',
+        last_effort_cycle='daily_snapshot',
+        last_effort_band=effort_selection.get('band', 'standard'),
+        last_effort_task_kind=effort_selection.get('task_kind', 'bounded_synthesis'),
+        last_effort_reason=effort_selection.get('reason', ''),
+    )
     return path
 
 
@@ -10935,8 +11339,8 @@ def run_scorecard_cycle(changes, prior_reports):
     started_at = started.isoformat(timespec='seconds')
     write_runtime_state(state='running', current_cycle='scorecard', current_project=PROJECT_SLUG, cycle_started_at=started_at, changed_files=len(changes))
     try:
-        output = generate_scorecard_cycle(changes, prior_reports)
-        output = attach_cycle_metadata('scorecard', changes, output)
+        output, effort_selection = generate_scorecard_cycle(changes, prior_reports)
+        output = attach_cycle_metadata('scorecard', changes, output, effort_selection=effort_selection)
         title = 'Scorecard cycle'
         prio = parse_priority(output)
         scorecard_state = load_scorecard_state()
@@ -10958,6 +11362,10 @@ def run_scorecard_cycle(changes, prior_reports):
             scorecard_generation_status=diagnostics.get('status', 'valid'),
             scorecard_generation_repair_strategy=diagnostics.get('repair_strategy', 'none'),
             scorecard_generation_note=diagnostics.get('error', ''),
+            last_effort_cycle='scorecard',
+            last_effort_band=effort_selection.get('band', 'standard'),
+            last_effort_task_kind=effort_selection.get('task_kind', 'bounded_synthesis'),
+            last_effort_reason=effort_selection.get('reason', ''),
         )
         return path
     except Exception as exc:
@@ -10973,8 +11381,8 @@ def run_reflect_cycle(changes, prior_reports):
     started_at = started.isoformat(timespec='seconds')
     write_runtime_state(state='running', current_cycle='reflect', current_project=PROJECT_SLUG, cycle_started_at=started_at, changed_files=len(changes))
     try:
-        output, reflect_diagnostics = generate_reflect_cycle(changes, prior_reports)
-        output = attach_cycle_metadata('reflect', changes, output)
+        output, reflect_diagnostics, effort_selection = generate_reflect_cycle(changes, prior_reports)
+        output = attach_cycle_metadata('reflect', changes, output, effort_selection=effort_selection)
         title = 'Reflect cycle'
         prio = parse_priority(output)
         if reflect_diagnostics.get('status') == 'fallback':
@@ -10999,6 +11407,10 @@ def run_reflect_cycle(changes, prior_reports):
             reflect_generation_status=reflect_diagnostics.get('status', 'valid'),
             reflect_generation_repair_strategy=reflect_diagnostics.get('repair_strategy', 'none'),
             reflect_generation_note=reflect_diagnostics.get('error', ''),
+            last_effort_cycle='reflect',
+            last_effort_band=effort_selection.get('band', 'standard'),
+            last_effort_task_kind=effort_selection.get('task_kind', 'bounded_synthesis'),
+            last_effort_reason=effort_selection.get('reason', ''),
         )
         return path
     except Exception as exc:

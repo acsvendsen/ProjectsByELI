@@ -171,6 +171,38 @@ control:
       excerpt_chars: 1800
     audit:
       decision_limit: 120
+  adaptive_effort:
+    enabled: true
+    routine_cycles:
+      - daily_snapshot
+      - sleep
+    high_consequence_cycles:
+      - reflect
+      - reality
+    synthesis_cycles:
+      - dream
+      - scorecard
+    pending_v1_for_deep: 1
+    pending_v1_for_critical: 3
+    artifact_pressure_for_deep: 2
+    contradiction_pressure_for_deep: 2
+    changed_files_for_deep: 6
+    scorecard_stale_minutes: 180
+    deep_if_sync_mismatch: true
+    deep_if_reflect_repaired_or_fallback: true
+    bands:
+      light:
+        num_predict: 1400
+        timeout_seconds: 90
+      standard:
+        num_predict: 2200
+        timeout_seconds: 120
+      deep:
+        num_predict: 3200
+        timeout_seconds: 180
+      critical:
+        num_predict: 4200
+        timeout_seconds: 240
 
 specialist_consultation:
   enabled: true
