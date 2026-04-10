@@ -1,11 +1,12 @@
 {
-  "generated_at": "2026-04-10T10:21:31",
+  "generated_at": "2026-04-10T11:43:03",
   "source_generated_at": {
     "review_state_consumption": "2026-04-09T23:02:49",
-    "reflect_state": "2026-04-10T10:20:29",
-    "project_scorecard": "2026-04-10T10:21:03",
+    "reflect_state": "2026-04-10T11:41:31",
+    "project_scorecard": "2026-04-10T11:42:04",
     "implementation_artifact_review": "2026-04-09T23:02:49",
-    "v1_decision_review": "2026-04-10T10:20:29",
+    "component_package_review": "2026-04-10T11:43:03",
+    "v1_decision_review": "2026-04-10T11:41:31",
     "artifact_emission_readiness": "2026-04-09T23:02:49",
     "draft_artifact_review": "2026-04-09T23:02:49"
   },
@@ -39,12 +40,19 @@
     "quality_bar_alignment": "aligned",
     "top_gimmick_risk": "Wireless Interface is `needs_attention` with `limited_evidence` grounding: Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
   },
+  "component_package": {
+    "bom_readiness_band": "early_subsystem_bom_only",
+    "component_package_kind": "subsystem_bom",
+    "summary": "A concrete part list is still premature, but a bounded subsystem-level BOM frame is now warranted to improve buildability and package thinking without pretending the parts are settled.",
+    "top_blocker": "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history.",
+    "trust_posture": "operational"
+  },
   "current_truth_summary": [
     "The current review-state files are close enough in time and linkage to compare operationally.",
     "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Expectation posture is `default-tentative`.",
     "No pending V1 decisions currently qualify as the active review front.",
     "2 provisional structured design brief draft(s) are available for review without becoming implementation commitments.",
-    "3 meaningful lane(s) are currently held until new grounding appears rather than being treated as solved or dead."
+    "1 meaningful lane(s) are currently held until new grounding appears rather than being treated as solved or dead."
   ],
   "active_review_front": [
     {
@@ -80,30 +88,6 @@
       "source_surface": "reflect_state",
       "judgment": "hold_until_new_grounding",
       "why_held": "aligns with Trustworthy memory support; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs usefulness, Latency vs richness; still meaningful, but not newly a...",
-      "release_on": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully stronger architectural pull",
-        "meaningfully lower resistance"
-      ]
-    },
-    {
-      "title": "Confidence Display",
-      "source_surface": "reflect_state",
-      "judgment": "hold_until_new_grounding",
-      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Discreet UX vs visual clarity, Latency vs richness; needs counterweight discipline on Latency vs richness, Discreet UX vs visua...",
-      "release_on": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully stronger architectural pull",
-        "meaningfully lower resistance"
-      ]
-    },
-    {
-      "title": "Phone/Cloud Boundary",
-      "source_surface": "reflect_state",
-      "judgment": "hold_until_new_grounding",
-      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Latency vs richness, Privacy vs usefulness; needs counterweight discipline on Latency vs richness, Privacy vs usefulness; still...",
       "release_on": [
         "real repo change or stronger repo grounding",
         "a new source type such as runtime truth or code-config evidence",
@@ -175,9 +159,9 @@
   ],
   "counts": {
     "active_review_front": 2,
-    "held_lanes": 3,
+    "held_lanes": 1,
     "blocked_lanes": 4,
     "needs_human_review": 2
   },
-  "updated_at": "2026-04-10T10:21:31"
+  "updated_at": "2026-04-10T11:43:03"
 }

@@ -213,6 +213,31 @@ control:
     max_missing: 5
     max_improvements: 5
     include_in_execution_resume: true
+  component_package_review:
+    enabled: true
+    include_in_execution_resume: true
+    max_required_now: 4
+    max_recommended_for_quality: 4
+    max_optional_or_later: 4
+    max_blocked_by_unresolved_choices: 5
+    max_missing_for_stronger_bom: 5
+    target_subsystem_tokens:
+      - hardware
+      - wireless
+      - firmware
+      - display
+      - audio
+      - power
+      - battery
+      - sensor
+      - interface
+      - boundary
+      - compute
+    component_signal_artifact_types:
+      - component_shortlist
+      - schematic_direction
+      - interface_map
+      - subsystem_breakdown
   execution_resume:
     enabled: true
     max_current_truth_summary: 5

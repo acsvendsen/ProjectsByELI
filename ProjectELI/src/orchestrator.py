@@ -175,6 +175,19 @@ PRODUCT_REALISM_BANDS = (
     'real_product_path_not_yet_proven',
     'real_product_path_credible',
 )
+COMPONENT_PACKAGE_READINESS_BANDS = (
+    'not_warranted',
+    'early_subsystem_bom_only',
+    'prototype_component_package',
+    'implementation_package_bom',
+    'product_candidate_bom_not_yet_final',
+)
+COMPONENT_PACKAGE_KINDS = (
+    'subsystem_bom',
+    'prototype_bom',
+    'implementation_package',
+    'quality_upgrade_package',
+)
 STATE_SYNC_STATUS_VALUES = (
     'in_sync',
     'settling',
@@ -575,6 +588,7 @@ VERIFICATION_SUMMARY_PATH = PROJECT_STATE_DIR / "verification_summary.json"
 PROJECT_EXPECTATIONS_PATH = PROJECT_STATE_DIR / "project_expectations.json"
 PROJECT_MILESTONES_PATH = PROJECT_STATE_DIR / "project_milestones.json"
 PRODUCT_REALISM_REVIEW_PATH = PROJECT_STATE_DIR / "product_realism_review.json"
+COMPONENT_PACKAGE_REVIEW_PATH = PROJECT_STATE_DIR / "component_package_review.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -873,6 +887,46 @@ DEFAULT_COGNITION_SCHEMA = {
                 },
             },
         },
+        'project_milestones': {
+            'enabled': True,
+            'max_visible': 6,
+        },
+        'product_realism_review': {
+            'enabled': True,
+            'max_strengths': 4,
+            'max_risks': 5,
+            'max_missing': 5,
+            'max_improvements': 5,
+            'include_in_execution_resume': True,
+        },
+        'component_package_review': {
+            'enabled': True,
+            'include_in_execution_resume': True,
+            'max_required_now': 4,
+            'max_recommended_for_quality': 4,
+            'max_optional_or_later': 4,
+            'max_blocked_by_unresolved_choices': 5,
+            'max_missing_for_stronger_bom': 5,
+            'target_subsystem_tokens': [
+                'hardware',
+                'wireless',
+                'firmware',
+                'display',
+                'audio',
+                'power',
+                'battery',
+                'sensor',
+                'interface',
+                'boundary',
+                'compute',
+            ],
+            'component_signal_artifact_types': [
+                'component_shortlist',
+                'schematic_direction',
+                'interface_map',
+                'subsystem_breakdown',
+            ],
+        },
         'execution_resume': {
             'enabled': True,
             'max_current_truth_summary': 5,
@@ -1168,6 +1222,41 @@ control:
       critical:
         num_predict: 4200
         timeout_seconds: 240
+  project_milestones:
+    enabled: true
+    max_visible: 6
+  product_realism_review:
+    enabled: true
+    max_strengths: 4
+    max_risks: 5
+    max_missing: 5
+    max_improvements: 5
+    include_in_execution_resume: true
+  component_package_review:
+    enabled: true
+    include_in_execution_resume: true
+    max_required_now: 4
+    max_recommended_for_quality: 4
+    max_optional_or_later: 4
+    max_blocked_by_unresolved_choices: 5
+    max_missing_for_stronger_bom: 5
+    target_subsystem_tokens:
+      - hardware
+      - wireless
+      - firmware
+      - display
+      - audio
+      - power
+      - battery
+      - sensor
+      - interface
+      - boundary
+      - compute
+    component_signal_artifact_types:
+      - component_shortlist
+      - schematic_direction
+      - interface_map
+      - subsystem_breakdown
   execution_resume:
     enabled: true
     max_current_truth_summary: 5
@@ -7167,6 +7256,29 @@ def product_realism_config(schema=None):
     }
 
 
+def component_package_review_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('component_package_review', {}) if isinstance(control.get('component_package_review', {}), dict) else {}
+    tokens = cfg.get('target_subsystem_tokens', [])
+    artifact_types = cfg.get('component_signal_artifact_types', [])
+    if not isinstance(tokens, list) or not tokens:
+        tokens = ['hardware', 'wireless', 'firmware', 'display', 'audio', 'power', 'battery', 'sensor', 'interface', 'boundary', 'compute']
+    if not isinstance(artifact_types, list) or not artifact_types:
+        artifact_types = ['component_shortlist', 'schematic_direction', 'interface_map', 'subsystem_breakdown']
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'include_in_execution_resume': bool(cfg.get('include_in_execution_resume', True)),
+        'max_required_now': max(1, safe_int(cfg.get('max_required_now', 4), 4)),
+        'max_recommended_for_quality': max(1, safe_int(cfg.get('max_recommended_for_quality', 4), 4)),
+        'max_optional_or_later': max(1, safe_int(cfg.get('max_optional_or_later', 4), 4)),
+        'max_blocked_by_unresolved_choices': max(1, safe_int(cfg.get('max_blocked_by_unresolved_choices', 5), 5)),
+        'max_missing_for_stronger_bom': max(1, safe_int(cfg.get('max_missing_for_stronger_bom', 5), 5)),
+        'target_subsystem_tokens': [normalize_signal_key(item) for item in tokens if normalize_signal_key(item)],
+        'component_signal_artifact_types': [normalize_signal_key(item) for item in artifact_types if normalize_signal_key(item)],
+    }
+
+
 def default_execution_resume_state():
     return {
         'generated_at': '',
@@ -7174,6 +7286,7 @@ def default_execution_resume_state():
         'trust_posture': {},
         'project_intent': {},
         'product_realism': {},
+        'component_package': {},
         'current_truth_summary': [],
         'active_review_front': [],
         'held_lanes': [],
@@ -7205,6 +7318,8 @@ def load_execution_resume_state():
         data['project_intent'] = {}
     if not isinstance(data.get('product_realism'), dict):
         data['product_realism'] = {}
+    if not isinstance(data.get('component_package'), dict):
+        data['component_package'] = {}
     if not isinstance(data.get('source_generated_at'), dict):
         data['source_generated_at'] = {}
     if not isinstance(data.get('counts'), dict):
@@ -8057,6 +8172,380 @@ def render_product_realism_review_context(realism_state=None):
     return '\n'.join(lines) + '\n'
 
 
+def default_component_package_review_state():
+    return {
+        'generated_at': '',
+        'bom_readiness_bands': list(COMPONENT_PACKAGE_READINESS_BANDS),
+        'component_package_kinds': list(COMPONENT_PACKAGE_KINDS),
+        'bom_readiness_band': 'not_warranted',
+        'component_package_kind': '',
+        'target_subsystems': [],
+        'required_now': [],
+        'recommended_for_quality': [],
+        'optional_or_later': [],
+        'blocked_by_unresolved_choices': [],
+        'why_bom_is_or_is_not_warranted': '',
+        'missing_for_stronger_bom': [],
+        'milestone_link': {},
+        'realism_link': {},
+        'trust_posture': {},
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_component_package_review_state():
+    data = load_json_file(COMPONENT_PACKAGE_REVIEW_PATH, default_component_package_review_state())
+    if not isinstance(data, dict):
+        data = default_component_package_review_state()
+    for key in (
+        'target_subsystems',
+        'required_now',
+        'recommended_for_quality',
+        'optional_or_later',
+        'blocked_by_unresolved_choices',
+        'missing_for_stronger_bom',
+    ):
+        if not isinstance(data.get(key), list):
+            data[key] = []
+    for key in ('milestone_link', 'realism_link', 'trust_posture', 'source_generated_at'):
+        if not isinstance(data.get(key), dict):
+            data[key] = {}
+    if not isinstance(data.get('bom_readiness_bands'), list):
+        data['bom_readiness_bands'] = list(COMPONENT_PACKAGE_READINESS_BANDS)
+    if not isinstance(data.get('component_package_kinds'), list):
+        data['component_package_kinds'] = list(COMPONENT_PACKAGE_KINDS)
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_component_package_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_component_package_review_state()
+    payload['updated_at'] = now_iso()
+    COMPONENT_PACKAGE_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def component_package_band_index(value):
+    try:
+        return COMPONENT_PACKAGE_READINESS_BANDS.index(str(value or '').strip())
+    except ValueError:
+        return 0
+
+
+def component_package_band_from_score(score):
+    score = clamp_number(safe_float(score, 0.0), 0.0, 100.0)
+    if score >= 88.0:
+        return 'product_candidate_bom_not_yet_final'
+    if score >= 72.0:
+        return 'implementation_package_bom'
+    if score >= 48.0:
+        return 'prototype_component_package'
+    if score >= 30.0:
+        return 'early_subsystem_bom_only'
+    return 'not_warranted'
+
+
+def capped_component_package_band(band, maximum_band):
+    if component_package_band_index(band) > component_package_band_index(maximum_band):
+        return maximum_band
+    return band
+
+
+def component_package_kind_for_band(band):
+    mapping = {
+        'not_warranted': '',
+        'early_subsystem_bom_only': 'subsystem_bom',
+        'prototype_component_package': 'prototype_bom',
+        'implementation_package_bom': 'implementation_package',
+        'product_candidate_bom_not_yet_final': 'quality_upgrade_package',
+    }
+    return mapping.get(str(band or ''), '')
+
+
+def component_package_target_rows(scorecard_dimensions, cfg):
+    tokens = cfg.get('target_subsystem_tokens', []) if isinstance(cfg, dict) else []
+    rows = []
+    for row in scorecard_dimensions or []:
+        if not isinstance(row, dict):
+            continue
+        hay = normalize_signal_key(f"{row.get('id', '')} {row.get('label', '')}")
+        if any(token and token in hay for token in tokens):
+            rows.append(row)
+    return rows
+
+
+def component_package_slice_name(label, stage):
+    label = str(label or 'Subsystem').strip() or 'Subsystem'
+    mapping = {
+        'boundary': f'{label} subsystem boundary package',
+        'prototype': f'{label} prototype component package',
+        'implementation': f'{label} implementation package',
+        'quality': f'{label} quality-upgrade package',
+        'later': f'{label} later-stage package',
+    }
+    return mapping.get(stage, f'{label} package')
+
+
+def build_component_package_review_state(schema=None, review_snapshot=None):
+    schema = schema or load_cognition_schema()
+    cfg = component_package_review_config(schema)
+    if not cfg.get('enabled', True):
+        return default_component_package_review_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    expectations = load_project_expectations_state()
+    milestones_state = load_project_milestones_state()
+    realism_state = load_product_realism_review_state()
+    reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
+    scorecard_state = load_scorecard_state()
+    artifact_review_state = load_implementation_artifact_review_state()
+    emission_state = load_artifact_emission_readiness_state()
+    draft_state = load_draft_artifact_review_state()
+
+    exec_cfg = execution_resume_config(schema)
+    scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
+    artifact_review_use, artifact_review_reason = supporting_artifact_review_posture(artifact_review_state, reflect_state)
+
+    scorecard_dimensions = scorecard_state.get('dimensions', []) if scorecard_use == 'current_truth' and isinstance(scorecard_state.get('dimensions', []), list) else []
+    target_rows = component_package_target_rows(scorecard_dimensions, cfg)
+    grounded_targets = [row for row in target_rows if normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'grounded']
+    weak_targets = [row for row in target_rows if normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'weakly_grounded']
+    constrained_targets = [
+        row for row in target_rows
+        if normalize_scorecard_status(row.get('status', 'unknown')) in ('needs_attention', 'blocked')
+        or normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'limited_evidence'
+    ]
+
+    component_signal_types = set(cfg.get('component_signal_artifact_types', []))
+    artifact_rows = artifact_review_state.get('implementation_artifact_candidates', []) if artifact_review_use in ('current_truth', 'provisional_context') and isinstance(artifact_review_state.get('implementation_artifact_candidates', []), list) else []
+    component_artifact_rows = [row for row in artifact_rows if normalize_signal_key(row.get('artifact_type', '')) in component_signal_types]
+
+    review_surfaces = review_snapshot.get('surfaces', {}) if isinstance(review_snapshot.get('surfaces', {}), dict) else {}
+    emission_surface = review_surfaces.get('artifact_emission_readiness', {})
+    draft_surface = review_surfaces.get('draft_artifact_review', {})
+    emission_rows = emission_state.get('artifact_emission_readiness', []) if emission_surface.get('consumption_state') in ('current_truth', 'provisional_context') and isinstance(emission_state.get('artifact_emission_readiness', []), list) else []
+    draft_rows = draft_state.get('emitted_drafts', []) if draft_surface.get('consumption_state') in ('current_truth', 'provisional_context') and isinstance(draft_state.get('emitted_drafts', []), list) else []
+
+    milestone_rows = milestones_state.get('milestones', []) if isinstance(milestones_state.get('milestones', []), list) else []
+    milestone_by_id = {
+        normalize_signal_key(row.get('milestone_id', '')): row
+        for row in milestone_rows
+        if isinstance(row, dict) and row.get('milestone_id')
+    }
+    implementation_milestone = milestone_by_id.get('implementation_package_review', {})
+    realism_milestone = milestone_by_id.get('product_realism_check', {})
+
+    realism_band = str(realism_state.get('current_realism_band', 'concept_only') or 'concept_only')
+    target_outcome = str(expectations.get('target_outcome_type', 'functional_prototype') or 'functional_prototype')
+    seriousness = str(expectations.get('intended_seriousness', 'exploratory') or 'exploratory')
+
+    held_rows = []
+    target_tokens = set()
+    for row in target_rows:
+        target_tokens.update(
+            token for token in normalize_signal_key(f"{row.get('id', '')} {row.get('label', '')}").split('_')
+            if token
+        )
+    operational_visibility = reflect_state.get('evidence_analysis', {}).get('operational_visibility', {}) if isinstance(reflect_state.get('evidence_analysis', {}), dict) else {}
+    for row in operational_visibility.get('held_items', []) if isinstance(operational_visibility.get('held_items', []), list) else []:
+        hay = normalize_signal_key(f"{row.get('title', '')} {row.get('reason', '')}")
+        tokens = {token for token in hay.split('_') if token}
+        if target_tokens.intersection(tokens):
+            held_rows.append(row)
+
+    score = 0.0
+    if scorecard_use == 'current_truth':
+        score += 12.0
+    if target_rows:
+        score += 10.0
+    score += len(grounded_targets) * 12.0
+    score += len(weak_targets) * 5.0
+    score += len(component_artifact_rows) * 18.0
+    score += sum(6.0 for row in emission_rows if normalize_signal_key(row.get('suggested_draft_form', '')) in ('bom_draft', 'interface_map_draft', 'schematic_direction_draft', 'kicad_related_scaffold'))
+    score += 16.0 if implementation_milestone.get('approval_state') == 'ready_for_review' else 0.0
+    score += {
+        'functional_prototype_path': 6.0,
+        'serious_prototype_path': 12.0,
+        'product_candidate_emerging': 20.0,
+        'real_product_path_not_yet_proven': 28.0,
+        'real_product_path_credible': 35.0,
+    }.get(realism_band, 0.0)
+    if target_outcome in ('engineering_ready_prototype', 'product_candidate', 'real_product_path'):
+        score += 8.0
+    score -= len(constrained_targets) * 8.0
+    score -= len(held_rows) * 5.0
+
+    band = component_package_band_from_score(score)
+    max_by_realism = {
+        'concept_only': 'not_warranted',
+        'credible_concept': 'not_warranted',
+        'functional_prototype_path': 'early_subsystem_bom_only',
+        'serious_prototype_path': 'prototype_component_package',
+        'product_candidate_emerging': 'implementation_package_bom',
+        'real_product_path_not_yet_proven': 'product_candidate_bom_not_yet_final',
+        'real_product_path_credible': 'product_candidate_bom_not_yet_final',
+    }
+    band = capped_component_package_band(band, max_by_realism.get(realism_band, 'not_warranted'))
+    if not target_rows or scorecard_use != 'current_truth':
+        band = 'not_warranted'
+    if not component_artifact_rows:
+        band = capped_component_package_band(band, 'early_subsystem_bom_only')
+    if implementation_milestone.get('approval_state') != 'ready_for_review':
+        band = capped_component_package_band(band, 'early_subsystem_bom_only')
+    if target_outcome in ('concept_exploration', 'demo_prototype', 'functional_prototype') and seriousness == 'exploratory':
+        band = capped_component_package_band(band, 'prototype_component_package')
+
+    package_kind = component_package_kind_for_band(band)
+
+    target_subsystems = [row.get('label', row.get('id', 'subsystem')) for row in target_rows[: max(1, cfg.get('max_required_now', 4))]]
+
+    required_now = []
+    if band == 'early_subsystem_bom_only':
+        for row in (grounded_targets or target_rows)[:1]:
+            required_now.append(component_package_slice_name(row.get('label', row.get('id', 'Subsystem')), 'boundary'))
+    elif band == 'prototype_component_package':
+        for row in (grounded_targets or target_rows)[:2]:
+            required_now.append(component_package_slice_name(row.get('label', row.get('id', 'Subsystem')), 'prototype'))
+    elif band == 'implementation_package_bom':
+        for row in (grounded_targets or target_rows)[:3]:
+            required_now.append(component_package_slice_name(row.get('label', row.get('id', 'Subsystem')), 'implementation'))
+    elif band == 'product_candidate_bom_not_yet_final':
+        for row in (grounded_targets or target_rows)[:3]:
+            required_now.append(component_package_slice_name(row.get('label', row.get('id', 'Subsystem')), 'implementation'))
+
+    recommended_for_quality = []
+    if band != 'not_warranted':
+        for row in constrained_targets[:cfg.get('max_recommended_for_quality', 4)]:
+            recommended_for_quality.append(component_package_slice_name(row.get('label', row.get('id', 'Subsystem')), 'quality'))
+
+    optional_or_later = []
+    if band in ('early_subsystem_bom_only', 'prototype_component_package', 'implementation_package_bom', 'product_candidate_bom_not_yet_final'):
+        for row in target_rows:
+            label = component_package_slice_name(row.get('label', row.get('id', 'Subsystem')), 'later')
+            if label not in required_now and label not in optional_or_later:
+                optional_or_later.append(label)
+        optional_or_later = optional_or_later[:cfg.get('max_optional_or_later', 4)]
+
+    blocked_by_unresolved_choices = []
+    seen_blockers = set()
+    def push_blocker(text):
+        cleaned = compact_text_excerpt(text, 180)
+        if not cleaned:
+            return
+        key = cleaned.lower()
+        if key in seen_blockers:
+            return
+        seen_blockers.add(key)
+        blocked_by_unresolved_choices.append(cleaned)
+
+    if artifact_review_use != 'current_truth':
+        push_blocker(artifact_review_reason)
+    for row in constrained_targets[:cfg.get('max_blocked_by_unresolved_choices', 5)]:
+        push_blocker(row.get('next_focus', row.get('progress_summary', '')))
+    for row in held_rows[: max(0, cfg.get('max_blocked_by_unresolved_choices', 5) - len(blocked_by_unresolved_choices))]:
+        push_blocker(f"{row.get('title', 'Held lane')} remains held until new grounding appears.")
+
+    missing_for_stronger_bom = []
+    seen_missing = set()
+    def push_missing(text):
+        cleaned = compact_text_excerpt(text, 200)
+        if not cleaned:
+            return
+        key = cleaned.lower()
+        if key in seen_missing:
+            return
+        seen_missing.add(key)
+        missing_for_stronger_bom.append(cleaned)
+
+    if scorecard_use != 'current_truth':
+        push_missing(scorecard_reason)
+    if not component_artifact_rows:
+        push_missing('No grounded component-shortlist, schematic-direction, interface-map, or subsystem-breakdown artifact currently justifies a stronger BOM package.')
+    if implementation_milestone.get('approval_state') != 'ready_for_review':
+        push_missing(implementation_milestone.get('why_not_ready_yet', ''))
+    for item in realism_state.get('missing_for_product_candidate', [])[:2]:
+        push_missing(item)
+    for row in constrained_targets[:2]:
+        push_missing(row.get('next_focus', row.get('progress_summary', '')))
+    missing_for_stronger_bom = missing_for_stronger_bom[:cfg.get('max_missing_for_stronger_bom', 5)]
+
+    if band == 'not_warranted':
+        why = 'A BOM or component package is not warranted yet because current implementation maturity is still centered on design/spec review, while hardware-adjacent subsystem grounding remains too incomplete for honest component concreteness.'
+    elif band == 'early_subsystem_bom_only':
+        why = 'A concrete part list is still premature, but a bounded subsystem-level BOM frame is now warranted to improve buildability and package thinking without pretending the parts are settled.'
+    elif band == 'prototype_component_package':
+        why = 'Prototype-level component packaging is warranted now, but it should remain provisional and explicitly separated from any final BOM claim.'
+    elif band == 'implementation_package_bom':
+        why = 'Implementation maturity is strong enough for a real package-oriented BOM surface, but not for a final product-candidate BOM.'
+    else:
+        why = 'The project can support a product-candidate-oriented BOM package, but it still must remain revisable rather than being treated as final.'
+
+    return {
+        'generated_at': now_iso(),
+        'bom_readiness_bands': list(COMPONENT_PACKAGE_READINESS_BANDS),
+        'component_package_kinds': list(COMPONENT_PACKAGE_KINDS),
+        'bom_readiness_band': band,
+        'component_package_kind': package_kind,
+        'target_subsystems': target_subsystems,
+        'required_now': required_now[:cfg.get('max_required_now', 4)],
+        'recommended_for_quality': recommended_for_quality[:cfg.get('max_recommended_for_quality', 4)],
+        'optional_or_later': optional_or_later[:cfg.get('max_optional_or_later', 4)],
+        'blocked_by_unresolved_choices': blocked_by_unresolved_choices[:cfg.get('max_blocked_by_unresolved_choices', 5)],
+        'why_bom_is_or_is_not_warranted': compact_text_excerpt(why, 320),
+        'missing_for_stronger_bom': missing_for_stronger_bom,
+        'milestone_link': {
+            'primary_milestone_id': implementation_milestone.get('milestone_id', ''),
+            'primary_approval_state': implementation_milestone.get('approval_state', ''),
+            'primary_current_band': implementation_milestone.get('current_band', ''),
+            'gating_milestone_id': realism_milestone.get('milestone_id', ''),
+            'gating_approval_state': realism_milestone.get('approval_state', ''),
+            'gating_current_band': realism_milestone.get('current_band', ''),
+        },
+        'realism_link': {
+            'current_realism_band': realism_band,
+            'summary': realism_state.get('why_this_band', ''),
+            'quality_bar_alignment': realism_state.get('quality_bar_alignment', {}).get('status', ''),
+        },
+        'trust_posture': {
+            'overall_sync_status': review_snapshot.get('overall_sync_status', 'provisional'),
+            'overall_trust_status': review_snapshot.get('overall_trust_status', 'provisional'),
+            'scorecard_use': scorecard_use,
+            'artifact_review_use': artifact_review_use,
+        },
+        'source_generated_at': {
+            'project_expectations': state_surface_generated_at(expectations),
+            'project_milestones': state_surface_generated_at(milestones_state),
+            'product_realism_review': state_surface_generated_at(realism_state),
+            'project_scorecard': state_surface_generated_at(scorecard_state),
+            'implementation_artifact_review': state_surface_generated_at(artifact_review_state),
+            'artifact_emission_readiness': state_surface_generated_at(emission_state),
+            'draft_artifact_review': state_surface_generated_at(draft_state),
+        },
+        'revisable': True,
+    }
+
+
+def render_component_package_review_context(component_state=None):
+    component_state = component_state if isinstance(component_state, dict) else load_component_package_review_state()
+    lines = ['# Component Package Review']
+    lines.append(f"- bom_readiness_band: `{component_state.get('bom_readiness_band', 'not_warranted')}`")
+    if component_state.get('component_package_kind'):
+        lines.append(f"- component_package_kind: `{component_state.get('component_package_kind', '')}`")
+    if component_state.get('target_subsystems'):
+        lines.append(f"- target_subsystems: {', '.join(str(item) for item in component_state.get('target_subsystems', [])[:4])}")
+    if component_state.get('why_bom_is_or_is_not_warranted'):
+        lines.append(f"- why: {component_state.get('why_bom_is_or_is_not_warranted', '')}")
+    blocked = component_state.get('blocked_by_unresolved_choices', []) if isinstance(component_state.get('blocked_by_unresolved_choices', []), list) else []
+    if blocked:
+        lines.append(f"- blocked_by: {'; '.join(str(item) for item in blocked[:3])}")
+    missing = component_state.get('missing_for_stronger_bom', []) if isinstance(component_state.get('missing_for_stronger_bom', []), list) else []
+    if missing:
+        lines.append(f"- missing_for_stronger_bom: {'; '.join(str(item) for item in missing[:3])}")
+    return '\n'.join(lines) + '\n'
+
+
 def default_verification_summary_state():
     return {
         'generated_at': '',
@@ -8448,6 +8937,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
     reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
     project_expectations = load_project_expectations_state()
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
+    component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
     reflect_payload = reflect_state.get('reflect', {}) if isinstance(reflect_state.get('reflect', {}), dict) else {}
     evidence = reflect_state.get('evidence_analysis', {}) if isinstance(reflect_state.get('evidence_analysis', {}), dict) else {}
     operational_visibility = evidence.get('operational_visibility', {}) if isinstance(evidence.get('operational_visibility', {}), dict) else {}
@@ -8688,6 +9178,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
             'reflect_state': state_surface_generated_at(reflect_state),
             'project_scorecard': state_surface_generated_at(scorecard_state),
             'implementation_artifact_review': state_surface_generated_at(artifact_review_state),
+            'component_package_review': state_surface_generated_at(component_package_state),
             'v1_decision_review': state_surface_generated_at(v1_payload),
             'artifact_emission_readiness': state_surface_generated_at(emission_payload),
             'draft_artifact_review': state_surface_generated_at(draft_payload),
@@ -8718,6 +9209,13 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
             'quality_bar_alignment': product_realism_state.get('quality_bar_alignment', {}).get('status', ''),
             'top_gimmick_risk': (product_realism_state.get('gimmick_risks', []) or [''])[0],
         } if product_realism_config(schema).get('include_in_execution_resume', True) else {},
+        'component_package': {
+            'bom_readiness_band': component_package_state.get('bom_readiness_band', 'not_warranted'),
+            'component_package_kind': component_package_state.get('component_package_kind', ''),
+            'summary': component_package_state.get('why_bom_is_or_is_not_warranted', ''),
+            'top_blocker': (component_package_state.get('blocked_by_unresolved_choices', []) or [''])[0],
+            'trust_posture': component_package_state.get('trust_posture', {}).get('overall_trust_status', ''),
+        } if component_package_review_config(schema).get('include_in_execution_resume', True) else {},
         'current_truth_summary': current_truth_summary[:cfg.get('max_current_truth_summary', 5)],
         'active_review_front': active_review_front[:cfg.get('max_active_review_front', 4)],
         'held_lanes': held_lanes[:cfg.get('max_held_lanes', 4)],
@@ -8740,6 +9238,7 @@ def render_execution_resume_section(resume_state=None, include_header=True):
     trust = resume_state.get('trust_posture', {}) if isinstance(resume_state.get('trust_posture', {}), dict) else {}
     project_intent = resume_state.get('project_intent', {}) if isinstance(resume_state.get('project_intent', {}), dict) else {}
     product_realism = resume_state.get('product_realism', {}) if isinstance(resume_state.get('product_realism', {}), dict) else {}
+    component_package = resume_state.get('component_package', {}) if isinstance(resume_state.get('component_package', {}), dict) else {}
     if trust:
         lines.append(
             f"- trust_posture: sync `{trust.get('overall_sync_status', 'provisional')}` | trust `{trust.get('overall_trust_status', 'provisional')}`"
@@ -8755,6 +9254,16 @@ def render_execution_resume_section(resume_state=None, include_header=True):
         lines.append(
             f"- product_realism: `{product_realism.get('current_realism_band', 'concept_only')}` | "
             f"{product_realism.get('summary', '')}"
+        )
+    if component_package:
+        lines.append(
+            f"- component_package: `{component_package.get('bom_readiness_band', 'not_warranted')}`"
+            + (
+                f" | kind `{component_package.get('component_package_kind', '')}`"
+                if component_package.get('component_package_kind')
+                else ''
+            )
+            + f" | {component_package.get('summary', '')}"
         )
     for item in resume_state.get('current_truth_summary', [])[:3]:
         lines.append(f"- current_truth: {item}")
@@ -8968,6 +9477,7 @@ def refresh_review_state_sync_metadata(schema=None):
     summary = build_review_state_sync_summary(payloads, metadata_by_surface)
     STATE_SYNC_SUMMARY_PATH.write_text(json.dumps(summary, indent=2) + "\n", encoding='utf-8')
     review_snapshot = load_review_state_consumption_snapshot()
+    save_component_package_review_state(build_component_package_review_state(schema=schema, review_snapshot=review_snapshot))
     resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
     save_execution_resume_state(resume_state)
     save_project_milestones_state(build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
@@ -11301,6 +11811,7 @@ def generate_scorecard_cycle(changes, prior_reports):
     SCORECARD_STATE_PATH.write_text(json.dumps(scorecard, indent=2), encoding='utf-8')
     schema = load_cognition_schema()
     review_snapshot = load_review_state_consumption_snapshot()
+    save_component_package_review_state(build_component_package_review_state(schema=schema, review_snapshot=review_snapshot))
     resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
     save_execution_resume_state(resume_state)
     save_project_milestones_state(build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
@@ -12756,6 +13267,7 @@ def context_with_inputs(changes):
     review_state_consumption = load_review_state_consumption_snapshot()
     milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_state_consumption)
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_state_consumption)
+    component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_state_consumption)
     pieces = ['# Core Field\n', core_text(), '\n']
     pieces.append(render_field_layer_context())
     pieces.append(f'# {PROJECT_DISPLAY_NAME} Project Guardrails\n')
@@ -12783,6 +13295,8 @@ def context_with_inputs(changes):
     pieces.append(render_project_milestones_context(milestone_state))
     pieces.append('\n')
     pieces.append(render_product_realism_review_context(product_realism_state))
+    pieces.append('\n')
+    pieces.append(render_component_package_review_context(component_package_state))
     pieces.append('\n')
     pieces.append(render_review_state_consumption_context(review_state_consumption))
     pieces.append('\n')
