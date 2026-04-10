@@ -1,0 +1,111 @@
+{
+  "generated_at": "2026-04-10T10:21:31",
+  "realism_bands": [
+    "concept_only",
+    "credible_concept",
+    "functional_prototype_path",
+    "serious_prototype_path",
+    "product_candidate_emerging",
+    "real_product_path_not_yet_proven",
+    "real_product_path_credible"
+  ],
+  "current_realism_band": "serious_prototype_path",
+  "why_this_band": "The project is acting like a serious prototype path, but important subsystem and trust gaps still block product-candidate claims. 4 subsystem lane(s) still need attention. Declared intent remains `functional_prototype` / `exploratory`, so stronger product language would be premature.",
+  "anti_gimmick_strengths": [
+    "Fresh subsystem grounding exists across 3 areas, so realism is not being judged from narrative alone.",
+    "Implementation artifacts remain provisional review drafts instead of being treated as final design truth.",
+    "Meaningful unresolved lanes are explicitly held until new grounding appears, which resists fake progress theater.",
+    "Privacy and trust are not background concerns in this run; they are active shaping forces on memory, boundary, and confidence decisions. That means trust needs explicit behavior..."
+  ],
+  "gimmick_risks": [
+    "Wireless Interface is `needs_attention` with `limited_evidence` grounding: Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+    "Firmware is `needs_attention` with `limited_evidence` grounding: Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+    "Memory System is `needs_attention` with `weakly_grounded` grounding: Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
+    "Declared project intent is still `functional_prototype` with `exploratory` seriousness, so stronger product language would outrun operator-declared scope.",
+    "3 trust- or boundary-relevant lane(s) remain meaningful but held pending new grounding, so they should not be narrated as solved."
+  ],
+  "missing_for_product_candidate": [
+    "Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.",
+    "no bounded current product-definition review front is active; more grounded decision framing is needed before product-definition review",
+    "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.; Ground firmware readiness in explicit touch-input and display-control behavior inst...",
+    "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+    "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent."
+  ],
+  "missing_for_real_product_path": [
+    "core runtime behavior is grounded beyond report-only reasoning",
+    "trust, privacy, and usability constraints are handled credibly enough to survive real use",
+    "important subsystem risks are no longer being hidden behind prototype-only excuses",
+    "Current operator expectations do not yet target a real product claim, so realism review should stay held rather than being forced early.",
+    "The declared quality bar is still `credible`, which is below an honest real-product claim posture."
+  ],
+  "quality_bar_alignment": {
+    "status": "aligned",
+    "summary": "The current `serious_prototype_path` assessment is broadly aligned with the declared `credible` quality posture."
+  },
+  "hardware_readiness_view": {
+    "status": "mixed",
+    "summary": "Hardware Stack is grounded and on track; Wireless Interface, Firmware is still only limited-evidence",
+    "key_strengths": [
+      "Hardware stack is adhering to the core requirements with no critical issues observed."
+    ],
+    "key_gaps": [
+      "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+      "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent."
+    ]
+  },
+  "software_readiness_view": {
+    "status": "fragile",
+    "summary": "Software Stack, Memory System is still only weakly grounded",
+    "key_strengths": [],
+    "key_gaps": [
+      "Turn one core subtitle-or-trust question into concrete repo-grounded implementation evidence instead of another high-level reconsideration.",
+      "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope."
+    ]
+  },
+  "experience_readiness_view": {
+    "status": "credible",
+    "summary": "Subtitle System is grounded and on track",
+    "key_strengths": [
+      "Subtitle readiness is the strongest grounded subsystem in this run. The real question is no longer whether subtitles belong in V1, but how to preserve clarity and trust without..."
+    ],
+    "key_gaps": []
+  },
+  "trust_readiness_view": {
+    "status": "mixed",
+    "summary": "Privacy And Trust is grounded but still needs attention",
+    "key_strengths": [],
+    "key_gaps": [
+      "Tie confidence display, memory reinforcement, and boundary choices to explicit wearer-visible trust rules and consent handling."
+    ]
+  },
+  "commercial_or_practical_readiness_view": {
+    "status": "prototype_oriented",
+    "summary": "Produce something materially useful enough to justify continued build effort before broader product claims.; Current evidence supports a serious prototype path more than a product claim.; Operator intent is still prototype-oriented rather than commercial.",
+    "key_strengths": [
+      "Fresh subsystem grounding exists across 3 areas, so realism is not being judged from narrative alone.",
+      "Implementation artifacts remain provisional review drafts instead of being treated as final design truth."
+    ],
+    "key_gaps": [
+      "Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.",
+      "no bounded current product-definition review front is active; more grounded decision framing is needed before product-definition review",
+      "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.; Ground firmware readiness in explicit touch-input and display-c..."
+    ]
+  },
+  "what_would_materially_improve_realism": [
+    "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+    "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+    "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
+    "Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.",
+    "no bounded current product-definition review front is active; more grounded decision framing is needed before product-definition review"
+  ],
+  "source_generated_at": {
+    "project_expectations": "2026-04-10T09:16:32",
+    "project_scorecard": "2026-04-10T10:21:03",
+    "reflect_state": "2026-04-10T10:20:29",
+    "v1_decision_review": "2026-04-10T10:20:29",
+    "draft_artifact_review": "2026-04-09T23:02:49",
+    "project_milestones": "2026-04-10T09:35:03"
+  },
+  "revisable": true,
+  "updated_at": "2026-04-10T10:21:31"
+}

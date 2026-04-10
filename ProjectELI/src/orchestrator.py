@@ -166,6 +166,15 @@ PROJECT_MILESTONE_STYLES = (
     'product_realism_check',
     'implementation_package_review',
 )
+PRODUCT_REALISM_BANDS = (
+    'concept_only',
+    'credible_concept',
+    'functional_prototype_path',
+    'serious_prototype_path',
+    'product_candidate_emerging',
+    'real_product_path_not_yet_proven',
+    'real_product_path_credible',
+)
 STATE_SYNC_STATUS_VALUES = (
     'in_sync',
     'settling',
@@ -565,6 +574,7 @@ EXECUTION_RESUME_PATH = PROJECT_STATE_DIR / "execution_resume.json"
 VERIFICATION_SUMMARY_PATH = PROJECT_STATE_DIR / "verification_summary.json"
 PROJECT_EXPECTATIONS_PATH = PROJECT_STATE_DIR / "project_expectations.json"
 PROJECT_MILESTONES_PATH = PROJECT_STATE_DIR / "project_milestones.json"
+PRODUCT_REALISM_REVIEW_PATH = PROJECT_STATE_DIR / "product_realism_review.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -7143,12 +7153,27 @@ def project_milestones_config(schema=None):
     }
 
 
+def product_realism_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('product_realism_review', {}) if isinstance(control.get('product_realism_review', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'max_strengths': max(1, safe_int(cfg.get('max_strengths', 4), 4)),
+        'max_risks': max(1, safe_int(cfg.get('max_risks', 5), 5)),
+        'max_missing': max(1, safe_int(cfg.get('max_missing', 5), 5)),
+        'max_improvements': max(1, safe_int(cfg.get('max_improvements', 5), 5)),
+        'include_in_execution_resume': bool(cfg.get('include_in_execution_resume', True)),
+    }
+
+
 def default_execution_resume_state():
     return {
         'generated_at': '',
         'source_generated_at': {},
         'trust_posture': {},
         'project_intent': {},
+        'product_realism': {},
         'current_truth_summary': [],
         'active_review_front': [],
         'held_lanes': [],
@@ -7178,6 +7203,8 @@ def load_execution_resume_state():
         data['trust_posture'] = {}
     if not isinstance(data.get('project_intent'), dict):
         data['project_intent'] = {}
+    if not isinstance(data.get('product_realism'), dict):
+        data['product_realism'] = {}
     if not isinstance(data.get('source_generated_at'), dict):
         data['source_generated_at'] = {}
     if not isinstance(data.get('counts'), dict):
@@ -7587,6 +7614,449 @@ def render_project_milestones_context(milestone_state=None):
     return '\n'.join(lines) + '\n'
 
 
+def default_product_realism_review_state():
+    return {
+        'generated_at': '',
+        'realism_bands': list(PRODUCT_REALISM_BANDS),
+        'current_realism_band': 'concept_only',
+        'why_this_band': '',
+        'anti_gimmick_strengths': [],
+        'gimmick_risks': [],
+        'missing_for_product_candidate': [],
+        'missing_for_real_product_path': [],
+        'quality_bar_alignment': {},
+        'hardware_readiness_view': {},
+        'software_readiness_view': {},
+        'experience_readiness_view': {},
+        'trust_readiness_view': {},
+        'commercial_or_practical_readiness_view': {},
+        'what_would_materially_improve_realism': [],
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_product_realism_review_state():
+    data = load_json_file(PRODUCT_REALISM_REVIEW_PATH, default_product_realism_review_state())
+    if not isinstance(data, dict):
+        data = default_product_realism_review_state()
+    for key in (
+        'anti_gimmick_strengths',
+        'gimmick_risks',
+        'missing_for_product_candidate',
+        'missing_for_real_product_path',
+        'what_would_materially_improve_realism',
+    ):
+        if not isinstance(data.get(key), list):
+            data[key] = []
+    for key in (
+        'quality_bar_alignment',
+        'hardware_readiness_view',
+        'software_readiness_view',
+        'experience_readiness_view',
+        'trust_readiness_view',
+        'commercial_or_practical_readiness_view',
+        'source_generated_at',
+    ):
+        if not isinstance(data.get(key), dict):
+            data[key] = {}
+    if not isinstance(data.get('realism_bands'), list):
+        data['realism_bands'] = list(PRODUCT_REALISM_BANDS)
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_product_realism_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_product_realism_review_state()
+    payload['updated_at'] = now_iso()
+    PRODUCT_REALISM_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def product_realism_band_index(value):
+    try:
+        return PRODUCT_REALISM_BANDS.index(str(value or '').strip())
+    except ValueError:
+        return 0
+
+
+def product_realism_band_from_score(score):
+    score = clamp_number(safe_float(score, 0.0), 0.0, 100.0)
+    if score >= 92.0:
+        return 'real_product_path_credible'
+    if score >= 82.0:
+        return 'real_product_path_not_yet_proven'
+    if score >= 70.0:
+        return 'product_candidate_emerging'
+    if score >= 56.0:
+        return 'serious_prototype_path'
+    if score >= 40.0:
+        return 'functional_prototype_path'
+    if score >= 22.0:
+        return 'credible_concept'
+    return 'concept_only'
+
+
+def capped_product_realism_band(band, maximum_band):
+    if product_realism_band_index(band) > product_realism_band_index(maximum_band):
+        return maximum_band
+    return band
+
+
+def build_product_realism_view(name, rows, freshness_note=''):
+    if not rows:
+        summary = freshness_note or f'{name} does not currently have enough fresh grounded evidence to support a stronger realism claim.'
+        return {
+            'status': 'thin',
+            'summary': compact_text_excerpt(summary, 240),
+            'key_strengths': [],
+            'key_gaps': [compact_text_excerpt(summary, 180)],
+        }
+
+    grounded_on_track = [row for row in rows if normalize_scorecard_status(row.get('status', 'unknown')) == 'on_track' and normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'grounded']
+    grounded_constrained = [row for row in rows if normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'grounded' and normalize_scorecard_status(row.get('status', 'unknown')) in ('needs_attention', 'blocked')]
+    weak_rows = [row for row in rows if normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'weakly_grounded']
+    limited_rows = [row for row in rows if normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'limited_evidence']
+    blocked_rows = [row for row in rows if normalize_scorecard_status(row.get('status', 'unknown')) == 'blocked']
+
+    if grounded_on_track and not limited_rows and not blocked_rows:
+        status = 'credible'
+    elif grounded_on_track or grounded_constrained:
+        status = 'mixed'
+    elif weak_rows or limited_rows:
+        status = 'fragile'
+    else:
+        status = 'thin'
+
+    summary_parts = []
+    if grounded_on_track:
+        summary_parts.append(f"{', '.join(row.get('label', '') for row in grounded_on_track[:2])} is grounded and on track")
+    if grounded_constrained:
+        summary_parts.append(f"{', '.join(row.get('label', '') for row in grounded_constrained[:2])} is grounded but still needs attention")
+    if limited_rows:
+        summary_parts.append(f"{', '.join(row.get('label', '') for row in limited_rows[:2])} is still only limited-evidence")
+    if weak_rows and not limited_rows:
+        summary_parts.append(f"{', '.join(row.get('label', '') for row in weak_rows[:2])} is still only weakly grounded")
+    if freshness_note:
+        summary_parts.append(freshness_note)
+
+    strengths = []
+    for row in grounded_on_track[:2]:
+        strengths.append(compact_text_excerpt(row.get('progress_summary', row.get('grounding_basis', '')), 180))
+    gaps = []
+    for row in (grounded_constrained + limited_rows + weak_rows + blocked_rows)[:3]:
+        gaps.append(compact_text_excerpt(row.get('next_focus', row.get('progress_summary', '')), 180))
+
+    return {
+        'status': status,
+        'summary': compact_text_excerpt('; '.join(item for item in summary_parts if item) or f'{name} remains mixed and should not be over-read.', 260),
+        'key_strengths': [item for item in strengths if item][:3],
+        'key_gaps': [item for item in gaps if item][:3],
+    }
+
+
+def build_product_realism_review_state(schema=None, review_snapshot=None):
+    schema = schema or load_cognition_schema()
+    cfg = product_realism_config(schema)
+    if not cfg.get('enabled', True):
+        return default_product_realism_review_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    expectations = load_project_expectations_state()
+    reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
+    scorecard_state = load_scorecard_state()
+    v1_review_state = load_v1_decision_review_state()
+    draft_state = load_draft_artifact_review_state()
+    emission_state = load_artifact_emission_readiness_state()
+    milestone_state = load_project_milestones_state()
+
+    exec_cfg = execution_resume_config(schema)
+    scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
+    review_surfaces = review_snapshot.get('surfaces', {}) if isinstance(review_snapshot.get('surfaces', {}), dict) else {}
+    v1_surface = review_surfaces.get('v1_decision_review', {})
+    draft_surface = review_surfaces.get('draft_artifact_review', {})
+    emission_surface = review_surfaces.get('artifact_emission_readiness', {})
+
+    scorecard_dimensions = scorecard_state.get('dimensions', []) if scorecard_use == 'current_truth' and isinstance(scorecard_state.get('dimensions', []), list) else []
+    dimension_by_id = {}
+    for row in scorecard_dimensions:
+        if not isinstance(row, dict):
+            continue
+        key = normalize_signal_key(row.get('id', row.get('label', '')))
+        if key:
+            dimension_by_id[key] = row
+
+    pending_rows = v1_review_state.get('pending_v1_decisions', []) if v1_surface.get('consumption_state') in ('current_truth', 'provisional_context') else []
+    emitted_drafts = draft_state.get('emitted_drafts', []) if draft_surface.get('consumption_state') in ('current_truth', 'provisional_context') else []
+    emission_rows = emission_state.get('artifact_emission_readiness', []) if emission_surface.get('consumption_state') in ('current_truth', 'provisional_context') else []
+    reflect_evidence = reflect_state.get('evidence_analysis', {}) if isinstance(reflect_state.get('evidence_analysis', {}), dict) else {}
+    operational_visibility = reflect_evidence.get('operational_visibility', {}) if isinstance(reflect_evidence.get('operational_visibility', {}), dict) else {}
+    held_rows = operational_visibility.get('held_items', []) if isinstance(operational_visibility.get('held_items', []), list) else []
+
+    hardware_rows = [row for key, row in dimension_by_id.items() if key in ('hardware_stack', 'wireless_interface', 'firmware')]
+    software_rows = [row for key, row in dimension_by_id.items() if key in ('software_stack', 'memory_system')]
+    experience_rows = [row for key, row in dimension_by_id.items() if key in ('subtitle_system',)]
+    trust_rows = [row for key, row in dimension_by_id.items() if key in ('privacy_trust',)]
+
+    grounded_count = sum(1 for row in scorecard_dimensions if normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'grounded')
+    weak_count = sum(1 for row in scorecard_dimensions if normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'weakly_grounded')
+    limited_count = sum(1 for row in scorecard_dimensions if normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'limited_evidence')
+    constrained_rows = [row for row in scorecard_dimensions if normalize_scorecard_status(row.get('status', 'unknown')) in ('needs_attention', 'blocked')]
+
+    realism_score = 10.0
+    target_outcome = str(expectations.get('target_outcome_type', 'functional_prototype') or 'functional_prototype')
+    seriousness = str(expectations.get('intended_seriousness', 'exploratory') or 'exploratory')
+    quality_bar = str(expectations.get('quality_bar', 'credible') or 'credible')
+
+    outcome_base = {
+        'concept_exploration': 10.0,
+        'demo_prototype': 20.0,
+        'functional_prototype': 34.0,
+        'engineering_ready_prototype': 46.0,
+        'product_candidate': 58.0,
+        'real_product_path': 66.0,
+    }
+    realism_score += outcome_base.get(target_outcome, 28.0)
+    if scorecard_use == 'current_truth':
+        realism_score += 12.0
+    realism_score += grounded_count * 7.0
+    realism_score += weak_count * 3.0
+    realism_score += min(8.0, len(pending_rows) * 3.0)
+    realism_score += min(8.0, len(emitted_drafts) * 4.0 + len(emission_rows) * 2.0)
+    realism_score += 6.0 if trust_rows and normalize_scorecard_grounding_status(trust_rows[0].get('grounding_status', 'unknown')) == 'grounded' else 0.0
+    realism_score += 6.0 if experience_rows and normalize_scorecard_status(experience_rows[0].get('status', 'unknown')) == 'on_track' else 0.0
+    realism_score -= limited_count * 5.0
+    realism_score -= len(constrained_rows) * 3.0
+    realism_score -= min(9.0, len(held_rows) * 3.0)
+    if seriousness in ('committed', 'commercial_intent'):
+        realism_score += 6.0
+    if quality_bar in ('serious', 'product_grade'):
+        realism_score += 6.0
+
+    current_band = product_realism_band_from_score(realism_score)
+    if target_outcome not in ('product_candidate', 'real_product_path') and seriousness != 'commercial_intent':
+        current_band = capped_product_realism_band(current_band, 'serious_prototype_path')
+    if target_outcome != 'real_product_path':
+        current_band = capped_product_realism_band(current_band, 'product_candidate_emerging')
+    if scorecard_use != 'current_truth':
+        current_band = capped_product_realism_band(current_band, 'credible_concept')
+
+    milestone_rows = milestone_state.get('milestones', []) if isinstance(milestone_state.get('milestones', []), list) else []
+    milestone_by_id = {
+        normalize_signal_key(row.get('milestone_id', '')): row
+        for row in milestone_rows
+        if isinstance(row, dict) and row.get('milestone_id')
+    }
+    product_definition = milestone_by_id.get('product_definition', {})
+    prototype_viability = milestone_by_id.get('prototype_viability', {})
+    realism_milestone = milestone_by_id.get('product_realism_check', {})
+    implementation_package = milestone_by_id.get('implementation_package_review', {})
+
+    anti_gimmick_strengths = []
+    if scorecard_use == 'current_truth' and grounded_count >= 3:
+        anti_gimmick_strengths.append(
+            f"Fresh subsystem grounding exists across {grounded_count} areas, so realism is not being judged from narrative alone."
+        )
+    if pending_rows:
+        anti_gimmick_strengths.append(
+            f"The active review front is bounded to {len(pending_rows)} grounded V1 decision candidate(s) rather than broad speculative scope."
+        )
+    if emitted_drafts or emission_rows:
+        anti_gimmick_strengths.append(
+            'Implementation artifacts remain provisional review drafts instead of being treated as final design truth.'
+        )
+    if held_rows:
+        anti_gimmick_strengths.append(
+            'Meaningful unresolved lanes are explicitly held until new grounding appears, which resists fake progress theater.'
+        )
+    if trust_rows:
+        anti_gimmick_strengths.append(
+            compact_text_excerpt(trust_rows[0].get('progress_summary', trust_rows[0].get('grounding_basis', '')), 180)
+        )
+
+    gimmick_risks = []
+    if scorecard_use != 'current_truth':
+        gimmick_risks.append(scorecard_reason)
+    for row in constrained_rows[:3]:
+        gimmick_risks.append(
+            compact_text_excerpt(
+                f"{row.get('label', 'Subsystem')} is `{row.get('status', 'unknown')}` with `{row.get('grounding_status', 'unknown')}` grounding: {row.get('next_focus', row.get('progress_summary', ''))}",
+                220,
+            )
+        )
+    if target_outcome not in ('product_candidate', 'real_product_path'):
+        gimmick_risks.append(
+            f"Declared project intent is still `{target_outcome}` with `{seriousness}` seriousness, so stronger product language would outrun operator-declared scope."
+        )
+    if held_rows:
+        gimmick_risks.append(
+            compact_text_excerpt(
+                f"{len(held_rows)} trust- or boundary-relevant lane(s) remain meaningful but held pending new grounding, so they should not be narrated as solved.",
+                220,
+            )
+        )
+
+    missing_for_product_candidate = []
+    if target_outcome not in ('product_candidate', 'real_product_path'):
+        missing_for_product_candidate.append(
+            'Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.'
+        )
+    if product_definition.get('approval_state') != 'ready_for_review':
+        missing_for_product_candidate.append(compact_text_excerpt(product_definition.get('why_not_ready_yet', ''), 200))
+    if prototype_viability.get('approval_state') != 'ready_for_review':
+        missing_for_product_candidate.append(compact_text_excerpt(prototype_viability.get('why_not_ready_yet', ''), 200))
+    if implementation_package.get('approval_state') != 'ready_for_review':
+        missing_for_product_candidate.append(compact_text_excerpt(implementation_package.get('why_not_ready_yet', ''), 200))
+    for row in constrained_rows[:2]:
+        missing_for_product_candidate.append(compact_text_excerpt(row.get('next_focus', ''), 180))
+
+    missing_for_real_product_path = []
+    for item in expectations.get('must_be_true_before_real_product_claim', [])[:3]:
+        missing_for_real_product_path.append(compact_text_excerpt(item, 200))
+    if realism_milestone.get('why_not_ready_yet'):
+        missing_for_real_product_path.append(compact_text_excerpt(realism_milestone.get('why_not_ready_yet', ''), 220))
+    if quality_bar != 'product_grade':
+        missing_for_real_product_path.append(
+            f"The declared quality bar is still `{quality_bar}`, which is below an honest real-product claim posture."
+        )
+    if seriousness != 'commercial_intent':
+        missing_for_real_product_path.append(
+            f"Declared seriousness is still `{seriousness}`, so a real-product path claim would currently outrun operator intent."
+        )
+
+    expected_band_by_quality = {
+        'rough': 'credible_concept',
+        'credible': 'functional_prototype_path',
+        'serious': 'serious_prototype_path',
+        'product_grade': 'product_candidate_emerging',
+    }
+    expected_band = expected_band_by_quality.get(quality_bar, 'functional_prototype_path')
+    if product_realism_band_index(current_band) < product_realism_band_index(expected_band):
+        alignment_status = 'below_declared_bar'
+        alignment_summary = f"Current evidence supports `{current_band}` at best, which still sits below the declared `{quality_bar}` quality bar."
+    elif product_realism_band_index(current_band) > product_realism_band_index(expected_band) + 1:
+        alignment_status = 'more_conservative_than_declared_bar'
+        alignment_summary = f"Evidence is stronger than the minimum implied by the `{quality_bar}` bar, but that should not be mistaken for a product claim."
+    else:
+        alignment_status = 'aligned'
+        alignment_summary = f"The current `{current_band}` assessment is broadly aligned with the declared `{quality_bar}` quality posture."
+
+    hardware_view = build_product_realism_view(
+        'hardware readiness',
+        hardware_rows,
+        freshness_note='' if scorecard_use == 'current_truth' else scorecard_reason,
+    )
+    software_view = build_product_realism_view(
+        'software readiness',
+        software_rows,
+        freshness_note='' if scorecard_use == 'current_truth' else scorecard_reason,
+    )
+    experience_view = build_product_realism_view(
+        'experience readiness',
+        experience_rows,
+        freshness_note='' if scorecard_use == 'current_truth' else scorecard_reason,
+    )
+    trust_view = build_product_realism_view(
+        'trust readiness',
+        trust_rows,
+        freshness_note='' if scorecard_use == 'current_truth' else scorecard_reason,
+    )
+
+    practical_summary_parts = []
+    if expectations.get('economic_or_practical_goal'):
+        practical_summary_parts.append(expectations.get('economic_or_practical_goal', ''))
+    if current_band in ('concept_only', 'credible_concept'):
+        practical_summary_parts.append('The project still reads more like a bounded concept than a reliable build path.')
+    elif current_band in ('functional_prototype_path', 'serious_prototype_path'):
+        practical_summary_parts.append('Current evidence supports a serious prototype path more than a product claim.')
+    else:
+        practical_summary_parts.append('Current evidence is beginning to resemble a product-candidate path, but gaps remain explicit.')
+    if target_outcome not in ('product_candidate', 'real_product_path'):
+        practical_summary_parts.append('Operator intent is still prototype-oriented rather than commercial.')
+
+    commercial_view = {
+        'status': 'prototype_oriented' if target_outcome not in ('product_candidate', 'real_product_path') else 'product_oriented',
+        'summary': compact_text_excerpt('; '.join(item for item in practical_summary_parts if item), 260),
+        'key_strengths': [compact_text_excerpt(item, 180) for item in anti_gimmick_strengths[:2]],
+        'key_gaps': [compact_text_excerpt(item, 180) for item in missing_for_product_candidate[:3]],
+    }
+
+    why_parts = []
+    if current_band == 'concept_only':
+        why_parts.append('Current evidence is still too thin or too stale to support more than concept-level realism.')
+    elif current_band == 'credible_concept':
+        why_parts.append('The project is more than a vague idea, but the current grounding still falls short of a serious prototype claim.')
+    elif current_band == 'functional_prototype_path':
+        why_parts.append('Grounded subtitle, hardware, and trust signals support a credible functional prototype path.')
+    elif current_band == 'serious_prototype_path':
+        why_parts.append('The project is acting like a serious prototype path, but important subsystem and trust gaps still block product-candidate claims.')
+    elif current_band == 'product_candidate_emerging':
+        why_parts.append('A product-candidate path is beginning to emerge, but product realism is still not proven.')
+    else:
+        why_parts.append('The project is beginning to resemble a real product path, but only under continued conservative scrutiny.')
+    if constrained_rows:
+        why_parts.append(f"{len(constrained_rows)} subsystem lane(s) still need attention.")
+    if target_outcome not in ('product_candidate', 'real_product_path'):
+        why_parts.append(f"Declared intent remains `{target_outcome}` / `{seriousness}`, so stronger product language would be premature.")
+
+    improvement_candidates = []
+    for row in constrained_rows[:3]:
+        improvement_candidates.append(compact_text_excerpt(row.get('next_focus', ''), 180))
+    for item in missing_for_product_candidate[:2]:
+        improvement_candidates.append(compact_text_excerpt(item, 180))
+    for item in expectations.get('must_be_true_before_real_product_claim', [])[:2]:
+        improvement_candidates.append(compact_text_excerpt(item, 180))
+
+    return {
+        'generated_at': now_iso(),
+        'realism_bands': list(PRODUCT_REALISM_BANDS),
+        'current_realism_band': current_band,
+        'why_this_band': compact_text_excerpt(' '.join(item for item in why_parts if item), 320),
+        'anti_gimmick_strengths': list(dict.fromkeys(item for item in anti_gimmick_strengths if item))[:cfg.get('max_strengths', 4)],
+        'gimmick_risks': list(dict.fromkeys(item for item in gimmick_risks if item))[:cfg.get('max_risks', 5)],
+        'missing_for_product_candidate': list(dict.fromkeys(item for item in missing_for_product_candidate if item))[:cfg.get('max_missing', 5)],
+        'missing_for_real_product_path': list(dict.fromkeys(item for item in missing_for_real_product_path if item))[:cfg.get('max_missing', 5)],
+        'quality_bar_alignment': {
+            'status': alignment_status,
+            'summary': compact_text_excerpt(alignment_summary, 240),
+        },
+        'hardware_readiness_view': hardware_view,
+        'software_readiness_view': software_view,
+        'experience_readiness_view': experience_view,
+        'trust_readiness_view': trust_view,
+        'commercial_or_practical_readiness_view': commercial_view,
+        'what_would_materially_improve_realism': list(dict.fromkeys(item for item in improvement_candidates if item))[:cfg.get('max_improvements', 5)],
+        'source_generated_at': {
+            'project_expectations': state_surface_generated_at(expectations),
+            'project_scorecard': state_surface_generated_at(scorecard_state),
+            'reflect_state': state_surface_generated_at(reflect_state),
+            'v1_decision_review': state_surface_generated_at(v1_review_state),
+            'draft_artifact_review': state_surface_generated_at(draft_state),
+            'project_milestones': state_surface_generated_at(milestone_state),
+        },
+        'revisable': True,
+    }
+
+
+def render_product_realism_review_context(realism_state=None):
+    realism_state = realism_state if isinstance(realism_state, dict) else load_product_realism_review_state()
+    lines = ['# Product Realism Review']
+    lines.append(f"- current_realism_band: `{realism_state.get('current_realism_band', 'concept_only')}`")
+    if realism_state.get('why_this_band'):
+        lines.append(f"- why_this_band: {realism_state.get('why_this_band', '')}")
+    strengths = realism_state.get('anti_gimmick_strengths', []) if isinstance(realism_state.get('anti_gimmick_strengths', []), list) else []
+    if strengths:
+        lines.append(f"- anti_gimmick_strengths: {'; '.join(str(item) for item in strengths[:3])}")
+    risks = realism_state.get('gimmick_risks', []) if isinstance(realism_state.get('gimmick_risks', []), list) else []
+    if risks:
+        lines.append(f"- gimmick_risks: {'; '.join(str(item) for item in risks[:3])}")
+    missing = realism_state.get('missing_for_product_candidate', []) if isinstance(realism_state.get('missing_for_product_candidate', []), list) else []
+    if missing:
+        lines.append(f"- missing_for_product_candidate: {'; '.join(str(item) for item in missing[:3])}")
+    return '\n'.join(lines) + '\n'
+
+
 def default_verification_summary_state():
     return {
         'generated_at': '',
@@ -7977,6 +8447,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
     review_surfaces = review_snapshot.get('surfaces', {}) if isinstance(review_snapshot.get('surfaces', {}), dict) else {}
     reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
     project_expectations = load_project_expectations_state()
+    product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
     reflect_payload = reflect_state.get('reflect', {}) if isinstance(reflect_state.get('reflect', {}), dict) else {}
     evidence = reflect_state.get('evidence_analysis', {}) if isinstance(reflect_state.get('evidence_analysis', {}), dict) else {}
     operational_visibility = evidence.get('operational_visibility', {}) if isinstance(evidence.get('operational_visibility', {}), dict) else {}
@@ -8241,6 +8712,12 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
             'reviewed_by_operator': bool(project_expectations.get('reviewed_by_operator', False)),
             'defaults_are_tentative': bool(project_expectations.get('defaults_are_tentative', True)),
         },
+        'product_realism': {
+            'current_realism_band': product_realism_state.get('current_realism_band', 'concept_only'),
+            'summary': product_realism_state.get('why_this_band', ''),
+            'quality_bar_alignment': product_realism_state.get('quality_bar_alignment', {}).get('status', ''),
+            'top_gimmick_risk': (product_realism_state.get('gimmick_risks', []) or [''])[0],
+        } if product_realism_config(schema).get('include_in_execution_resume', True) else {},
         'current_truth_summary': current_truth_summary[:cfg.get('max_current_truth_summary', 5)],
         'active_review_front': active_review_front[:cfg.get('max_active_review_front', 4)],
         'held_lanes': held_lanes[:cfg.get('max_held_lanes', 4)],
@@ -8262,6 +8739,7 @@ def render_execution_resume_section(resume_state=None, include_header=True):
     lines = ['## Execution Resume'] if include_header else []
     trust = resume_state.get('trust_posture', {}) if isinstance(resume_state.get('trust_posture', {}), dict) else {}
     project_intent = resume_state.get('project_intent', {}) if isinstance(resume_state.get('project_intent', {}), dict) else {}
+    product_realism = resume_state.get('product_realism', {}) if isinstance(resume_state.get('product_realism', {}), dict) else {}
     if trust:
         lines.append(
             f"- trust_posture: sync `{trust.get('overall_sync_status', 'provisional')}` | trust `{trust.get('overall_trust_status', 'provisional')}`"
@@ -8272,6 +8750,11 @@ def render_execution_resume_section(resume_state=None, include_header=True):
             f"quality `{project_intent.get('quality_bar', 'credible')}` | "
             f"seriousness `{project_intent.get('intended_seriousness', 'exploratory')}` | "
             f"{'operator-reviewed' if project_intent.get('reviewed_by_operator') else 'default-tentative'}"
+        )
+    if product_realism:
+        lines.append(
+            f"- product_realism: `{product_realism.get('current_realism_band', 'concept_only')}` | "
+            f"{product_realism.get('summary', '')}"
         )
     for item in resume_state.get('current_truth_summary', [])[:3]:
         lines.append(f"- current_truth: {item}")
@@ -8488,6 +8971,7 @@ def refresh_review_state_sync_metadata(schema=None):
     resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
     save_execution_resume_state(resume_state)
     save_project_milestones_state(build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
+    save_product_realism_review_state(build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot))
     save_verification_summary_state(build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
     return summary
 
@@ -10820,6 +11304,7 @@ def generate_scorecard_cycle(changes, prior_reports):
     resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
     save_execution_resume_state(resume_state)
     save_project_milestones_state(build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
+    save_product_realism_review_state(build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot))
     save_verification_summary_state(build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
     return render_scorecard_markdown(scorecard), effort_selection
 
@@ -12270,6 +12755,7 @@ def context_with_inputs(changes):
     action_inbox = load_action_inbox()
     review_state_consumption = load_review_state_consumption_snapshot()
     milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_state_consumption)
+    product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_state_consumption)
     pieces = ['# Core Field\n', core_text(), '\n']
     pieces.append(render_field_layer_context())
     pieces.append(f'# {PROJECT_DISPLAY_NAME} Project Guardrails\n')
@@ -12295,6 +12781,8 @@ def context_with_inputs(changes):
     pieces.append(render_project_expectations_context(project_expectations))
     pieces.append('\n')
     pieces.append(render_project_milestones_context(milestone_state))
+    pieces.append('\n')
+    pieces.append(render_product_realism_review_context(product_realism_state))
     pieces.append('\n')
     pieces.append(render_review_state_consumption_context(review_state_consumption))
     pieces.append('\n')
