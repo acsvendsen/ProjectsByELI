@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-04-10T09:16:32",
+  "reviewed_by_operator": false,
+  "defaults_are_tentative": true,
+  "project_intent": "Default ELI assumption: pursue a credible, trust-preserving assistive system path without overstating product readiness.",
+  "target_outcome_type": "functional_prototype",
+  "quality_bar": "credible",
+  "intended_seriousness": "exploratory",
+  "acceptable_compromises": [
+    "bounded prototype shortcuts are acceptable if they do not hide trust, privacy, or latency weaknesses",
+    "prefer simpler honest behavior over polished but weakly grounded feature scope"
+  ],
+  "product_candidate_goal": "Do not assume product-candidate status by default. Upgrade only when operator intent and grounded evidence both support it.",
+  "must_not_be": [
+    "a vague concept demo that only sounds plausible",
+    "a fake product claim built on weak grounding or fragile trust behavior"
+  ],
+  "must_be_true_before_real_product_claim": [
+    "core runtime behavior is grounded beyond report-only reasoning",
+    "trust, privacy, and usability constraints are handled credibly enough to survive real use",
+    "important subsystem risks are no longer being hidden behind prototype-only excuses"
+  ],
+  "review_style": "truth_preserving_build_oriented",
+  "economic_or_practical_goal": "Produce something materially useful enough to justify continued build effort before broader product claims.",
+  "operator_notes": "Review and tighten this surface explicitly if the project is intended as a stronger product path than the conservative default.",
+  "updated_at": "2026-04-10T09:16:32"
+}

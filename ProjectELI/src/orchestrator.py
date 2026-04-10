@@ -549,6 +549,7 @@ DRAFT_ARTIFACT_REVIEW_PATH = PROJECT_STATE_DIR / "draft_artifact_review.json"
 STATE_SYNC_SUMMARY_PATH = PROJECT_STATE_DIR / "state_sync_summary.json"
 EXECUTION_RESUME_PATH = PROJECT_STATE_DIR / "execution_resume.json"
 VERIFICATION_SUMMARY_PATH = PROJECT_STATE_DIR / "verification_summary.json"
+PROJECT_EXPECTATIONS_PATH = PROJECT_STATE_DIR / "project_expectations.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -7122,6 +7123,7 @@ def default_execution_resume_state():
         'generated_at': '',
         'source_generated_at': {},
         'trust_posture': {},
+        'project_intent': {},
         'current_truth_summary': [],
         'active_review_front': [],
         'held_lanes': [],
@@ -7149,6 +7151,8 @@ def load_execution_resume_state():
         data['unblocked_next'] = {}
     if not isinstance(data.get('trust_posture'), dict):
         data['trust_posture'] = {}
+    if not isinstance(data.get('project_intent'), dict):
+        data['project_intent'] = {}
     if not isinstance(data.get('source_generated_at'), dict):
         data['source_generated_at'] = {}
     if not isinstance(data.get('counts'), dict):
@@ -7161,6 +7165,113 @@ def save_execution_resume_state(data):
     payload = data if isinstance(data, dict) else default_execution_resume_state()
     payload['updated_at'] = now_iso()
     EXECUTION_RESUME_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def default_project_expectations_state():
+    return {
+        'generated_at': '',
+        'reviewed_by_operator': False,
+        'defaults_are_tentative': True,
+        'project_intent': 'Default ELI assumption: pursue a credible, trust-preserving assistive system path without overstating product readiness.',
+        'target_outcome_type': 'functional_prototype',
+        'quality_bar': 'credible',
+        'intended_seriousness': 'exploratory',
+        'acceptable_compromises': [
+            'bounded prototype shortcuts are acceptable if they do not hide trust, privacy, or latency weaknesses',
+            'prefer simpler honest behavior over polished but weakly grounded feature scope',
+        ],
+        'product_candidate_goal': 'Do not assume product-candidate status by default. Upgrade only when operator intent and grounded evidence both support it.',
+        'must_not_be': [
+            'a vague concept demo that only sounds plausible',
+            'a fake product claim built on weak grounding or fragile trust behavior',
+        ],
+        'must_be_true_before_real_product_claim': [
+            'core runtime behavior is grounded beyond report-only reasoning',
+            'trust, privacy, and usability constraints are handled credibly enough to survive real use',
+            'important subsystem risks are no longer being hidden behind prototype-only excuses',
+        ],
+        'review_style': 'truth_preserving_build_oriented',
+        'economic_or_practical_goal': 'Produce something materially useful enough to justify continued build effort before broader product claims.',
+        'operator_notes': 'Review and tighten this surface explicitly if the project is intended as a stronger product path than the conservative default.',
+    }
+
+
+def load_project_expectations_state():
+    data = load_json_file(PROJECT_EXPECTATIONS_PATH, default_project_expectations_state())
+    if not isinstance(data, dict):
+        data = default_project_expectations_state()
+    for key in ('acceptable_compromises', 'must_not_be', 'must_be_true_before_real_product_claim'):
+        if not isinstance(data.get(key), list):
+            data[key] = list(default_project_expectations_state().get(key, []))
+    for key in (
+        'project_intent',
+        'target_outcome_type',
+        'quality_bar',
+        'intended_seriousness',
+        'product_candidate_goal',
+        'review_style',
+        'economic_or_practical_goal',
+        'operator_notes',
+    ):
+        if not isinstance(data.get(key), str):
+            data[key] = str(default_project_expectations_state().get(key, ''))
+    if not isinstance(data.get('reviewed_by_operator'), bool):
+        data['reviewed_by_operator'] = bool(default_project_expectations_state().get('reviewed_by_operator', False))
+    if not isinstance(data.get('defaults_are_tentative'), bool):
+        data['defaults_are_tentative'] = bool(default_project_expectations_state().get('defaults_are_tentative', True))
+    if not data.get('generated_at'):
+        data['generated_at'] = now_iso()
+    return data
+
+
+def save_project_expectations_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_project_expectations_state()
+    if not payload.get('generated_at'):
+        payload['generated_at'] = now_iso()
+    payload['updated_at'] = now_iso()
+    PROJECT_EXPECTATIONS_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def project_expectations_summary(expectations=None):
+    expectations = expectations if isinstance(expectations, dict) else load_project_expectations_state()
+    outcome = str(expectations.get('target_outcome_type', 'functional_prototype') or 'functional_prototype')
+    quality_bar = str(expectations.get('quality_bar', 'credible') or 'credible')
+    seriousness = str(expectations.get('intended_seriousness', 'exploratory') or 'exploratory')
+    reviewed = 'operator-reviewed' if expectations.get('reviewed_by_operator') else 'default-tentative'
+    return compact_text_excerpt(
+        f"Treat this project as `{outcome}` with a `{quality_bar}` quality bar and `{seriousness}` seriousness. "
+        f"Expectation posture is `{reviewed}`.",
+        220,
+    )
+
+
+def render_project_expectations_context(expectations=None):
+    expectations = expectations if isinstance(expectations, dict) else load_project_expectations_state()
+    lines = ['# Project Expectations']
+    lines.append(f"- intent: {expectations.get('project_intent', '')}")
+    lines.append(f"- target_outcome_type: `{expectations.get('target_outcome_type', 'functional_prototype')}`")
+    lines.append(f"- quality_bar: `{expectations.get('quality_bar', 'credible')}`")
+    lines.append(f"- intended_seriousness: `{expectations.get('intended_seriousness', 'exploratory')}`")
+    lines.append(f"- review_style: `{expectations.get('review_style', 'truth_preserving_build_oriented')}`")
+    lines.append(f"- reviewed_by_operator: `{bool(expectations.get('reviewed_by_operator', False))}`")
+    lines.append(f"- defaults_are_tentative: `{bool(expectations.get('defaults_are_tentative', True))}`")
+    if expectations.get('product_candidate_goal'):
+        lines.append(f"- product_candidate_goal: {expectations.get('product_candidate_goal', '')}")
+    if expectations.get('economic_or_practical_goal'):
+        lines.append(f"- economic_or_practical_goal: {expectations.get('economic_or_practical_goal', '')}")
+    compromises = expectations.get('acceptable_compromises', []) if isinstance(expectations.get('acceptable_compromises', []), list) else []
+    if compromises:
+        lines.append(f"- acceptable_compromises: {'; '.join(str(item) for item in compromises[:3])}")
+    must_not = expectations.get('must_not_be', []) if isinstance(expectations.get('must_not_be', []), list) else []
+    if must_not:
+        lines.append(f"- must_not_be: {'; '.join(str(item) for item in must_not[:3])}")
+    real_product_checks = expectations.get('must_be_true_before_real_product_claim', []) if isinstance(expectations.get('must_be_true_before_real_product_claim', []), list) else []
+    if real_product_checks:
+        lines.append(f"- before_real_product_claim: {'; '.join(str(item) for item in real_product_checks[:3])}")
+    if expectations.get('operator_notes'):
+        lines.append(f"- operator_notes: {expectations.get('operator_notes', '')}")
+    return '\n'.join(lines) + '\n'
 
 
 def default_verification_summary_state():
@@ -7552,6 +7663,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
     review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
     review_surfaces = review_snapshot.get('surfaces', {}) if isinstance(review_snapshot.get('surfaces', {}), dict) else {}
     reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
+    project_expectations = load_project_expectations_state()
     reflect_payload = reflect_state.get('reflect', {}) if isinstance(reflect_state.get('reflect', {}), dict) else {}
     evidence = reflect_state.get('evidence_analysis', {}) if isinstance(reflect_state.get('evidence_analysis', {}), dict) else {}
     operational_visibility = evidence.get('operational_visibility', {}) if isinstance(evidence.get('operational_visibility', {}), dict) else {}
@@ -7585,6 +7697,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
     overall_summary = compact_text_excerpt(str(review_snapshot.get('summary', '') or ''), 240)
     if overall_summary:
         current_truth_summary.append(overall_summary)
+    current_truth_summary.append(project_expectations_summary(project_expectations))
 
     if pending_rows:
         labels = ', '.join(row.get('label', '') for row in pending_rows[:3] if row.get('label'))
@@ -7807,6 +7920,14 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
             'implementation_artifact_review_use': artifact_review_use,
             'implementation_artifact_review_reason': artifact_review_reason,
         },
+        'project_intent': {
+            'summary': project_expectations_summary(project_expectations),
+            'target_outcome_type': project_expectations.get('target_outcome_type', 'functional_prototype'),
+            'quality_bar': project_expectations.get('quality_bar', 'credible'),
+            'intended_seriousness': project_expectations.get('intended_seriousness', 'exploratory'),
+            'reviewed_by_operator': bool(project_expectations.get('reviewed_by_operator', False)),
+            'defaults_are_tentative': bool(project_expectations.get('defaults_are_tentative', True)),
+        },
         'current_truth_summary': current_truth_summary[:cfg.get('max_current_truth_summary', 5)],
         'active_review_front': active_review_front[:cfg.get('max_active_review_front', 4)],
         'held_lanes': held_lanes[:cfg.get('max_held_lanes', 4)],
@@ -7827,9 +7948,17 @@ def render_execution_resume_section(resume_state=None, include_header=True):
     resume_state = resume_state if isinstance(resume_state, dict) else load_execution_resume_state()
     lines = ['## Execution Resume'] if include_header else []
     trust = resume_state.get('trust_posture', {}) if isinstance(resume_state.get('trust_posture', {}), dict) else {}
+    project_intent = resume_state.get('project_intent', {}) if isinstance(resume_state.get('project_intent', {}), dict) else {}
     if trust:
         lines.append(
             f"- trust_posture: sync `{trust.get('overall_sync_status', 'provisional')}` | trust `{trust.get('overall_trust_status', 'provisional')}`"
+        )
+    if project_intent:
+        lines.append(
+            f"- project_intent: outcome `{project_intent.get('target_outcome_type', 'functional_prototype')}` | "
+            f"quality `{project_intent.get('quality_bar', 'credible')}` | "
+            f"seriousness `{project_intent.get('intended_seriousness', 'exploratory')}` | "
+            f"{'operator-reviewed' if project_intent.get('reviewed_by_operator') else 'default-tentative'}"
         )
     for item in resume_state.get('current_truth_summary', [])[:3]:
         lines.append(f"- current_truth: {item}")
@@ -11821,6 +11950,7 @@ def context_with_inputs(changes):
     groups = grouped_context(changes)
     persistent_inputs = persistent_eli_context()
     operator_guidance = load_operator_guidance()
+    project_expectations = load_project_expectations_state()
     action_inbox = load_action_inbox()
     review_state_consumption = load_review_state_consumption_snapshot()
     pieces = ['# Core Field\n', core_text(), '\n']
@@ -11844,6 +11974,8 @@ def context_with_inputs(changes):
             pieces.append(f"- Guidance updated at: {updated_at}\n")
     else:
         pieces.append('- No active operator guidance. Use best effort and choose the strongest project-specific direction.\n')
+    pieces.append('\n')
+    pieces.append(render_project_expectations_context(project_expectations))
     pieces.append('\n')
     pieces.append(render_review_state_consumption_context(review_state_consumption))
     pieces.append('\n')
