@@ -1,0 +1,176 @@
+{
+  "generated_at": "2026-04-10T09:35:03",
+  "allowed_approval_states": [
+    "not_yet_reviewable",
+    "ready_for_review",
+    "approved",
+    "held",
+    "rejected_for_now"
+  ],
+  "milestone_styles": [
+    "product_definition",
+    "subsystem_grounding",
+    "prototype_viability",
+    "product_realism_check",
+    "implementation_package_review"
+  ],
+  "milestones": [
+    {
+      "milestone_id": "product_definition",
+      "title": "Product Definition Review",
+      "style": "product_definition",
+      "purpose": "Review whether the current bounded product-shaping choices are mature enough to count as a coherent product-definition front.",
+      "depends_on": [
+        "project_expectations",
+        "v1_decision_review"
+      ],
+      "required_grounding": "Grounded bounded decision fronts with explicit review questions.",
+      "required_readiness": "At least one bounded decision should be close enough to review without pretending the overall product is settled.",
+      "blocking_factors": [],
+      "missing_evidence": [
+        "no bounded current product-definition review front is active",
+        "more grounded decision framing is needed before product-definition review"
+      ],
+      "review_questions": [],
+      "approval_state": "not_yet_reviewable",
+      "unlocks": [
+        "prototype_viability",
+        "implementation_package_review"
+      ],
+      "current_band": "emerging",
+      "why_not_ready_yet": "no bounded current product-definition review front is active; more grounded decision framing is needed before product-definition review",
+      "revisable": true
+    },
+    {
+      "milestone_id": "prototype_viability",
+      "title": "Prototype Viability Review",
+      "style": "prototype_viability",
+      "purpose": "Review whether the current project can honestly sustain a viable prototype path rather than only abstract design motion.",
+      "depends_on": [
+        "project_expectations",
+        "project_scorecard",
+        "v1_decision_review"
+      ],
+      "required_grounding": "Prototype viability requires current-truth subsystem context plus a bounded product-definition front.",
+      "required_readiness": "Blocked and held lanes should be visible and limited enough that viability review is meaningful.",
+      "blocking_factors": [
+        "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+        "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope."
+      ],
+      "missing_evidence": [
+        "too many active blockers remain for a credible viability review"
+      ],
+      "review_questions": [
+        "What is the highest-risk blocker still preventing a credible prototype viability claim?"
+      ],
+      "approval_state": "not_yet_reviewable",
+      "unlocks": [
+        "implementation_package_review",
+        "product_realism_check"
+      ],
+      "current_band": "emerging",
+      "why_not_ready_yet": "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.; Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.; Ground trust-prese...",
+      "revisable": true
+    },
+    {
+      "milestone_id": "subsystem_grounding",
+      "title": "Subsystem Grounding Review",
+      "style": "subsystem_grounding",
+      "purpose": "Review whether subsystem evidence is strong enough to support the next layer of project commitments.",
+      "depends_on": [
+        "project_scorecard",
+        "reflect_state"
+      ],
+      "required_grounding": "Multiple subsystems should be grounded or at least weakly grounded under current-truth scorecard context.",
+      "required_readiness": "Subsystem readiness should be strong enough to review without hiding limited-evidence lanes.",
+      "blocking_factors": [
+        "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+        "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope."
+      ],
+      "missing_evidence": [],
+      "review_questions": [
+        "What would materially ground Wireless Interface next?",
+        "What would materially ground Firmware next?",
+        "What would materially ground Memory System next?"
+      ],
+      "approval_state": "not_yet_reviewable",
+      "unlocks": [
+        "prototype_viability",
+        "product_realism_check"
+      ],
+      "current_band": "emerging",
+      "why_not_ready_yet": "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.; Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.; Ground trust-prese...",
+      "revisable": true
+    },
+    {
+      "milestone_id": "implementation_package_review",
+      "title": "Implementation Package Review",
+      "style": "implementation_package_review",
+      "purpose": "Review whether the current implementation-artifact package is mature enough to inspect as a bounded package rather than scattered review fragments.",
+      "depends_on": [
+        "artifact_emission_readiness",
+        "draft_artifact_review"
+      ],
+      "required_grounding": "Draft-emission readiness and emitted review artifacts should both be grounded enough to inspect together.",
+      "required_readiness": "At least one emitted or strongly draft-ready artifact should exist before package review becomes real.",
+      "blocking_factors": [],
+      "missing_evidence": [],
+      "review_questions": [
+        "Given the current constraints, should Label + Reason remain the leading default for What confidence format should V1 use by default during live subtitle support?",
+        "Given the current constraints, should More Prominent remain the leading default for What should the default subtitle position behavior be for V1 live use?"
+      ],
+      "approval_state": "ready_for_review",
+      "unlocks": [
+        "architecture_lock",
+        "implementation_planning"
+      ],
+      "current_band": "ready_to_review",
+      "why_not_ready_yet": "",
+      "revisable": true
+    },
+    {
+      "milestone_id": "product_realism_check",
+      "title": "Product Realism Check",
+      "style": "product_realism_check",
+      "purpose": "Review whether current evidence justifies anything stronger than prototype-level claims, in line with the declared project seriousness.",
+      "depends_on": [
+        "project_expectations",
+        "project_scorecard",
+        "reflect_state"
+      ],
+      "required_grounding": "A stronger product claim needs grounded runtime, trust, and subsystem evidence beyond report-only plausibility.",
+      "required_readiness": "Realism review should only move forward when the project is actually aiming at a product-candidate or real-product path.",
+      "blocking_factors": [
+        "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+        "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope."
+      ],
+      "missing_evidence": [
+        "core runtime behavior is grounded beyond report-only reasoning",
+        "trust, privacy, and usability constraints are handled credibly enough to survive real use",
+        "important subsystem risks are no longer being hidden behind prototype-only excuses"
+      ],
+      "review_questions": [
+        "What would have to become true before a stronger product claim would be honest?"
+      ],
+      "approval_state": "held",
+      "unlocks": [
+        "product_candidate_claim",
+        "commercial_readiness_review"
+      ],
+      "current_band": "emerging",
+      "why_not_ready_yet": "Current operator expectations do not yet target a real product claim, so realism review should stay held rather than being forced early.",
+      "revisable": true
+    }
+  ],
+  "counts": {
+    "not_yet_reviewable": 3,
+    "ready_for_review": 1,
+    "approved": 0,
+    "held": 1,
+    "rejected_for_now": 0
+  },
+  "updated_at": "2026-04-10T09:35:03"
+}

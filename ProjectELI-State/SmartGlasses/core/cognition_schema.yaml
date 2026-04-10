@@ -203,6 +203,9 @@ control:
       critical:
         num_predict: 4200
         timeout_seconds: 240
+  project_milestones:
+    enabled: true
+    max_visible: 6
   execution_resume:
     enabled: true
     max_current_truth_summary: 5

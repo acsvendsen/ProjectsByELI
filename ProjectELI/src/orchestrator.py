@@ -152,6 +152,20 @@ ARTIFACT_EMISSION_READINESS_STATES = (
     'draft_candidate',
     'not_ready_for_draft',
 )
+PROJECT_MILESTONE_APPROVAL_STATES = (
+    'not_yet_reviewable',
+    'ready_for_review',
+    'approved',
+    'held',
+    'rejected_for_now',
+)
+PROJECT_MILESTONE_STYLES = (
+    'product_definition',
+    'subsystem_grounding',
+    'prototype_viability',
+    'product_realism_check',
+    'implementation_package_review',
+)
 STATE_SYNC_STATUS_VALUES = (
     'in_sync',
     'settling',
@@ -550,6 +564,7 @@ STATE_SYNC_SUMMARY_PATH = PROJECT_STATE_DIR / "state_sync_summary.json"
 EXECUTION_RESUME_PATH = PROJECT_STATE_DIR / "execution_resume.json"
 VERIFICATION_SUMMARY_PATH = PROJECT_STATE_DIR / "verification_summary.json"
 PROJECT_EXPECTATIONS_PATH = PROJECT_STATE_DIR / "project_expectations.json"
+PROJECT_MILESTONES_PATH = PROJECT_STATE_DIR / "project_milestones.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -7118,6 +7133,16 @@ def execution_resume_config(schema=None):
     }
 
 
+def project_milestones_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('project_milestones', {}) if isinstance(control.get('project_milestones', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'max_visible': max(1, safe_int(cfg.get('max_visible', 6), 6)),
+    }
+
+
 def default_execution_resume_state():
     return {
         'generated_at': '',
@@ -7271,6 +7296,294 @@ def render_project_expectations_context(expectations=None):
         lines.append(f"- before_real_product_claim: {'; '.join(str(item) for item in real_product_checks[:3])}")
     if expectations.get('operator_notes'):
         lines.append(f"- operator_notes: {expectations.get('operator_notes', '')}")
+    return '\n'.join(lines) + '\n'
+
+
+def default_project_milestones_state():
+    return {
+        'generated_at': '',
+        'allowed_approval_states': list(PROJECT_MILESTONE_APPROVAL_STATES),
+        'milestone_styles': list(PROJECT_MILESTONE_STYLES),
+        'milestones': [],
+        'counts': {
+            'ready_for_review': 0,
+            'not_yet_reviewable': 0,
+            'held': 0,
+            'approved': 0,
+            'rejected_for_now': 0,
+        },
+    }
+
+
+def load_project_milestones_state():
+    data = load_json_file(PROJECT_MILESTONES_PATH, default_project_milestones_state())
+    if not isinstance(data, dict):
+        data = default_project_milestones_state()
+    if not isinstance(data.get('milestones'), list):
+        data['milestones'] = []
+    if not isinstance(data.get('counts'), dict):
+        data['counts'] = default_project_milestones_state().get('counts', {})
+    if not isinstance(data.get('allowed_approval_states'), list):
+        data['allowed_approval_states'] = list(PROJECT_MILESTONE_APPROVAL_STATES)
+    if not isinstance(data.get('milestone_styles'), list):
+        data['milestone_styles'] = list(PROJECT_MILESTONE_STYLES)
+    return data
+
+
+def save_project_milestones_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_project_milestones_state()
+    payload['updated_at'] = now_iso()
+    PROJECT_MILESTONES_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def milestone_readiness_score_to_approval_state(score, current_band, hold_reason=''):
+    if hold_reason:
+        return 'held'
+    if current_band == 'ready_to_review' and safe_float(score, 0.0) >= 85.0:
+        return 'ready_for_review'
+    return 'not_yet_reviewable'
+
+
+def build_project_milestones_state(schema=None, review_snapshot=None, resume_state=None):
+    schema = schema or load_cognition_schema()
+    cfg = project_milestones_config(schema)
+    if not cfg.get('enabled', True):
+        return default_project_milestones_state()
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
+    expectations = load_project_expectations_state()
+    option_cfg = option_readiness_config(schema)
+    scorecard_state = load_scorecard_state()
+    scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, load_json_file(REFLECT_STATE_PATH, {'generated_at': ''}), execution_resume_config(schema))
+    scorecard_dimensions = scorecard_state.get('dimensions', []) if scorecard_use == 'current_truth' and isinstance(scorecard_state.get('dimensions', []), list) else []
+
+    review_surfaces = review_snapshot.get('surfaces', {}) if isinstance(review_snapshot.get('surfaces', {}), dict) else {}
+    v1_surface = review_surfaces.get('v1_decision_review', {})
+    emission_surface = review_surfaces.get('artifact_emission_readiness', {})
+    draft_surface = review_surfaces.get('draft_artifact_review', {})
+
+    v1_review_state = load_v1_decision_review_state()
+    artifact_review_state = load_implementation_artifact_review_state()
+    emission_state = load_artifact_emission_readiness_state()
+    draft_state = load_draft_artifact_review_state()
+    option_state = load_option_readiness_review_state()
+
+    pending_rows = v1_review_state.get('pending_v1_decisions', []) if v1_surface.get('consumption_state') in ('current_truth', 'provisional_context') else []
+    draft_rows = draft_state.get('emitted_drafts', []) if draft_surface.get('consumption_state') in ('current_truth', 'provisional_context') else []
+    emission_rows = emission_state.get('artifact_emission_readiness', []) if emission_surface.get('consumption_state') in ('current_truth', 'provisional_context') else []
+    surfaced_options = option_state.get('surfaced_options', []) if isinstance(option_state.get('surfaced_options', []), list) else []
+
+    grounded_count = sum(1 for row in scorecard_dimensions if normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'grounded')
+    weak_count = sum(1 for row in scorecard_dimensions if normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'weakly_grounded')
+    constrained_rows = [row for row in scorecard_dimensions if normalize_scorecard_status(row.get('status', 'unknown')) in ('needs_attention', 'blocked')]
+    blocked_lanes = resume_state.get('blocked_lanes', []) if isinstance(resume_state.get('blocked_lanes', []), list) else []
+    held_lanes = resume_state.get('held_lanes', []) if isinstance(resume_state.get('held_lanes', []), list) else []
+
+    def make_row(milestone_id, title, style, purpose, depends_on, required_grounding, required_readiness, score, blocking_factors, missing_evidence, review_questions, unlocks, hold_reason=''):
+        band = readiness_band_for_score(score, option_cfg)
+        approval_state = milestone_readiness_score_to_approval_state(score, band, hold_reason=hold_reason)
+        why_not_ready_yet = ''
+        if approval_state == 'held':
+            why_not_ready_yet = hold_reason
+        elif approval_state != 'ready_for_review':
+            why_not_ready_yet = compact_text_excerpt(
+                '; '.join(item for item in (blocking_factors + missing_evidence) if item) or 'Maturity conditions for review have not been met yet.',
+                260,
+            )
+        return {
+            'milestone_id': milestone_id,
+            'title': title,
+            'style': style,
+            'purpose': purpose,
+            'depends_on': depends_on,
+            'required_grounding': required_grounding,
+            'required_readiness': required_readiness,
+            'blocking_factors': [item for item in blocking_factors if item][:4],
+            'missing_evidence': [item for item in missing_evidence if item][:4],
+            'review_questions': [item for item in review_questions if item][:4],
+            'approval_state': approval_state,
+            'unlocks': [item for item in unlocks if item][:4],
+            'current_band': band,
+            'why_not_ready_yet': why_not_ready_yet,
+            'revisable': True,
+        }
+
+    grounded_pending = [row for row in pending_rows if normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'grounded']
+    selected_pending = [row for row in pending_rows if row.get('selected_choice_label')]
+    product_definition_score = 24.0
+    product_definition_score += 18.0 if v1_surface.get('consumption_state') == 'current_truth' else 8.0 if pending_rows else 0.0
+    product_definition_score += min(28.0, len(grounded_pending) * 10.0 + max(0, len(pending_rows) - len(grounded_pending)) * 4.0)
+    product_definition_score += min(10.0, len(selected_pending) * 4.0)
+    if expectations.get('target_outcome_type') in ('functional_prototype', 'engineering_ready_prototype', 'product_candidate', 'real_product_path'):
+        product_definition_score += 8.0
+    product_definition_blockers = []
+    product_definition_missing = []
+    if not pending_rows:
+        product_definition_missing.append('no bounded current product-definition review front is active')
+    if not grounded_pending:
+        product_definition_missing.append('more grounded decision framing is needed before product-definition review')
+    if v1_surface.get('consumption_state') not in ('current_truth', 'provisional_context'):
+        product_definition_blockers.append(v1_surface.get('consumption_reason', 'pending V1 decision surface is not currently safe to consume'))
+
+    subsystem_score = 16.0
+    subsystem_score += 16.0 if scorecard_use == 'current_truth' else 0.0
+    subsystem_score += grounded_count * 10.0 + weak_count * 4.0
+    subsystem_score -= len(constrained_rows) * 4.0
+    subsystem_blockers = [compact_text_excerpt(row.get('next_focus', row.get('progress_summary', '')), 180) for row in constrained_rows[:3]]
+    subsystem_missing = []
+    if scorecard_use != 'current_truth':
+        subsystem_missing.append(scorecard_reason)
+    if grounded_count < 2:
+        subsystem_missing.append('more subsystems need grounded evidence before a subsystem-grounding review is credible')
+
+    prototype_score = 22.0
+    prototype_score += 12.0 if scorecard_use == 'current_truth' else 0.0
+    prototype_score += min(18.0, grounded_count * 6.0)
+    prototype_score += min(10.0, len(pending_rows) * 3.0)
+    prototype_score -= len(blocked_lanes) * 3.0
+    prototype_score -= len(held_lanes) * 2.0
+    if expectations.get('target_outcome_type') in ('functional_prototype', 'engineering_ready_prototype', 'product_candidate', 'real_product_path'):
+        prototype_score += 10.0
+    prototype_blockers = [compact_text_excerpt(row.get('blocking_reason', ''), 180) for row in blocked_lanes[:3]]
+    prototype_missing = []
+    if not scorecard_dimensions:
+        prototype_missing.append('fresh subsystem readiness context is required before claiming prototype viability')
+    if len(blocked_lanes) >= 3:
+        prototype_missing.append('too many active blockers remain for a credible viability review')
+
+    implementation_score = 18.0
+    implementation_score += 20.0 if emission_surface.get('consumption_state') == 'current_truth' else 8.0 if emission_rows else 0.0
+    implementation_score += len(draft_rows) * 24.0
+    implementation_score += sum(10.0 for row in emission_rows if row.get('draft_readiness_state') == 'draft_candidate')
+    implementation_blockers = [compact_text_excerpt(item, 160) for row in emission_rows[:2] for item in row.get('missing_evidence', [])[:2]]
+    implementation_missing = []
+    if not draft_rows:
+        implementation_missing.append('no provisional implementation package draft is currently emitted')
+    if emission_surface.get('consumption_state') not in ('current_truth', 'provisional_context'):
+        implementation_missing.append(emission_surface.get('consumption_reason', 'artifact emission readiness is not currently safe to consume'))
+
+    realism_hold = ''
+    target_outcome = str(expectations.get('target_outcome_type', 'functional_prototype') or 'functional_prototype')
+    if target_outcome not in ('product_candidate', 'real_product_path'):
+        realism_hold = 'Current operator expectations do not yet target a real product claim, so realism review should stay held rather than being forced early.'
+    realism_score = 20.0
+    realism_score += 16.0 if scorecard_use == 'current_truth' else 0.0
+    realism_score += grounded_count * 6.0
+    realism_score -= len(constrained_rows) * 3.0
+    if expectations.get('quality_bar') in ('serious', 'product_grade'):
+        realism_score += 10.0
+    if expectations.get('intended_seriousness') in ('committed', 'commercial_intent'):
+        realism_score += 10.0
+    realism_blockers = [compact_text_excerpt(row.get('blocking_reason', ''), 180) for row in blocked_lanes[:3]]
+    realism_missing = [compact_text_excerpt(item, 180) for item in expectations.get('must_be_true_before_real_product_claim', [])[:3]]
+
+    milestones = [
+        make_row(
+            'product_definition',
+            'Product Definition Review',
+            'product_definition',
+            'Review whether the current bounded product-shaping choices are mature enough to count as a coherent product-definition front.',
+            ['project_expectations', 'v1_decision_review'],
+            'Grounded bounded decision fronts with explicit review questions.',
+            'At least one bounded decision should be close enough to review without pretending the overall product is settled.',
+            product_definition_score,
+            product_definition_blockers,
+            product_definition_missing,
+            [row.get('question', '') for row in pending_rows[:3]],
+            ['prototype_viability', 'implementation_package_review'],
+        ),
+        make_row(
+            'subsystem_grounding',
+            'Subsystem Grounding Review',
+            'subsystem_grounding',
+            'Review whether subsystem evidence is strong enough to support the next layer of project commitments.',
+            ['project_scorecard', 'reflect_state'],
+            'Multiple subsystems should be grounded or at least weakly grounded under current-truth scorecard context.',
+            'Subsystem readiness should be strong enough to review without hiding limited-evidence lanes.',
+            subsystem_score,
+            subsystem_blockers,
+            subsystem_missing,
+            [f"What would materially ground {row.get('label', 'this subsystem')} next?" for row in constrained_rows[:3]],
+            ['prototype_viability', 'product_realism_check'],
+        ),
+        make_row(
+            'prototype_viability',
+            'Prototype Viability Review',
+            'prototype_viability',
+            'Review whether the current project can honestly sustain a viable prototype path rather than only abstract design motion.',
+            ['project_expectations', 'project_scorecard', 'v1_decision_review'],
+            'Prototype viability requires current-truth subsystem context plus a bounded product-definition front.',
+            'Blocked and held lanes should be visible and limited enough that viability review is meaningful.',
+            prototype_score,
+            prototype_blockers,
+            prototype_missing,
+            ['What is the highest-risk blocker still preventing a credible prototype viability claim?'],
+            ['implementation_package_review', 'product_realism_check'],
+        ),
+        make_row(
+            'implementation_package_review',
+            'Implementation Package Review',
+            'implementation_package_review',
+            'Review whether the current implementation-artifact package is mature enough to inspect as a bounded package rather than scattered review fragments.',
+            ['artifact_emission_readiness', 'draft_artifact_review'],
+            'Draft-emission readiness and emitted review artifacts should both be grounded enough to inspect together.',
+            'At least one emitted or strongly draft-ready artifact should exist before package review becomes real.',
+            implementation_score,
+            implementation_blockers,
+            implementation_missing,
+            [row.get('review_question_for_human', row.get('title', 'What should this draft actually decide?')) for row in draft_rows[:3]],
+            ['architecture_lock', 'implementation_planning'],
+        ),
+        make_row(
+            'product_realism_check',
+            'Product Realism Check',
+            'product_realism_check',
+            'Review whether current evidence justifies anything stronger than prototype-level claims, in line with the declared project seriousness.',
+            ['project_expectations', 'project_scorecard', 'reflect_state'],
+            'A stronger product claim needs grounded runtime, trust, and subsystem evidence beyond report-only plausibility.',
+            'Realism review should only move forward when the project is actually aiming at a product-candidate or real-product path.',
+            realism_score,
+            realism_blockers,
+            realism_missing,
+            ['What would have to become true before a stronger product claim would be honest?'],
+            ['product_candidate_claim', 'commercial_readiness_review'],
+            hold_reason=realism_hold,
+        ),
+    ]
+
+    band_order = {band: index for index, band in enumerate(OPTION_READINESS_BANDS)}
+    approval_order = {state: index for index, state in enumerate(PROJECT_MILESTONE_APPROVAL_STATES)}
+    milestones.sort(key=lambda row: (approval_order.get(row.get('approval_state', 'not_yet_reviewable'), 99), band_order.get(row.get('current_band', 'too_early'), 99), row.get('title', '')))
+    milestones = milestones[:cfg.get('max_visible', 6)]
+    counts = {state: 0 for state in PROJECT_MILESTONE_APPROVAL_STATES}
+    for row in milestones:
+        counts[row.get('approval_state', 'not_yet_reviewable')] = counts.get(row.get('approval_state', 'not_yet_reviewable'), 0) + 1
+
+    return {
+        'generated_at': now_iso(),
+        'allowed_approval_states': list(PROJECT_MILESTONE_APPROVAL_STATES),
+        'milestone_styles': list(PROJECT_MILESTONE_STYLES),
+        'milestones': milestones,
+        'counts': counts,
+    }
+
+
+def render_project_milestones_context(milestone_state=None):
+    milestone_state = milestone_state if isinstance(milestone_state, dict) else load_project_milestones_state()
+    rows = milestone_state.get('milestones', []) if isinstance(milestone_state.get('milestones', []), list) else []
+    lines = ['# Current Milestones']
+    if not rows:
+        lines.append('- No milestone state is currently available.')
+        return '\n'.join(lines) + '\n'
+    for row in rows[:4]:
+        lines.append(
+            f"- {row.get('title', 'milestone')}: band `{row.get('current_band', 'too_early')}` | approval `{row.get('approval_state', 'not_yet_reviewable')}`"
+        )
+        if row.get('why_not_ready_yet'):
+            lines.append(f"  note: {row.get('why_not_ready_yet', '')}")
+        elif row.get('review_questions'):
+            lines.append(f"  review_question: {row.get('review_questions', [''])[0]}")
     return '\n'.join(lines) + '\n'
 
 
@@ -8174,6 +8487,7 @@ def refresh_review_state_sync_metadata(schema=None):
     review_snapshot = load_review_state_consumption_snapshot()
     resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
     save_execution_resume_state(resume_state)
+    save_project_milestones_state(build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
     save_verification_summary_state(build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
     return summary
 
@@ -10505,6 +10819,7 @@ def generate_scorecard_cycle(changes, prior_reports):
     review_snapshot = load_review_state_consumption_snapshot()
     resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
     save_execution_resume_state(resume_state)
+    save_project_milestones_state(build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
     save_verification_summary_state(build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
     return render_scorecard_markdown(scorecard), effort_selection
 
@@ -11947,12 +12262,14 @@ def grouped_context(changes):
 
 
 def context_with_inputs(changes):
+    schema = load_cognition_schema()
     groups = grouped_context(changes)
     persistent_inputs = persistent_eli_context()
     operator_guidance = load_operator_guidance()
     project_expectations = load_project_expectations_state()
     action_inbox = load_action_inbox()
     review_state_consumption = load_review_state_consumption_snapshot()
+    milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_state_consumption)
     pieces = ['# Core Field\n', core_text(), '\n']
     pieces.append(render_field_layer_context())
     pieces.append(f'# {PROJECT_DISPLAY_NAME} Project Guardrails\n')
@@ -11976,6 +12293,8 @@ def context_with_inputs(changes):
         pieces.append('- No active operator guidance. Use best effort and choose the strongest project-specific direction.\n')
     pieces.append('\n')
     pieces.append(render_project_expectations_context(project_expectations))
+    pieces.append('\n')
+    pieces.append(render_project_milestones_context(milestone_state))
     pieces.append('\n')
     pieces.append(render_review_state_consumption_context(review_state_consumption))
     pieces.append('\n')
