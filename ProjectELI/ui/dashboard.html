@@ -421,6 +421,69 @@
       gap: 7px;
     }
 
+    .steering-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .steering-card {
+      border: 1px solid rgba(31, 38, 36, 0.08);
+      border-radius: 18px;
+      padding: 14px;
+      background: rgba(255,255,255,0.76);
+      display: grid;
+      gap: 10px;
+    }
+
+    .steering-card.wide {
+      grid-column: 1 / -1;
+    }
+
+    .steering-copy {
+      line-height: 1.5;
+      color: var(--ink);
+    }
+
+    .steering-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .steering-row {
+      display: grid;
+      gap: 6px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(31, 38, 36, 0.08);
+    }
+
+    .steering-row:first-child {
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .steering-row-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .steering-row-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .steering-empty {
+      border-radius: 14px;
+      border: 1px dashed rgba(31,38,36,0.12);
+      padding: 12px;
+      color: var(--muted);
+      background: rgba(255,255,255,0.5);
+    }
+
     .mini-pills {
       display: flex;
       flex-wrap: wrap;
@@ -463,10 +526,44 @@
       background: rgba(179,58,58,0.1);
     }
 
+    .mini-pill.ready_for_review,
+    .mini-pill.approved,
+    .mini-pill.operator_reviewed,
+    .mini-pill.real_product_path_credible {
+      color: var(--good);
+      background: rgba(23,100,58,0.08);
+    }
+
+    .mini-pill.not_yet_reviewable,
+    .mini-pill.held,
+    .mini-pill.tentative,
+    .mini-pill.prototype_oriented,
+    .mini-pill.serious_prototype_path,
+    .mini-pill.functional_prototype_path,
+    .mini-pill.credible_concept {
+      color: var(--late);
+      background: rgba(181,106,45,0.1);
+    }
+
+    .mini-pill.rejected_for_now,
+    .mini-pill.concept_only {
+      color: var(--danger);
+      background: rgba(179,58,58,0.1);
+    }
+
+    .mini-pill.product_candidate_emerging,
+    .mini-pill.real_product_path_not_yet_proven,
+    .mini-pill.aligned {
+      color: var(--accent);
+      background: rgba(13,124,102,0.08);
+    }
+
     .mono { font-family: var(--font-mono); }
 
     @media (max-width: 980px) {
       .hero, .grid-2 { grid-template-columns: 1fr; }
+      .steering-grid { grid-template-columns: 1fr; }
+      .steering-card.wide { grid-column: auto; }
     }
   </style>
 </head>
@@ -526,6 +623,21 @@
         <h2>Load And Headroom</h2>
         <div class="hero-stats" id="loadStats"></div>
         <div class="notes" id="tweakNotes" style="margin-top:14px"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="panel">
+        <div class="label">Project Steering</div>
+        <h2>Intent, Realism, And Review Gates</h2>
+        <p class="sub">Compact steering view drawn directly from canonical expectations, milestones, realism, execution, and verification surfaces.</p>
+        <div class="steering-grid">
+          <article class="steering-card" id="steeringIntent"></article>
+          <article class="steering-card" id="steeringRealism"></article>
+          <article class="steering-card" id="steeringReviewable"></article>
+          <article class="steering-card" id="steeringBlockers"></article>
+          <article class="steering-card wide" id="steeringMilestones"></article>
+        </div>
       </div>
     </section>
 
@@ -864,6 +976,144 @@
       document.getElementById("verification").innerHTML = groups.join("") || `<div class="note">No verification summary is available yet.</div>`;
     }
 
+    function truncateText(value, limit = 190) {
+      const text = String(value || "").trim();
+      if (!text) return "";
+      return text.length > limit ? `${text.slice(0, limit - 3)}...` : text;
+    }
+
+    function milestoneDetailText(row) {
+      if (!row) return "";
+      return truncateText(
+        row.review_questions && row.review_questions.length
+          ? row.review_questions[0]
+          : row.why_not_ready_yet || "",
+        220
+      );
+    }
+
+    function collectSteeringBlockers(milestones, realism) {
+      const seen = new Set();
+      const rows = [];
+      const push = value => {
+        const text = truncateText(value, 180);
+        if (!text) return;
+        const key = text.toLowerCase();
+        if (seen.has(key)) return;
+        seen.add(key);
+        rows.push(text);
+      };
+      (milestones || [])
+        .filter(row => row.approval_state !== "ready_for_review")
+        .slice(0, 3)
+        .forEach(row => {
+          (row.blocking_factors || []).slice(0, 2).forEach(push);
+          (row.missing_evidence || []).slice(0, 2).forEach(push);
+          if (!row.blocking_factors?.length && !row.missing_evidence?.length) push(row.why_not_ready_yet);
+        });
+      (realism.gimmick_risks || []).slice(0, 2).forEach(push);
+      (realism.missing_for_product_candidate || []).slice(0, 2).forEach(push);
+      return rows.slice(0, 4);
+    }
+
+    function renderProjectSteering(status) {
+      const expectations = status.project_expectations || {};
+      const milestonesState = status.project_milestones || {};
+      const milestones = milestonesState.milestones || [];
+      const realism = status.product_realism_review || {};
+      const resume = status.execution_resume || {};
+      const verification = status.verification_summary || {};
+      const reviewable = milestones.filter(row => row.approval_state === "ready_for_review");
+      const topBlockers = collectSteeringBlockers(milestones, realism);
+      const tentativePill = expectations.reviewed_by_operator ? "operator_reviewed" : "tentative";
+      const posturePill = (realism.commercial_or_practical_readiness_view || {}).status || "prototype_oriented";
+      const topRisk = (realism.gimmick_risks || [])[0] || (realism.missing_for_product_candidate || [])[0] || "";
+      const currentTruthOwner = (verification.current_truth_sources || []).find(row =>
+        row.question === "Pending V1 decisions and active review front"
+      );
+
+      document.getElementById("steeringIntent").innerHTML = `
+        <div class="verification-heading">Intent</div>
+        <div class="mini-pills">
+          <span class="mini-pill ${expectations.target_outcome_type || ""}">${humanizeToken(expectations.target_outcome_type || "functional_prototype")}</span>
+          <span class="mini-pill">${humanizeToken(expectations.quality_bar || "credible")}</span>
+          <span class="mini-pill">${humanizeToken(expectations.intended_seriousness || "exploratory")}</span>
+          <span class="mini-pill ${tentativePill}">${expectations.reviewed_by_operator ? "Operator reviewed" : "Tentative intent"}</span>
+        </div>
+        <div class="steering-copy">${expectations.project_intent || "No project intent is available yet."}</div>
+        <div class="footer"><strong>Posture:</strong> ${expectations.defaults_are_tentative ? "Defaults are still tentative and conservative." : "Expectation posture has been explicitly set."}</div>
+        ${expectations.product_candidate_goal ? `<div class="footer"><strong>Product-candidate guardrail:</strong> ${truncateText(expectations.product_candidate_goal, 220)}</div>` : ""}
+      `;
+
+      document.getElementById("steeringRealism").innerHTML = `
+        <div class="verification-heading">Reality / Realism</div>
+        <div class="mini-pills">
+          <span class="mini-pill ${realism.current_realism_band || ""}">${humanizeToken(realism.current_realism_band || "concept_only")}</span>
+          <span class="mini-pill ${posturePill}">${humanizeToken(posturePill)}</span>
+          ${realism.quality_bar_alignment?.status ? `<span class="mini-pill ${realism.quality_bar_alignment.status}">${humanizeToken(realism.quality_bar_alignment.status)}</span>` : ""}
+        </div>
+        <div class="steering-copy">${realism.why_this_band || "No realism review is available yet."}</div>
+        ${topRisk ? `<div class="footer"><strong>Top anti-gimmick risk:</strong> ${truncateText(topRisk, 220)}</div>` : ""}
+        ${(realism.anti_gimmick_strengths || []).length ? `<div class="footer"><strong>Grounded counterweight:</strong> ${truncateText(realism.anti_gimmick_strengths[0], 220)}</div>` : ""}
+      `;
+
+      document.getElementById("steeringReviewable").innerHTML = `
+        <div class="verification-heading">Reviewable Now</div>
+        ${
+          reviewable.length
+            ? `<div class="steering-list">
+                ${reviewable.slice(0, 2).map(row => `
+                  <div class="steering-row">
+                    <div class="steering-row-head">
+                      <strong>${row.title || "Milestone"}</strong>
+                      <div class="steering-row-meta">
+                        <span class="mini-pill ${row.approval_state || ""}">${humanizeToken(row.approval_state || "ready_for_review")}</span>
+                        <span class="mini-pill ${row.current_band || ""}">${humanizeToken(row.current_band || "")}</span>
+                      </div>
+                    </div>
+                    <div>${milestoneDetailText(row) || "This milestone is mature enough for review."}</div>
+                    ${row.unlocks?.length ? `<div class="footer"><strong>Unlocks:</strong> ${row.unlocks.slice(0, 2).map(humanizeToken).join(", ")}</div>` : ""}
+                  </div>
+                `).join("")}
+              </div>`
+            : `<div class="steering-empty">No milestone is honestly reviewable right now. Keep the current posture conservative instead of implying hidden readiness.</div>`
+        }
+        ${resume.unblocked_next?.title ? `<div class="footer"><strong>Unblocked next:</strong> ${resume.unblocked_next.title}</div>` : ""}
+        ${currentTruthOwner ? `<div class="footer"><strong>Current truth owner:</strong> ${currentTruthOwner.source_surface}</div>` : ""}
+      `;
+
+      document.getElementById("steeringBlockers").innerHTML = `
+        <div class="verification-heading">Top Blockers</div>
+        ${
+          topBlockers.length
+            ? `<div class="steering-list">
+                ${topBlockers.map(item => `<div class="steering-row"><div>${item}</div></div>`).join("")}
+              </div>`
+            : `<div class="steering-empty">No strong blocker summary is available yet.</div>`
+        }
+        ${(realism.what_would_materially_improve_realism || []).length ? `<div class="footer"><strong>Would materially improve:</strong> ${truncateText(realism.what_would_materially_improve_realism[0], 220)}</div>` : ""}
+      `;
+
+      document.getElementById("steeringMilestones").innerHTML = `
+        <div class="verification-heading">Milestones</div>
+        <div class="steering-list">
+          ${(milestones || []).slice(0, 5).map(row => `
+            <div class="steering-row">
+              <div class="steering-row-head">
+                <strong>${row.title || "Milestone"}</strong>
+                <div class="steering-row-meta">
+                  <span class="mini-pill ${row.approval_state || ""}">${humanizeToken(row.approval_state || "not_yet_reviewable")}</span>
+                  <span class="mini-pill ${row.current_band || ""}">${humanizeToken(row.current_band || "too_early")}</span>
+                </div>
+              </div>
+              <div>${milestoneDetailText(row) || "No milestone detail available."}</div>
+              ${row.approval_state === "ready_for_review" && row.review_questions?.length ? `<div class="footer"><strong>Review question:</strong> ${truncateText(row.review_questions[0], 220)}</div>` : ""}
+            </div>
+          `).join("") || `<div class="steering-empty">No milestone state is available yet.</div>`}
+        </div>
+      `;
+    }
+
     function renderGuidance(status) {
       const active = (status.operator_guidance && status.operator_guidance.mode) || "best_effort";
       document.getElementById("guidanceMode").textContent = active.replaceAll("_", " ");
@@ -1066,6 +1316,7 @@
 
       renderTelemetry(status);
       renderActions(status);
+      renderProjectSteering(status);
       renderScorecard(status);
 
       document.getElementById("outputs").innerHTML = status.valuable_outputs.map(item => `

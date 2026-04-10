@@ -15,8 +15,12 @@ from orchestrator import (
     BASE,
     CFG,
     DB_PATH,
+    EXECUTION_RESUME_PATH,
     OPERATOR_GUIDANCE_PATH,
     PROJECT_DIR,
+    PROJECT_EXPECTATIONS_PATH,
+    PROJECT_MILESTONES_PATH,
+    PRODUCT_REALISM_REVIEW_PATH,
     REPORTS_DIR,
     RUNTIME_STATE_PATH,
     SCORECARD_STATE_PATH,
@@ -320,6 +324,38 @@ def load_dashboard_data():
     runtime_state = read_json(RUNTIME_STATE_PATH, {})
     operator_guidance = read_json(OPERATOR_GUIDANCE_PATH, {"mode": "best_effort"})
     action_inbox = load_action_inbox_data()
+    project_expectations = read_json(PROJECT_EXPECTATIONS_PATH, {
+        "project_intent": "",
+        "target_outcome_type": "functional_prototype",
+        "quality_bar": "credible",
+        "intended_seriousness": "exploratory",
+        "reviewed_by_operator": False,
+        "defaults_are_tentative": True,
+        "product_candidate_goal": "",
+    })
+    project_milestones = read_json(PROJECT_MILESTONES_PATH, {
+        "generated_at": "",
+        "milestones": [],
+        "counts": {},
+    })
+    product_realism_review = read_json(PRODUCT_REALISM_REVIEW_PATH, {
+        "generated_at": "",
+        "current_realism_band": "concept_only",
+        "why_this_band": "",
+        "anti_gimmick_strengths": [],
+        "gimmick_risks": [],
+        "missing_for_product_candidate": [],
+        "missing_for_real_product_path": [],
+        "quality_bar_alignment": {},
+    })
+    execution_resume = read_json(EXECUTION_RESUME_PATH, {
+        "generated_at": "",
+        "project_intent": {},
+        "product_realism": {},
+        "unblocked_next": {},
+        "needs_human_review": [],
+        "resume_notes": [],
+    })
     scorecard = read_json(SCORECARD_STATE_PATH, {"project_summary": "", "dimensions": []})
     scorecard = build_scorecard_history(scorecard if isinstance(scorecard, dict) else {"project_summary": "", "dimensions": []})
     verification_summary = read_json(VERIFICATION_SUMMARY_PATH, {
@@ -446,6 +482,10 @@ def load_dashboard_data():
         "runtime_state": runtime_state,
         "operator_guidance": operator_guidance,
         "action_inbox": action_inbox,
+        "project_expectations": project_expectations,
+        "project_milestones": project_milestones,
+        "product_realism_review": product_realism_review,
+        "execution_resume": execution_resume,
         "scorecard": scorecard,
         "verification_summary": verification_summary,
         "telemetry": telemetry,
