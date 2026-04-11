@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-11T16:27:15",
+  "generated_at": "2026-04-11T19:39:47",
   "summary": "Current UI planning warrants Project Creation, Project Overview, Review & Decisions, Build & Realization, Subsystems & Workstreams, Extensions & Agents, Verification & Audit. Keep project creation visible while intent remains tentative, keep review surfaces bounded and non-final, let build-oriented pages emerge only...",
   "project_pages": [
     {
@@ -170,11 +170,12 @@
       "purpose": "Expose build-oriented readiness only when implementation maturity, milestone state, or component-package posture makes that surface honest.",
       "status": "realization_oriented",
       "priority": "secondary",
-      "why_this_page_exists": "Implementation package review is `ready_for_review` and component-package posture is `early_subsystem_bom_only`, so build-oriented surfaces are now meaningful enough to warrant their own page.",
+      "why_this_page_exists": "Implementation package review is `ready_for_review` and component-package posture is `early_subsystem_bom_only`. 3 exploratory hardware-aware rendering brief(s) are available for bounded build-facing comparison, so bu...",
       "driven_by_sources": [
         "component_package_review",
         "project_milestones",
-        "product_realism_review"
+        "product_realism_review",
+        "hardware_aware_rendering_brief_review"
       ],
       "sections": [
         {
@@ -208,12 +209,25 @@
           ],
           "show_when": "There are unresolved component, subsystem, or realism blockers that materially constrain buildability.",
           "hide_when": "Hide when build-oriented blockers are not yet materially distinct from general project blockers."
+        },
+        {
+          "section_id": "exploratory_rendering_briefs",
+          "title": "Exploratory Rendering Briefs",
+          "purpose": "Show bounded hardware-aware rendering briefs only as exploratory review aids for packaging, placement, and comparison.",
+          "driven_by_sources": [
+            "hardware_aware_rendering_brief_review",
+            "component_package_review",
+            "product_realism_review"
+          ],
+          "show_when": "At least one hardware-aware rendering brief is warranted by current build-oriented prototype posture.",
+          "hide_when": "Hide when no exploratory rendering brief is currently warranted or when build posture is still too weak."
         }
       ],
       "show_when": "Show when component-package readiness or implementation-package gating becomes materially meaningful.",
       "hide_when": "Hide while build-oriented structure would still be speculative or purely conceptual.",
       "representation_risks": [
-        "Do not present early subsystem BOM posture as a final part list or settled package."
+        "Do not present early subsystem BOM posture as a final part list or settled package.",
+        "Do not let exploratory rendering briefs read as accepted design direction or solved industrial design."
       ],
       "operator_actions_supported": [
         "inspect buildability posture",
@@ -440,6 +454,12 @@
       "withhold_when": "BOM posture is still `not_warranted` and realization detail would be speculative."
     },
     {
+      "page_id": "build_or_realization",
+      "section_id": "exploratory_rendering_briefs",
+      "emerge_when": "A hardware-aware rendering brief exists and current prototype build posture is strong enough to benefit from bounded visual drafting.",
+      "withhold_when": "No rendering brief is warranted or visual drafting would only create cosmetic progress theater."
+    },
+    {
       "page_id": "verification_and_audit",
       "section_id": "current_truth_sources",
       "emerge_when": "Truth-bearing surfaces and supporting context are distinct enough that the operator needs explicit authority explanation.",
@@ -464,28 +484,28 @@
       "surface_id": "execution_resume",
       "role": "operational_resume",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T16:27:15",
+      "generated_at": "2026-04-11T19:39:47",
       "why_it_matters": "Carries the operator-facing current-truth summary, active review front, held lanes, blockers, and next step."
     },
     {
       "surface_id": "project_milestones",
       "role": "milestone_gate",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T16:27:15",
+      "generated_at": "2026-04-11T19:39:47",
       "why_it_matters": "Keeps reviewability tied to readiness bands, blockers, and approval state rather than vague progress."
     },
     {
       "surface_id": "product_realism_review",
       "role": "realism_gate",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T16:27:15",
+      "generated_at": "2026-04-11T19:39:47",
       "why_it_matters": "Constrains product-language and anti-gimmick posture using grounded realism judgment."
     },
     {
       "surface_id": "project_scorecard",
       "role": "subsystem_truth",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T16:27:09",
+      "generated_at": "2026-04-11T19:38:34",
       "why_it_matters": "The scorecard is fresh enough to use as current subsystem-readiness context."
     },
     {
@@ -496,10 +516,17 @@
       "why_it_matters": "A concrete part list is still premature, but a bounded subsystem-level BOM frame is now warranted to improve buildability and package thinking without pretending the parts are settled."
     },
     {
+      "surface_id": "hardware_aware_rendering_brief_review",
+      "role": "exploratory_visual_review",
+      "trust_use": "supporting_context",
+      "generated_at": "2026-04-11T19:39:47",
+      "why_it_matters": "Use this surface to frame bounded exploratory rendering requests for review. It does not override current truth about subsystem readiness, pending decisions, realism, or build posture."
+    },
+    {
       "surface_id": "v1_decision_review",
       "role": "review_surface",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T16:26:32",
+      "generated_at": "2026-04-11T19:37:58",
       "why_it_matters": "This file is close enough to its linked review surfaces to compare operationally."
     },
     {
@@ -515,28 +542,21 @@
       "trust_use": "stale_context",
       "generated_at": "2026-04-09T23:02:49",
       "why_it_matters": "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history."
-    },
-    {
-      "surface_id": "verification_summary",
-      "role": "verification_support",
-      "trust_use": "supporting_context",
-      "generated_at": "2026-04-11T16:27:15",
-      "why_it_matters": "Explains current-truth authority, recent transitions, and representation risks without replacing the authoritative surfaces themselves."
     }
   ],
   "operator_goals": [
     "Confirm or tighten project intent, quality bar, and seriousness before stronger product-language or UI emphasis emerges.",
     "Inspect whether build-oriented realization surfaces are warranted now, without forcing premature component concreteness.",
+    "Use hardware-aware rendering briefs for bounded packaging and comparison review without over-reading them as final design.",
     "Inspect subsystem readiness and blockers without treating confidence trend as a substitute for grounding.",
-    "Inspect what is reviewable now without treating provisional drafts, options, or ready-for-review milestones as already approved.",
-    "Use verification surfaces to check which source currently owns the truth when views differ in emphasis or freshness."
+    "Inspect what is reviewable now without treating provisional drafts, options, or ready-for-review milestones as already approved."
   ],
   "representation_risks": [
     "Confidence trend is supporting context only; read the current status and grounding endpoints before inferring improvement from repeated markers.",
     "A flat evolution strip can mean stable, stalled, or simply repeating. Verify with the endpoint labels and held or blocked reasons.",
     "Cautionary or provisional surfaces stay visible for continuity, but they should not override current-truth sources.",
-    "Tentative expectations must stay visibly tentative; defaults should not read as confirmed operator ambition.",
-    "Build-oriented pages must not imply that early component-package readiness is already a settled BOM or implementation commitment."
+    "Hardware-aware rendering briefs are exploratory visual framing only; do not treat them as accepted design direction or settled implementation truth.",
+    "Tentative expectations must stay visibly tentative; defaults should not read as confirmed operator ambition."
   ],
   "page_priority": [
     {
@@ -557,7 +577,7 @@
     {
       "page_id": "build_or_realization",
       "priority": "secondary",
-      "why": "Implementation package review is `ready_for_review` and component-package posture is `early_subsystem_bom_only`, so build-oriented surfaces are now meaningful enough to warrant..."
+      "why": "Implementation package review is `ready_for_review` and component-package posture is `early_subsystem_bom_only`. 3 exploratory hardware-aware rendering brief(s) are available fo..."
     },
     {
       "page_id": "subsystem_or_workstream",
@@ -594,7 +614,7 @@
     {
       "page_id": "build_or_realization",
       "status": "realization_oriented",
-      "why": "Implementation package review is `ready_for_review` and component-package posture is `early_subsystem_bom_only`, so build-oriented surfaces are now meaningful enough to warrant..."
+      "why": "Implementation package review is `ready_for_review` and component-package posture is `early_subsystem_bom_only`. 3 exploratory hardware-aware rendering brief(s) are available fo..."
     },
     {
       "page_id": "subsystem_or_workstream",
@@ -621,16 +641,17 @@
   },
   "source_generated_at": {
     "project_expectations": "2026-04-10T09:16:32",
-    "execution_resume": "2026-04-11T16:27:15",
-    "project_milestones": "2026-04-11T16:27:15",
-    "product_realism_review": "2026-04-11T16:27:15",
+    "execution_resume": "2026-04-11T19:39:47",
+    "project_milestones": "2026-04-11T19:39:47",
+    "product_realism_review": "2026-04-11T19:39:47",
     "component_package_review": "2026-04-10T11:43:03",
-    "extensions_capability_review": "2026-04-11T16:27:15",
-    "verification_summary": "2026-04-11T16:27:15",
-    "project_scorecard": "2026-04-11T16:27:09",
-    "v1_decision_review": "2026-04-11T16:26:32",
+    "extensions_capability_review": "2026-04-11T19:39:47",
+    "hardware_aware_rendering_brief_review": "2026-04-11T19:39:47",
+    "verification_summary": "2026-04-11T19:39:47",
+    "project_scorecard": "2026-04-11T19:38:34",
+    "v1_decision_review": "2026-04-11T19:37:58",
     "draft_artifact_review": "2026-04-09T23:02:49"
   },
   "revisable": true,
-  "updated_at": "2026-04-11T16:27:15"
+  "updated_at": "2026-04-11T19:39:47"
 }

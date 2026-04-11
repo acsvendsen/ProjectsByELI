@@ -9099,6 +9099,8 @@ def default_hardware_aware_rendering_brief_review_state():
         'summary': '',
         'eli_authority_note': '',
         'informational_extension_posture': 'informational_only',
+        'trust_posture': {},
+        'source_authority': {},
         'rendering_briefs': [],
         'source_generated_at': {},
         'revisable': True,
@@ -9111,14 +9113,18 @@ def load_hardware_aware_rendering_brief_review_state():
         data = default_hardware_aware_rendering_brief_review_state()
     if not isinstance(data.get('rendering_briefs'), list):
         data['rendering_briefs'] = []
-    if not isinstance(data.get('source_generated_at'), dict):
-        data['source_generated_at'] = {}
     if not isinstance(data.get('summary'), str):
         data['summary'] = ''
     if not isinstance(data.get('eli_authority_note'), str):
         data['eli_authority_note'] = ''
     if not isinstance(data.get('informational_extension_posture'), str):
         data['informational_extension_posture'] = 'informational_only'
+    if not isinstance(data.get('trust_posture'), dict):
+        data['trust_posture'] = {}
+    if not isinstance(data.get('source_authority'), dict):
+        data['source_authority'] = {}
+    if not isinstance(data.get('source_generated_at'), dict):
+        data['source_generated_at'] = {}
     if not isinstance(data.get('revisable'), bool):
         data['revisable'] = True
     return data
@@ -9445,6 +9451,22 @@ def build_hardware_aware_rendering_brief_review_state(
             240,
         ),
         'informational_extension_posture': 'informational_only',
+        'trust_posture': {
+            'surface_role': 'supporting_review_surface',
+            'use_state': 'supporting_context',
+            'authority_scope': 'hardware-aware rendering brief framing only',
+            'trust_reason': compact_text_excerpt(
+                'Use this surface to frame bounded exploratory rendering requests for review. It does not override current truth about subsystem readiness, pending decisions, realism, or build posture.',
+                240,
+            ),
+        },
+        'source_authority': {
+            'subsystem_truth': 'project_scorecard',
+            'decision_truth': 'v1_decision_review',
+            'build_posture_truth': 'component_package_review',
+            'realism_truth': 'product_realism_review',
+            'extension_posture': 'extensions_capability_review',
+        },
         'rendering_briefs': briefs,
         'source_generated_at': {
             'project_expectations': state_surface_generated_at(expectations),
@@ -9467,6 +9489,21 @@ def render_hardware_aware_rendering_brief_review_context(rendering_state=None):
     if rendering_state.get('eli_authority_note'):
         lines.append(f"- eli_authority_note: {rendering_state.get('eli_authority_note', '')}")
     lines.append(f"- informational_extension_posture: `{rendering_state.get('informational_extension_posture', 'informational_only')}`")
+    trust_posture = rendering_state.get('trust_posture', {}) if isinstance(rendering_state.get('trust_posture', {}), dict) else {}
+    if trust_posture:
+        lines.append(
+            f"- trust_posture: `{trust_posture.get('use_state', 'supporting_context')}` as `{trust_posture.get('surface_role', 'supporting_review_surface')}` | {trust_posture.get('trust_reason', '')}"
+        )
+    source_authority = rendering_state.get('source_authority', {}) if isinstance(rendering_state.get('source_authority', {}), dict) else {}
+    if source_authority:
+        lines.append(
+            "- source_authority: "
+            + '; '.join(
+                f"{key} -> {value}"
+                for key, value in list(source_authority.items())[:5]
+                if key and value
+            )
+        )
     briefs = rendering_state.get('rendering_briefs', []) if isinstance(rendering_state.get('rendering_briefs', []), list) else []
     for brief in briefs[:3]:
         if not isinstance(brief, dict):
@@ -9544,7 +9581,7 @@ def ui_page_priority_rank(priority):
     return order.get(str(priority or '').strip(), 4)
 
 
-def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None):
+def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None):
     schema = schema or load_cognition_schema()
     cfg = ui_surface_plan_config(schema)
     if not cfg.get('enabled', True):
@@ -9567,6 +9604,14 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         review_snapshot=review_snapshot,
         resume_state=resume_state,
         verification_state=verification_state,
+    )
+    rendering_state = rendering_state if isinstance(rendering_state, dict) else build_hardware_aware_rendering_brief_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        milestone_state=milestone_state,
+        realism_state=realism_state,
+        component_state=component_state,
+        extensions_state=extensions_state,
     )
     reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
     scorecard_state = load_scorecard_state()
@@ -9593,6 +9638,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     available_extensions = extensions_state.get('available_capabilities', []) if isinstance(extensions_state.get('available_capabilities', []), list) else []
     recommended_extensions = extensions_state.get('project_recommended_extensions', []) if isinstance(extensions_state.get('project_recommended_extensions', []), list) else []
     missing_extensions = extensions_state.get('missing_but_useful_capabilities', []) if isinstance(extensions_state.get('missing_but_useful_capabilities', []), list) else []
+    rendering_briefs = rendering_state.get('rendering_briefs', []) if isinstance(rendering_state.get('rendering_briefs', []), list) else []
 
     def make_section(section_id, title, purpose, driven_by_sources, show_when, hide_when):
         return {
@@ -9879,10 +9925,10 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'status': 'realization_oriented',
             'priority': 'secondary',
             'why_this_page_exists': compact_text_excerpt(
-                f"Implementation package review is `{('ready_for_review' if implementation_ready else 'not_yet_reviewable')}` and component-package posture is `{component_band}`, so build-oriented surfaces are now meaningful enough to warrant their own page.",
+                f"Implementation package review is `{('ready_for_review' if implementation_ready else 'not_yet_reviewable')}` and component-package posture is `{component_band}`. {len(rendering_briefs)} exploratory hardware-aware rendering brief(s) are available for bounded build-facing comparison, so build-oriented surfaces are now meaningful enough to warrant their own page.",
                 220,
             ),
-            'driven_by_sources': ['component_package_review', 'project_milestones', 'product_realism_review'],
+            'driven_by_sources': ['component_package_review', 'project_milestones', 'product_realism_review', 'hardware_aware_rendering_brief_review'],
             'sections': [
                 make_section(
                     'implementation_package_gate',
@@ -9908,11 +9954,20 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
                     'There are unresolved component, subsystem, or realism blockers that materially constrain buildability.',
                     'Hide when build-oriented blockers are not yet materially distinct from general project blockers.',
                 ),
+                make_section(
+                    'exploratory_rendering_briefs',
+                    'Exploratory Rendering Briefs',
+                    'Show bounded hardware-aware rendering briefs only as exploratory review aids for packaging, placement, and comparison.',
+                    ['hardware_aware_rendering_brief_review', 'component_package_review', 'product_realism_review'],
+                    'At least one hardware-aware rendering brief is warranted by current build-oriented prototype posture.',
+                    'Hide when no exploratory rendering brief is currently warranted or when build posture is still too weak.',
+                ),
             ],
             'show_when': 'Show when component-package readiness or implementation-package gating becomes materially meaningful.',
             'hide_when': 'Hide while build-oriented structure would still be speculative or purely conceptual.',
             'representation_risks': [
                 'Do not present early subsystem BOM posture as a final part list or settled package.',
+                'Do not let exploratory rendering briefs read as accepted design direction or solved industrial design.',
             ],
             'operator_actions_supported': [
                 'inspect buildability posture',
@@ -9926,6 +9981,13 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'emerge_when': 'Component-package readiness is strong enough to support a build-oriented section.',
             'withhold_when': 'BOM posture is still `not_warranted` and realization detail would be speculative.',
         })
+        if rendering_briefs:
+            section_emergence_rules.append({
+                'page_id': 'build_or_realization',
+                'section_id': 'exploratory_rendering_briefs',
+                'emerge_when': 'A hardware-aware rendering brief exists and current prototype build posture is strong enough to benefit from bounded visual drafting.',
+                'withhold_when': 'No rendering brief is warranted or visual drafting would only create cosmetic progress theater.',
+            })
 
     if verification_meaningful:
         append_page({
@@ -10055,6 +10117,9 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     if component_band != 'not_warranted':
         push_risk('Build-oriented pages must not imply that early component-package readiness is already a settled BOM or implementation commitment.')
         push_goal('Inspect whether build-oriented realization surfaces are warranted now, without forcing premature component concreteness.')
+    if rendering_briefs:
+        push_risk('Hardware-aware rendering briefs are exploratory supporting context only; they must not be read as current-truth design acceptance.')
+        push_goal('Use hardware-aware rendering briefs for bounded packaging and comparison review without over-reading them as final design.')
     if subsystem_structure_meaningful:
         push_risk('Subsystem visuals must keep status and grounding authoritative rather than letting trend graphics imply progress by themselves.')
         push_goal('Inspect subsystem readiness and blockers without treating confidence trend as a substitute for grounding.')
@@ -10109,6 +10174,14 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         component_state.get('why_bom_is_or_is_not_warranted', ''),
         state_surface_generated_at(component_state),
     )
+    if rendering_briefs:
+        push_source(
+            'hardware_aware_rendering_brief_review',
+            'exploratory_visual_review',
+            'supporting_context',
+            rendering_state.get('trust_posture', {}).get('trust_reason', '') if isinstance(rendering_state.get('trust_posture', {}), dict) else '',
+            state_surface_generated_at(rendering_state),
+        )
     push_source(
         'v1_decision_review',
         'review_surface',
@@ -10208,6 +10281,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'product_realism_review': state_surface_generated_at(realism_state),
             'component_package_review': state_surface_generated_at(component_state),
             'extensions_capability_review': state_surface_generated_at(extensions_state),
+            'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
             'verification_summary': state_surface_generated_at(verification_state),
             'project_scorecard': state_surface_generated_at(scorecard_state),
             'v1_decision_review': state_surface_generated_at(v1_state),
@@ -10340,7 +10414,7 @@ def build_verification_transition_rows(v1_review_state, artifact_review_state, l
     return rows[:max(1, limit)]
 
 
-def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None):
+def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None):
     schema = schema or load_cognition_schema()
     review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
     resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
@@ -10351,6 +10425,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
     artifact_review_state = load_implementation_artifact_review_state()
     emission_state = load_artifact_emission_readiness_state()
     draft_state = load_draft_artifact_review_state()
+    rendering_state = rendering_state if isinstance(rendering_state, dict) else load_hardware_aware_rendering_brief_review_state()
 
     exec_cfg = execution_resume_config(schema)
     scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
@@ -10364,6 +10439,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
     pending_rows = v1_review_state.get('pending_v1_decisions', []) if isinstance(v1_review_state.get('pending_v1_decisions', []), list) else []
     draft_rows = draft_state.get('emitted_drafts', []) if isinstance(draft_state.get('emitted_drafts', []), list) else []
     emission_rows = emission_state.get('artifact_emission_readiness', []) if isinstance(emission_state.get('artifact_emission_readiness', []), list) else []
+    rendering_briefs = rendering_state.get('rendering_briefs', []) if isinstance(rendering_state.get('rendering_briefs', []), list) else []
     scorecard_dimensions = scorecard_state.get('dimensions', []) if isinstance(scorecard_state.get('dimensions', []), list) else []
 
     current_truth_sources = []
@@ -10472,6 +10548,18 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             sample_titles=[row.get('label', '') for row in artifact_review_state.get('implementation_artifact_candidates', [])[:3]],
         ))
 
+    if rendering_briefs:
+        rendering_trust = rendering_state.get('trust_posture', {}) if isinstance(rendering_state.get('trust_posture', {}), dict) else {}
+        supporting_context_sources.append(build_verification_source_entry(
+            'Hardware-aware rendering briefs',
+            'hardware_aware_rendering_brief_review',
+            rendering_trust.get('use_state', 'supporting_context'),
+            rendering_trust.get('trust_reason', rendering_state.get('summary', '')),
+            state_surface_generated_at(rendering_state),
+            supporting_surfaces=['project_scorecard', 'v1_decision_review', 'component_package_review', 'product_realism_review'],
+            sample_titles=[row.get('title', '') for row in rendering_briefs[:3]],
+        ))
+
     for surface_name, surface in review_surfaces.items():
         if not isinstance(surface, dict):
             continue
@@ -10519,11 +10607,23 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         'supporting_surfaces': ['draft_artifact_review', 'artifact_emission_readiness'],
         'why': compact_text_excerpt(v1_surface.get('consumption_reason', ''), 220),
     })
+    if rendering_briefs:
+        recent_source_wins.append({
+            'question': 'Hardware-aware visual drafting framing',
+            'winning_surface': 'hardware_aware_rendering_brief_review',
+            'supporting_surfaces': ['project_scorecard', 'component_package_review', 'product_realism_review', 'extensions_capability_review'],
+            'why': compact_text_excerpt(
+                'This surface owns only exploratory rendering-brief framing. It does not override current truth about subsystem readiness, realism, or build posture.',
+                220,
+            ),
+        })
 
     representation_risks.append('Confidence trend is supporting context only; read the current status and grounding endpoints before inferring improvement from repeated markers.')
     representation_risks.append('A flat evolution strip can mean stable, stalled, or simply repeating. Verify with the endpoint labels and held or blocked reasons.')
     if surfaces_with_caution:
         representation_risks.append('Cautionary or provisional surfaces stay visible for continuity, but they should not override current-truth sources.')
+    if rendering_briefs:
+        representation_risks.append('Hardware-aware rendering briefs are exploratory visual framing only; do not treat them as accepted design direction or settled implementation truth.')
 
     operator_checks.append('Use current truth sources to verify which surface currently owns each question before trusting the UI impression.')
     operator_checks.append('Use recent transitions to check what actually changed, rather than reading repeated markers as progress by themselves.')
@@ -10531,6 +10631,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         operator_checks.append('For a subsystem marked needs_attention, read the blocked-lane reason and next focus before interpreting the confidence strip.')
     if resume_state.get('held_lanes'):
         operator_checks.append('For held lanes, verify the release signals before trying to reopen the lane as active work.')
+    if rendering_briefs:
+        operator_checks.append('For rendering briefs, verify the current-truth subsystem and build-posture sources before reading a visual comparison as settled design intent.')
 
     lane_explanations = {
         'active': [{
@@ -10569,6 +10671,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             'implementation_artifact_review': state_surface_generated_at(artifact_review_state),
             'artifact_emission_readiness': state_surface_generated_at(emission_state),
             'draft_artifact_review': state_surface_generated_at(draft_state),
+            'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
         },
         'summary': summary,
         'subsystem_card_source': subsystem_card_source,
@@ -11183,19 +11286,28 @@ def refresh_review_state_sync_metadata(schema=None):
         verification_state=verification_state,
     )
     save_extensions_capability_review_state(extensions_state)
-    save_hardware_aware_rendering_brief_review_state(build_hardware_aware_rendering_brief_review_state(
+    rendering_state = build_hardware_aware_rendering_brief_review_state(
         schema=schema,
         review_snapshot=review_snapshot,
         milestone_state=milestone_state,
         realism_state=product_realism_state,
         component_state=component_package_state,
         extensions_state=extensions_state,
-    ))
+    )
+    save_hardware_aware_rendering_brief_review_state(rendering_state)
+    verification_state = build_verification_summary_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        rendering_state=rendering_state,
+    )
+    save_verification_summary_state(verification_state)
     save_ui_surface_plan_state(build_ui_surface_plan_state(
         schema=schema,
         review_snapshot=review_snapshot,
         resume_state=resume_state,
         verification_state=verification_state,
+        rendering_state=rendering_state,
     ))
     return summary
 
@@ -13542,19 +13654,28 @@ def generate_scorecard_cycle(changes, prior_reports):
         verification_state=verification_state,
     )
     save_extensions_capability_review_state(extensions_state)
-    save_hardware_aware_rendering_brief_review_state(build_hardware_aware_rendering_brief_review_state(
+    rendering_state = build_hardware_aware_rendering_brief_review_state(
         schema=schema,
         review_snapshot=review_snapshot,
         milestone_state=milestone_state,
         realism_state=product_realism_state,
         component_state=component_package_state,
         extensions_state=extensions_state,
-    ))
+    )
+    save_hardware_aware_rendering_brief_review_state(rendering_state)
+    verification_state = build_verification_summary_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        rendering_state=rendering_state,
+    )
+    save_verification_summary_state(verification_state)
     save_ui_surface_plan_state(build_ui_surface_plan_state(
         schema=schema,
         review_snapshot=review_snapshot,
         resume_state=resume_state,
         verification_state=verification_state,
+        rendering_state=rendering_state,
     ))
     return render_scorecard_markdown(scorecard), effort_selection
 

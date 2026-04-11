@@ -1,8 +1,21 @@
 {
-  "generated_at": "2026-04-11T18:51:39",
+  "generated_at": "2026-04-11T19:39:47",
   "summary": "3 exploratory hardware-aware rendering brief(s) are warranted now because visualization support is recommended, implementation-package review is materially live, and build-oriented prototype surfaces are honest enough to benefit from bounded visual drafting.",
   "eli_authority_note": "ELI decides whether hardware-aware rendering help is worth surfacing. Any rendering result is drafting support only, not project truth, and ELI may partially accept, reject, defer, or revise it.",
   "informational_extension_posture": "informational_only",
+  "trust_posture": {
+    "surface_role": "supporting_review_surface",
+    "use_state": "supporting_context",
+    "authority_scope": "hardware-aware rendering brief framing only",
+    "trust_reason": "Use this surface to frame bounded exploratory rendering requests for review. It does not override current truth about subsystem readiness, pending decisions, realism, or build posture."
+  },
+  "source_authority": {
+    "subsystem_truth": "project_scorecard",
+    "decision_truth": "v1_decision_review",
+    "build_posture_truth": "component_package_review",
+    "realism_truth": "product_realism_review",
+    "extension_posture": "extensions_capability_review"
+  },
   "rendering_briefs": [
     {
       "brief_id": "subtitle_first_frame_variant_comparison",
@@ -310,9 +323,9 @@
     "product_realism_review": "2026-04-10T10:21:31",
     "component_package_review": "2026-04-10T11:43:03",
     "extensions_capability_review": "2026-04-11T16:27:15",
-    "v1_decision_review": "2026-04-11T18:49:49",
-    "project_scorecard": "2026-04-11T18:50:26"
+    "v1_decision_review": "2026-04-11T19:37:58",
+    "project_scorecard": "2026-04-11T19:38:34"
   },
   "revisable": true,
-  "updated_at": "2026-04-11T18:51:39"
+  "updated_at": "2026-04-11T19:39:47"
 }
