@@ -1,21 +1,22 @@
 {
-  "generated_at": "2026-04-11T19:39:47",
+  "generated_at": "2026-04-11T23:05:55",
   "source_generated_at": {
     "review_state_consumption": "2026-04-09T23:02:49",
-    "execution_resume": "2026-04-11T19:39:47",
-    "reflect_state": "2026-04-11T19:37:58",
-    "project_scorecard": "2026-04-11T19:38:34",
-    "v1_decision_review": "2026-04-11T19:37:58",
+    "execution_resume": "2026-04-11T23:05:55",
+    "reflect_state": "2026-04-11T23:03:31",
+    "project_scorecard": "2026-04-11T23:04:08",
+    "v1_decision_review": "2026-04-11T23:03:31",
     "implementation_artifact_review": "2026-04-09T23:02:49",
     "artifact_emission_readiness": "2026-04-09T23:02:49",
     "draft_artifact_review": "2026-04-09T23:02:49",
-    "hardware_aware_rendering_brief_review": "2026-04-11T19:39:47"
+    "hardware_aware_rendering_brief_review": "2026-04-11T19:39:47",
+    "cost_viability_review": "2026-04-11T23:05:55"
   },
   "summary": "The current review-state files are close enough in time and linkage to compare operationally.",
   "subsystem_card_source": {
     "source_surface": "project_scorecard",
     "use_state": "current_truth",
-    "generated_at": "2026-04-11T19:38:34",
+    "generated_at": "2026-04-11T23:04:08",
     "why": "The scorecard is fresh enough to use as current subsystem-readiness context."
   },
   "current_truth_sources": [
@@ -23,19 +24,19 @@
       "question": "Held lanes and action judgment",
       "source_surface": "reflect_state",
       "use_state": "current_truth",
-      "generated_at": "2026-04-11T19:37:58",
+      "generated_at": "2026-04-11T23:03:31",
       "why": "Reflect-owned action judgment remains the authoritative source for whether a lane is active, held, killed, or still unresolved.",
       "supporting_surfaces": [],
       "sample_titles": [
         "Memory/Cache Policy",
-        "Visual Hierarchy"
+        "Confidence Display"
       ]
     },
     {
       "question": "Subsystem cards and readiness",
       "source_surface": "project_scorecard",
       "use_state": "current_truth",
-      "generated_at": "2026-04-11T19:38:34",
+      "generated_at": "2026-04-11T23:04:08",
       "why": "The scorecard is fresh enough to use as current subsystem-readiness context.",
       "supporting_surfaces": [],
       "sample_titles": [
@@ -48,10 +49,11 @@
       "question": "Pending V1 decisions and active review front",
       "source_surface": "v1_decision_review",
       "use_state": "current_truth",
-      "generated_at": "2026-04-11T19:37:58",
+      "generated_at": "2026-04-11T23:03:31",
       "why": "This file is close enough to its linked review surfaces to compare operationally.",
       "supporting_surfaces": [],
       "sample_titles": [
+        "V1 Visual Hierarchy Default",
         "V1 Default Subtitle Position"
       ]
     },
@@ -79,6 +81,23 @@
       "sample_titles": [
         "V1 Confidence Display Format",
         "V1 Default Subtitle Position"
+      ]
+    },
+    {
+      "question": "Cost viability and economic posture",
+      "source_surface": "cost_viability_review",
+      "use_state": "current_truth",
+      "generated_at": "2026-04-11T23:05:55",
+      "why": "Use this surface to judge whether the current project direction still makes economic sense as more than a prototype path. It is directional and conservative, not a fake BOM calculator.",
+      "supporting_surfaces": [
+        "project_expectations",
+        "project_scorecard",
+        "product_realism_review",
+        "component_package_review"
+      ],
+      "sample_titles": [
+        "product_tier_mismatch_risk",
+        "stop_if_cost_target_matters"
       ]
     }
   ],
@@ -155,6 +174,11 @@
   "lane_explanations": {
     "active": [
       {
+        "title": "V1 Visual Hierarchy Default",
+        "source_surface": "v1_decision_review",
+        "why": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit..."
+      },
+      {
         "title": "V1 Default Subtitle Position",
         "source_surface": "v1_decision_review",
         "why": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit..."
@@ -172,9 +196,9 @@
         ]
       },
       {
-        "title": "Visual Hierarchy",
+        "title": "Confidence Display",
         "source_surface": "reflect_state",
-        "why": "aligns with Real-time subtitle clarity, Low-friction assistance; meets resistance from Discreet UX vs visual clarity; needs counterweight discipline on Discreet UX vs visual clarity; still meaningful, but not newly ac...",
+        "why": "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Discreet UX vs visual clarity, Latency vs richness; needs counterweight discipline on Latency vs richness, Discreet UX vs visua...",
         "release_on": [
           "real repo change or stronger repo grounding",
           "a new source type such as runtime truth or code-config evidence",
@@ -182,9 +206,9 @@
         ]
       },
       {
-        "title": "Confidence Display",
+        "title": "Phone/Cloud Boundary",
         "source_surface": "reflect_state",
-        "why": "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Discreet UX vs visual clarity, Latency vs richness; needs counterweight discipline on Latency vs richness, Discreet UX vs visua...",
+        "why": "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Latency vs richness, Privacy vs usefulness; needs counterweight discipline on Latency vs richness, Privacy vs usefulness; still...",
         "release_on": [
           "real repo change or stronger repo grounding",
           "a new source type such as runtime truth or code-config evidence",
@@ -247,6 +271,17 @@
         "extensions_capability_review"
       ],
       "why": "This surface owns only exploratory rendering-brief framing. It does not override current truth about subsystem readiness, realism, or build posture."
+    },
+    {
+      "question": "Cost viability and project economics",
+      "winning_surface": "cost_viability_review",
+      "supporting_surfaces": [
+        "project_expectations",
+        "project_scorecard",
+        "product_realism_review",
+        "component_package_review"
+      ],
+      "why": "This surface owns the current directional judgment about whether the project still makes economic sense as more than a prototype path."
     }
   ],
   "surfaces_with_caution": [
@@ -270,10 +305,10 @@
     "For held lanes, verify the release signals before trying to reopen the lane as active work."
   ],
   "counts": {
-    "current_truth_sources": 5,
+    "current_truth_sources": 6,
     "supporting_context_sources": 2,
     "recent_transitions": 4,
     "surfaces_with_caution": 1
   },
-  "updated_at": "2026-04-11T19:39:47"
+  "updated_at": "2026-04-11T23:05:55"
 }

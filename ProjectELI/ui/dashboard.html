@@ -730,6 +730,41 @@
       background: rgba(181,106,45,0.1);
     }
 
+    .mini-pill.proceed {
+      color: var(--good);
+      background: rgba(23,100,58,0.08);
+    }
+
+    .mini-pill.proceed_with_caution {
+      color: var(--late);
+      background: rgba(181,106,45,0.1);
+    }
+
+    .mini-pill.reframe_needed,
+    .mini-pill.stop_if_cost_target_matters,
+    .mini-pill.target_tier_mismatch,
+    .mini-pill.very_high {
+      color: var(--danger);
+      background: rgba(179,58,58,0.1);
+    }
+
+    .mini-pill.prototype_only,
+    .mini-pill.high,
+    .mini-pill.bounded_directional,
+    .mini-pill.prototype_only_cost_path,
+    .mini-pill.product_tier_mismatch_risk,
+    .mini-pill.commercial_path_unclear {
+      color: var(--late);
+      background: rgba(181,106,45,0.1);
+    }
+
+    .mini-pill.commercial_path_cautiously_plausible,
+    .mini-pill.cautiously_plausible,
+    .mini-pill.low {
+      color: var(--good);
+      background: rgba(23,100,58,0.08);
+    }
+
     .mini-pill.early_subsystem_bom_only,
     .mini-pill.subsystem_bom,
     .mini-pill.prototype_component_package,
@@ -819,6 +854,7 @@
         <div class="intake-grid">
           <article class="intake-card" id="projectCreationIntent"></article>
           <article class="intake-card" id="projectCreationGuardrails"></article>
+          <article class="intake-card" id="projectCreationCost"></article>
         </div>
       </div>
     </section>
@@ -1349,9 +1385,11 @@
       panel.style.display = "";
       const expectations = status.project_expectations || {};
       const realism = status.product_realism_review || {};
+      const cost = status.cost_viability_review || {};
       const sections = page.sections || [];
       const intentSection = sections.find(section => section.section_id === "intent_and_quality_bar") || {};
       const guardrailsSection = sections.find(section => section.section_id === "claim_guardrails") || {};
+      const costSection = sections.find(section => section.section_id === "cost_posture") || {};
       const posturePills = [
         `<span class="mini-pill ${page.status || "tentative"}">${humanizeToken(page.status || "tentative")}</span>`,
         `<span class="mini-pill ${expectations.defaults_are_tentative ? "tentative" : "operator_reviewed"}">${expectations.defaults_are_tentative ? "Tentative defaults" : "Expectation posture set"}</span>`,
@@ -1381,9 +1419,18 @@
           <span class="mini-pill ${expectations.target_outcome_type || ""}">${humanizeToken(expectations.target_outcome_type || "functional_prototype")}</span>
           <span class="mini-pill">${humanizeToken(expectations.quality_bar || "credible")}</span>
           <span class="mini-pill">${humanizeToken(expectations.intended_seriousness || "exploratory")}</span>
+          <span class="mini-pill">${humanizeToken(expectations.intended_value_posture || "assistive_prototype_learning")}</span>
         </div>
         <div class="intake-copy">${expectations.project_intent || "No project intent is available yet."}</div>
         <div class="intake-list">
+          <div class="intake-item">
+            <div class="intake-item-label">Target product tier</div>
+            <div>${humanizeToken(expectations.target_product_tier || "discreet_consumer_assistive_wearable")}</div>
+          </div>
+          <div class="intake-item">
+            <div class="intake-item-label">Acceptable cost posture</div>
+            <div>${humanizeToken(expectations.acceptable_cost_posture || "prototype_only_until_costs_grounded")}</div>
+          </div>
           <div class="intake-item">
             <div class="intake-item-label">Economic or practical goal</div>
             <div>${truncateText(expectations.economic_or_practical_goal || "No practical goal is recorded yet.", 240)}</div>
@@ -1418,6 +1465,32 @@
           </div>
         </div>
         ${realismWarning ? `<div class="footer"><strong>Current realism warning:</strong> ${truncateText(realismWarning, 220)}</div>` : ""}
+      `;
+
+      document.getElementById("projectCreationCost").innerHTML = `
+        <div class="verification-heading">${costSection.title || "Cost Posture"}</div>
+        ${costSection.purpose ? `<div class="footer">${costSection.purpose}</div>` : ""}
+        <div class="mini-pills">
+          <span class="mini-pill ${cost.cost_realism_band || ""}">${humanizeToken(cost.cost_realism_band || "too_early_for_exact_cost")}</span>
+          <span class="mini-pill ${cost.likely_cost_risk_level || ""}">${humanizeToken(cost.likely_cost_risk_level || "moderate")} risk</span>
+          <span class="mini-pill ${cost.kill_pause_reframe_signal || ""}">${humanizeToken(cost.kill_pause_reframe_signal || "proceed_with_caution")}</span>
+        </div>
+        <div class="intake-copy">${cost.why_this_posture || "No cost viability posture is available yet."}</div>
+        <div class="intake-list">
+          <div class="intake-item">
+            <div class="intake-item-label">Target product tier</div>
+            <div>${humanizeToken(cost.target_product_tier || expectations.target_product_tier || "unknown")}</div>
+          </div>
+          <div class="intake-item">
+            <div class="intake-item-label">Acceptable cost posture</div>
+            <div>${humanizeToken(cost.acceptable_cost_posture || expectations.acceptable_cost_posture || "unknown")}</div>
+          </div>
+          <div class="intake-item">
+            <div class="intake-item-label">Current evidence strength</div>
+            <div>${humanizeToken(cost.current_evidence_strength || "thin")}</div>
+          </div>
+        </div>
+        ${cost.operator_cost_warning ? `<div class="footer"><strong>Operator warning:</strong> ${truncateText(cost.operator_cost_warning, 220)}</div>` : ""}
       `;
     }
 
@@ -1680,6 +1753,7 @@
       const milestones = milestonesState.milestones || [];
       const realism = status.product_realism_review || {};
       const resume = status.execution_resume || {};
+      const cost = status.cost_viability_review || {};
       const verification = status.verification_summary || {};
       const reviewable = milestones.filter(row => row.approval_state === "ready_for_review");
       const topBlockers = collectSteeringBlockers(milestones, realism);
@@ -1708,10 +1782,13 @@
         <div class="mini-pills">
           <span class="mini-pill ${realism.current_realism_band || ""}">${humanizeToken(realism.current_realism_band || "concept_only")}</span>
           <span class="mini-pill ${posturePill}">${humanizeToken(posturePill)}</span>
+          ${cost.cost_realism_band ? `<span class="mini-pill ${cost.cost_realism_band}">${humanizeToken(cost.cost_realism_band)}</span>` : ``}
+          ${cost.kill_pause_reframe_signal ? `<span class="mini-pill ${cost.kill_pause_reframe_signal}">${humanizeToken(cost.kill_pause_reframe_signal)}</span>` : ``}
           ${realism.quality_bar_alignment?.status ? `<span class="mini-pill ${realism.quality_bar_alignment.status}">${humanizeToken(realism.quality_bar_alignment.status)}</span>` : ""}
         </div>
         <div class="steering-copy">${realism.why_this_band || "No realism review is available yet."}</div>
         ${topRisk ? `<div class="footer"><strong>Top anti-gimmick risk:</strong> ${truncateText(topRisk, 220)}</div>` : ""}
+        ${cost.operator_cost_warning ? `<div class="footer"><strong>Cost warning:</strong> ${truncateText(cost.operator_cost_warning, 220)}</div>` : ""}
         ${(realism.anti_gimmick_strengths || []).length ? `<div class="footer"><strong>Grounded counterweight:</strong> ${truncateText(realism.anti_gimmick_strengths[0], 220)}</div>` : ""}
       `;
 

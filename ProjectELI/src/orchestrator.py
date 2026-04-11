@@ -175,6 +175,25 @@ PRODUCT_REALISM_BANDS = (
     'real_product_path_not_yet_proven',
     'real_product_path_credible',
 )
+COST_REALISM_BANDS = (
+    'too_early_for_exact_cost',
+    'prototype_only_cost_path',
+    'commercial_path_unclear',
+    'product_tier_mismatch_risk',
+    'commercial_path_cautiously_plausible',
+)
+COST_RISK_LEVELS = (
+    'low',
+    'moderate',
+    'high',
+    'very_high',
+)
+COST_KILL_PAUSE_REFRAME_SIGNALS = (
+    'proceed',
+    'proceed_with_caution',
+    'reframe_needed',
+    'stop_if_cost_target_matters',
+)
 COMPONENT_PACKAGE_READINESS_BANDS = (
     'not_warranted',
     'early_subsystem_bom_only',
@@ -615,6 +634,7 @@ PROJECT_EXPECTATIONS_PATH = PROJECT_STATE_DIR / "project_expectations.json"
 PROJECT_MILESTONES_PATH = PROJECT_STATE_DIR / "project_milestones.json"
 PRODUCT_REALISM_REVIEW_PATH = PROJECT_STATE_DIR / "product_realism_review.json"
 COMPONENT_PACKAGE_REVIEW_PATH = PROJECT_STATE_DIR / "component_package_review.json"
+COST_VIABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "cost_viability_review.json"
 EXTENSIONS_CAPABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "extensions_capability_review.json"
 HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH = PROJECT_STATE_DIR / "hardware_aware_rendering_brief_review.json"
 UI_SURFACE_PLAN_PATH = PROJECT_STATE_DIR / "ui_surface_plan.json"
@@ -955,6 +975,13 @@ DEFAULT_COGNITION_SCHEMA = {
                 'interface_map',
                 'subsystem_breakdown',
             ],
+        },
+        'cost_viability_review': {
+            'enabled': True,
+            'include_in_execution_resume': True,
+            'max_risk_factors': 5,
+            'max_unknowns': 5,
+            'max_improvements': 5,
         },
         'extensions_capability_review': {
             'enabled': True,
@@ -1316,6 +1343,12 @@ control:
       - schematic_direction
       - interface_map
       - subsystem_breakdown
+  cost_viability_review:
+    enabled: true
+    include_in_execution_resume: true
+    max_risk_factors: 5
+    max_unknowns: 5
+    max_improvements: 5
   extensions_capability_review:
     enabled: true
     max_available: 6
@@ -7364,6 +7397,19 @@ def component_package_review_config(schema=None):
     }
 
 
+def cost_viability_review_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('cost_viability_review', {}) if isinstance(control.get('cost_viability_review', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'include_in_execution_resume': bool(cfg.get('include_in_execution_resume', True)),
+        'max_risk_factors': max(1, safe_int(cfg.get('max_risk_factors', 5), 5)),
+        'max_unknowns': max(1, safe_int(cfg.get('max_unknowns', 5), 5)),
+        'max_improvements': max(1, safe_int(cfg.get('max_improvements', 5), 5)),
+    }
+
+
 def extensions_capability_review_config(schema=None):
     schema = schema or load_cognition_schema()
     control = schema.get('control', {}) if isinstance(schema, dict) else {}
@@ -7423,6 +7469,7 @@ def default_execution_resume_state():
         'project_intent': {},
         'product_realism': {},
         'component_package': {},
+        'cost_viability': {},
         'current_truth_summary': [],
         'active_review_front': [],
         'held_lanes': [],
@@ -7456,6 +7503,8 @@ def load_execution_resume_state():
         data['product_realism'] = {}
     if not isinstance(data.get('component_package'), dict):
         data['component_package'] = {}
+    if not isinstance(data.get('cost_viability'), dict):
+        data['cost_viability'] = {}
     if not isinstance(data.get('source_generated_at'), dict):
         data['source_generated_at'] = {}
     if not isinstance(data.get('counts'), dict):
@@ -7479,6 +7528,9 @@ def default_project_expectations_state():
         'target_outcome_type': 'functional_prototype',
         'quality_bar': 'credible',
         'intended_seriousness': 'exploratory',
+        'intended_value_posture': 'assistive_prototype_learning',
+        'target_product_tier': 'discreet_consumer_assistive_wearable',
+        'acceptable_cost_posture': 'prototype_only_until_costs_grounded',
         'acceptable_compromises': [
             'bounded prototype shortcuts are acceptable if they do not hide trust, privacy, or latency weaknesses',
             'prefer simpler honest behavior over polished but weakly grounded feature scope',
@@ -7511,6 +7563,9 @@ def load_project_expectations_state():
         'target_outcome_type',
         'quality_bar',
         'intended_seriousness',
+        'intended_value_posture',
+        'target_product_tier',
+        'acceptable_cost_posture',
         'product_candidate_goal',
         'review_style',
         'economic_or_practical_goal',
@@ -7541,9 +7596,12 @@ def project_expectations_summary(expectations=None):
     outcome = str(expectations.get('target_outcome_type', 'functional_prototype') or 'functional_prototype')
     quality_bar = str(expectations.get('quality_bar', 'credible') or 'credible')
     seriousness = str(expectations.get('intended_seriousness', 'exploratory') or 'exploratory')
+    target_tier = str(expectations.get('target_product_tier', 'unknown') or 'unknown')
+    cost_posture = str(expectations.get('acceptable_cost_posture', 'unknown') or 'unknown')
     reviewed = 'operator-reviewed' if expectations.get('reviewed_by_operator') else 'default-tentative'
     return compact_text_excerpt(
         f"Treat this project as `{outcome}` with a `{quality_bar}` quality bar and `{seriousness}` seriousness. "
+        f"Target tier is `{target_tier}` and acceptable cost posture is `{cost_posture}`. "
         f"Expectation posture is `{reviewed}`.",
         220,
     )
@@ -7556,6 +7614,9 @@ def render_project_expectations_context(expectations=None):
     lines.append(f"- target_outcome_type: `{expectations.get('target_outcome_type', 'functional_prototype')}`")
     lines.append(f"- quality_bar: `{expectations.get('quality_bar', 'credible')}`")
     lines.append(f"- intended_seriousness: `{expectations.get('intended_seriousness', 'exploratory')}`")
+    lines.append(f"- intended_value_posture: `{expectations.get('intended_value_posture', 'assistive_prototype_learning')}`")
+    lines.append(f"- target_product_tier: `{expectations.get('target_product_tier', 'discreet_consumer_assistive_wearable')}`")
+    lines.append(f"- acceptable_cost_posture: `{expectations.get('acceptable_cost_posture', 'prototype_only_until_costs_grounded')}`")
     lines.append(f"- review_style: `{expectations.get('review_style', 'truth_preserving_build_oriented')}`")
     lines.append(f"- reviewed_by_operator: `{bool(expectations.get('reviewed_by_operator', False))}`")
     lines.append(f"- defaults_are_tentative: `{bool(expectations.get('defaults_are_tentative', True))}`")
@@ -8305,6 +8366,357 @@ def render_product_realism_review_context(realism_state=None):
     missing = realism_state.get('missing_for_product_candidate', []) if isinstance(realism_state.get('missing_for_product_candidate', []), list) else []
     if missing:
         lines.append(f"- missing_for_product_candidate: {'; '.join(str(item) for item in missing[:3])}")
+    return '\n'.join(lines) + '\n'
+
+
+def default_cost_viability_review_state():
+    return {
+        'generated_at': '',
+        'cost_realism_bands': list(COST_REALISM_BANDS),
+        'cost_risk_levels': list(COST_RISK_LEVELS),
+        'kill_pause_reframe_signals': list(COST_KILL_PAUSE_REFRAME_SIGNALS),
+        'cost_realism_band': 'too_early_for_exact_cost',
+        'intended_value_posture': '',
+        'target_product_tier': '',
+        'acceptable_cost_posture': '',
+        'likely_cost_risk_level': 'moderate',
+        'economic_viability_posture': 'unknown',
+        'why_this_posture': '',
+        'major_cost_risk_factors': [],
+        'cost_unknowns': [],
+        'what_would_improve_cost_confidence': [],
+        'current_evidence_strength': 'thin',
+        'prototype_only_vs_product_viable_view': '',
+        'kill_pause_reframe_signal': 'proceed_with_caution',
+        'operator_cost_warning': '',
+        'trust_posture': {},
+        'source_authority': {},
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_cost_viability_review_state():
+    data = load_json_file(COST_VIABILITY_REVIEW_PATH, default_cost_viability_review_state())
+    if not isinstance(data, dict):
+        data = default_cost_viability_review_state()
+    for key in (
+        'major_cost_risk_factors',
+        'cost_unknowns',
+        'what_would_improve_cost_confidence',
+    ):
+        if not isinstance(data.get(key), list):
+            data[key] = []
+    for key in ('trust_posture', 'source_authority', 'source_generated_at'):
+        if not isinstance(data.get(key), dict):
+            data[key] = {}
+    for key in (
+        'cost_realism_band',
+        'intended_value_posture',
+        'target_product_tier',
+        'acceptable_cost_posture',
+        'likely_cost_risk_level',
+        'economic_viability_posture',
+        'why_this_posture',
+        'current_evidence_strength',
+        'prototype_only_vs_product_viable_view',
+        'kill_pause_reframe_signal',
+        'operator_cost_warning',
+    ):
+        if not isinstance(data.get(key), str):
+            data[key] = str(default_cost_viability_review_state().get(key, ''))
+    if not isinstance(data.get('cost_realism_bands'), list):
+        data['cost_realism_bands'] = list(COST_REALISM_BANDS)
+    if not isinstance(data.get('cost_risk_levels'), list):
+        data['cost_risk_levels'] = list(COST_RISK_LEVELS)
+    if not isinstance(data.get('kill_pause_reframe_signals'), list):
+        data['kill_pause_reframe_signals'] = list(COST_KILL_PAUSE_REFRAME_SIGNALS)
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_cost_viability_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_cost_viability_review_state()
+    payload['updated_at'] = now_iso()
+    COST_VIABILITY_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def build_cost_viability_review_state(schema=None, review_snapshot=None, product_realism_state=None, component_package_state=None):
+    schema = schema or load_cognition_schema()
+    cfg = cost_viability_review_config(schema)
+    if not cfg.get('enabled', True):
+        return default_cost_viability_review_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    expectations = load_project_expectations_state()
+    product_realism_state = product_realism_state if isinstance(product_realism_state, dict) else build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
+    component_package_state = component_package_state if isinstance(component_package_state, dict) else build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
+    reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
+    scorecard_state = load_scorecard_state()
+
+    exec_cfg = execution_resume_config(schema)
+    scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
+    scorecard_dimensions = scorecard_state.get('dimensions', []) if scorecard_use == 'current_truth' and isinstance(scorecard_state.get('dimensions', []), list) else []
+    scorecard_lookup = {
+        normalize_signal_key(row.get('id', row.get('label', ''))): row
+        for row in scorecard_dimensions
+        if isinstance(row, dict)
+    }
+
+    target_outcome = str(expectations.get('target_outcome_type', 'functional_prototype') or 'functional_prototype')
+    seriousness = str(expectations.get('intended_seriousness', 'exploratory') or 'exploratory')
+    quality_bar = str(expectations.get('quality_bar', 'credible') or 'credible')
+    intended_value_posture = str(expectations.get('intended_value_posture', 'assistive_prototype_learning') or 'assistive_prototype_learning')
+    target_product_tier = str(expectations.get('target_product_tier', 'discreet_consumer_assistive_wearable') or 'discreet_consumer_assistive_wearable')
+    acceptable_cost_posture = str(expectations.get('acceptable_cost_posture', 'prototype_only_until_costs_grounded') or 'prototype_only_until_costs_grounded')
+
+    component_band = str(component_package_state.get('bom_readiness_band', 'not_warranted') or 'not_warranted')
+    realism_band = str(product_realism_state.get('current_realism_band', 'concept_only') or 'concept_only')
+    gimmick_risks = product_realism_state.get('gimmick_risks', []) if isinstance(product_realism_state.get('gimmick_risks', []), list) else []
+    realism_improvements = product_realism_state.get('what_would_materially_improve_realism', []) if isinstance(product_realism_state.get('what_would_materially_improve_realism', []), list) else []
+
+    def row_for(key):
+        return scorecard_lookup.get(normalize_signal_key(key), {})
+
+    hardware_row = row_for('hardware_stack')
+    wireless_row = row_for('wireless_interface')
+    firmware_row = row_for('firmware')
+    memory_row = row_for('memory_system')
+    trust_row = row_for('privacy_trust')
+    subtitle_row = row_for('subtitle_system')
+
+    def status_of(row):
+        return normalize_scorecard_status(row.get('status', 'unknown'))
+
+    def grounding_of(row):
+        return normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown'))
+
+    discreet_tier = any(token in target_product_tier for token in ('discreet', 'consumer', 'wearable'))
+    prototype_only_posture = target_outcome in ('concept_exploration', 'demo_prototype', 'functional_prototype')
+    packaging_pressure = component_band in ('early_subsystem_bom_only', 'prototype_component_package')
+    wireless_gap = status_of(wireless_row) in ('needs_attention', 'blocked') or grounding_of(wireless_row) == 'limited_evidence'
+    firmware_gap = status_of(firmware_row) in ('needs_attention', 'blocked') or grounding_of(firmware_row) == 'limited_evidence'
+    memory_gap = status_of(memory_row) in ('needs_attention', 'blocked') or grounding_of(memory_row) in ('weakly_grounded', 'limited_evidence')
+    trust_cost_pressure = bool(trust_row) and status_of(trust_row) in ('needs_attention', 'blocked', 'on_track')
+    subtitle_pressure = bool(subtitle_row) and status_of(subtitle_row) == 'on_track'
+    exact_cost_unavailable = component_band == 'not_warranted' or component_package_state.get('component_package_kind', '') in ('', 'subsystem_bom')
+
+    risk_score = 0
+    if discreet_tier:
+        risk_score += 2
+    if packaging_pressure:
+        risk_score += 2
+    if wireless_gap:
+        risk_score += 2
+    if firmware_gap:
+        risk_score += 2
+    if memory_gap:
+        risk_score += 1
+    if trust_cost_pressure:
+        risk_score += 1
+    if subtitle_pressure and discreet_tier:
+        risk_score += 1
+    if realism_band in ('functional_prototype_path', 'serious_prototype_path'):
+        risk_score += 1
+    if quality_bar in ('serious', 'product_grade') or seriousness == 'commercial_intent':
+        risk_score += 1
+
+    if risk_score >= 8:
+        likely_cost_risk_level = 'very_high'
+    elif risk_score >= 6:
+        likely_cost_risk_level = 'high'
+    elif risk_score >= 3:
+        likely_cost_risk_level = 'moderate'
+    else:
+        likely_cost_risk_level = 'low'
+
+    if scorecard_use != 'current_truth':
+        current_evidence_strength = 'thin'
+    elif packaging_pressure or hardware_row:
+        current_evidence_strength = 'bounded_directional'
+    else:
+        current_evidence_strength = 'early_directional'
+
+    if discreet_tier and likely_cost_risk_level in ('high', 'very_high'):
+        cost_realism_band = 'product_tier_mismatch_risk'
+        economic_viability_posture = 'target_tier_mismatch'
+    elif prototype_only_posture and likely_cost_risk_level in ('moderate', 'high', 'very_high'):
+        cost_realism_band = 'prototype_only_cost_path'
+        economic_viability_posture = 'prototype_only'
+    elif exact_cost_unavailable:
+        cost_realism_band = 'too_early_for_exact_cost'
+        economic_viability_posture = 'unknown'
+    elif likely_cost_risk_level in ('moderate', 'high'):
+        cost_realism_band = 'commercial_path_unclear'
+        economic_viability_posture = 'commercially_weak'
+    else:
+        cost_realism_band = 'commercial_path_cautiously_plausible'
+        economic_viability_posture = 'cautiously_plausible'
+
+    if cost_realism_band == 'product_tier_mismatch_risk':
+        kill_pause_reframe_signal = 'stop_if_cost_target_matters'
+    elif economic_viability_posture in ('commercially_weak', 'target_tier_mismatch'):
+        kill_pause_reframe_signal = 'reframe_needed'
+    elif likely_cost_risk_level in ('moderate', 'high', 'very_high'):
+        kill_pause_reframe_signal = 'proceed_with_caution'
+    else:
+        kill_pause_reframe_signal = 'proceed'
+
+    major_cost_risk_factors = []
+    if discreet_tier:
+        major_cost_risk_factors.append(
+            'A discreet consumer-wearable posture pushes miniaturization, packaging, and industrial-design pressure before cost credibility is proven.'
+        )
+    if packaging_pressure:
+        major_cost_risk_factors.append(
+            'Current component posture is only subsystem-BOM-level, which is enough to see packaging pressure but not enough to support a consumer-tier cost story.'
+        )
+    if wireless_gap:
+        major_cost_risk_factors.append(
+            compact_text_excerpt(
+                f"Wireless posture is still `{status_of(wireless_row)}` / `{grounding_of(wireless_row)}`, so radio, battery, and reconnect behavior still carry economic risk.",
+                220,
+            )
+        )
+    if firmware_gap:
+        major_cost_risk_factors.append(
+            compact_text_excerpt(
+                f"Firmware posture is still `{status_of(firmware_row)}` / `{grounding_of(firmware_row)}`, so touch-input and display-control simplicity may cost more than the prototype framing suggests.",
+                220,
+            )
+        )
+    if trust_cost_pressure:
+        major_cost_risk_factors.append(
+            'Trust, privacy, and capture-visible behavior may force more expensive implementation choices than a pure prototype sketch would imply.'
+        )
+    if memory_gap:
+        major_cost_risk_factors.append(
+            'Unresolved memory or trust-boundary behavior can quietly expand compute, retention, and implementation complexity costs.'
+        )
+
+    cost_unknowns = []
+    if exact_cost_unavailable:
+        cost_unknowns.append('No final BOM, grounded component shortlist, or procurement-grade package exists yet, so exact cost would be fake precision.')
+    if discreet_tier:
+        cost_unknowns.append('Battery, thermal, and weight tradeoffs inside a discreet frame are not grounded enough yet to support a credible end-cost posture.')
+    if not hardware_row:
+        cost_unknowns.append(scorecard_reason)
+    else:
+        cost_unknowns.append('Phone-first boundary, radio dependency, and display architecture are still too open to treat final system cost as knowable.')
+    cost_unknowns.append('Current implementation-package posture is reviewable, but it is still far below a final build package or product-grade cost basis.')
+
+    what_would_improve_cost_confidence = []
+    what_would_improve_cost_confidence.append('Decide explicitly whether the target is prototype learning or a cost-sensitive consumer product tier.')
+    what_would_improve_cost_confidence.extend(realism_improvements[:2])
+    what_would_improve_cost_confidence.extend((component_package_state.get('missing_for_stronger_bom', []) if isinstance(component_package_state.get('missing_for_stronger_bom', []), list) else [])[:2])
+    if discreet_tier:
+        what_would_improve_cost_confidence.append('Show how discreetness, battery location, and thermal bulk can coexist without consumer-tier cost assumptions collapsing.')
+
+    prototype_only_vs_product_viable_view = compact_text_excerpt(
+        'Current evidence can justify a serious prototype-learning path, but it does not yet justify assuming the same architecture survives real product economics.',
+        240,
+    )
+    if kill_pause_reframe_signal == 'stop_if_cost_target_matters':
+        prototype_only_vs_product_viable_view = compact_text_excerpt(
+            'As a prototype-learning path this can still be worthwhile, but for a discreet consumer product target the current direction is economically weak enough that it should be stopped or reframed unless cost posture improves.',
+            260,
+        )
+
+    why_parts = []
+    if scorecard_use != 'current_truth':
+        why_parts.append(scorecard_reason)
+    if cost_realism_band == 'product_tier_mismatch_risk':
+        why_parts.append('Current hardware, packaging, and subsystem pressure already look mismatched to a discreet consumer-tier wearable cost story.')
+    elif cost_realism_band == 'prototype_only_cost_path':
+        why_parts.append('The project can still make sense as a prototype path, but current evidence does not justify assuming commercial economics will work.')
+    elif cost_realism_band == 'commercial_path_unclear':
+        why_parts.append('Exact cost is still uncertain, and the present subsystem mix is risky enough that commercial sense should not be assumed.')
+    else:
+        why_parts.append('Cost posture is still early and should be treated directionally rather than numerically.')
+    if wireless_gap or firmware_gap:
+        why_parts.append('Wireless and firmware gaps still add likely hidden cost pressure.')
+    if prototype_only_posture:
+        why_parts.append(f"Declared intent remains `{target_outcome}` / `{seriousness}`, so prototype value and product viability should not be conflated.")
+
+    operator_cost_warning = compact_text_excerpt(
+        'Do not assume this becomes a real product just because the prototype direction is interesting. Current cost posture is weak enough that commercial ambition should pause, stop, or reframe unless cost-sensitive assumptions improve.',
+        260,
+    )
+    if kill_pause_reframe_signal == 'proceed':
+        operator_cost_warning = compact_text_excerpt(
+            'Current cost posture is not yet a reason to stop, but it still should not be narrated with fake BOM precision.',
+            220,
+        )
+    elif kill_pause_reframe_signal == 'proceed_with_caution':
+        operator_cost_warning = compact_text_excerpt(
+            'Treat current cost posture as directional caution, not permission to assume product economics work out later.',
+            220,
+        )
+
+    return {
+        'generated_at': now_iso(),
+        'cost_realism_bands': list(COST_REALISM_BANDS),
+        'cost_risk_levels': list(COST_RISK_LEVELS),
+        'kill_pause_reframe_signals': list(COST_KILL_PAUSE_REFRAME_SIGNALS),
+        'cost_realism_band': cost_realism_band,
+        'intended_value_posture': intended_value_posture,
+        'target_product_tier': target_product_tier,
+        'acceptable_cost_posture': acceptable_cost_posture,
+        'likely_cost_risk_level': likely_cost_risk_level,
+        'economic_viability_posture': economic_viability_posture,
+        'why_this_posture': compact_text_excerpt(' '.join(item for item in why_parts if item), 340),
+        'major_cost_risk_factors': list(dict.fromkeys(item for item in major_cost_risk_factors if item))[:cfg.get('max_risk_factors', 5)],
+        'cost_unknowns': list(dict.fromkeys(item for item in cost_unknowns if item))[:cfg.get('max_unknowns', 5)],
+        'what_would_improve_cost_confidence': list(dict.fromkeys(item for item in what_would_improve_cost_confidence if item))[:cfg.get('max_improvements', 5)],
+        'current_evidence_strength': current_evidence_strength,
+        'prototype_only_vs_product_viable_view': prototype_only_vs_product_viable_view,
+        'kill_pause_reframe_signal': kill_pause_reframe_signal,
+        'operator_cost_warning': operator_cost_warning,
+        'trust_posture': {
+            'surface_role': 'current_truth_review_surface',
+            'use_state': 'current_truth',
+            'authority_scope': 'cost viability and economic posture judgment',
+            'trust_reason': compact_text_excerpt(
+                'Use this surface to judge whether the current project direction still makes economic sense as more than a prototype path. It is directional and conservative, not a fake BOM calculator.',
+                240,
+            ),
+        },
+        'source_authority': {
+            'expectation_truth': 'project_expectations',
+            'subsystem_truth': 'project_scorecard',
+            'realism_truth': 'product_realism_review',
+            'component_posture_truth': 'component_package_review',
+        },
+        'source_generated_at': {
+            'project_expectations': state_surface_generated_at(expectations),
+            'project_scorecard': state_surface_generated_at(scorecard_state),
+            'product_realism_review': state_surface_generated_at(product_realism_state),
+            'component_package_review': state_surface_generated_at(component_package_state),
+            'reflect_state': state_surface_generated_at(reflect_state),
+        },
+        'revisable': True,
+    }
+
+
+def render_cost_viability_review_context(cost_state=None):
+    cost_state = cost_state if isinstance(cost_state, dict) else load_cost_viability_review_state()
+    lines = ['# Cost Viability Review']
+    lines.append(f"- cost_realism_band: `{cost_state.get('cost_realism_band', 'too_early_for_exact_cost')}`")
+    lines.append(f"- likely_cost_risk_level: `{cost_state.get('likely_cost_risk_level', 'moderate')}`")
+    lines.append(f"- economic_viability_posture: `{cost_state.get('economic_viability_posture', 'unknown')}`")
+    lines.append(f"- kill_pause_reframe_signal: `{cost_state.get('kill_pause_reframe_signal', 'proceed_with_caution')}`")
+    if cost_state.get('why_this_posture'):
+        lines.append(f"- why_this_posture: {cost_state.get('why_this_posture', '')}")
+    if cost_state.get('operator_cost_warning'):
+        lines.append(f"- operator_cost_warning: {cost_state.get('operator_cost_warning', '')}")
+    risk_factors = cost_state.get('major_cost_risk_factors', []) if isinstance(cost_state.get('major_cost_risk_factors', []), list) else []
+    if risk_factors:
+        lines.append(f"- major_cost_risk_factors: {'; '.join(str(item) for item in risk_factors[:3])}")
+    unknowns = cost_state.get('cost_unknowns', []) if isinstance(cost_state.get('cost_unknowns', []), list) else []
+    if unknowns:
+        lines.append(f"- cost_unknowns: {'; '.join(str(item) for item in unknowns[:3])}")
     return '\n'.join(lines) + '\n'
 
 
@@ -9581,7 +9993,7 @@ def ui_page_priority_rank(priority):
     return order.get(str(priority or '').strip(), 4)
 
 
-def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None):
+def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None):
     schema = schema or load_cognition_schema()
     cfg = ui_surface_plan_config(schema)
     if not cfg.get('enabled', True):
@@ -9599,6 +10011,12 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
     realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
     component_state = load_component_package_review_state()
+    cost_state = cost_state if isinstance(cost_state, dict) else build_cost_viability_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        product_realism_state=realism_state,
+        component_package_state=component_state,
+    )
     extensions_state = build_extensions_capability_review_state(
         schema=schema,
         review_snapshot=review_snapshot,
@@ -9635,6 +10053,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     needs_human_review = resume_state.get('needs_human_review', []) if isinstance(resume_state.get('needs_human_review', []), list) else []
     blocked_lanes = resume_state.get('blocked_lanes', []) if isinstance(resume_state.get('blocked_lanes', []), list) else []
     held_lanes = resume_state.get('held_lanes', []) if isinstance(resume_state.get('held_lanes', []), list) else []
+    cost_signal = str(cost_state.get('kill_pause_reframe_signal', 'proceed_with_caution') or 'proceed_with_caution')
     available_extensions = extensions_state.get('available_capabilities', []) if isinstance(extensions_state.get('available_capabilities', []), list) else []
     recommended_extensions = extensions_state.get('project_recommended_extensions', []) if isinstance(extensions_state.get('project_recommended_extensions', []), list) else []
     missing_extensions = extensions_state.get('missing_but_useful_capabilities', []) if isinstance(extensions_state.get('missing_but_useful_capabilities', []), list) else []
@@ -9721,7 +10140,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'status': 'tentative',
             'priority': 'primary',
             'why_this_page_exists': 'Project expectations remain default-tentative and have not yet been explicitly operator-reviewed.',
-            'driven_by_sources': ['project_expectations'],
+            'driven_by_sources': ['project_expectations', 'cost_viability_review'],
             'sections': [
                 make_section(
                     'intent_and_quality_bar',
@@ -9739,11 +10158,20 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
                     'Product posture is still prototype-oriented or operator intent is not yet locked.',
                     'Hide when stronger intent and realism already make these guardrails internalized rather than intake-level.',
                 ),
+                make_section(
+                    'cost_posture',
+                    'Cost Posture',
+                    'Make intended value posture, target product tier, acceptable cost posture, and early economic mismatch visible before stronger product ambition hardens.',
+                    ['project_expectations', 'cost_viability_review'],
+                    'Cost posture is still tentative, risky, or mismatched enough to shape early project definition.',
+                    'Hide when cost posture is stable enough that intake-level cost realism would only duplicate steering.',
+                ),
             ],
             'show_when': 'Expectations are still tentative or not operator-reviewed.',
             'hide_when': 'Hide when the intent surface has been explicitly confirmed and no longer needs intake-level visibility.',
             'representation_risks': [
                 'Do not present conservative defaults as if they were confirmed operator intent.',
+                'Do not let an exploratory prototype posture quietly masquerade as an economically sensible product direction.',
             ],
             'operator_actions_supported': [
                 'confirm or tighten intent',
@@ -9757,6 +10185,12 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'emerge_when': 'Operator expectations are still tentative or not yet reviewed.',
             'withhold_when': 'Intent is stable enough that creation-time intake would only duplicate steering.',
         })
+        section_emergence_rules.append({
+            'page_id': 'project_creation',
+            'section_id': 'cost_posture',
+            'emerge_when': 'Cost posture is still directionally important enough to shape whether the project should stay prototype-only, reframe, or stop.',
+            'withhold_when': 'Economic posture is stable enough that intake-time cost visibility would only duplicate overview steering.',
+        })
 
     append_page({
         'page_id': 'project_overview',
@@ -9765,7 +10199,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         'status': 'active',
         'priority': 'primary',
         'why_this_page_exists': 'Every project needs one compact surface for current truth, blockers, realism posture, and what should not be over-read.',
-        'driven_by_sources': ['execution_resume', 'product_realism_review', 'project_expectations', 'verification_summary'],
+        'driven_by_sources': ['execution_resume', 'product_realism_review', 'project_expectations', 'cost_viability_review', 'verification_summary'],
         'sections': [
             make_section(
                 'current_truth_summary',
@@ -9791,11 +10225,20 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
                 'More than one truth-bearing surface exists or authority needs explanation.',
                 'Hide only if there is no meaningful current-vs-supporting distinction to explain.',
             ),
+            make_section(
+                'cost_viability',
+                'Cost Viability',
+                'Show whether the project still makes economic sense beyond a prototype path, including any pause, stop, or reframe signal.',
+                ['cost_viability_review', 'project_expectations', 'product_realism_review'],
+                'Cost posture is materially shaping whether stronger product ambition still makes sense.',
+                'Hide only if no cost viability judgment exists yet.',
+            ),
         ],
         'show_when': 'Always show once the project has enough structure for steering and trust posture.',
         'hide_when': 'Do not hide while the project is active.',
         'representation_risks': [
             'Do not flatten current truth and supporting context into one neat progress story.',
+            'Do not let prototype progress visually imply that the economics are becoming sensible by default.',
         ],
         'operator_actions_supported': [
             'inspect current truth',
@@ -10117,6 +10560,8 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     if component_band != 'not_warranted':
         push_risk('Build-oriented pages must not imply that early component-package readiness is already a settled BOM or implementation commitment.')
         push_goal('Inspect whether build-oriented realization surfaces are warranted now, without forcing premature component concreteness.')
+    if cost_signal in ('reframe_needed', 'stop_if_cost_target_matters'):
+        push_risk('Technically interesting prototype progress must not hide the possibility that the project is already economically weak for its implied target tier.')
     if rendering_briefs:
         push_risk('Hardware-aware rendering briefs are exploratory supporting context only; they must not be read as current-truth design acceptance.')
         push_goal('Use hardware-aware rendering briefs for bounded packaging and comparison review without over-reading them as final design.')
@@ -10126,6 +10571,8 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     if review_front_meaningful:
         push_goal('Inspect what is reviewable now without treating provisional drafts, options, or ready-for-review milestones as already approved.')
     push_goal('Use verification surfaces to check which source currently owns the truth when views differ in emphasis or freshness.')
+    if cost_signal in ('reframe_needed', 'stop_if_cost_target_matters'):
+        push_goal('See early whether the project still makes economic sense or should be reframed before more effort is spent.')
     if blocked_lanes or held_lanes:
         push_risk('Held, blocked, and review-oriented lanes must remain visually distinct so waiting is not misread as progress.')
     if extensions_meaningful:
@@ -10159,6 +10606,13 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         'current_truth',
         'Constrains product-language and anti-gimmick posture using grounded realism judgment.',
         state_surface_generated_at(realism_state),
+    )
+    push_source(
+        'cost_viability_review',
+        'economic_viability',
+        'current_truth',
+        cost_state.get('why_this_posture', ''),
+        state_surface_generated_at(cost_state),
     )
     push_source(
         'project_scorecard',
@@ -10279,6 +10733,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'execution_resume': state_surface_generated_at(resume_state),
             'project_milestones': state_surface_generated_at(milestone_state),
             'product_realism_review': state_surface_generated_at(realism_state),
+            'cost_viability_review': state_surface_generated_at(cost_state),
             'component_package_review': state_surface_generated_at(component_state),
             'extensions_capability_review': state_surface_generated_at(extensions_state),
             'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
@@ -10414,7 +10869,7 @@ def build_verification_transition_rows(v1_review_state, artifact_review_state, l
     return rows[:max(1, limit)]
 
 
-def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None):
+def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None):
     schema = schema or load_cognition_schema()
     review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
     resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
@@ -10426,6 +10881,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
     emission_state = load_artifact_emission_readiness_state()
     draft_state = load_draft_artifact_review_state()
     rendering_state = rendering_state if isinstance(rendering_state, dict) else load_hardware_aware_rendering_brief_review_state()
+    cost_state = cost_state if isinstance(cost_state, dict) else build_cost_viability_review_state(schema=schema, review_snapshot=review_snapshot)
 
     exec_cfg = execution_resume_config(schema)
     scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
@@ -10440,6 +10896,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
     draft_rows = draft_state.get('emitted_drafts', []) if isinstance(draft_state.get('emitted_drafts', []), list) else []
     emission_rows = emission_state.get('artifact_emission_readiness', []) if isinstance(emission_state.get('artifact_emission_readiness', []), list) else []
     rendering_briefs = rendering_state.get('rendering_briefs', []) if isinstance(rendering_state.get('rendering_briefs', []), list) else []
+    cost_warning = str(cost_state.get('operator_cost_warning', '') or '').strip()
     scorecard_dimensions = scorecard_state.get('dimensions', []) if isinstance(scorecard_state.get('dimensions', []), list) else []
 
     current_truth_sources = []
@@ -10560,6 +11017,19 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             sample_titles=[row.get('title', '') for row in rendering_briefs[:3]],
         ))
 
+    current_truth_sources.append(build_verification_source_entry(
+        'Cost viability and economic posture',
+        'cost_viability_review',
+        cost_state.get('trust_posture', {}).get('use_state', 'current_truth'),
+        cost_state.get('trust_posture', {}).get('trust_reason', cost_state.get('why_this_posture', '')),
+        state_surface_generated_at(cost_state),
+        supporting_surfaces=['project_expectations', 'project_scorecard', 'product_realism_review', 'component_package_review'],
+        sample_titles=[
+            cost_state.get('cost_realism_band', ''),
+            cost_state.get('kill_pause_reframe_signal', ''),
+        ],
+    ))
+
     for surface_name, surface in review_surfaces.items():
         if not isinstance(surface, dict):
             continue
@@ -10617,6 +11087,15 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
                 220,
             ),
         })
+    recent_source_wins.append({
+        'question': 'Cost viability and project economics',
+        'winning_surface': 'cost_viability_review',
+        'supporting_surfaces': ['project_expectations', 'project_scorecard', 'product_realism_review', 'component_package_review'],
+        'why': compact_text_excerpt(
+            'This surface owns the current directional judgment about whether the project still makes economic sense as more than a prototype path.',
+            220,
+        ),
+    })
 
     representation_risks.append('Confidence trend is supporting context only; read the current status and grounding endpoints before inferring improvement from repeated markers.')
     representation_risks.append('A flat evolution strip can mean stable, stalled, or simply repeating. Verify with the endpoint labels and held or blocked reasons.')
@@ -10624,6 +11103,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         representation_risks.append('Cautionary or provisional surfaces stay visible for continuity, but they should not override current-truth sources.')
     if rendering_briefs:
         representation_risks.append('Hardware-aware rendering briefs are exploratory visual framing only; do not treat them as accepted design direction or settled implementation truth.')
+    if cost_warning:
+        representation_risks.append('Prototype-feasible and product-viable are not the same thing; read the cost posture before treating build progress as commercial sense.')
 
     operator_checks.append('Use current truth sources to verify which surface currently owns each question before trusting the UI impression.')
     operator_checks.append('Use recent transitions to check what actually changed, rather than reading repeated markers as progress by themselves.')
@@ -10633,6 +11114,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         operator_checks.append('For held lanes, verify the release signals before trying to reopen the lane as active work.')
     if rendering_briefs:
         operator_checks.append('For rendering briefs, verify the current-truth subsystem and build-posture sources before reading a visual comparison as settled design intent.')
+    if cost_warning:
+        operator_checks.append('For product ambition, verify the cost viability signal before assuming a technically interesting prototype makes business sense.')
 
     lane_explanations = {
         'active': [{
@@ -10672,19 +11155,20 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             'artifact_emission_readiness': state_surface_generated_at(emission_state),
             'draft_artifact_review': state_surface_generated_at(draft_state),
             'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
+            'cost_viability_review': state_surface_generated_at(cost_state),
         },
         'summary': summary,
         'subsystem_card_source': subsystem_card_source,
-        'current_truth_sources': current_truth_sources[:5],
+        'current_truth_sources': current_truth_sources[:6],
         'supporting_context_sources': supporting_context_sources[:5],
         'recent_transitions': recent_transitions,
         'lane_explanations': lane_explanations,
-        'recent_source_wins': recent_source_wins[:4],
+        'recent_source_wins': recent_source_wins[:5],
         'surfaces_with_caution': surfaces_with_caution[:5],
         'representation_risks': list(dict.fromkeys(item for item in representation_risks if item))[:4],
         'operator_checks': list(dict.fromkeys(item for item in operator_checks if item))[:4],
         'counts': {
-            'current_truth_sources': len(current_truth_sources[:5]),
+            'current_truth_sources': len(current_truth_sources[:6]),
             'supporting_context_sources': len(supporting_context_sources[:5]),
             'recent_transitions': len(recent_transitions),
             'surfaces_with_caution': len(surfaces_with_caution[:5]),
@@ -10730,6 +11214,12 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
     project_expectations = load_project_expectations_state()
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
     component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
+    cost_viability_state = build_cost_viability_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        product_realism_state=product_realism_state,
+        component_package_state=component_package_state,
+    )
     reflect_payload = reflect_state.get('reflect', {}) if isinstance(reflect_state.get('reflect', {}), dict) else {}
     evidence = reflect_state.get('evidence_analysis', {}) if isinstance(reflect_state.get('evidence_analysis', {}), dict) else {}
     operational_visibility = evidence.get('operational_visibility', {}) if isinstance(evidence.get('operational_visibility', {}), dict) else {}
@@ -10795,6 +11285,12 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
                 220,
             )
         )
+    current_truth_summary.append(
+        compact_text_excerpt(
+            f"Cost posture is `{cost_viability_state.get('cost_realism_band', 'too_early_for_exact_cost')}` with signal `{cost_viability_state.get('kill_pause_reframe_signal', 'proceed_with_caution')}`.",
+            220,
+        )
+    )
 
     if scorecard_dimensions:
         strong = [row.get('label', '') for row in scorecard_dimensions if row.get('status') == 'on_track' and normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'grounded']
@@ -10909,6 +11405,8 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
         resume_notes.append('Artifact-emission readiness is currently quiet; no implementation-artifact candidate is mature enough for draft emission.')
     if artifact_review_use != 'current_truth':
         resume_notes.append(artifact_review_reason)
+    if cost_viability_state.get('kill_pause_reframe_signal') in ('reframe_needed', 'stop_if_cost_target_matters'):
+        resume_notes.append(cost_viability_state.get('operator_cost_warning', 'Cost posture is weak enough that product ambition should be reframed rather than assumed.'))
 
     if needs_human_review:
         next_row = needs_human_review[0]
@@ -10971,6 +11469,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
             'project_scorecard': state_surface_generated_at(scorecard_state),
             'implementation_artifact_review': state_surface_generated_at(artifact_review_state),
             'component_package_review': state_surface_generated_at(component_package_state),
+            'cost_viability_review': state_surface_generated_at(cost_viability_state),
             'v1_decision_review': state_surface_generated_at(v1_payload),
             'artifact_emission_readiness': state_surface_generated_at(emission_payload),
             'draft_artifact_review': state_surface_generated_at(draft_payload),
@@ -10992,6 +11491,9 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
             'target_outcome_type': project_expectations.get('target_outcome_type', 'functional_prototype'),
             'quality_bar': project_expectations.get('quality_bar', 'credible'),
             'intended_seriousness': project_expectations.get('intended_seriousness', 'exploratory'),
+            'intended_value_posture': project_expectations.get('intended_value_posture', 'assistive_prototype_learning'),
+            'target_product_tier': project_expectations.get('target_product_tier', 'discreet_consumer_assistive_wearable'),
+            'acceptable_cost_posture': project_expectations.get('acceptable_cost_posture', 'prototype_only_until_costs_grounded'),
             'reviewed_by_operator': bool(project_expectations.get('reviewed_by_operator', False)),
             'defaults_are_tentative': bool(project_expectations.get('defaults_are_tentative', True)),
         },
@@ -11008,6 +11510,14 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
             'top_blocker': (component_package_state.get('blocked_by_unresolved_choices', []) or [''])[0],
             'trust_posture': component_package_state.get('trust_posture', {}).get('overall_trust_status', ''),
         } if component_package_review_config(schema).get('include_in_execution_resume', True) else {},
+        'cost_viability': {
+            'cost_realism_band': cost_viability_state.get('cost_realism_band', 'too_early_for_exact_cost'),
+            'economic_viability_posture': cost_viability_state.get('economic_viability_posture', 'unknown'),
+            'likely_cost_risk_level': cost_viability_state.get('likely_cost_risk_level', 'moderate'),
+            'kill_pause_reframe_signal': cost_viability_state.get('kill_pause_reframe_signal', 'proceed_with_caution'),
+            'summary': cost_viability_state.get('why_this_posture', ''),
+            'operator_cost_warning': cost_viability_state.get('operator_cost_warning', ''),
+        } if cost_viability_review_config(schema).get('include_in_execution_resume', True) else {},
         'current_truth_summary': current_truth_summary[:cfg.get('max_current_truth_summary', 5)],
         'active_review_front': active_review_front[:cfg.get('max_active_review_front', 4)],
         'held_lanes': held_lanes[:cfg.get('max_held_lanes', 4)],
@@ -11031,6 +11541,7 @@ def render_execution_resume_section(resume_state=None, include_header=True):
     project_intent = resume_state.get('project_intent', {}) if isinstance(resume_state.get('project_intent', {}), dict) else {}
     product_realism = resume_state.get('product_realism', {}) if isinstance(resume_state.get('product_realism', {}), dict) else {}
     component_package = resume_state.get('component_package', {}) if isinstance(resume_state.get('component_package', {}), dict) else {}
+    cost_viability = resume_state.get('cost_viability', {}) if isinstance(resume_state.get('cost_viability', {}), dict) else {}
     if trust:
         lines.append(
             f"- trust_posture: sync `{trust.get('overall_sync_status', 'provisional')}` | trust `{trust.get('overall_trust_status', 'provisional')}`"
@@ -11040,6 +11551,7 @@ def render_execution_resume_section(resume_state=None, include_header=True):
             f"- project_intent: outcome `{project_intent.get('target_outcome_type', 'functional_prototype')}` | "
             f"quality `{project_intent.get('quality_bar', 'credible')}` | "
             f"seriousness `{project_intent.get('intended_seriousness', 'exploratory')}` | "
+            f"tier `{project_intent.get('target_product_tier', 'unknown')}` | "
             f"{'operator-reviewed' if project_intent.get('reviewed_by_operator') else 'default-tentative'}"
         )
     if product_realism:
@@ -11056,6 +11568,12 @@ def render_execution_resume_section(resume_state=None, include_header=True):
                 else ''
             )
             + f" | {component_package.get('summary', '')}"
+        )
+    if cost_viability:
+        lines.append(
+            f"- cost_viability: `{cost_viability.get('cost_realism_band', 'too_early_for_exact_cost')}`"
+            + f" | signal `{cost_viability.get('kill_pause_reframe_signal', 'proceed_with_caution')}`"
+            + f" | {cost_viability.get('summary', '')}"
         )
     for item in resume_state.get('current_truth_summary', [])[:3]:
         lines.append(f"- current_truth: {item}")
@@ -11277,7 +11795,19 @@ def refresh_review_state_sync_metadata(schema=None):
     save_project_milestones_state(milestone_state)
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
     save_product_realism_review_state(product_realism_state)
-    verification_state = build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
+    cost_state = build_cost_viability_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        product_realism_state=product_realism_state,
+        component_package_state=component_package_state,
+    )
+    save_cost_viability_review_state(cost_state)
+    verification_state = build_verification_summary_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        cost_state=cost_state,
+    )
     save_verification_summary_state(verification_state)
     extensions_state = build_extensions_capability_review_state(
         schema=schema,
@@ -11300,6 +11830,7 @@ def refresh_review_state_sync_metadata(schema=None):
         review_snapshot=review_snapshot,
         resume_state=resume_state,
         rendering_state=rendering_state,
+        cost_state=cost_state,
     )
     save_verification_summary_state(verification_state)
     save_ui_surface_plan_state(build_ui_surface_plan_state(
@@ -11308,6 +11839,7 @@ def refresh_review_state_sync_metadata(schema=None):
         resume_state=resume_state,
         verification_state=verification_state,
         rendering_state=rendering_state,
+        cost_state=cost_state,
     ))
     return summary
 
@@ -13645,7 +14177,19 @@ def generate_scorecard_cycle(changes, prior_reports):
     save_project_milestones_state(milestone_state)
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
     save_product_realism_review_state(product_realism_state)
-    verification_state = build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
+    cost_state = build_cost_viability_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        product_realism_state=product_realism_state,
+        component_package_state=component_package_state,
+    )
+    save_cost_viability_review_state(cost_state)
+    verification_state = build_verification_summary_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        cost_state=cost_state,
+    )
     save_verification_summary_state(verification_state)
     extensions_state = build_extensions_capability_review_state(
         schema=schema,
@@ -13668,6 +14212,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         review_snapshot=review_snapshot,
         resume_state=resume_state,
         rendering_state=rendering_state,
+        cost_state=cost_state,
     )
     save_verification_summary_state(verification_state)
     save_ui_surface_plan_state(build_ui_surface_plan_state(
@@ -13676,6 +14221,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         resume_state=resume_state,
         verification_state=verification_state,
         rendering_state=rendering_state,
+        cost_state=cost_state,
     ))
     return render_scorecard_markdown(scorecard), effort_selection
 
@@ -15129,6 +15675,12 @@ def context_with_inputs(changes):
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_state_consumption)
     extensions_capability_state = build_extensions_capability_review_state(schema=schema, review_snapshot=review_state_consumption)
     component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_state_consumption)
+    cost_viability_state = build_cost_viability_review_state(
+        schema=schema,
+        review_snapshot=review_state_consumption,
+        product_realism_state=product_realism_state,
+        component_package_state=component_package_state,
+    )
     rendering_brief_state = build_hardware_aware_rendering_brief_review_state(
         schema=schema,
         review_snapshot=review_state_consumption,
@@ -15161,6 +15713,8 @@ def context_with_inputs(changes):
         pieces.append('- No active operator guidance. Use best effort and choose the strongest project-specific direction.\n')
     pieces.append('\n')
     pieces.append(render_project_expectations_context(project_expectations))
+    pieces.append('\n')
+    pieces.append(render_cost_viability_review_context(cost_viability_state))
     pieces.append('\n')
     pieces.append(render_project_milestones_context(milestone_state))
     pieces.append('\n')

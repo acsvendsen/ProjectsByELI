@@ -238,6 +238,12 @@ control:
       - schematic_direction
       - interface_map
       - subsystem_breakdown
+  cost_viability_review:
+    enabled: true
+    include_in_execution_resume: true
+    max_risk_factors: 5
+    max_unknowns: 5
+    max_improvements: 5
   extensions_capability_review:
     enabled: true
     max_available: 6
