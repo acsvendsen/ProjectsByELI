@@ -587,6 +587,10 @@
       gap: 10px;
     }
 
+    .realization-card.wide {
+      grid-column: 1 / -1;
+    }
+
     .realization-copy {
       line-height: 1.5;
       color: var(--ink);
@@ -845,6 +849,7 @@
           <article class="realization-card" id="buildNextStepsCard"></article>
           <article class="realization-card" id="buildBlockedCard"></article>
           <article class="realization-card" id="buildComponentCard"></article>
+          <article class="realization-card wide" id="buildRenderingBriefCard" style="display:none"></article>
         </div>
       </div>
     </section>
@@ -1304,6 +1309,34 @@
       `).join("")}</div>`;
     }
 
+    function renderRenderingBriefRows(rows, emptyText, limit = 3) {
+      const usable = (rows || []).filter(row => row && row.title).slice(0, limit);
+      if (!usable.length) return `<div class="realization-empty">${emptyText}</div>`;
+      return `<div class="realization-list">${usable.map(row => {
+        const hardwareConstraints = uniqueTextValues(row.hardware_constraints || [], 2);
+        const openGaps = uniqueTextValues(row.open_gaps_to_keep_visible || [], 2);
+        const reviewQuestions = uniqueTextValues(row.review_questions || [], 2);
+        return `
+          <div class="realization-row">
+            <div class="realization-row-head">
+              <strong>${truncateText(row.title, 90)}</strong>
+              <div class="mini-pills">
+                <span class="mini-pill provisional">Exploratory</span>
+                <span class="mini-pill review_only">Review-oriented</span>
+                <span class="mini-pill tentative">${humanizeToken(row.output_type || "draft_output")}</span>
+              </div>
+            </div>
+            <div>${truncateText(row.purpose || "No rendering brief purpose is recorded.", 220)}</div>
+            <div class="footer"><strong>Render goal:</strong> ${truncateText(row.render_goal || "No render goal is recorded.", 220)}</div>
+            <div class="footer"><strong>Expected use:</strong> ${truncateText(row.expected_use || "No expected use is recorded.", 180)}</div>
+            <div class="footer"><strong>Key hardware constraints:</strong> ${hardwareConstraints.length ? hardwareConstraints.map(item => truncateText(item, 140)).join(" · ") : "No hardware constraints are recorded."}</div>
+            <div class="footer"><strong>Open gaps to keep visible:</strong> ${openGaps.length ? openGaps.map(item => truncateText(item, 140)).join(" · ") : "No explicit open gaps are recorded."}</div>
+            <div class="footer"><strong>Review questions:</strong> ${reviewQuestions.length ? reviewQuestions.map(item => truncateText(item, 140)).join(" · ") : "No review question is recorded."}</div>
+          </div>
+        `;
+      }).join("")}</div>`;
+    }
+
     function renderProjectCreation(status) {
       const pageMap = collectPageMap(status);
       const page = pageMap.project_creation;
@@ -1407,8 +1440,14 @@
       const implementationGateSection = sections.find(section => section.section_id === "implementation_package_gate") || {};
       const componentSection = sections.find(section => section.section_id === "component_package_readiness") || {};
       const blockersSection = sections.find(section => section.section_id === "build_blockers") || {};
+      const renderingSection = sections.find(section => section.section_id === "exploratory_rendering_briefs") || {};
       const implementationGate = milestones.find(row => row.milestone_id === "implementation_package_review") || {};
       const realismGate = milestones.find(row => row.milestone_id === "product_realism_check") || {};
+      const renderingReview = status.hardware_aware_rendering_brief_review || {};
+      const renderingBriefs = renderingReview.rendering_briefs || [];
+      const renderingTrust = renderingReview.trust_posture || {};
+      const renderingUseState = renderingTrust.use_state || "supporting_context";
+      const renderingUseStateClass = renderingUseState === "supporting_context" ? "provisional_context" : renderingUseState;
       const supportedNow = uniqueTextValues(componentReview.required_now || [], 3);
       const evidenceNext = uniqueTextValues(realism.what_would_materially_improve_realism || [], 3);
       const blockers = uniqueTextValues([
@@ -1528,6 +1567,31 @@
         <div class="footer"><strong>Package posture:</strong> Subsystem BOM frame only. This is not a locked parts list or final build package.</div>
         ${componentSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(componentSection.purpose, 220)}</div>` : ""}
       `;
+
+      const renderingCard = document.getElementById("buildRenderingBriefCard");
+      if (!renderingBriefs.length) {
+        renderingCard.style.display = "none";
+      } else {
+        renderingCard.style.display = "";
+        renderingCard.innerHTML = `
+          <div class="verification-heading">${renderingSection.title || "Exploratory Rendering Briefs"}</div>
+          <div class="mini-pills">
+            <span class="mini-pill provisional">Exploratory rendering brief</span>
+            <span class="mini-pill ${renderingUseStateClass}">${renderingUseState === "supporting_context" ? "Supporting review context" : humanizeToken(renderingUseState)}</span>
+            <span class="mini-pill review_only">Not design truth</span>
+            <span class="mini-pill informational_only">${humanizeToken(renderingReview.informational_extension_posture || "informational_only")}</span>
+          </div>
+          <div class="realization-copy">${truncateText(renderingReview.summary || "No hardware-aware rendering brief summary is available yet.", 260)}</div>
+          ${renderRenderingBriefRows(
+            renderingBriefs,
+            "No exploratory rendering brief is currently warranted by canonical build posture.",
+            3
+          )}
+          <div class="footer"><strong>Authority note:</strong> ${truncateText(renderingReview.eli_authority_note || "ELI remains authoritative; any rendering result is drafting support only.", 220)}</div>
+          <div class="footer"><strong>Trust note:</strong> ${truncateText(renderingTrust.trust_reason || "Use this surface as supporting review context only, not current truth.", 220)}</div>
+          ${renderingSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(renderingSection.purpose, 220)}</div>` : ""}
+        `;
+      }
     }
 
     function renderExtensionsAgents(status) {

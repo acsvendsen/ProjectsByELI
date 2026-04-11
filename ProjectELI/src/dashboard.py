@@ -18,6 +18,7 @@ from orchestrator import (
     DB_PATH,
     EXECUTION_RESUME_PATH,
     EXTENSIONS_CAPABILITY_REVIEW_PATH,
+    HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH,
     OPERATOR_GUIDANCE_PATH,
     PROJECT_DIR,
     PROJECT_EXPECTATIONS_PATH,
@@ -375,6 +376,15 @@ def load_dashboard_data():
         "realism_link": {},
         "trust_posture": {},
     })
+    hardware_aware_rendering_brief_review = read_json(HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH, {
+        "generated_at": "",
+        "summary": "",
+        "eli_authority_note": "",
+        "informational_extension_posture": "informational_only",
+        "trust_posture": {},
+        "source_authority": {},
+        "rendering_briefs": [],
+    })
     extensions_capability_review = read_json(EXTENSIONS_CAPABILITY_REVIEW_PATH, {
         "generated_at": "",
         "summary": "",
@@ -524,6 +534,7 @@ def load_dashboard_data():
         "product_realism_review": product_realism_review,
         "execution_resume": execution_resume,
         "component_package_review": component_package_review,
+        "hardware_aware_rendering_brief_review": hardware_aware_rendering_brief_review,
         "extensions_capability_review": extensions_capability_review,
         "ui_surface_plan": ui_surface_plan,
         "scorecard": scorecard,
