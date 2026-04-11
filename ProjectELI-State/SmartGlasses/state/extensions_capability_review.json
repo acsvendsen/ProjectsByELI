@@ -1,0 +1,207 @@
+{
+  "generated_at": "2026-04-11T16:27:15",
+  "summary": "ELI currently has 6 registry-defined specialist capability row(s). 3 are recommended for this project now, while 0 remain missing or future-ready rather than being silently assumed available.",
+  "eli_authority_note": "ELI remains the main interface, synthesizer, and judge. Extensions are optional subordinate instruments whose outputs must still pass through ELI evaluation before they matter.",
+  "ui_enablement_status": "informational_only",
+  "available_capabilities": [
+    {
+      "capability_id": "coding_implementation_help",
+      "label": "Coding & Implementation Help",
+      "capability_family": "coding_implementation",
+      "purpose": "Use code and architecture critique to tighten implementation structure, boundaries, and runtime/state design without replacing ELI judgment.",
+      "specialist_ids": [
+        "code_architecture_specialist_v1"
+      ],
+      "enablement_status": "available",
+      "project_status": "recommended_for_this_project",
+      "expected_gain": "high",
+      "operator_opt_in_required": true,
+      "modes_supported": [
+        "advisory",
+        "delegated_drafting",
+        "competitive"
+      ],
+      "why_it_would_help": "Implementation-package review is live and current blockers still include architecture, firmware, memory, or boundary-sensitive questions.",
+      "why_not_needed_yet": ""
+    },
+    {
+      "capability_id": "visualization_rendering_help",
+      "label": "Visualization & Rendering Help",
+      "capability_family": "visualization_rendering",
+      "purpose": "Use visual or layout-oriented drafting support to clarify UI, overlays, diagrams, and implementation-facing visual explanations.",
+      "specialist_ids": [
+        "visualization_specialist_v1"
+      ],
+      "enablement_status": "available",
+      "project_status": "recommended_for_this_project",
+      "expected_gain": "high",
+      "operator_opt_in_required": true,
+      "modes_supported": [
+        "delegated_drafting",
+        "instrumental"
+      ],
+      "why_it_would_help": "Current review fronts are heavily visual or layout-shaped, so rendering-oriented support could clarify options without replacing ELI judgment.",
+      "why_not_needed_yet": ""
+    },
+    {
+      "capability_id": "embedded_device_integration_help",
+      "label": "Embedded Device Integration Help",
+      "capability_family": "hardware_integration",
+      "purpose": "Use embedded-device integration critique for device services, interface mapping, and hardware-adjacent runtime questions when they become materially relevant.",
+      "specialist_ids": [
+        "embedded_linux_specialist_v1"
+      ],
+      "enablement_status": "available",
+      "project_status": "recommended_for_this_project",
+      "expected_gain": "medium",
+      "operator_opt_in_required": true,
+      "modes_supported": [
+        "advisory",
+        "delegated_drafting",
+        "competitive"
+      ],
+      "why_it_would_help": "Hardware, wireless, and firmware-adjacent subsystem pressure is now real enough that embedded integration critique could reduce blind spots.",
+      "why_not_needed_yet": ""
+    },
+    {
+      "capability_id": "structured_report_packaging_help",
+      "label": "Structured Report & Packaging Help",
+      "capability_family": "artifact_packaging",
+      "purpose": "Use structured packaging support to assemble reports, diagrams, or review artifacts without treating formatting as project judgment.",
+      "specialist_ids": [
+        "report_specialist_v1"
+      ],
+      "enablement_status": "available",
+      "project_status": "optional",
+      "expected_gain": "medium",
+      "operator_opt_in_required": true,
+      "modes_supported": [
+        "delegated_drafting",
+        "instrumental"
+      ],
+      "why_it_would_help": "Review drafts and implementation-package review are active, so packaging help could improve clarity later without changing core judgment.",
+      "why_not_needed_yet": ""
+    },
+    {
+      "capability_id": "hardware_implementation_specialist_v1",
+      "label": "Hardware Implementation Specialist",
+      "capability_family": "specialist_extension",
+      "purpose": "Registry-defined specialist capability available for optional ELI consultation.",
+      "specialist_ids": [
+        "hardware_implementation_specialist_v1"
+      ],
+      "enablement_status": "available",
+      "project_status": "optional",
+      "expected_gain": "low",
+      "operator_opt_in_required": true,
+      "modes_supported": [
+        "advisory",
+        "delegated_drafting",
+        "competitive"
+      ],
+      "why_it_would_help": "",
+      "why_not_needed_yet": ""
+    },
+    {
+      "capability_id": "controls_and_benchmarking_help",
+      "label": "Controls & Benchmarking Help",
+      "capability_family": "controls_benchmarking",
+      "purpose": "Use controls or telemetry-oriented support only when the project has a real control-loop, tuning, or benchmarking question rather than generic build pressure.",
+      "specialist_ids": [
+        "controls_specialist_v1"
+      ],
+      "enablement_status": "available",
+      "project_status": "not_yet_justified",
+      "expected_gain": "low",
+      "operator_opt_in_required": true,
+      "modes_supported": [
+        "advisory",
+        "delegated_drafting",
+        "competitive",
+        "instrumental"
+      ],
+      "why_it_would_help": "",
+      "why_not_needed_yet": "This project does not currently show a grounded control-loop, actuator, or benchmarking problem that would justify controls help."
+    }
+  ],
+  "project_recommended_extensions": [
+    {
+      "capability_id": "coding_implementation_help",
+      "label": "Coding & Implementation Help",
+      "capability_family": "coding_implementation",
+      "purpose": "Use code and architecture critique to tighten implementation structure, boundaries, and runtime/state design without replacing ELI judgment.",
+      "specialist_ids": [
+        "code_architecture_specialist_v1"
+      ],
+      "enablement_status": "available",
+      "project_status": "recommended_for_this_project",
+      "expected_gain": "high",
+      "operator_opt_in_required": true,
+      "modes_supported": [
+        "advisory",
+        "delegated_drafting",
+        "competitive"
+      ],
+      "why_it_would_help": "Implementation-package review is live and current blockers still include architecture, firmware, memory, or boundary-sensitive questions.",
+      "why_not_needed_yet": ""
+    },
+    {
+      "capability_id": "visualization_rendering_help",
+      "label": "Visualization & Rendering Help",
+      "capability_family": "visualization_rendering",
+      "purpose": "Use visual or layout-oriented drafting support to clarify UI, overlays, diagrams, and implementation-facing visual explanations.",
+      "specialist_ids": [
+        "visualization_specialist_v1"
+      ],
+      "enablement_status": "available",
+      "project_status": "recommended_for_this_project",
+      "expected_gain": "high",
+      "operator_opt_in_required": true,
+      "modes_supported": [
+        "delegated_drafting",
+        "instrumental"
+      ],
+      "why_it_would_help": "Current review fronts are heavily visual or layout-shaped, so rendering-oriented support could clarify options without replacing ELI judgment.",
+      "why_not_needed_yet": ""
+    },
+    {
+      "capability_id": "embedded_device_integration_help",
+      "label": "Embedded Device Integration Help",
+      "capability_family": "hardware_integration",
+      "purpose": "Use embedded-device integration critique for device services, interface mapping, and hardware-adjacent runtime questions when they become materially relevant.",
+      "specialist_ids": [
+        "embedded_linux_specialist_v1"
+      ],
+      "enablement_status": "available",
+      "project_status": "recommended_for_this_project",
+      "expected_gain": "medium",
+      "operator_opt_in_required": true,
+      "modes_supported": [
+        "advisory",
+        "delegated_drafting",
+        "competitive"
+      ],
+      "why_it_would_help": "Hardware, wireless, and firmware-adjacent subsystem pressure is now real enough that embedded integration critique could reduce blind spots.",
+      "why_not_needed_yet": ""
+    }
+  ],
+  "missing_but_useful_capabilities": [],
+  "representation_risks": [
+    "Do not present extensions as equal minds; ELI remains the synthesizer, judge, and operator-facing authority.",
+    "Do not let registry-backed capability labels imply one-click enablement or hidden autonomous execution when this surface is informational only.",
+    "Do not recommend every specialist for every project; extension fit must remain tied to current build, review, and realism pressure.",
+    "Missing capability rows are future-ready or high-value gaps, not hidden integrations that already exist."
+  ],
+  "source_generated_at": {
+    "specialist_registry": "2026-04-07T22:30:55",
+    "specialist_routing_policy": "2026-04-07T23:35:37",
+    "project_expectations": "2026-04-10T09:16:32",
+    "product_realism_review": "2026-04-10T10:21:31",
+    "project_milestones": "2026-04-10T09:35:03",
+    "component_package_review": "2026-04-10T11:43:03",
+    "execution_resume": "2026-04-11T16:27:15",
+    "verification_summary": "2026-04-11T16:27:15"
+  },
+  "revisable": true,
+  "updated_at": "2026-04-11T16:27:15"
+}

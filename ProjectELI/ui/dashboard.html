@@ -654,6 +654,12 @@
       background: rgba(23,100,58,0.08);
     }
 
+    .mini-pill.available,
+    .mini-pill.recommended_for_this_project {
+      color: var(--good);
+      background: rgba(23,100,58,0.08);
+    }
+
     .mini-pill.provisional_context,
     .mini-pill.provisional {
       color: var(--accent);
@@ -693,7 +699,8 @@
     }
 
     .mini-pill.rejected_for_now,
-    .mini-pill.concept_only {
+    .mini-pill.concept_only,
+    .mini-pill.missing {
       color: var(--danger);
       background: rgba(179,58,58,0.1);
     }
@@ -705,9 +712,18 @@
 
     .mini-pill.product_candidate_emerging,
     .mini-pill.real_product_path_not_yet_proven,
-    .mini-pill.aligned {
+    .mini-pill.aligned,
+    .mini-pill.optional,
+    .mini-pill.future_ready,
+    .mini-pill.informational_only {
       color: var(--accent);
       background: rgba(13,124,102,0.08);
+    }
+
+    .mini-pill.not_yet_justified,
+    .mini-pill.missing_but_useful {
+      color: var(--late);
+      background: rgba(181,106,45,0.1);
     }
 
     .mini-pill.early_subsystem_bom_only,
@@ -829,6 +845,21 @@
           <article class="realization-card" id="buildNextStepsCard"></article>
           <article class="realization-card" id="buildBlockedCard"></article>
           <article class="realization-card" id="buildComponentCard"></article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="panel" id="extensionsPanel" style="display:none">
+        <div class="label">Extensions / Agents</div>
+        <h2 id="extensionsTitle">Extensions & Agents</h2>
+        <p class="sub" id="extensionsPurpose"></p>
+        <div class="realization-banner" id="extensionsBanner"></div>
+        <div class="steering-grid">
+          <article class="steering-card" id="extensionsAuthority"></article>
+          <article class="steering-card" id="extensionsRecommended"></article>
+          <article class="steering-card" id="extensionsAvailable"></article>
+          <article class="steering-card" id="extensionsMissing"></article>
         </div>
       </div>
     </section>
@@ -1252,6 +1283,27 @@
       `).join("")}</div>`;
     }
 
+    function renderExtensionRows(rows, emptyText, limit = 4) {
+      const usable = (rows || []).filter(row => row && row.label).slice(0, limit);
+      if (!usable.length) return `<div class="steering-empty">${emptyText}</div>`;
+      return `<div class="steering-list">${usable.map(row => `
+        <div class="steering-row">
+          <div class="steering-row-head">
+            <strong>${row.label}</strong>
+            <div class="steering-row-meta">
+              <span class="mini-pill ${row.enablement_status || ""}">${humanizeToken(row.enablement_status || "available")}</span>
+              <span class="mini-pill ${row.project_status || ""}">${humanizeToken(row.project_status || "optional")}</span>
+              <span class="mini-pill">${humanizeToken(row.expected_gain || "low")} gain</span>
+              ${row.operator_opt_in_required ? `<span class="mini-pill tentative">Opt-in required</span>` : ``}
+            </div>
+          </div>
+          <div>${truncateText(row.purpose || "No extension purpose recorded.", 220)}</div>
+          ${row.why_it_would_help ? `<div class="footer"><strong>Why it helps:</strong> ${truncateText(row.why_it_would_help, 220)}</div>` : ``}
+          ${row.why_not_needed_yet ? `<div class="footer"><strong>Why not yet:</strong> ${truncateText(row.why_not_needed_yet, 220)}</div>` : ``}
+        </div>
+      `).join("")}</div>`;
+    }
+
     function renderProjectCreation(status) {
       const pageMap = collectPageMap(status);
       const page = pageMap.project_creation;
@@ -1475,6 +1527,86 @@
         </div>
         <div class="footer"><strong>Package posture:</strong> Subsystem BOM frame only. This is not a locked parts list or final build package.</div>
         ${componentSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(componentSection.purpose, 220)}</div>` : ""}
+      `;
+    }
+
+    function renderExtensionsAgents(status) {
+      const pageMap = collectPageMap(status);
+      const page = pageMap.extensions_and_agents;
+      const panel = document.getElementById("extensionsPanel");
+      if (!page) {
+        panel.style.display = "none";
+        return;
+      }
+
+      panel.style.display = "";
+      const extensions = status.extensions_capability_review || {};
+      const sections = page.sections || [];
+      const sectionMap = {};
+      sections.forEach(section => {
+        if (section && section.section_id) sectionMap[section.section_id] = section;
+      });
+      const available = extensions.available_capabilities || [];
+      const recommended = extensions.project_recommended_extensions || [];
+      const missing = extensions.missing_but_useful_capabilities || [];
+      const risks = extensions.representation_risks || [];
+
+      document.getElementById("extensionsTitle").textContent = page.title || "Extensions & Agents";
+      document.getElementById("extensionsPurpose").textContent =
+        page.purpose || "Show which behind-the-scenes extension capabilities ELI currently has, which are useful now versus later, and which remain missing or future-ready without making ELI secondary.";
+
+      document.getElementById("extensionsBanner").innerHTML = `
+        <div class="mini-pills">
+          <span class="mini-pill operational">ELI primary</span>
+          <span class="mini-pill informational_only">${humanizeToken(extensions.ui_enablement_status || "informational_only")}</span>
+          <span class="mini-pill tentative">Opt-in required</span>
+          <span class="mini-pill">${available.length} available</span>
+        </div>
+        <strong>${page.why_this_page_exists || extensions.summary || "Extensions are worth inspecting only when they materially help the current project without displacing ELI."}</strong>
+        <div class="realization-copy">${extensions.eli_authority_note || "ELI remains the main interface and decision-maker; extensions are subordinate instruments."}</div>
+      `;
+
+      document.getElementById("extensionsAuthority").innerHTML = `
+        <div class="verification-heading">${sectionMap.eli_primary_posture?.title || "ELI Primary Posture"}</div>
+        ${sectionMap.eli_primary_posture?.purpose ? `<div class="footer">${sectionMap.eli_primary_posture.purpose}</div>` : ``}
+        <div class="mini-pills">
+          <span class="mini-pill operational">ELI remains primary</span>
+          <span class="mini-pill informational_only">${humanizeToken(extensions.ui_enablement_status || "informational_only")}</span>
+          <span class="mini-pill review_only">No one-click enablement</span>
+        </div>
+        <div class="steering-copy">${extensions.summary || "No extensions capability summary is available yet."}</div>
+        <div class="footer"><strong>Authority note:</strong> ${truncateText(extensions.eli_authority_note || "Extensions are consultable instruments, not authorities.", 220)}</div>
+      `;
+
+      document.getElementById("extensionsRecommended").innerHTML = `
+        <div class="verification-heading">${sectionMap.project_recommended_extensions?.title || "Project-Recommended Extensions"}</div>
+        ${sectionMap.project_recommended_extensions?.purpose ? `<div class="footer">${sectionMap.project_recommended_extensions.purpose}</div>` : ``}
+        ${renderExtensionRows(
+          recommended,
+          "No extension is strongly justified right now. ELI alone remains the right front door until project pressure makes specialist help materially useful.",
+          4
+        )}
+      `;
+
+      document.getElementById("extensionsAvailable").innerHTML = `
+        <div class="verification-heading">${sectionMap.available_capabilities?.title || "Available Capabilities"}</div>
+        ${sectionMap.available_capabilities?.purpose ? `<div class="footer">${sectionMap.available_capabilities.purpose}</div>` : ``}
+        ${renderExtensionRows(
+          available,
+          "No registry-backed extension capability is available yet.",
+          5
+        )}
+      `;
+
+      document.getElementById("extensionsMissing").innerHTML = `
+        <div class="verification-heading">${sectionMap.missing_or_future_ready?.title || "Missing Or Future-Ready"}</div>
+        ${sectionMap.missing_or_future_ready?.purpose ? `<div class="footer">${sectionMap.missing_or_future_ready.purpose}</div>` : ``}
+        ${renderExtensionRows(
+          missing,
+          "No missing or future-ready extension gap is currently worth surfacing.",
+          4
+        )}
+        ${risks.length ? `<div class="footer"><strong>Representation risk:</strong> ${truncateText(risks[0], 220)}</div>` : ``}
       `;
     }
 
@@ -1781,6 +1913,7 @@
       renderProjectCreation(status);
       renderProjectSteering(status);
       renderBuildRealization(status);
+      renderExtensionsAgents(status);
       renderScorecard(status);
 
       document.getElementById("outputs").innerHTML = status.valuable_outputs.map(item => `

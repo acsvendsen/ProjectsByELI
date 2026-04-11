@@ -188,6 +188,22 @@ COMPONENT_PACKAGE_KINDS = (
     'implementation_package',
     'quality_upgrade_package',
 )
+EXTENSIONS_ENABLEMENT_STATUSES = (
+    'available',
+    'missing',
+)
+EXTENSIONS_PROJECT_STATUSES = (
+    'recommended_for_this_project',
+    'optional',
+    'future_ready',
+    'not_yet_justified',
+    'missing_but_useful',
+)
+EXTENSION_GAIN_BANDS = (
+    'high',
+    'medium',
+    'low',
+)
 STATE_SYNC_STATUS_VALUES = (
     'in_sync',
     'settling',
@@ -589,6 +605,7 @@ PROJECT_EXPECTATIONS_PATH = PROJECT_STATE_DIR / "project_expectations.json"
 PROJECT_MILESTONES_PATH = PROJECT_STATE_DIR / "project_milestones.json"
 PRODUCT_REALISM_REVIEW_PATH = PROJECT_STATE_DIR / "product_realism_review.json"
 COMPONENT_PACKAGE_REVIEW_PATH = PROJECT_STATE_DIR / "component_package_review.json"
+EXTENSIONS_CAPABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "extensions_capability_review.json"
 UI_SURFACE_PLAN_PATH = PROJECT_STATE_DIR / "ui_surface_plan.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
@@ -928,9 +945,16 @@ DEFAULT_COGNITION_SCHEMA = {
                 'subsystem_breakdown',
             ],
         },
+        'extensions_capability_review': {
+            'enabled': True,
+            'max_available': 6,
+            'max_recommended': 4,
+            'max_missing': 4,
+            'max_risks': 4,
+        },
         'ui_surface_plan': {
             'enabled': True,
-            'max_pages': 6,
+            'max_pages': 7,
             'max_sections_per_page': 4,
             'max_operator_goals': 5,
             'max_representation_risks': 5,
@@ -942,6 +966,7 @@ DEFAULT_COGNITION_SCHEMA = {
                 'review_and_decisions',
                 'build_or_realization',
                 'verification_and_audit',
+                'extensions_and_agents',
             ],
         },
         'execution_resume': {
@@ -1274,9 +1299,15 @@ control:
       - schematic_direction
       - interface_map
       - subsystem_breakdown
+  extensions_capability_review:
+    enabled: true
+    max_available: 6
+    max_recommended: 4
+    max_missing: 4
+    max_risks: 4
   ui_surface_plan:
     enabled: true
-    max_pages: 6
+    max_pages: 7
     max_sections_per_page: 4
     max_operator_goals: 5
     max_representation_risks: 5
@@ -1288,6 +1319,7 @@ control:
       - review_and_decisions
       - build_or_realization
       - verification_and_audit
+      - extensions_and_agents
   execution_resume:
     enabled: true
     max_current_truth_summary: 5
@@ -7310,6 +7342,19 @@ def component_package_review_config(schema=None):
     }
 
 
+def extensions_capability_review_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('extensions_capability_review', {}) if isinstance(control.get('extensions_capability_review', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'max_available': max(1, safe_int(cfg.get('max_available', 6), 6)),
+        'max_recommended': max(1, safe_int(cfg.get('max_recommended', 4), 4)),
+        'max_missing': max(1, safe_int(cfg.get('max_missing', 4), 4)),
+        'max_risks': max(1, safe_int(cfg.get('max_risks', 4), 4)),
+    }
+
+
 def ui_surface_plan_config(schema=None):
     schema = schema or load_cognition_schema()
     control = schema.get('control', {}) if isinstance(schema, dict) else {}
@@ -7323,10 +7368,11 @@ def ui_surface_plan_config(schema=None):
             'review_and_decisions',
             'build_or_realization',
             'verification_and_audit',
+            'extensions_and_agents',
         ]
     return {
         'enabled': bool(cfg.get('enabled', True)),
-        'max_pages': max(1, safe_int(cfg.get('max_pages', 6), 6)),
+        'max_pages': max(1, safe_int(cfg.get('max_pages', 7), 7)),
         'max_sections_per_page': max(1, safe_int(cfg.get('max_sections_per_page', 4), 4)),
         'max_operator_goals': max(1, safe_int(cfg.get('max_operator_goals', 5), 5)),
         'max_representation_risks': max(1, safe_int(cfg.get('max_representation_risks', 5), 5)),
@@ -8602,6 +8648,417 @@ def render_component_package_review_context(component_state=None):
     return '\n'.join(lines) + '\n'
 
 
+def default_extensions_capability_review_state():
+    return {
+        'generated_at': '',
+        'summary': '',
+        'eli_authority_note': '',
+        'ui_enablement_status': 'informational_only',
+        'available_capabilities': [],
+        'project_recommended_extensions': [],
+        'missing_but_useful_capabilities': [],
+        'representation_risks': [],
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_extensions_capability_review_state():
+    data = load_json_file(EXTENSIONS_CAPABILITY_REVIEW_PATH, default_extensions_capability_review_state())
+    if not isinstance(data, dict):
+        data = default_extensions_capability_review_state()
+    for key in ('available_capabilities', 'project_recommended_extensions', 'missing_but_useful_capabilities', 'representation_risks'):
+        if not isinstance(data.get(key), list):
+            data[key] = []
+    if not isinstance(data.get('source_generated_at'), dict):
+        data['source_generated_at'] = {}
+    if not isinstance(data.get('summary'), str):
+        data['summary'] = ''
+    if not isinstance(data.get('eli_authority_note'), str):
+        data['eli_authority_note'] = ''
+    if not isinstance(data.get('ui_enablement_status'), str):
+        data['ui_enablement_status'] = 'informational_only'
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_extensions_capability_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_extensions_capability_review_state()
+    payload['updated_at'] = now_iso()
+    EXTENSIONS_CAPABILITY_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def extension_surface_generated_at(path):
+    try:
+        return dt.datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec='seconds')
+    except Exception:
+        return ''
+
+
+def specialist_extension_specs():
+    return {
+        'code_architecture_specialist_v1': {
+            'capability_id': 'coding_implementation_help',
+            'label': 'Coding & Implementation Help',
+            'capability_family': 'coding_implementation',
+            'purpose': 'Use code and architecture critique to tighten implementation structure, boundaries, and runtime/state design without replacing ELI judgment.',
+        },
+        'visualization_specialist_v1': {
+            'capability_id': 'visualization_rendering_help',
+            'label': 'Visualization & Rendering Help',
+            'capability_family': 'visualization_rendering',
+            'purpose': 'Use visual or layout-oriented drafting support to clarify UI, overlays, diagrams, and implementation-facing visual explanations.',
+        },
+        'embedded_linux_specialist_v1': {
+            'capability_id': 'embedded_device_integration_help',
+            'label': 'Embedded Device Integration Help',
+            'capability_family': 'hardware_integration',
+            'purpose': 'Use embedded-device integration critique for device services, interface mapping, and hardware-adjacent runtime questions when they become materially relevant.',
+        },
+        'report_specialist_v1': {
+            'capability_id': 'structured_report_packaging_help',
+            'label': 'Structured Report & Packaging Help',
+            'capability_family': 'artifact_packaging',
+            'purpose': 'Use structured packaging support to assemble reports, diagrams, or review artifacts without treating formatting as project judgment.',
+        },
+        'controls_specialist_v1': {
+            'capability_id': 'controls_and_benchmarking_help',
+            'label': 'Controls & Benchmarking Help',
+            'capability_family': 'controls_benchmarking',
+            'purpose': 'Use controls or telemetry-oriented support only when the project has a real control-loop, tuning, or benchmarking question rather than generic build pressure.',
+        },
+    }
+
+
+def missing_extension_spec(specialist_id):
+    specs = {
+        'hardware_implementation_specialist_v1': {
+            'capability_id': 'hardware_implementation_support',
+            'label': 'Hardware Implementation Support',
+            'capability_family': 'hardware_implementation',
+            'purpose': 'Hardware-oriented subsystem, interface, component, and schematic-direction critique once build framing is concrete enough to benefit from it.',
+        },
+    }
+    return specs.get(specialist_id, {
+        'capability_id': normalize_signal_key(specialist_id or 'missing_extension'),
+        'label': humanize_review_signal(specialist_id or 'Missing Extension'),
+        'capability_family': 'specialist_extension',
+        'purpose': 'Potential specialist capability referenced by ELI policy but not currently present in the canonical registry.',
+    })
+
+
+def routing_policy_referenced_specialist_ids(policy):
+    referenced = []
+    build_bias = policy.get('build_artifact_bias', {}) if isinstance(policy.get('build_artifact_bias', {}), dict) else {}
+    for row in build_bias.values():
+        if not isinstance(row, dict):
+            continue
+        for specialist_id in row.get('preferred_specialists', []) if isinstance(row.get('preferred_specialists', []), list) else []:
+            normalized = str(specialist_id or '').strip()
+            if normalized and normalized not in referenced:
+                referenced.append(normalized)
+    return referenced
+
+
+def extension_project_status_rank(value):
+    order = {
+        'recommended_for_this_project': 0,
+        'missing_but_useful': 1,
+        'optional': 2,
+        'future_ready': 3,
+        'not_yet_justified': 4,
+    }
+    return order.get(str(value or '').strip(), 5)
+
+
+def extension_gain_rank(value):
+    order = {
+        'high': 0,
+        'medium': 1,
+        'low': 2,
+    }
+    return order.get(str(value or '').strip(), 3)
+
+
+def build_extensions_capability_review_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None):
+    schema = schema or load_cognition_schema()
+    cfg = extensions_capability_review_config(schema)
+    if not cfg.get('enabled', True):
+        return default_extensions_capability_review_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
+    verification_state = verification_state if isinstance(verification_state, dict) else build_verification_summary_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+    )
+
+    registry = load_specialist_registry()
+    routing_policy = load_specialist_routing_policy()
+    expectations = load_project_expectations_state()
+    realism_state = load_product_realism_review_state()
+    milestone_state = load_project_milestones_state()
+    component_state = load_component_package_review_state()
+
+    registry_specs = specialist_extension_specs()
+    registry_by_id = {
+        str(item.get('id', '') or '').strip(): item
+        for item in registry.get('specialists', [])
+        if isinstance(item, dict) and str(item.get('id', '') or '').strip()
+    }
+    milestone_rows = milestone_state.get('milestones', []) if isinstance(milestone_state.get('milestones', []), list) else []
+    milestone_by_id = {
+        normalize_signal_key(row.get('milestone_id', '')): row
+        for row in milestone_rows
+        if isinstance(row, dict) and row.get('milestone_id')
+    }
+    implementation_milestone = milestone_by_id.get('implementation_package_review', {})
+    realism_milestone = milestone_by_id.get('product_realism_check', {})
+
+    active_review_front = resume_state.get('active_review_front', []) if isinstance(resume_state.get('active_review_front', []), list) else []
+    needs_human_review = resume_state.get('needs_human_review', []) if isinstance(resume_state.get('needs_human_review', []), list) else []
+    blocked_lanes = resume_state.get('blocked_lanes', []) if isinstance(resume_state.get('blocked_lanes', []), list) else []
+    component_band = str(component_state.get('bom_readiness_band', 'not_warranted') or 'not_warranted')
+    target_subsystems = component_state.get('target_subsystems', []) if isinstance(component_state.get('target_subsystems', []), list) else []
+    visual_text = normalize_signal_key(' '.join(
+        str(item.get('title', '') or '') for item in (active_review_front + needs_human_review) if isinstance(item, dict)
+    ))
+    blocked_text = normalize_signal_key(' '.join(
+        f"{item.get('title', '')} {item.get('blocking_reason', '')}" for item in blocked_lanes if isinstance(item, dict)
+    ))
+    target_text = normalize_signal_key(' '.join(str(item) for item in target_subsystems))
+    realism_text = normalize_signal_key(
+        ' '.join(str(item) for item in (realism_state.get('gimmick_risks', []) if isinstance(realism_state.get('gimmick_risks', []), list) else [])[:4])
+    )
+    prototype_oriented = str(realism_state.get('current_realism_band', 'concept_only') or 'concept_only') in (
+        'functional_prototype_path',
+        'serious_prototype_path',
+    )
+    implementation_ready = str(implementation_milestone.get('approval_state', '') or '') == 'ready_for_review'
+    product_realism_held = str(realism_milestone.get('approval_state', '') or '') == 'held'
+    draft_count = len(active_review_front)
+    visual_pressure = any(token in visual_text for token in ('confidence', 'subtitle', 'visual', 'layout', 'hierarchy', 'display'))
+    hardware_pressure = component_band != 'not_warranted' or any(token in target_text for token in ('hardware', 'wireless', 'firmware', 'display', 'sensor'))
+    architecture_pressure = implementation_ready or any(token in blocked_text for token in ('firmware', 'memory', 'wireless', 'boundary', 'cache', 'trust'))
+    report_pressure = draft_count > 0 or implementation_ready
+    controls_pressure = any(token in f"{blocked_text} {target_text} {realism_text}" for token in ('bldc', 'foc', 'encoder', 'telemetry', 'motor', 'actuator'))
+
+    def available_row_from_specialist(specialist):
+        specialist_id = str(specialist.get('id', '') or '').strip()
+        spec = registry_specs.get(specialist_id, {
+            'capability_id': normalize_signal_key(specialist_id),
+            'label': specialist.get('label', specialist_id),
+            'capability_family': 'specialist_extension',
+            'purpose': 'Registry-defined specialist capability available for optional ELI consultation.',
+        })
+        project_status = 'optional'
+        expected_gain = 'low'
+        why_helpful = ''
+        why_not_needed_yet = ''
+
+        if specialist_id == 'code_architecture_specialist_v1':
+            if architecture_pressure:
+                project_status = 'recommended_for_this_project'
+                expected_gain = 'high'
+                why_helpful = 'Implementation-package review is live and current blockers still include architecture, firmware, memory, or boundary-sensitive questions.'
+            else:
+                project_status = 'optional'
+                expected_gain = 'medium'
+                why_not_needed_yet = 'Current project state does not show a strong architecture or implementation bottleneck beyond what ELI already holds.'
+        elif specialist_id == 'visualization_specialist_v1':
+            if visual_pressure:
+                project_status = 'recommended_for_this_project'
+                expected_gain = 'high'
+                why_helpful = 'Current review fronts are heavily visual or layout-shaped, so rendering-oriented support could clarify options without replacing ELI judgment.'
+            else:
+                project_status = 'optional'
+                expected_gain = 'medium'
+                why_not_needed_yet = 'No strong visual review front is currently active enough to justify dedicated visualization help.'
+        elif specialist_id == 'embedded_linux_specialist_v1':
+            if hardware_pressure:
+                project_status = 'recommended_for_this_project'
+                expected_gain = 'medium'
+                why_helpful = 'Hardware, wireless, and firmware-adjacent subsystem pressure is now real enough that embedded integration critique could reduce blind spots.'
+            else:
+                project_status = 'future_ready'
+                expected_gain = 'low'
+                why_not_needed_yet = 'Device-integration help becomes more valuable once the project has a stronger hardware/runtime grounding need.'
+        elif specialist_id == 'report_specialist_v1':
+            if report_pressure:
+                project_status = 'optional'
+                expected_gain = 'medium'
+                why_helpful = 'Review drafts and implementation-package review are active, so packaging help could improve clarity later without changing core judgment.'
+            else:
+                project_status = 'not_yet_justified'
+                expected_gain = 'low'
+                why_not_needed_yet = 'Packaging is not the bottleneck while core review, buildability, and realism questions still need grounding.'
+        elif specialist_id == 'controls_specialist_v1':
+            if controls_pressure:
+                project_status = 'recommended_for_this_project'
+                expected_gain = 'medium'
+                why_helpful = 'Current project signals show a real controls or telemetry-style bottleneck.'
+            else:
+                project_status = 'not_yet_justified'
+                expected_gain = 'low'
+                why_not_needed_yet = 'This project does not currently show a grounded control-loop, actuator, or benchmarking problem that would justify controls help.'
+
+        return {
+            'capability_id': spec.get('capability_id', normalize_signal_key(specialist_id)),
+            'label': spec.get('label', specialist.get('label', specialist_id)),
+            'capability_family': spec.get('capability_family', 'specialist_extension'),
+            'purpose': compact_text_excerpt(spec.get('purpose', ''), 220),
+            'specialist_ids': [specialist_id],
+            'enablement_status': 'available',
+            'project_status': project_status,
+            'expected_gain': expected_gain,
+            'operator_opt_in_required': True,
+            'modes_supported': [str(item) for item in specialist.get('consultation_modes', []) if item][:4],
+            'why_it_would_help': compact_text_excerpt(why_helpful, 220),
+            'why_not_needed_yet': compact_text_excerpt(why_not_needed_yet, 220),
+        }
+
+    def missing_row_for_specialist_id(specialist_id):
+        spec = missing_extension_spec(specialist_id)
+        project_status = 'future_ready'
+        expected_gain = 'low'
+        why_helpful = ''
+        why_not_needed_yet = ''
+
+        if specialist_id == 'hardware_implementation_specialist_v1':
+            if component_band in ('prototype_component_package', 'implementation_package_bom', 'product_candidate_bom_not_yet_final'):
+                project_status = 'missing_but_useful'
+                expected_gain = 'high'
+                why_helpful = 'Build-oriented posture has moved beyond subsystem-only framing, so hardware implementation critique would materially help component and interface decisions.'
+            elif hardware_pressure:
+                project_status = 'future_ready'
+                expected_gain = 'medium'
+                why_helpful = 'A hardware implementation capability would likely help this project once subsystem-boundary thinking becomes concrete component or interface work.'
+                why_not_needed_yet = 'Current BOM posture is still early_subsystem_bom_only, so stronger hardware implementation support would be premature to treat as active.'
+            else:
+                project_status = 'not_yet_justified'
+                expected_gain = 'low'
+                why_not_needed_yet = 'Current project state does not yet justify a dedicated hardware implementation extension.'
+
+        return {
+            'capability_id': spec.get('capability_id', normalize_signal_key(specialist_id)),
+            'label': spec.get('label', humanize_review_signal(specialist_id)),
+            'capability_family': spec.get('capability_family', 'specialist_extension'),
+            'purpose': compact_text_excerpt(spec.get('purpose', ''), 220),
+            'specialist_ids': [specialist_id],
+            'enablement_status': 'missing',
+            'project_status': project_status,
+            'expected_gain': expected_gain,
+            'operator_opt_in_required': True,
+            'modes_supported': [],
+            'why_it_would_help': compact_text_excerpt(why_helpful, 220),
+            'why_not_needed_yet': compact_text_excerpt(why_not_needed_yet, 220),
+        }
+
+    available_rows = [
+        available_row_from_specialist(specialist)
+        for specialist in registry.get('specialists', [])
+        if isinstance(specialist, dict) and specialist.get('enabled', True)
+    ]
+    available_rows.sort(key=lambda row: (
+        extension_project_status_rank(row.get('project_status', 'optional')),
+        extension_gain_rank(row.get('expected_gain', 'low')),
+        row.get('label', ''),
+    ))
+
+    missing_rows = []
+    for specialist_id in routing_policy_referenced_specialist_ids(routing_policy):
+        if specialist_id in registry_by_id:
+            continue
+        missing_rows.append(missing_row_for_specialist_id(specialist_id))
+    missing_rows.sort(key=lambda row: (
+        extension_project_status_rank(row.get('project_status', 'future_ready')),
+        extension_gain_rank(row.get('expected_gain', 'low')),
+        row.get('label', ''),
+    ))
+
+    recommended_rows = [
+        row for row in available_rows
+        if row.get('project_status') == 'recommended_for_this_project'
+    ][:cfg.get('max_recommended', 4)]
+
+    useful_missing_rows = [
+        row for row in missing_rows
+        if row.get('project_status') in ('missing_but_useful', 'future_ready')
+    ][:cfg.get('max_missing', 4)]
+
+    representation_risks = [
+        'Do not present extensions as equal minds; ELI remains the synthesizer, judge, and operator-facing authority.',
+        'Do not let registry-backed capability labels imply one-click enablement or hidden autonomous execution when this surface is informational only.',
+        'Do not recommend every specialist for every project; extension fit must remain tied to current build, review, and realism pressure.',
+        'Missing capability rows are future-ready or high-value gaps, not hidden integrations that already exist.',
+    ][:cfg.get('max_risks', 4)]
+
+    summary = compact_text_excerpt(
+        f"ELI currently has {len(available_rows)} registry-defined specialist capability row(s). "
+        f"{len(recommended_rows)} are recommended for this project now, while {len(useful_missing_rows)} remain missing or future-ready rather than being silently assumed available.",
+        280,
+    )
+
+    return {
+        'generated_at': now_iso(),
+        'summary': summary,
+        'eli_authority_note': compact_text_excerpt(
+            'ELI remains the main interface, synthesizer, and judge. Extensions are optional subordinate instruments whose outputs must still pass through ELI evaluation before they matter.',
+            220,
+        ),
+        'ui_enablement_status': 'informational_only',
+        'available_capabilities': available_rows[:cfg.get('max_available', 6)],
+        'project_recommended_extensions': recommended_rows,
+        'missing_but_useful_capabilities': useful_missing_rows,
+        'representation_risks': representation_risks,
+        'source_generated_at': {
+            'specialist_registry': extension_surface_generated_at(SPECIALIST_REGISTRY_PATH),
+            'specialist_routing_policy': extension_surface_generated_at(SPECIALIST_ROUTING_POLICY_PATH),
+            'project_expectations': state_surface_generated_at(expectations),
+            'product_realism_review': state_surface_generated_at(realism_state),
+            'project_milestones': state_surface_generated_at(milestone_state),
+            'component_package_review': state_surface_generated_at(component_state),
+            'execution_resume': state_surface_generated_at(resume_state),
+            'verification_summary': state_surface_generated_at(verification_state),
+        },
+        'revisable': True,
+    }
+
+
+def render_extensions_capability_review_context(extensions_state=None):
+    extensions_state = extensions_state if isinstance(extensions_state, dict) else load_extensions_capability_review_state()
+    lines = ['# Extensions Capability Review']
+    if extensions_state.get('summary'):
+        lines.append(f"- summary: {extensions_state.get('summary', '')}")
+    if extensions_state.get('eli_authority_note'):
+        lines.append(f"- eli_authority_note: {extensions_state.get('eli_authority_note', '')}")
+    lines.append(f"- ui_enablement_status: `{extensions_state.get('ui_enablement_status', 'informational_only')}`")
+    recommended = extensions_state.get('project_recommended_extensions', []) if isinstance(extensions_state.get('project_recommended_extensions', []), list) else []
+    if recommended:
+        lines.append(
+            "- project_recommended_extensions: "
+            + '; '.join(
+                f"{item.get('label', 'Extension')} ({item.get('project_status', 'optional')}, gain {item.get('expected_gain', 'low')})"
+                for item in recommended[:3]
+                if isinstance(item, dict)
+            )
+        )
+    missing_rows = extensions_state.get('missing_but_useful_capabilities', []) if isinstance(extensions_state.get('missing_but_useful_capabilities', []), list) else []
+    if missing_rows:
+        lines.append(
+            "- missing_but_useful_capabilities: "
+            + '; '.join(
+                f"{item.get('label', 'Missing capability')} ({item.get('project_status', 'future_ready')})"
+                for item in missing_rows[:3]
+                if isinstance(item, dict)
+            )
+        )
+    return '\n'.join(lines) + '\n'
+
+
 def default_ui_surface_plan_state():
     return {
         'generated_at': '',
@@ -8679,6 +9136,12 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
     realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
     component_state = load_component_package_review_state()
+    extensions_state = build_extensions_capability_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        verification_state=verification_state,
+    )
     reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
     scorecard_state = load_scorecard_state()
     artifact_review_state = load_implementation_artifact_review_state()
@@ -8701,6 +9164,9 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     needs_human_review = resume_state.get('needs_human_review', []) if isinstance(resume_state.get('needs_human_review', []), list) else []
     blocked_lanes = resume_state.get('blocked_lanes', []) if isinstance(resume_state.get('blocked_lanes', []), list) else []
     held_lanes = resume_state.get('held_lanes', []) if isinstance(resume_state.get('held_lanes', []), list) else []
+    available_extensions = extensions_state.get('available_capabilities', []) if isinstance(extensions_state.get('available_capabilities', []), list) else []
+    recommended_extensions = extensions_state.get('project_recommended_extensions', []) if isinstance(extensions_state.get('project_recommended_extensions', []), list) else []
+    missing_extensions = extensions_state.get('missing_but_useful_capabilities', []) if isinstance(extensions_state.get('missing_but_useful_capabilities', []), list) else []
 
     def make_section(section_id, title, purpose, driven_by_sources, show_when, hide_when):
         return {
@@ -8773,6 +9239,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         or verification_state.get('recent_transitions', [])
         or verification_state.get('representation_risks', [])
     )
+    extensions_meaningful = bool(available_extensions or missing_extensions)
 
     if tentative_expectations:
         append_page({
@@ -9087,6 +9554,71 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'withhold_when': 'Source authority is too trivial to justify its own operator-facing explanation.',
         })
 
+    if extensions_meaningful:
+        append_page({
+            'page_id': 'extensions_and_agents',
+            'title': 'Extensions & Agents',
+            'purpose': 'Show which behind-the-scenes extension capabilities ELI currently has, which are useful now versus later, and which remain missing or future-ready without making ELI secondary.',
+            'status': 'supporting',
+            'priority': 'supporting',
+            'why_this_page_exists': compact_text_excerpt(
+                f"ELI currently has {len(available_extensions)} registry-defined extension capability row(s), with {len(recommended_extensions)} recommended for this project now and {len(missing_extensions)} missing or future-ready row(s) worth making explicit.",
+                220,
+            ),
+            'driven_by_sources': ['extensions_capability_review', 'specialist_registry', 'specialist_routing_policy', 'project_milestones', 'product_realism_review'],
+            'sections': [
+                make_section(
+                    'eli_primary_posture',
+                    'ELI Primary Posture',
+                    'Keep explicit that ELI remains the main interface, synthesizer, and judge while extensions stay subordinate instruments.',
+                    ['extensions_capability_review', 'specialist_routing_policy'],
+                    'Specialist architecture exists and the operator needs to understand its authority boundary.',
+                    'Hide only if there is no specialist architecture to explain.',
+                ),
+                make_section(
+                    'available_capabilities',
+                    'Available Capabilities',
+                    'Show registry-backed specialist capabilities without implying that every one is active or justified for this project now.',
+                    ['extensions_capability_review', 'specialist_registry'],
+                    'At least one specialist capability is present in the canonical registry.',
+                    'Hide when no specialist capability is currently defined.',
+                ),
+                make_section(
+                    'project_recommended_extensions',
+                    'Project-Recommended Extensions',
+                    'Show only the extension capabilities whose expected gain is materially positive for current project pressure.',
+                    ['extensions_capability_review', 'execution_resume', 'component_package_review', 'product_realism_review'],
+                    'Current build, review, or realism pressure makes at least one extension materially useful.',
+                    'Hide when the project does not currently justify any extension recommendation.',
+                ),
+                make_section(
+                    'missing_or_future_ready',
+                    'Missing Or Future-Ready',
+                    'Make clear which useful capabilities are still missing or premature rather than silently assuming they already exist.',
+                    ['extensions_capability_review', 'specialist_routing_policy', 'component_package_review'],
+                    'Policy references or project pressure make some extension gaps worth surfacing.',
+                    'Hide when no missing or future-ready capability would help explain project posture.',
+                ),
+            ],
+            'show_when': 'Show when specialist capabilities are real enough that the operator benefits from a compact extension posture.',
+            'hide_when': 'Hide when the project has no meaningful specialist architecture or extension fit to explain.',
+            'representation_risks': [
+                'Do not present extensions as equal minds or as hidden autonomous execution.',
+                'Do not let available capability labels imply one-click enablement when this surface is informational only.',
+            ],
+            'operator_actions_supported': [
+                'inspect optional extension fit',
+                'see what is available now versus later',
+                'understand that ELI remains primary',
+            ],
+        })
+        section_emergence_rules.append({
+            'page_id': 'extensions_and_agents',
+            'section_id': 'project_recommended_extensions',
+            'emerge_when': 'A current project bottleneck makes one or more extension capabilities materially useful.',
+            'withhold_when': 'Extensions would only be listed as generic possibilities without a grounded fit to current project pressure.',
+        })
+
     for item in verification_state.get('representation_risks', []) if isinstance(verification_state.get('representation_risks', []), list) else []:
         push_risk(item)
     if tentative_expectations:
@@ -9105,6 +9637,9 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     push_goal('Use verification surfaces to check which source currently owns the truth when views differ in emphasis or freshness.')
     if blocked_lanes or held_lanes:
         push_risk('Held, blocked, and review-oriented lanes must remain visually distinct so waiting is not misread as progress.')
+    if extensions_meaningful:
+        push_risk('Extensions should remain visibly subordinate to ELI so optional specialist help does not read like a second primary interface.')
+        push_goal('See which extension capabilities are actually useful for this project now, and which remain future-ready or missing.')
 
     push_source(
         'project_expectations',
@@ -9176,6 +9711,27 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         'Explains current-truth authority, recent transitions, and representation risks without replacing the authoritative surfaces themselves.',
         state_surface_generated_at(verification_state),
     )
+    push_source(
+        'extensions_capability_review',
+        'extension_posture',
+        'supporting_context',
+        extensions_state.get('summary', ''),
+        state_surface_generated_at(extensions_state),
+    )
+    push_source(
+        'specialist_registry',
+        'specialist_capability_definition',
+        'supporting_context',
+        'Defines which specialist capabilities currently exist in the canonical ELI extension architecture.',
+        extensions_state.get('source_generated_at', {}).get('specialist_registry', ''),
+    )
+    push_source(
+        'specialist_routing_policy',
+        'specialist_authority_boundary',
+        'supporting_context',
+        'Defines consultation modes, authority safeguards, and preferred routing without replacing ELI judgment.',
+        extensions_state.get('source_generated_at', {}).get('specialist_routing_policy', ''),
+    )
 
     pages.sort(key=lambda row: (ui_page_priority_rank(row.get('priority', 'supporting')), row.get('title', '')))
     page_priority = [
@@ -9184,7 +9740,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'priority': row.get('priority', 'supporting'),
             'why': compact_text_excerpt(row.get('why_this_page_exists', ''), 180),
         }
-        for row in pages[:cfg.get('max_pages', 6)]
+        for row in pages[:cfg.get('max_pages', 7)]
     ]
     page_status = [
         {
@@ -9192,21 +9748,21 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'status': row.get('status', 'supporting'),
             'why': compact_text_excerpt(row.get('why_this_page_exists', ''), 180),
         }
-        for row in pages[:cfg.get('max_pages', 6)]
+        for row in pages[:cfg.get('max_pages', 7)]
     ]
 
     summary = compact_text_excerpt(
         'Current UI planning warrants '
-        + ', '.join(row.get('title', row.get('page_id', 'page')) for row in pages[:cfg.get('max_pages', 6)])
-        + '. Keep project creation visible while intent remains tentative, keep review surfaces bounded and non-final, and let build-oriented pages emerge only when realization readiness is materially justified.',
+        + ', '.join(row.get('title', row.get('page_id', 'page')) for row in pages[:cfg.get('max_pages', 7)])
+        + '. Keep project creation visible while intent remains tentative, keep review surfaces bounded and non-final, let build-oriented pages emerge only when realization readiness is materially justified, and keep extensions visibly subordinate to ELI.',
         320,
     )
 
     return {
         'generated_at': now_iso(),
         'summary': summary,
-        'project_pages': pages[:cfg.get('max_pages', 6)],
-        'section_emergence_rules': section_emergence_rules[: max(4, cfg.get('max_pages', 6))],
+        'project_pages': pages[:cfg.get('max_pages', 7)],
+        'section_emergence_rules': section_emergence_rules[: max(4, cfg.get('max_pages', 7))],
         'source_surfaces': source_surfaces[:cfg.get('max_source_surfaces', 10)],
         'operator_goals': operator_goals[:cfg.get('max_operator_goals', 5)],
         'representation_risks': representation_risks[:cfg.get('max_representation_risks', 5)],
@@ -9225,6 +9781,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'project_milestones': state_surface_generated_at(milestone_state),
             'product_realism_review': state_surface_generated_at(realism_state),
             'component_package_review': state_surface_generated_at(component_state),
+            'extensions_capability_review': state_surface_generated_at(extensions_state),
             'verification_summary': state_surface_generated_at(verification_state),
             'project_scorecard': state_surface_generated_at(scorecard_state),
             'v1_decision_review': state_surface_generated_at(v1_state),
@@ -10190,6 +10747,12 @@ def refresh_review_state_sync_metadata(schema=None):
     save_product_realism_review_state(build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot))
     verification_state = build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
     save_verification_summary_state(verification_state)
+    save_extensions_capability_review_state(build_extensions_capability_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        verification_state=verification_state,
+    ))
     save_ui_surface_plan_state(build_ui_surface_plan_state(
         schema=schema,
         review_snapshot=review_snapshot,
@@ -12531,6 +13094,12 @@ def generate_scorecard_cycle(changes, prior_reports):
     save_product_realism_review_state(build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot))
     verification_state = build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
     save_verification_summary_state(verification_state)
+    save_extensions_capability_review_state(build_extensions_capability_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        verification_state=verification_state,
+    ))
     save_ui_surface_plan_state(build_ui_surface_plan_state(
         schema=schema,
         review_snapshot=review_snapshot,
@@ -13987,6 +14556,7 @@ def context_with_inputs(changes):
     review_state_consumption = load_review_state_consumption_snapshot()
     milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_state_consumption)
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_state_consumption)
+    extensions_capability_state = build_extensions_capability_review_state(schema=schema, review_snapshot=review_state_consumption)
     ui_surface_plan_state = build_ui_surface_plan_state(schema=schema, review_snapshot=review_state_consumption)
     component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_state_consumption)
     pieces = ['# Core Field\n', core_text(), '\n']
@@ -14016,6 +14586,8 @@ def context_with_inputs(changes):
     pieces.append(render_project_milestones_context(milestone_state))
     pieces.append('\n')
     pieces.append(render_product_realism_review_context(product_realism_state))
+    pieces.append('\n')
+    pieces.append(render_extensions_capability_review_context(extensions_capability_state))
     pieces.append('\n')
     pieces.append(render_ui_surface_plan_context(ui_surface_plan_state))
     pieces.append('\n')

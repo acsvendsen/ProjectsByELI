@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-11T13:22:52",
-  "summary": "Current UI planning warrants Project Creation, Project Overview, Review & Decisions, Build & Realization, Subsystems & Workstreams, Verification & Audit. Keep project creation visible while intent remains tentative, keep review surfaces bounded and non-final, and let build-oriented pages emerge only when realization...",
+  "generated_at": "2026-04-11T16:27:15",
+  "summary": "Current UI planning warrants Project Creation, Project Overview, Review & Decisions, Build & Realization, Subsystems & Workstreams, Extensions & Agents, Verification & Audit. Keep project creation visible while intent remains tentative, keep review surfaces bounded and non-final, let build-oriented pages emerge only...",
   "project_pages": [
     {
       "page_id": "project_creation",
@@ -110,7 +110,7 @@
       "purpose": "Surface bounded review fronts, milestone gates, and provisional decision or draft surfaces that are honestly ready for human inspection.",
       "status": "review_oriented",
       "priority": "primary",
-      "why_this_page_exists": "The project currently has 2 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s).",
+      "why_this_page_exists": "The project currently has 1 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s).",
       "driven_by_sources": [
         "execution_resume",
         "project_milestones",
@@ -279,6 +279,81 @@
       ]
     },
     {
+      "page_id": "extensions_and_agents",
+      "title": "Extensions & Agents",
+      "purpose": "Show which behind-the-scenes extension capabilities ELI currently has, which are useful now versus later, and which remain missing or future-ready without making ELI secondary.",
+      "status": "supporting",
+      "priority": "supporting",
+      "why_this_page_exists": "ELI currently has 6 registry-defined extension capability row(s), with 3 recommended for this project now and 0 missing or future-ready row(s) worth making explicit.",
+      "driven_by_sources": [
+        "extensions_capability_review",
+        "specialist_registry",
+        "specialist_routing_policy",
+        "project_milestones",
+        "product_realism_review"
+      ],
+      "sections": [
+        {
+          "section_id": "eli_primary_posture",
+          "title": "ELI Primary Posture",
+          "purpose": "Keep explicit that ELI remains the main interface, synthesizer, and judge while extensions stay subordinate instruments.",
+          "driven_by_sources": [
+            "extensions_capability_review",
+            "specialist_routing_policy"
+          ],
+          "show_when": "Specialist architecture exists and the operator needs to understand its authority boundary.",
+          "hide_when": "Hide only if there is no specialist architecture to explain."
+        },
+        {
+          "section_id": "available_capabilities",
+          "title": "Available Capabilities",
+          "purpose": "Show registry-backed specialist capabilities without implying that every one is active or justified for this project now.",
+          "driven_by_sources": [
+            "extensions_capability_review",
+            "specialist_registry"
+          ],
+          "show_when": "At least one specialist capability is present in the canonical registry.",
+          "hide_when": "Hide when no specialist capability is currently defined."
+        },
+        {
+          "section_id": "project_recommended_extensions",
+          "title": "Project-Recommended Extensions",
+          "purpose": "Show only the extension capabilities whose expected gain is materially positive for current project pressure.",
+          "driven_by_sources": [
+            "extensions_capability_review",
+            "execution_resume",
+            "component_package_review",
+            "product_realism_review"
+          ],
+          "show_when": "Current build, review, or realism pressure makes at least one extension materially useful.",
+          "hide_when": "Hide when the project does not currently justify any extension recommendation."
+        },
+        {
+          "section_id": "missing_or_future_ready",
+          "title": "Missing Or Future-Ready",
+          "purpose": "Make clear which useful capabilities are still missing or premature rather than silently assuming they already exist.",
+          "driven_by_sources": [
+            "extensions_capability_review",
+            "specialist_routing_policy",
+            "component_package_review"
+          ],
+          "show_when": "Policy references or project pressure make some extension gaps worth surfacing.",
+          "hide_when": "Hide when no missing or future-ready capability would help explain project posture."
+        }
+      ],
+      "show_when": "Show when specialist capabilities are real enough that the operator benefits from a compact extension posture.",
+      "hide_when": "Hide when the project has no meaningful specialist architecture or extension fit to explain.",
+      "representation_risks": [
+        "Do not present extensions as equal minds or as hidden autonomous execution.",
+        "Do not let available capability labels imply one-click enablement when this surface is informational only."
+      ],
+      "operator_actions_supported": [
+        "inspect optional extension fit",
+        "see what is available now versus later",
+        "understand that ELI remains primary"
+      ]
+    },
+    {
       "page_id": "verification_and_audit",
       "title": "Verification & Audit",
       "purpose": "Help the operator verify which surfaces are current truth, what changed recently, and what the UI must not imply.",
@@ -369,6 +444,12 @@
       "section_id": "current_truth_sources",
       "emerge_when": "Truth-bearing surfaces and supporting context are distinct enough that the operator needs explicit authority explanation.",
       "withhold_when": "Source authority is too trivial to justify its own operator-facing explanation."
+    },
+    {
+      "page_id": "extensions_and_agents",
+      "section_id": "project_recommended_extensions",
+      "emerge_when": "A current project bottleneck makes one or more extension capabilities materially useful.",
+      "withhold_when": "Extensions would only be listed as generic possibilities without a grounded fit to current project pressure."
     }
   ],
   "source_surfaces": [
@@ -383,28 +464,28 @@
       "surface_id": "execution_resume",
       "role": "operational_resume",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T13:22:52",
+      "generated_at": "2026-04-11T16:27:15",
       "why_it_matters": "Carries the operator-facing current-truth summary, active review front, held lanes, blockers, and next step."
     },
     {
       "surface_id": "project_milestones",
       "role": "milestone_gate",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T13:22:52",
+      "generated_at": "2026-04-11T16:27:15",
       "why_it_matters": "Keeps reviewability tied to readiness bands, blockers, and approval state rather than vague progress."
     },
     {
       "surface_id": "product_realism_review",
       "role": "realism_gate",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T13:22:52",
+      "generated_at": "2026-04-11T16:27:15",
       "why_it_matters": "Constrains product-language and anti-gimmick posture using grounded realism judgment."
     },
     {
       "surface_id": "project_scorecard",
       "role": "subsystem_truth",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T13:21:51",
+      "generated_at": "2026-04-11T16:27:09",
       "why_it_matters": "The scorecard is fresh enough to use as current subsystem-readiness context."
     },
     {
@@ -418,7 +499,7 @@
       "surface_id": "v1_decision_review",
       "role": "review_surface",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T13:21:17",
+      "generated_at": "2026-04-11T16:26:32",
       "why_it_matters": "This file is close enough to its linked review surfaces to compare operationally."
     },
     {
@@ -439,7 +520,7 @@
       "surface_id": "verification_summary",
       "role": "verification_support",
       "trust_use": "supporting_context",
-      "generated_at": "2026-04-11T13:22:52",
+      "generated_at": "2026-04-11T16:27:15",
       "why_it_matters": "Explains current-truth authority, recent transitions, and representation risks without replacing the authoritative surfaces themselves."
     }
   ],
@@ -455,7 +536,7 @@
     "A flat evolution strip can mean stable, stalled, or simply repeating. Verify with the endpoint labels and held or blocked reasons.",
     "Cautionary or provisional surfaces stay visible for continuity, but they should not override current-truth sources.",
     "Tentative expectations must stay visibly tentative; defaults should not read as confirmed operator ambition.",
-    "Emitted draft artifacts can outlive the current pending-decision front, so review context must not be mistaken for live decision state."
+    "Build-oriented pages must not imply that early component-package readiness is already a settled BOM or implementation commitment."
   ],
   "page_priority": [
     {
@@ -471,7 +552,7 @@
     {
       "page_id": "review_and_decisions",
       "priority": "primary",
-      "why": "The project currently has 2 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s)."
+      "why": "The project currently has 1 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s)."
     },
     {
       "page_id": "build_or_realization",
@@ -482,6 +563,11 @@
       "page_id": "subsystem_or_workstream",
       "priority": "secondary",
       "why": "Fresh scorecard truth currently exposes 7 subsystem lane(s), which is enough to justify a real subsystem page rather than burying everything inside a generic overview."
+    },
+    {
+      "page_id": "extensions_and_agents",
+      "priority": "supporting",
+      "why": "ELI currently has 6 registry-defined extension capability row(s), with 3 recommended for this project now and 0 missing or future-ready row(s) worth making explicit."
     },
     {
       "page_id": "verification_and_audit",
@@ -503,7 +589,7 @@
     {
       "page_id": "review_and_decisions",
       "status": "review_oriented",
-      "why": "The project currently has 2 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s)."
+      "why": "The project currently has 1 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s)."
     },
     {
       "page_id": "build_or_realization",
@@ -514,6 +600,11 @@
       "page_id": "subsystem_or_workstream",
       "status": "active",
       "why": "Fresh scorecard truth currently exposes 7 subsystem lane(s), which is enough to justify a real subsystem page rather than burying everything inside a generic overview."
+    },
+    {
+      "page_id": "extensions_and_agents",
+      "status": "supporting",
+      "why": "ELI currently has 6 registry-defined extension capability row(s), with 3 recommended for this project now and 0 missing or future-ready row(s) worth making explicit."
     },
     {
       "page_id": "verification_and_audit",
@@ -530,15 +621,16 @@
   },
   "source_generated_at": {
     "project_expectations": "2026-04-10T09:16:32",
-    "execution_resume": "2026-04-11T13:22:52",
-    "project_milestones": "2026-04-11T13:22:52",
-    "product_realism_review": "2026-04-11T13:22:52",
+    "execution_resume": "2026-04-11T16:27:15",
+    "project_milestones": "2026-04-11T16:27:15",
+    "product_realism_review": "2026-04-11T16:27:15",
     "component_package_review": "2026-04-10T11:43:03",
-    "verification_summary": "2026-04-11T13:22:52",
-    "project_scorecard": "2026-04-11T13:21:51",
-    "v1_decision_review": "2026-04-11T13:21:17",
+    "extensions_capability_review": "2026-04-11T16:27:15",
+    "verification_summary": "2026-04-11T16:27:15",
+    "project_scorecard": "2026-04-11T16:27:09",
+    "v1_decision_review": "2026-04-11T16:26:32",
     "draft_artifact_review": "2026-04-09T23:02:49"
   },
   "revisable": true,
-  "updated_at": "2026-04-11T13:22:52"
+  "updated_at": "2026-04-11T16:27:15"
 }

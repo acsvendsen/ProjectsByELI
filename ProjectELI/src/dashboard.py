@@ -17,6 +17,7 @@ from orchestrator import (
     COMPONENT_PACKAGE_REVIEW_PATH,
     DB_PATH,
     EXECUTION_RESUME_PATH,
+    EXTENSIONS_CAPABILITY_REVIEW_PATH,
     OPERATOR_GUIDANCE_PATH,
     PROJECT_DIR,
     PROJECT_EXPECTATIONS_PATH,
@@ -374,6 +375,16 @@ def load_dashboard_data():
         "realism_link": {},
         "trust_posture": {},
     })
+    extensions_capability_review = read_json(EXTENSIONS_CAPABILITY_REVIEW_PATH, {
+        "generated_at": "",
+        "summary": "",
+        "eli_authority_note": "",
+        "ui_enablement_status": "informational_only",
+        "available_capabilities": [],
+        "project_recommended_extensions": [],
+        "missing_but_useful_capabilities": [],
+        "representation_risks": [],
+    })
     ui_surface_plan = read_json(UI_SURFACE_PLAN_PATH, {
         "generated_at": "",
         "summary": "",
@@ -513,6 +524,7 @@ def load_dashboard_data():
         "product_realism_review": product_realism_review,
         "execution_resume": execution_resume,
         "component_package_review": component_package_review,
+        "extensions_capability_review": extensions_capability_review,
         "ui_surface_plan": ui_surface_plan,
         "scorecard": scorecard,
         "verification_summary": verification_summary,

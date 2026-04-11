@@ -238,9 +238,15 @@ control:
       - schematic_direction
       - interface_map
       - subsystem_breakdown
+  extensions_capability_review:
+    enabled: true
+    max_available: 6
+    max_recommended: 4
+    max_missing: 4
+    max_risks: 4
   ui_surface_plan:
     enabled: true
-    max_pages: 6
+    max_pages: 7
     max_sections_per_page: 4
     max_operator_goals: 5
     max_representation_risks: 5
@@ -252,6 +258,7 @@ control:
       - review_and_decisions
       - build_or_realization
       - verification_and_audit
+      - extensions_and_agents
   execution_resume:
     enabled: true
     max_current_truth_summary: 5
