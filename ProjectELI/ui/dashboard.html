@@ -484,6 +484,76 @@
       background: rgba(255,255,255,0.5);
     }
 
+    .intake-banner {
+      display: grid;
+      gap: 10px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(181,106,45,0.18);
+      background:
+        linear-gradient(180deg, rgba(181,106,45,0.08), rgba(181,106,45,0.03)),
+        rgba(255,255,255,0.82);
+      margin-top: 16px;
+      margin-bottom: 14px;
+    }
+
+    .intake-banner strong {
+      font-size: 1rem;
+      letter-spacing: -0.01em;
+    }
+
+    .intake-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 14px;
+    }
+
+    .intake-card {
+      border: 1px solid rgba(31, 38, 36, 0.08);
+      border-radius: 18px;
+      padding: 14px;
+      background: rgba(255,255,255,0.76);
+      display: grid;
+      gap: 10px;
+    }
+
+    .intake-copy {
+      line-height: 1.55;
+      color: var(--ink);
+    }
+
+    .intake-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .intake-item {
+      border-top: 1px solid rgba(31, 38, 36, 0.08);
+      padding-top: 8px;
+      display: grid;
+      gap: 5px;
+    }
+
+    .intake-item:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .intake-item-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .intake-note {
+      border-radius: 14px;
+      border: 1px dashed rgba(31,38,36,0.12);
+      padding: 12px;
+      color: var(--muted);
+      background: rgba(255,255,255,0.54);
+    }
+
     .mini-pills {
       display: flex;
       flex-wrap: wrap;
@@ -551,6 +621,11 @@
       background: rgba(179,58,58,0.1);
     }
 
+    .mini-pill.review_only {
+      color: var(--muted);
+      background: rgba(92,104,95,0.08);
+    }
+
     .mini-pill.product_candidate_emerging,
     .mini-pill.real_product_path_not_yet_proven,
     .mini-pill.aligned {
@@ -564,6 +639,7 @@
       .hero, .grid-2 { grid-template-columns: 1fr; }
       .steering-grid { grid-template-columns: 1fr; }
       .steering-card.wide { grid-column: auto; }
+      .intake-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -623,6 +699,19 @@
         <h2>Load And Headroom</h2>
         <div class="hero-stats" id="loadStats"></div>
         <div class="notes" id="tweakNotes" style="margin-top:14px"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="panel" id="projectCreationPanel" style="display:none">
+        <div class="label">Project Creation / Intake</div>
+        <h2 id="projectCreationTitle">Project Creation</h2>
+        <p class="sub" id="projectCreationPurpose"></p>
+        <div class="intake-banner" id="projectCreationBanner"></div>
+        <div class="intake-grid">
+          <article class="intake-card" id="projectCreationIntent"></article>
+          <article class="intake-card" id="projectCreationGuardrails"></article>
+        </div>
       </div>
     </section>
 
@@ -1016,6 +1105,110 @@
       return rows.slice(0, 4);
     }
 
+    function collectPageMap(status) {
+      const plan = status.ui_surface_plan || {};
+      const pages = plan.project_pages || [];
+      const pageMap = {};
+      pages.forEach(page => {
+        if (page && page.page_id) pageMap[page.page_id] = page;
+      });
+      return pageMap;
+    }
+
+    function renderListItems(values, emptyText) {
+      const rows = (values || []).filter(Boolean).slice(0, 4);
+      if (!rows.length) return `<div class="intake-note">${emptyText}</div>`;
+      return `<div class="intake-list">${rows.map(item => `
+        <div class="intake-item">
+          <div>${truncateText(item, 220)}</div>
+        </div>
+      `).join("")}</div>`;
+    }
+
+    function renderProjectCreation(status) {
+      const pageMap = collectPageMap(status);
+      const page = pageMap.project_creation;
+      const panel = document.getElementById("projectCreationPanel");
+      if (!page) {
+        panel.style.display = "none";
+        return;
+      }
+
+      panel.style.display = "";
+      const expectations = status.project_expectations || {};
+      const realism = status.product_realism_review || {};
+      const sections = page.sections || [];
+      const intentSection = sections.find(section => section.section_id === "intent_and_quality_bar") || {};
+      const guardrailsSection = sections.find(section => section.section_id === "claim_guardrails") || {};
+      const posturePills = [
+        `<span class="mini-pill ${page.status || "tentative"}">${humanizeToken(page.status || "tentative")}</span>`,
+        `<span class="mini-pill ${expectations.defaults_are_tentative ? "tentative" : "operator_reviewed"}">${expectations.defaults_are_tentative ? "Tentative defaults" : "Expectation posture set"}</span>`,
+        `<span class="mini-pill ${expectations.reviewed_by_operator ? "operator_reviewed" : "tentative"}">${expectations.reviewed_by_operator ? "Operator reviewed" : "Not yet operator-reviewed"}</span>`,
+        `<span class="mini-pill review_only">Review surface only</span>`,
+      ];
+
+      document.getElementById("projectCreationTitle").textContent = page.title || "Project Creation";
+      document.getElementById("projectCreationPurpose").textContent =
+        page.purpose || "Capture and tighten project intent, seriousness, compromise posture, and the conditions required before stronger product claims.";
+
+      document.getElementById("projectCreationBanner").innerHTML = `
+        <div class="mini-pills">${posturePills.join("")}</div>
+        <strong>${page.why_this_page_exists || "Project intent is still being treated as a tentative review surface, not a confirmed setup."}</strong>
+        <div class="intake-copy">
+          ${expectations.defaults_are_tentative
+            ? "These are conservative ELI defaults. They are visible for review and tightening, not yet a confirmed operator declaration."
+            : "This intake posture has been tightened beyond the conservative defaults."
+          }
+        </div>
+      `;
+
+      document.getElementById("projectCreationIntent").innerHTML = `
+        <div class="verification-heading">${intentSection.title || "Intent & Quality Bar"}</div>
+        ${intentSection.purpose ? `<div class="footer">${intentSection.purpose}</div>` : ""}
+        <div class="mini-pills">
+          <span class="mini-pill ${expectations.target_outcome_type || ""}">${humanizeToken(expectations.target_outcome_type || "functional_prototype")}</span>
+          <span class="mini-pill">${humanizeToken(expectations.quality_bar || "credible")}</span>
+          <span class="mini-pill">${humanizeToken(expectations.intended_seriousness || "exploratory")}</span>
+        </div>
+        <div class="intake-copy">${expectations.project_intent || "No project intent is available yet."}</div>
+        <div class="intake-list">
+          <div class="intake-item">
+            <div class="intake-item-label">Economic or practical goal</div>
+            <div>${truncateText(expectations.economic_or_practical_goal || "No practical goal is recorded yet.", 240)}</div>
+          </div>
+          <div class="intake-item">
+            <div class="intake-item-label">Acceptable compromises</div>
+            ${renderListItems(expectations.acceptable_compromises, "No acceptable-compromises guidance is recorded yet.")}
+          </div>
+        </div>
+      `;
+
+      const realismWarning = (realism.missing_for_product_candidate || [])[0] || (realism.gimmick_risks || [])[0] || "";
+      document.getElementById("projectCreationGuardrails").innerHTML = `
+        <div class="verification-heading">${guardrailsSection.title || "Claim Guardrails"}</div>
+        ${guardrailsSection.purpose ? `<div class="footer">${guardrailsSection.purpose}</div>` : ""}
+        <div class="intake-list">
+          <div class="intake-item">
+            <div class="intake-item-label">Must not be</div>
+            ${renderListItems(expectations.must_not_be, "No explicit anti-gimmick guardrail is recorded yet.")}
+          </div>
+          <div class="intake-item">
+            <div class="intake-item-label">Must be true before real product claim</div>
+            ${renderListItems(expectations.must_be_true_before_real_product_claim, "No real-product claim criteria are recorded yet.")}
+          </div>
+          <div class="intake-item">
+            <div class="intake-item-label">Product-candidate goal</div>
+            <div>${truncateText(expectations.product_candidate_goal || "No explicit product-candidate guardrail is recorded yet.", 240)}</div>
+          </div>
+          <div class="intake-item">
+            <div class="intake-item-label">Operator note</div>
+            <div>${truncateText(expectations.operator_notes || "No operator note is recorded yet.", 240)}</div>
+          </div>
+        </div>
+        ${realismWarning ? `<div class="footer"><strong>Current realism warning:</strong> ${truncateText(realismWarning, 220)}</div>` : ""}
+      `;
+    }
+
     function renderProjectSteering(status) {
       const expectations = status.project_expectations || {};
       const milestonesState = status.project_milestones || {};
@@ -1316,6 +1509,7 @@
 
       renderTelemetry(status);
       renderActions(status);
+      renderProjectCreation(status);
       renderProjectSteering(status);
       renderScorecard(status);
 

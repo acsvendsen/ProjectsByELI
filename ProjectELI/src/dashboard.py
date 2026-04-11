@@ -25,6 +25,7 @@ from orchestrator import (
     RUNTIME_STATE_PATH,
     SCORECARD_STATE_PATH,
     STATE_DIR,
+    UI_SURFACE_PLAN_PATH,
     VERIFICATION_SUMMARY_PATH,
     ensure_db,
     watch_roots,
@@ -356,6 +357,14 @@ def load_dashboard_data():
         "needs_human_review": [],
         "resume_notes": [],
     })
+    ui_surface_plan = read_json(UI_SURFACE_PLAN_PATH, {
+        "generated_at": "",
+        "summary": "",
+        "project_pages": [],
+        "section_emergence_rules": [],
+        "representation_risks": [],
+        "operator_goals": [],
+    })
     scorecard = read_json(SCORECARD_STATE_PATH, {"project_summary": "", "dimensions": []})
     scorecard = build_scorecard_history(scorecard if isinstance(scorecard, dict) else {"project_summary": "", "dimensions": []})
     verification_summary = read_json(VERIFICATION_SUMMARY_PATH, {
@@ -486,6 +495,7 @@ def load_dashboard_data():
         "project_milestones": project_milestones,
         "product_realism_review": product_realism_review,
         "execution_resume": execution_resume,
+        "ui_surface_plan": ui_surface_plan,
         "scorecard": scorecard,
         "verification_summary": verification_summary,
         "telemetry": telemetry,
