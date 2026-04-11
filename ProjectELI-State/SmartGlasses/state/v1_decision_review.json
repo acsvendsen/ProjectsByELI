@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-11T19:51:51",
+  "generated_at": "2026-04-11T19:57:10",
   "response_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/state/v1_decision_human_responses.json",
   "allowed_responses": [
     "accept_for_v1",
@@ -7,10 +7,87 @@
     "hold",
     "revise_options"
   ],
-  "pending_v1_decisions": [],
+  "pending_v1_decisions": [
+    {
+      "decision_id": "v1_visual_hierarchy_default",
+      "label": "V1 Visual Hierarchy Default",
+      "question": "What should the default visual hierarchy be for V1 overlays during live conversation?",
+      "scope": "v1_default",
+      "action_id": "visual-hierarchy",
+      "action_title": "Visual Hierarchy",
+      "action_domain": "visual hierarchy",
+      "candidate_status": "pending_v1_decision",
+      "candidate_cycle_state": "new_candidate",
+      "grounding_status": "grounded",
+      "feasibility": "feasible_now",
+      "reason": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit V1 options. promoting it to a decision candidate should reduce repeated abstract re-probing. this does not reopen it as an action even though current action judgment is kill.",
+      "options": [
+        {
+          "id": "subtitles_dominate",
+          "label": "Subtitles Dominate"
+        },
+        {
+          "id": "balanced_overlay",
+          "label": "Balanced Overlay"
+        }
+      ],
+      "selected_choice_id": "subtitles_dominate",
+      "selected_choice_label": "Subtitles Dominate",
+      "human_response": "",
+      "human_response_at": "",
+      "human_response_note": "",
+      "human_response_choice_id": "",
+      "human_response_choice_label": "",
+      "revisable": true,
+      "revision_signals": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully lower resistance"
+      ],
+      "confidence": 0.794
+    },
+    {
+      "decision_id": "v1_confidence_display_format",
+      "label": "V1 Confidence Display Format",
+      "question": "What confidence format should V1 use by default during live subtitle support?",
+      "scope": "v1_default",
+      "action_id": "confidence-display",
+      "action_title": "Confidence Display",
+      "action_domain": "confidence display",
+      "candidate_status": "pending_v1_decision",
+      "candidate_cycle_state": "new_candidate",
+      "grounding_status": "grounded",
+      "feasibility": "feasible_now",
+      "reason": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit V1 options. promoting it to a decision candidate should reduce repeated abstract re-probing. this does not reopen it as an action even though current action judgment is kill.",
+      "options": [
+        {
+          "id": "label_only",
+          "label": "Label Only"
+        },
+        {
+          "id": "label_plus_reason",
+          "label": "Label + Reason"
+        }
+      ],
+      "selected_choice_id": "label_plus_reason",
+      "selected_choice_label": "Label + Reason",
+      "human_response": "",
+      "human_response_at": "",
+      "human_response_note": "",
+      "human_response_choice_id": "",
+      "human_response_choice_label": "",
+      "revisable": true,
+      "revision_signals": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully lower resistance"
+      ],
+      "confidence": 0.793
+    }
+  ],
   "counts": {
-    "pending_v1_decisions": 0,
+    "pending_v1_decisions": 2,
     "human_responded": 0
   },
-  "updated_at": "2026-04-11T19:51:51"
+  "updated_at": "2026-04-11T19:57:10"
 }
