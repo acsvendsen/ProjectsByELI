@@ -554,6 +554,83 @@
       background: rgba(255,255,255,0.54);
     }
 
+    .realization-banner {
+      display: grid;
+      gap: 10px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(13,124,102,0.16);
+      background:
+        linear-gradient(180deg, rgba(13,124,102,0.08), rgba(13,124,102,0.03)),
+        rgba(255,255,255,0.82);
+      margin-top: 16px;
+      margin-bottom: 14px;
+    }
+
+    .realization-banner strong {
+      font-size: 1rem;
+      letter-spacing: -0.01em;
+    }
+
+    .realization-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .realization-card {
+      border: 1px solid rgba(31, 38, 36, 0.08);
+      border-radius: 18px;
+      padding: 14px;
+      background: rgba(255,255,255,0.76);
+      display: grid;
+      gap: 10px;
+    }
+
+    .realization-copy {
+      line-height: 1.5;
+      color: var(--ink);
+    }
+
+    .realization-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .realization-row {
+      display: grid;
+      gap: 6px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(31, 38, 36, 0.08);
+    }
+
+    .realization-row:first-child {
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .realization-row-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .realization-subhead {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .realization-empty {
+      border-radius: 14px;
+      border: 1px dashed rgba(31,38,36,0.12);
+      padding: 12px;
+      color: var(--muted);
+      background: rgba(255,255,255,0.54);
+    }
+
     .mini-pills {
       display: flex;
       flex-wrap: wrap;
@@ -633,6 +710,16 @@
       background: rgba(13,124,102,0.08);
     }
 
+    .mini-pill.early_subsystem_bom_only,
+    .mini-pill.subsystem_bom,
+    .mini-pill.prototype_component_package,
+    .mini-pill.prototype_bom,
+    .mini-pill.implementation_package,
+    .mini-pill.quality_upgrade_package {
+      color: var(--accent);
+      background: rgba(13,124,102,0.08);
+    }
+
     .mono { font-family: var(--font-mono); }
 
     @media (max-width: 980px) {
@@ -640,6 +727,7 @@
       .steering-grid { grid-template-columns: 1fr; }
       .steering-card.wide { grid-column: auto; }
       .intake-grid { grid-template-columns: 1fr; }
+      .realization-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -726,6 +814,21 @@
           <article class="steering-card" id="steeringReviewable"></article>
           <article class="steering-card" id="steeringBlockers"></article>
           <article class="steering-card wide" id="steeringMilestones"></article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="panel" id="buildRealizationPanel" style="display:none">
+        <div class="label">Build & Realization</div>
+        <h2 id="buildRealizationTitle">Build & Realization</h2>
+        <p class="sub" id="buildRealizationPurpose"></p>
+        <div class="realization-banner" id="buildRealizationBanner"></div>
+        <div class="realization-grid">
+          <article class="realization-card" id="buildPostureCard"></article>
+          <article class="realization-card" id="buildNextStepsCard"></article>
+          <article class="realization-card" id="buildBlockedCard"></article>
+          <article class="realization-card" id="buildComponentCard"></article>
         </div>
       </div>
     </section>
@@ -1125,6 +1228,30 @@
       `).join("")}</div>`;
     }
 
+    function uniqueTextValues(values, limit = 4) {
+      const rows = [];
+      const seen = new Set();
+      (values || []).forEach(value => {
+        const text = truncateText(value, 220);
+        if (!text) return;
+        const key = text.toLowerCase();
+        if (seen.has(key)) return;
+        seen.add(key);
+        rows.push(text);
+      });
+      return rows.slice(0, limit);
+    }
+
+    function renderRealizationRows(values, emptyText, limit = 4) {
+      const rows = uniqueTextValues(values, limit);
+      if (!rows.length) return `<div class="realization-empty">${emptyText}</div>`;
+      return `<div class="realization-list">${rows.map(item => `
+        <div class="realization-row">
+          <div>${item}</div>
+        </div>
+      `).join("")}</div>`;
+    }
+
     function renderProjectCreation(status) {
       const pageMap = collectPageMap(status);
       const page = pageMap.project_creation;
@@ -1206,6 +1333,148 @@
           </div>
         </div>
         ${realismWarning ? `<div class="footer"><strong>Current realism warning:</strong> ${truncateText(realismWarning, 220)}</div>` : ""}
+      `;
+    }
+
+    function renderBuildRealization(status) {
+      const pageMap = collectPageMap(status);
+      const page = pageMap.build_or_realization;
+      const panel = document.getElementById("buildRealizationPanel");
+      if (!page) {
+        panel.style.display = "none";
+        return;
+      }
+
+      panel.style.display = "";
+      const componentReview = status.component_package_review || {};
+      const milestonesState = status.project_milestones || {};
+      const milestones = milestonesState.milestones || [];
+      const realism = status.product_realism_review || {};
+      const resume = status.execution_resume || {};
+      const sections = page.sections || [];
+      const implementationGateSection = sections.find(section => section.section_id === "implementation_package_gate") || {};
+      const componentSection = sections.find(section => section.section_id === "component_package_readiness") || {};
+      const blockersSection = sections.find(section => section.section_id === "build_blockers") || {};
+      const implementationGate = milestones.find(row => row.milestone_id === "implementation_package_review") || {};
+      const realismGate = milestones.find(row => row.milestone_id === "product_realism_check") || {};
+      const supportedNow = uniqueTextValues(componentReview.required_now || [], 3);
+      const evidenceNext = uniqueTextValues(realism.what_would_materially_improve_realism || [], 3);
+      const blockers = uniqueTextValues([
+        ...(componentReview.blocked_by_unresolved_choices || []),
+        ...(componentReview.missing_for_stronger_bom || []),
+      ], 5);
+      const trustNotes = [];
+      if (componentReview.trust_posture?.overall_sync_status || componentReview.trust_posture?.overall_trust_status) {
+        trustNotes.push(
+          `${humanizeToken(componentReview.trust_posture.overall_sync_status || "provisional")} / ${humanizeToken(componentReview.trust_posture.overall_trust_status || "provisional")}`
+        );
+      }
+      if (componentReview.trust_posture?.artifact_review_use === "stale_context") {
+        trustNotes.push("artifact review history is supporting context only");
+      }
+      if (resume.component_package?.trust_posture && !trustNotes.length) {
+        trustNotes.push(humanizeToken(resume.component_package.trust_posture));
+      }
+
+      document.getElementById("buildRealizationTitle").textContent = page.title || "Build & Realization";
+      document.getElementById("buildRealizationPurpose").textContent =
+        page.purpose || "Expose build-oriented readiness only when implementation maturity, milestone state, or component-package posture makes that surface honest.";
+
+      document.getElementById("buildRealizationBanner").innerHTML = `
+        <div class="mini-pills">
+          <span class="mini-pill ${componentReview.bom_readiness_band || ""}">${componentReview.bom_readiness_band === "early_subsystem_bom_only" ? "Subsystem BOM only" : humanizeToken(componentReview.bom_readiness_band || "not_warranted")}</span>
+          <span class="mini-pill ${componentReview.component_package_kind || ""}">${humanizeToken(componentReview.component_package_kind || "component package")}</span>
+          <span class="mini-pill ${realism.current_realism_band || ""}">${humanizeToken(realism.current_realism_band || "concept_only")}</span>
+          <span class="mini-pill ${implementationGate.approval_state || "not_yet_reviewable"}">${implementationGate.approval_state === "ready_for_review" ? "Implementation gate reviewable" : humanizeToken(implementationGate.approval_state || "not_yet_reviewable")}</span>
+          <span class="mini-pill tentative">Not a final build package</span>
+        </div>
+        <strong>${page.why_this_page_exists || componentReview.why_bom_is_or_is_not_warranted || "Build posture is now meaningful enough to inspect without pretending the package is settled."}</strong>
+        <div class="realization-copy">${componentReview.why_bom_is_or_is_not_warranted || "No component-package readiness summary is available yet."}</div>
+        ${trustNotes.length ? `<div class="footer"><strong>Trust note:</strong> ${trustNotes.join(" · ")}</div>` : ""}
+      `;
+
+      document.getElementById("buildPostureCard").innerHTML = `
+        <div class="verification-heading">Current Build Posture</div>
+        <div class="mini-pills">
+          <span class="mini-pill ${componentReview.bom_readiness_band || ""}">${humanizeToken(componentReview.bom_readiness_band || "not_warranted")}</span>
+          <span class="mini-pill ${realism.current_realism_band || ""}">${humanizeToken(realism.current_realism_band || "concept_only")}</span>
+          <span class="mini-pill prototype_oriented">Prototype-oriented</span>
+        </div>
+        <div class="realization-copy">${componentReview.why_bom_is_or_is_not_warranted || "Component-package posture is not available yet."}</div>
+        <div class="realization-list">
+          <div class="realization-row">
+            <div class="realization-row-head">
+              <strong>Implementation package gate</strong>
+              <div class="mini-pills">
+                <span class="mini-pill ${implementationGate.approval_state || "not_yet_reviewable"}">${humanizeToken(implementationGate.approval_state || "not_yet_reviewable")}</span>
+                <span class="mini-pill ${implementationGate.current_band || ""}">${humanizeToken(implementationGate.current_band || "emerging")}</span>
+              </div>
+            </div>
+            <div>${milestoneDetailText(implementationGate) || "Implementation-package review is not yet carrying a bounded review question."}</div>
+          </div>
+          <div class="realization-row">
+            <div class="realization-row-head">
+              <strong>Product realism gate</strong>
+              <div class="mini-pills">
+                <span class="mini-pill ${realismGate.approval_state || "held"}">${humanizeToken(realismGate.approval_state || "held")}</span>
+                <span class="mini-pill ${realism.current_realism_band || ""}">${humanizeToken(realism.current_realism_band || "concept_only")}</span>
+              </div>
+            </div>
+            <div>${truncateText(realism.why_this_band || realismGate.why_not_ready_yet || "Product realism context is not available yet.", 220)}</div>
+          </div>
+        </div>
+        ${implementationGateSection.purpose ? `<div class="footer"><strong>Gate purpose:</strong> ${truncateText(implementationGateSection.purpose, 220)}</div>` : ""}
+      `;
+
+      document.getElementById("buildNextStepsCard").innerHTML = `
+        <div class="verification-heading">Practical Next Steps</div>
+        <div class="realization-subhead">Supported now</div>
+        ${renderRealizationRows(
+          supportedNow,
+          "No bounded implementation-package step is currently supported by canonical state.",
+          3
+        )}
+        <div class="realization-subhead">Evidence to collect next</div>
+        ${renderRealizationRows(
+          evidenceNext,
+          "No stronger evidence target is currently recorded for this build page.",
+          3
+        )}
+        ${implementationGate.review_questions?.length ? `<div class="footer"><strong>Current review question:</strong> ${truncateText(implementationGate.review_questions[0], 220)}</div>` : ""}
+      `;
+
+      document.getElementById("buildBlockedCard").innerHTML = `
+        <div class="verification-heading">Blocked / Not Yet Strong Enough</div>
+        ${renderRealizationRows(
+          blockers,
+          "No build-oriented blockers are currently recorded.",
+          5
+        )}
+        ${blockersSection.purpose ? `<div class="footer"><strong>Why blockers stay visible:</strong> ${truncateText(blockersSection.purpose, 220)}</div>` : ""}
+        ${(realism.missing_for_product_candidate || []).length ? `<div class="footer"><strong>Still missing for stronger product claims:</strong> ${truncateText(realism.missing_for_product_candidate[0], 220)}</div>` : ""}
+      `;
+
+      document.getElementById("buildComponentCard").innerHTML = `
+        <div class="verification-heading">Component Package Posture</div>
+        <div class="mini-pills">
+          ${(componentReview.target_subsystems || []).map(item => `<span class="mini-pill">${truncateText(item, 60)}</span>`).join("") || `<span class="mini-pill">No target subsystem</span>`}
+        </div>
+        <div class="intake-list">
+          <div class="intake-item">
+            <div class="intake-item-label">Required now</div>
+            ${renderListItems(componentReview.required_now, "No required subsystem package is currently warranted.")}
+          </div>
+          <div class="intake-item">
+            <div class="intake-item-label">Recommended for quality</div>
+            ${renderListItems(componentReview.recommended_for_quality, "No quality-upgrade package is currently justified.")}
+          </div>
+          <div class="intake-item">
+            <div class="intake-item-label">Optional or later</div>
+            ${renderListItems(componentReview.optional_or_later, "No later-stage package is currently called out.")}
+          </div>
+        </div>
+        <div class="footer"><strong>Package posture:</strong> Subsystem BOM frame only. This is not a locked parts list or final build package.</div>
+        ${componentSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(componentSection.purpose, 220)}</div>` : ""}
       `;
     }
 
@@ -1511,6 +1780,7 @@
       renderActions(status);
       renderProjectCreation(status);
       renderProjectSteering(status);
+      renderBuildRealization(status);
       renderScorecard(status);
 
       document.getElementById("outputs").innerHTML = status.valuable_outputs.map(item => `
