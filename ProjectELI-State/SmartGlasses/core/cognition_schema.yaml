@@ -244,6 +244,11 @@ control:
     max_recommended: 4
     max_missing: 4
     max_risks: 4
+  hardware_aware_rendering_briefs:
+    enabled: true
+    max_visible: 4
+    max_subsystem_inputs: 5
+    max_open_gaps: 5
   ui_surface_plan:
     enabled: true
     max_pages: 7

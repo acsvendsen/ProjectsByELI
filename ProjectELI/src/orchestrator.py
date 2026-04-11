@@ -188,6 +188,16 @@ COMPONENT_PACKAGE_KINDS = (
     'implementation_package',
     'quality_upgrade_package',
 )
+HARDWARE_AWARE_RENDERING_OBJECT_TYPES = (
+    'frame_variant_comparison',
+    'component_zone_layout',
+    'overlay_region_comparison',
+)
+HARDWARE_AWARE_RENDERING_OUTPUT_TYPES = (
+    'annotated_variant_sheet',
+    'component_zone_layout_sketch',
+    'overlay_comparison_strip',
+)
 EXTENSIONS_ENABLEMENT_STATUSES = (
     'available',
     'missing',
@@ -606,6 +616,7 @@ PROJECT_MILESTONES_PATH = PROJECT_STATE_DIR / "project_milestones.json"
 PRODUCT_REALISM_REVIEW_PATH = PROJECT_STATE_DIR / "product_realism_review.json"
 COMPONENT_PACKAGE_REVIEW_PATH = PROJECT_STATE_DIR / "component_package_review.json"
 EXTENSIONS_CAPABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "extensions_capability_review.json"
+HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH = PROJECT_STATE_DIR / "hardware_aware_rendering_brief_review.json"
 UI_SURFACE_PLAN_PATH = PROJECT_STATE_DIR / "ui_surface_plan.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
@@ -951,6 +962,12 @@ DEFAULT_COGNITION_SCHEMA = {
             'max_recommended': 4,
             'max_missing': 4,
             'max_risks': 4,
+        },
+        'hardware_aware_rendering_briefs': {
+            'enabled': True,
+            'max_visible': 4,
+            'max_subsystem_inputs': 5,
+            'max_open_gaps': 5,
         },
         'ui_surface_plan': {
             'enabled': True,
@@ -1305,6 +1322,11 @@ control:
     max_recommended: 4
     max_missing: 4
     max_risks: 4
+  hardware_aware_rendering_briefs:
+    enabled: true
+    max_visible: 4
+    max_subsystem_inputs: 5
+    max_open_gaps: 5
   ui_surface_plan:
     enabled: true
     max_pages: 7
@@ -7355,6 +7377,18 @@ def extensions_capability_review_config(schema=None):
     }
 
 
+def hardware_aware_rendering_brief_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('hardware_aware_rendering_briefs', {}) if isinstance(control.get('hardware_aware_rendering_briefs', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'max_visible': max(1, safe_int(cfg.get('max_visible', 4), 4)),
+        'max_subsystem_inputs': max(1, safe_int(cfg.get('max_subsystem_inputs', 5), 5)),
+        'max_open_gaps': max(1, safe_int(cfg.get('max_open_gaps', 5), 5)),
+    }
+
+
 def ui_surface_plan_config(schema=None):
     schema = schema or load_cognition_schema()
     control = schema.get('control', {}) if isinstance(schema, dict) else {}
@@ -9059,6 +9093,398 @@ def render_extensions_capability_review_context(extensions_state=None):
     return '\n'.join(lines) + '\n'
 
 
+def default_hardware_aware_rendering_brief_review_state():
+    return {
+        'generated_at': '',
+        'summary': '',
+        'eli_authority_note': '',
+        'informational_extension_posture': 'informational_only',
+        'rendering_briefs': [],
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_hardware_aware_rendering_brief_review_state():
+    data = load_json_file(HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH, default_hardware_aware_rendering_brief_review_state())
+    if not isinstance(data, dict):
+        data = default_hardware_aware_rendering_brief_review_state()
+    if not isinstance(data.get('rendering_briefs'), list):
+        data['rendering_briefs'] = []
+    if not isinstance(data.get('source_generated_at'), dict):
+        data['source_generated_at'] = {}
+    if not isinstance(data.get('summary'), str):
+        data['summary'] = ''
+    if not isinstance(data.get('eli_authority_note'), str):
+        data['eli_authority_note'] = ''
+    if not isinstance(data.get('informational_extension_posture'), str):
+        data['informational_extension_posture'] = 'informational_only'
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_hardware_aware_rendering_brief_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_hardware_aware_rendering_brief_review_state()
+    payload['updated_at'] = now_iso()
+    HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def build_hardware_aware_rendering_brief_review_state(
+    schema=None,
+    review_snapshot=None,
+    milestone_state=None,
+    realism_state=None,
+    component_state=None,
+    extensions_state=None,
+):
+    schema = schema or load_cognition_schema()
+    cfg = hardware_aware_rendering_brief_config(schema)
+    if not cfg.get('enabled', True):
+        return default_hardware_aware_rendering_brief_review_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    expectations = load_project_expectations_state()
+    milestone_state = milestone_state if isinstance(milestone_state, dict) else build_project_milestones_state(schema=schema, review_snapshot=review_snapshot)
+    realism_state = realism_state if isinstance(realism_state, dict) else build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
+    component_state = component_state if isinstance(component_state, dict) else build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
+    extensions_state = extensions_state if isinstance(extensions_state, dict) else build_extensions_capability_review_state(schema=schema, review_snapshot=review_snapshot)
+    reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
+    scorecard_state = load_scorecard_state()
+    exec_cfg = execution_resume_config(schema)
+    scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
+    scorecard_dimensions = scorecard_state.get('dimensions', []) if scorecard_use == 'current_truth' and isinstance(scorecard_state.get('dimensions', []), list) else []
+
+    review_surfaces = review_snapshot.get('surfaces', {}) if isinstance(review_snapshot.get('surfaces', {}), dict) else {}
+    v1_surface = review_surfaces.get('v1_decision_review', {})
+    v1_payload = v1_surface.get('payload', {}) if isinstance(v1_surface.get('payload', {}), dict) else {}
+    pending_rows = v1_payload.get('pending_v1_decisions', []) if v1_surface.get('consumption_state') in ('current_truth', 'provisional_context') and isinstance(v1_payload.get('pending_v1_decisions', []), list) else []
+
+    milestone_rows = milestone_state.get('milestones', []) if isinstance(milestone_state.get('milestones', []), list) else []
+    milestone_by_id = {
+        normalize_signal_key(row.get('milestone_id', '')): row
+        for row in milestone_rows
+        if isinstance(row, dict) and row.get('milestone_id')
+    }
+    implementation_milestone = milestone_by_id.get('implementation_package_review', {})
+
+    available_rows = extensions_state.get('available_capabilities', []) if isinstance(extensions_state.get('available_capabilities', []), list) else []
+    recommended_rows = extensions_state.get('project_recommended_extensions', []) if isinstance(extensions_state.get('project_recommended_extensions', []), list) else []
+    visualization_available = any(str(row.get('capability_id', '')) == 'visualization_rendering_help' for row in available_rows if isinstance(row, dict))
+    visualization_recommended = any(str(row.get('capability_id', '')) == 'visualization_rendering_help' for row in recommended_rows if isinstance(row, dict))
+
+    component_band = str(component_state.get('bom_readiness_band', 'not_warranted') or 'not_warranted')
+    realism_band = str(realism_state.get('current_realism_band', 'concept_only') or 'concept_only')
+    implementation_ready = str(implementation_milestone.get('approval_state', '') or '') == 'ready_for_review'
+    build_posture_live = component_band != 'not_warranted' or implementation_ready
+    tentative_posture = bool(expectations.get('defaults_are_tentative', True))
+
+    scorecard_lookup = {
+        normalize_signal_key(row.get('label', row.get('id', ''))): row
+        for row in scorecard_dimensions
+        if isinstance(row, dict) and (row.get('label') or row.get('id'))
+    }
+    decision_by_domain = {
+        normalize_signal_key(row.get('action_domain', '')): row
+        for row in pending_rows
+        if isinstance(row, dict) and row.get('action_domain')
+    }
+    subtitle_decision = decision_by_domain.get('subtitle_placement', {})
+    confidence_decision = decision_by_domain.get('confidence_display', {})
+    hierarchy_decision = decision_by_domain.get('visual_hierarchy', {})
+
+    def unique_lines(items, limit, width=220):
+        seen = set()
+        results = []
+        for item in items:
+            text = compact_text_excerpt(item, width)
+            if not text:
+                continue
+            key = text.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            results.append(text)
+            if len(results) >= limit:
+                break
+        return results
+
+    def subsystem_input(label, relevance):
+        row = scorecard_lookup.get(normalize_signal_key(label), {})
+        return {
+            'subsystem': label,
+            'status': normalize_scorecard_status(row.get('status', 'unknown')),
+            'grounding_status': normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')),
+            'why_it_matters': compact_text_excerpt(relevance or row.get('next_focus', ''), 180),
+        }
+
+    def subsystem_inputs(items):
+        rows = []
+        seen = set()
+        for label, relevance in items:
+            key = normalize_signal_key(label)
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            rows.append(subsystem_input(label, relevance))
+            if len(rows) >= cfg.get('max_subsystem_inputs', 5):
+                break
+        return rows
+
+    def authority_posture():
+        return {
+            'eli_is_authoritative': True,
+            'rendering_is_subordinate': True,
+            'drafting_support_only': True,
+            'no_direct_state_mutation': True,
+            'informational_extension_posture': 'informational_only',
+        }
+
+    def acceptance_mode():
+        return {
+            'mode': 'eli_review_only',
+            'eli_may': ['partial_accept', 'reject', 'defer', 'revise'],
+            'automatic_acceptance': False,
+            'rendering_output_is_not_project_truth': True,
+        }
+
+    common_interaction_constraints = [
+        'V1 interaction is frame-touch-first; do not imply voice-command-first control.',
+        'Phone-first runtime remains the working assumption; do not imply autonomous on-glasses compute.',
+        'Keep firmware and display-control behavior simple enough for a serious prototype path rather than a hidden complex control system.',
+        'Touch affordances should remain minimal and realistic for a prototype frame.',
+    ]
+    common_trust_constraints = [
+        'Make camera or microphone presence privacy-visible rather than silently hidden in polished imagery.',
+        'Do not flatten unresolved wireless, firmware, memory, or trust issues into clean visuals.',
+        'Keep wearer-visible trust posture plausible around confidence display, memory cues, and capture boundaries.',
+        'Do not imply solved consent, retention, or data-boundary behavior.',
+    ]
+    common_forbidden_implications = [
+        'Do not imply final industrial design, final implementation package, or product-candidate maturity.',
+        'Do not imply resolved optics, resolved display engine, or resolved subsystem closure where grounding is weak.',
+        'Do not imply a final BOM, final component picks, or procurement readiness.',
+        'Do not imply standalone glasses runtime while phone-first and wireless dependency remain active constraints.',
+    ]
+    if tentative_posture:
+        common_forbidden_implications.append('Do not imply operator-confirmed product ambition while project expectations remain explicitly tentative.')
+
+    component_blockers = component_state.get('blocked_by_unresolved_choices', []) if isinstance(component_state.get('blocked_by_unresolved_choices', []), list) else []
+    realism_improvements = realism_state.get('what_would_materially_improve_realism', []) if isinstance(realism_state.get('what_would_materially_improve_realism', []), list) else []
+
+    rendering_gaps = unique_lines(
+        [
+            scorecard_lookup.get('wireless_interface', {}).get('next_focus', ''),
+            scorecard_lookup.get('firmware', {}).get('next_focus', ''),
+            scorecard_lookup.get('memory_system', {}).get('next_focus', ''),
+            scorecard_lookup.get('privacy_and_trust', {}).get('next_focus', ''),
+            *component_blockers,
+            *realism_improvements,
+        ],
+        cfg.get('max_open_gaps', 5),
+        width=200,
+    )
+
+    briefs = []
+
+    if visualization_recommended and build_posture_live:
+        subtitle_choice = subtitle_decision.get('selected_choice_label', 'Stable Default') or 'Stable Default'
+        confidence_choice = confidence_decision.get('selected_choice_label', 'Label + Reason') or 'Label + Reason'
+        hierarchy_choice = hierarchy_decision.get('selected_choice_label', 'Subtitles Dominate') or 'Subtitles Dominate'
+
+        briefs.append({
+            'brief_id': 'subtitle_first_frame_variant_comparison',
+            'title': 'Subtitle-First Frame Variant Comparison',
+            'purpose': 'Compare a discreet normal-looking subtitle-first glasses concept against more technically permissive frame variants without implying solved industrial design.',
+            'object_type': 'frame_variant_comparison',
+            'render_goal': 'Show 2-3 subtitle-first frame variants that make subtitle region, display-placement tradeoffs, camera or mic candidate zones, and battery posture visible under realistic bulk limits.',
+            'expected_use': 'bounded concept comparison for social acceptability, display-placement review, and packaging reasoning.',
+            'output_type': 'annotated_variant_sheet',
+            'output_expectation': 'Produce an annotated front and three-quarter comparison sheet. Keep subtitle region callouts, candidate display placement, camera or mic zones, likely battery posture, and visible bulk tradeoffs explicit. Avoid polished product render language.',
+            'authority_posture': authority_posture(),
+            'exploratory_only': True,
+            'realism_posture': realism_band,
+            'hardware_constraints': [
+                'Keep subtitle or display region assumptions explicit rather than hiding them behind polished lens visuals.',
+                'Show candidate camera and microphone placements only as plausible zones, not solved sensor integration.',
+                'Show likely battery posture and frame-thickness consequences honestly; do not imply invisible battery volume.',
+                'Keep weight, bulk, and thermal pressure visible where temple, brow, or bridge regions thicken.',
+                'Preserve a socially acceptable default variant alongside a technically permissive variant for honest comparison.',
+            ],
+            'interaction_constraints': list(common_interaction_constraints),
+            'trust_constraints': list(common_trust_constraints),
+            'subsystem_inputs': subsystem_inputs([
+                ('Subtitle System', f'Current subtitle direction is `{subtitle_choice}` and should remain the first readability anchor.'),
+                ('Hardware Stack', 'Hardware posture is grounded enough to support frame-zone reasoning, but not a final design package.'),
+                ('Wireless Interface', 'Wireless dependence still constrains what should be visually implied inside the frame.'),
+                ('Firmware', 'Display-control and touch-input simplicity still need visible constraint discipline.'),
+                ('Privacy And Trust', 'Camera, mic, and confidence cues must remain privacy-visible and socially honest.'),
+            ]),
+            'open_gaps_to_keep_visible': list(rendering_gaps),
+            'forbidden_implications': list(common_forbidden_implications),
+            'review_questions': [
+                'Which variant keeps a socially acceptable silhouette without hiding the display-placement tradeoff?',
+                'How much visible bulk is acceptable before the subtitle-first concept stops reading as normal-looking eyewear?',
+                f'Does the current visual hierarchy default `{hierarchy_choice}` still read plausibly inside the most discreet frame variant?',
+            ],
+            'acceptance_mode': acceptance_mode(),
+            'revisable': True,
+        })
+
+        briefs.append({
+            'brief_id': 'implementation_facing_component_zone_layout',
+            'title': 'Implementation-Facing Component-Zone Layout Sketch',
+            'purpose': 'Frame a packaging-oriented component-zone sketch for build and review use without turning early subsystem BOM posture into a final parts list.',
+            'object_type': 'component_zone_layout',
+            'render_goal': 'Show candidate zones for display hardware, control electronics, radio dependency, touch input, camera or mic placements, and likely battery posture across the frame.',
+            'expected_use': 'implementation-facing packaging reasoning and bounded subsystem comparison.',
+            'output_type': 'component_zone_layout_sketch',
+            'output_expectation': 'Produce a labeled front and side zone sketch with keep-out regions, likely component areas, and notes on wireless, firmware, and bulk constraints. Keep it obviously pre-CAD and pre-BOM.',
+            'authority_posture': authority_posture(),
+            'exploratory_only': True,
+            'realism_posture': realism_band,
+            'hardware_constraints': [
+                'Use Hardware Stack, Wireless Interface, and Firmware as the primary zone-owning subsystems.',
+                'Keep display, battery, control, camera, microphone, and touch-input zones as candidate regions rather than selected parts.',
+                'Make phone-first runtime and wireless dependency visible instead of implying fully self-contained glasses electronics.',
+                'Keep temple, brow, and bridge bulk honest enough that thermal, radio, and battery pressure are legible.',
+                'Do not hide firmware or display-control simplicity constraints behind a clean component collage.',
+            ],
+            'interaction_constraints': list(common_interaction_constraints),
+            'trust_constraints': [
+                *common_trust_constraints,
+                'Do not imply invisible capture hardware or hidden always-on sensing.',
+            ],
+            'subsystem_inputs': subsystem_inputs([
+                ('Hardware Stack', 'Subsystem BOM posture is warranted only at the boundary-package level right now.'),
+                ('Wireless Interface', 'Current wireless posture is limited-evidence and should remain visibly unresolved.'),
+                ('Firmware', 'Display control, touch input, and runtime simplicity still constrain packaging choices.'),
+                ('Privacy And Trust', 'Privacy-visible treatment matters for any camera or microphone zone.'),
+            ]),
+            'open_gaps_to_keep_visible': list(rendering_gaps),
+            'forbidden_implications': list(common_forbidden_implications),
+            'review_questions': [
+                'Which zone arrangement stays plausible without implying a locked BOM or CAD-ready package?',
+                'Which candidate zones should remain visibly provisional because wireless or firmware grounding is still weak?',
+                'Does the packaging sketch make the phone-first dependency and battery or bulk tradeoff obvious enough for build review?',
+            ],
+            'acceptance_mode': acceptance_mode(),
+            'revisable': True,
+        })
+
+        briefs.append({
+            'brief_id': 'subtitle_region_and_confidence_overlay_comparison',
+            'title': 'Subtitle Region and Confidence Overlay Comparison',
+            'purpose': 'Support bounded review of subtitle placement, confidence display, and visual hierarchy choices in a hardware-constrained display region rather than a free-floating HUD abstraction.',
+            'object_type': 'overlay_region_comparison',
+            'render_goal': 'Show side-by-side overlay-region comparisons for subtitle placement, confidence-object visibility, and hierarchy emphasis within a plausible glasses display area.',
+            'expected_use': 'review usefulness for subtitle-region behavior, trust signaling, and bounded visual comparison.',
+            'output_type': 'overlay_comparison_strip',
+            'output_expectation': 'Produce a restrained comparison strip over a simple wearer-view proxy. Keep subtitle region, confidence object, and hierarchy differences explicit. Avoid implying solved optics, perfect contrast, or final UI polish.',
+            'authority_posture': authority_posture(),
+            'exploratory_only': True,
+            'realism_posture': realism_band,
+            'hardware_constraints': [
+                'Anchor comparisons to a constrained subtitle or display region, not a full-screen HUD.',
+                f'Current subtitle-position default is `{subtitle_choice}` and current confidence format is `{confidence_choice}`; show alternatives without implying closure.',
+                f'Current visual hierarchy default is `{hierarchy_choice}`; keep the comparison bounded rather than treating it as settled.',
+                'Keep social acceptability and glanceability visible if subtitles or confidence overlays become more prominent.',
+                'Do not imply solved display posture, solved optical alignment, or perfect readability under all conditions.',
+            ],
+            'interaction_constraints': list(common_interaction_constraints),
+            'trust_constraints': [
+                *common_trust_constraints,
+                'Confidence cues should remain visibly interpretable and should not overclaim certainty when subsystem grounding is weak.',
+            ],
+            'subsystem_inputs': subsystem_inputs([
+                ('Subtitle System', 'Subtitle clarity is the strongest current grounded experience lane and should remain the anchor for comparison.'),
+                ('Privacy And Trust', 'Confidence display and overlay posture must still signal trust honestly.'),
+                ('Firmware', 'Display-control simplicity limits how much dynamic overlay behavior should be implied.'),
+                ('Wireless Interface', 'Do not imply rich live overlays that depend on wireless behavior which is still weakly grounded.'),
+                ('Memory System', 'Do not let confidence or recall visuals imply solved memory behavior.'),
+            ]),
+            'open_gaps_to_keep_visible': list(rendering_gaps),
+            'forbidden_implications': list(common_forbidden_implications),
+            'review_questions': [
+                'Which subtitle-region comparison preserves readability without overstating display maturity?',
+                'Does the confidence-object treatment improve trust without visually implying certainty the system does not yet deserve?',
+                'Which overlay comparison honestly shows the tradeoff between discreetness and clarity?',
+            ],
+            'acceptance_mode': acceptance_mode(),
+            'revisable': True,
+        })
+
+    briefs = briefs[:cfg.get('max_visible', 4)]
+
+    if briefs:
+        summary = compact_text_excerpt(
+            f"{len(briefs)} exploratory hardware-aware rendering brief(s) are warranted now because visualization support is recommended, implementation-package review is materially live, and build-oriented prototype surfaces are honest enough to benefit from bounded visual drafting.",
+            320,
+        )
+    else:
+        reasons = []
+        if not visualization_available:
+            reasons.append('no visualization or rendering capability is currently available in the canonical extensions layer')
+        elif not visualization_recommended:
+            reasons.append('visualization support is not yet justified strongly enough to become a current rendering brief surface')
+        if not build_posture_live:
+            reasons.append('build-oriented implementation posture is not yet live enough to justify hardware-aware rendering briefs')
+        if not scorecard_dimensions:
+            reasons.append(scorecard_reason)
+        summary = compact_text_excerpt(
+            'No hardware-aware rendering brief is warranted now because ' + '; '.join(reason for reason in reasons if reason) + '.',
+            320,
+        )
+
+    return {
+        'generated_at': now_iso(),
+        'summary': summary,
+        'eli_authority_note': compact_text_excerpt(
+            'ELI decides whether hardware-aware rendering help is worth surfacing. Any rendering result is drafting support only, not project truth, and ELI may partially accept, reject, defer, or revise it.',
+            240,
+        ),
+        'informational_extension_posture': 'informational_only',
+        'rendering_briefs': briefs,
+        'source_generated_at': {
+            'project_expectations': state_surface_generated_at(expectations),
+            'project_milestones': state_surface_generated_at(load_project_milestones_state()),
+            'product_realism_review': state_surface_generated_at(load_product_realism_review_state()),
+            'component_package_review': state_surface_generated_at(load_component_package_review_state()),
+            'extensions_capability_review': state_surface_generated_at(load_extensions_capability_review_state()),
+            'v1_decision_review': state_surface_generated_at(v1_payload),
+            'project_scorecard': state_surface_generated_at(scorecard_state),
+        },
+        'revisable': True,
+    }
+
+
+def render_hardware_aware_rendering_brief_review_context(rendering_state=None):
+    rendering_state = rendering_state if isinstance(rendering_state, dict) else load_hardware_aware_rendering_brief_review_state()
+    lines = ['# Hardware-Aware Rendering Brief Review']
+    if rendering_state.get('summary'):
+        lines.append(f"- summary: {rendering_state.get('summary', '')}")
+    if rendering_state.get('eli_authority_note'):
+        lines.append(f"- eli_authority_note: {rendering_state.get('eli_authority_note', '')}")
+    lines.append(f"- informational_extension_posture: `{rendering_state.get('informational_extension_posture', 'informational_only')}`")
+    briefs = rendering_state.get('rendering_briefs', []) if isinstance(rendering_state.get('rendering_briefs', []), list) else []
+    for brief in briefs[:3]:
+        if not isinstance(brief, dict):
+            continue
+        lines.append(f"## {brief.get('title', 'Rendering Brief')}")
+        lines.append(
+            f"- object_type: `{brief.get('object_type', '')}` | output_type: `{brief.get('output_type', '')}` | expected_use: {brief.get('expected_use', '')}"
+        )
+        lines.append(f"- render_goal: {brief.get('render_goal', '')}")
+        gaps = brief.get('open_gaps_to_keep_visible', []) if isinstance(brief.get('open_gaps_to_keep_visible', []), list) else []
+        if gaps:
+            lines.append(f"- keep_visible: {'; '.join(str(item) for item in gaps[:3])}")
+        questions = brief.get('review_questions', []) if isinstance(brief.get('review_questions', []), list) else []
+        if questions:
+            lines.append(f"- review_questions: {'; '.join(str(item) for item in questions[:2])}")
+    return '\n'.join(lines) + '\n'
+
+
 def default_ui_surface_plan_state():
     return {
         'generated_at': '',
@@ -10740,18 +11166,30 @@ def refresh_review_state_sync_metadata(schema=None):
     summary = build_review_state_sync_summary(payloads, metadata_by_surface)
     STATE_SYNC_SUMMARY_PATH.write_text(json.dumps(summary, indent=2) + "\n", encoding='utf-8')
     review_snapshot = load_review_state_consumption_snapshot()
-    save_component_package_review_state(build_component_package_review_state(schema=schema, review_snapshot=review_snapshot))
+    component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
+    save_component_package_review_state(component_package_state)
     resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
     save_execution_resume_state(resume_state)
-    save_project_milestones_state(build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
-    save_product_realism_review_state(build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot))
+    milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
+    save_project_milestones_state(milestone_state)
+    product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
+    save_product_realism_review_state(product_realism_state)
     verification_state = build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
     save_verification_summary_state(verification_state)
-    save_extensions_capability_review_state(build_extensions_capability_review_state(
+    extensions_state = build_extensions_capability_review_state(
         schema=schema,
         review_snapshot=review_snapshot,
         resume_state=resume_state,
         verification_state=verification_state,
+    )
+    save_extensions_capability_review_state(extensions_state)
+    save_hardware_aware_rendering_brief_review_state(build_hardware_aware_rendering_brief_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        milestone_state=milestone_state,
+        realism_state=product_realism_state,
+        component_state=component_package_state,
+        extensions_state=extensions_state,
     ))
     save_ui_surface_plan_state(build_ui_surface_plan_state(
         schema=schema,
@@ -13087,18 +13525,30 @@ def generate_scorecard_cycle(changes, prior_reports):
     SCORECARD_STATE_PATH.write_text(json.dumps(scorecard, indent=2), encoding='utf-8')
     schema = load_cognition_schema()
     review_snapshot = load_review_state_consumption_snapshot()
-    save_component_package_review_state(build_component_package_review_state(schema=schema, review_snapshot=review_snapshot))
+    component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
+    save_component_package_review_state(component_package_state)
     resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
     save_execution_resume_state(resume_state)
-    save_project_milestones_state(build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
-    save_product_realism_review_state(build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot))
+    milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
+    save_project_milestones_state(milestone_state)
+    product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
+    save_product_realism_review_state(product_realism_state)
     verification_state = build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
     save_verification_summary_state(verification_state)
-    save_extensions_capability_review_state(build_extensions_capability_review_state(
+    extensions_state = build_extensions_capability_review_state(
         schema=schema,
         review_snapshot=review_snapshot,
         resume_state=resume_state,
         verification_state=verification_state,
+    )
+    save_extensions_capability_review_state(extensions_state)
+    save_hardware_aware_rendering_brief_review_state(build_hardware_aware_rendering_brief_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        milestone_state=milestone_state,
+        realism_state=product_realism_state,
+        component_state=component_package_state,
+        extensions_state=extensions_state,
     ))
     save_ui_surface_plan_state(build_ui_surface_plan_state(
         schema=schema,
@@ -14557,8 +15007,16 @@ def context_with_inputs(changes):
     milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_state_consumption)
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_state_consumption)
     extensions_capability_state = build_extensions_capability_review_state(schema=schema, review_snapshot=review_state_consumption)
-    ui_surface_plan_state = build_ui_surface_plan_state(schema=schema, review_snapshot=review_state_consumption)
     component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_state_consumption)
+    rendering_brief_state = build_hardware_aware_rendering_brief_review_state(
+        schema=schema,
+        review_snapshot=review_state_consumption,
+        milestone_state=milestone_state,
+        realism_state=product_realism_state,
+        component_state=component_package_state,
+        extensions_state=extensions_capability_state,
+    )
+    ui_surface_plan_state = build_ui_surface_plan_state(schema=schema, review_snapshot=review_state_consumption)
     pieces = ['# Core Field\n', core_text(), '\n']
     pieces.append(render_field_layer_context())
     pieces.append(f'# {PROJECT_DISPLAY_NAME} Project Guardrails\n')
@@ -14588,6 +15046,8 @@ def context_with_inputs(changes):
     pieces.append(render_product_realism_review_context(product_realism_state))
     pieces.append('\n')
     pieces.append(render_extensions_capability_review_context(extensions_capability_state))
+    pieces.append('\n')
+    pieces.append(render_hardware_aware_rendering_brief_review_context(rendering_brief_state))
     pieces.append('\n')
     pieces.append(render_ui_surface_plan_context(ui_surface_plan_state))
     pieces.append('\n')
