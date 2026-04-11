@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-10T11:43:03",
+  "generated_at": "2026-04-11T23:49:17",
   "bom_readiness_bands": [
     "not_warranted",
     "early_subsystem_bom_only",
@@ -41,7 +41,7 @@
   "missing_for_stronger_bom": [
     "No grounded component-shortlist, schematic-direction, interface-map, or subsystem-breakdown artifact currently justifies a stronger BOM package.",
     "Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.",
-    "no bounded current product-definition review front is active; more grounded decision framing is needed before product-definition review",
+    "Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototype-scoped rather than reading as a `discreet_consumer_assistive_wearable` pro...",
     "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
     "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent."
   ],
@@ -55,7 +55,7 @@
   },
   "realism_link": {
     "current_realism_band": "serious_prototype_path",
-    "summary": "The project is acting like a serious prototype path, but important subsystem and trust gaps still block product-candidate claims. 4 subsystem lane(s) still need attention. Declared intent remains `functional_prototype` / `exploratory`, so stronger product language would be premature.",
+    "summary": "The project is acting like a serious prototype path, but important subsystem and trust gaps still block product-candidate claims. 4 subsystem lane(s) still need attention. Declared intent remains `functional_prototype` / `exploratory`, so stronger product language would be premature. Current cost posture is `product...",
     "quality_bar_alignment": "aligned"
   },
   "trust_posture": {
@@ -66,13 +66,13 @@
   },
   "source_generated_at": {
     "project_expectations": "2026-04-10T09:16:32",
-    "project_milestones": "2026-04-10T09:35:03",
-    "product_realism_review": "2026-04-10T10:21:31",
-    "project_scorecard": "2026-04-10T11:42:04",
+    "project_milestones": "2026-04-11T23:48:30",
+    "product_realism_review": "2026-04-11T23:48:30",
+    "project_scorecard": "2026-04-11T23:48:36",
     "implementation_artifact_review": "2026-04-09T23:02:49",
     "artifact_emission_readiness": "2026-04-09T23:02:49",
     "draft_artifact_review": "2026-04-09T23:02:49"
   },
   "revisable": true,
-  "updated_at": "2026-04-10T11:43:03"
+  "updated_at": "2026-04-11T23:49:17"
 }

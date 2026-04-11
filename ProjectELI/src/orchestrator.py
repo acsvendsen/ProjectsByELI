@@ -7692,6 +7692,7 @@ def build_project_milestones_state(schema=None, review_snapshot=None, resume_sta
     review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
     resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
     expectations = load_project_expectations_state()
+    cost_state = load_cost_viability_review_state()
     option_cfg = option_readiness_config(schema)
     scorecard_state = load_scorecard_state()
     scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, load_json_file(REFLECT_STATE_PATH, {'generated_at': ''}), execution_resume_config(schema))
@@ -7718,6 +7719,12 @@ def build_project_milestones_state(schema=None, review_snapshot=None, resume_sta
     constrained_rows = [row for row in scorecard_dimensions if normalize_scorecard_status(row.get('status', 'unknown')) in ('needs_attention', 'blocked')]
     blocked_lanes = resume_state.get('blocked_lanes', []) if isinstance(resume_state.get('blocked_lanes', []), list) else []
     held_lanes = resume_state.get('held_lanes', []) if isinstance(resume_state.get('held_lanes', []), list) else []
+    cost_signal = str(cost_state.get('kill_pause_reframe_signal', 'proceed_with_caution') or 'proceed_with_caution')
+    cost_band = str(cost_state.get('cost_realism_band', 'too_early_for_exact_cost') or 'too_early_for_exact_cost')
+    cost_posture = str(cost_state.get('economic_viability_posture', 'unknown') or 'unknown')
+    target_tier = str(expectations.get('target_product_tier', 'discreet_consumer_assistive_wearable') or 'discreet_consumer_assistive_wearable')
+    cost_severe = cost_signal in ('reframe_needed', 'stop_if_cost_target_matters')
+    cost_stop_level = cost_signal == 'stop_if_cost_target_matters'
 
     def make_row(milestone_id, title, style, purpose, depends_on, required_grounding, required_readiness, score, blocking_factors, missing_evidence, review_questions, unlocks, hold_reason=''):
         band = readiness_band_for_score(score, option_cfg)
@@ -7764,6 +7771,14 @@ def build_project_milestones_state(schema=None, review_snapshot=None, resume_sta
         product_definition_missing.append('more grounded decision framing is needed before product-definition review')
     if v1_surface.get('consumption_state') not in ('current_truth', 'provisional_context'):
         product_definition_blockers.append(v1_surface.get('consumption_reason', 'pending V1 decision surface is not currently safe to consume'))
+    if cost_severe:
+        product_definition_score = min(product_definition_score, 52.0)
+        product_definition_missing.append(
+            compact_text_excerpt(
+                f"Current cost posture is `{cost_band}` / `{cost_posture}`, so product definition should stay prototype-scoped rather than reading as a `{target_tier}` product path.",
+                220,
+            )
+        )
 
     subsystem_score = 16.0
     subsystem_score += 16.0 if scorecard_use == 'current_truth' else 0.0
@@ -7790,6 +7805,10 @@ def build_project_milestones_state(schema=None, review_snapshot=None, resume_sta
         prototype_missing.append('fresh subsystem readiness context is required before claiming prototype viability')
     if len(blocked_lanes) >= 3:
         prototype_missing.append('too many active blockers remain for a credible viability review')
+    if cost_severe:
+        prototype_missing.append(
+            'Prototype viability can still be worth reviewing, but it must not be mistaken for consumer-tier product viability under the current cost posture.'
+        )
 
     implementation_score = 18.0
     implementation_score += 20.0 if emission_surface.get('consumption_state') == 'current_truth' else 8.0 if emission_rows else 0.0
@@ -7801,6 +7820,18 @@ def build_project_milestones_state(schema=None, review_snapshot=None, resume_sta
         implementation_missing.append('no provisional implementation package draft is currently emitted')
     if emission_surface.get('consumption_state') not in ('current_truth', 'provisional_context'):
         implementation_missing.append(emission_surface.get('consumption_reason', 'artifact emission readiness is not currently safe to consume'))
+    implementation_review_questions = [row.get('review_question_for_human', row.get('title', 'What should this draft actually decide?')) for row in draft_rows[:3]]
+    if cost_severe:
+        implementation_missing.append(
+            compact_text_excerpt(
+                f"Implementation-package review can stay live for prototype buildability, but current cost posture `{cost_band}` blocks reading it as a `{target_tier}` implementation package.",
+                220,
+            )
+        )
+        implementation_review_questions.insert(
+            0,
+            'Which parts of this implementation package are still prototype-learning scaffolds and should not be read as consumer-product commitments?',
+        )
 
     realism_hold = ''
     target_outcome = str(expectations.get('target_outcome_type', 'functional_prototype') or 'functional_prototype')
@@ -7816,6 +7847,20 @@ def build_project_milestones_state(schema=None, review_snapshot=None, resume_sta
         realism_score += 10.0
     realism_blockers = [compact_text_excerpt(row.get('blocking_reason', ''), 180) for row in blocked_lanes[:3]]
     realism_missing = [compact_text_excerpt(item, 180) for item in expectations.get('must_be_true_before_real_product_claim', [])[:3]]
+    if cost_severe:
+        realism_score = min(realism_score, 46.0)
+        cost_hold_note = compact_text_excerpt(
+            f"Current cost posture is `{cost_band}` with signal `{cost_signal}`, so stronger product realism should stay capped until the `{target_tier}` cost story is reframed or materially improved.",
+            240,
+        )
+        realism_blockers.append(cost_hold_note)
+        realism_missing.append(
+            compact_text_excerpt(
+                'Prototype-learning value may still be real, but product-facing realism should not advance while economic posture is mismatched.',
+                200,
+            )
+        )
+        realism_hold = compact_text_excerpt(' '.join(item for item in (realism_hold, cost_hold_note) if item), 280)
 
     milestones = [
         make_row(
@@ -7871,7 +7916,7 @@ def build_project_milestones_state(schema=None, review_snapshot=None, resume_sta
             implementation_score,
             implementation_blockers,
             implementation_missing,
-            [row.get('review_question_for_human', row.get('title', 'What should this draft actually decide?')) for row in draft_rows[:3]],
+            implementation_review_questions,
             ['architecture_lock', 'implementation_planning'],
         ),
         make_row(
@@ -8076,6 +8121,7 @@ def build_product_realism_review_state(schema=None, review_snapshot=None):
 
     review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
     expectations = load_project_expectations_state()
+    cost_state = load_cost_viability_review_state()
     reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
     scorecard_state = load_scorecard_state()
     v1_review_state = load_v1_decision_review_state()
@@ -8115,6 +8161,10 @@ def build_product_realism_review_state(schema=None, review_snapshot=None):
     weak_count = sum(1 for row in scorecard_dimensions if normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'weakly_grounded')
     limited_count = sum(1 for row in scorecard_dimensions if normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'limited_evidence')
     constrained_rows = [row for row in scorecard_dimensions if normalize_scorecard_status(row.get('status', 'unknown')) in ('needs_attention', 'blocked')]
+    cost_signal = str(cost_state.get('kill_pause_reframe_signal', 'proceed_with_caution') or 'proceed_with_caution')
+    cost_band = str(cost_state.get('cost_realism_band', 'too_early_for_exact_cost') or 'too_early_for_exact_cost')
+    cost_posture = str(cost_state.get('economic_viability_posture', 'unknown') or 'unknown')
+    cost_mismatch = cost_signal in ('reframe_needed', 'stop_if_cost_target_matters')
 
     realism_score = 10.0
     target_outcome = str(expectations.get('target_outcome_type', 'functional_prototype') or 'functional_prototype')
@@ -8153,6 +8203,8 @@ def build_product_realism_review_state(schema=None, review_snapshot=None):
         current_band = capped_product_realism_band(current_band, 'product_candidate_emerging')
     if scorecard_use != 'current_truth':
         current_band = capped_product_realism_band(current_band, 'credible_concept')
+    if cost_mismatch:
+        current_band = capped_product_realism_band(current_band, 'serious_prototype_path')
 
     milestone_rows = milestone_state.get('milestones', []) if isinstance(milestone_state.get('milestones', []), list) else []
     milestone_by_id = {
@@ -8186,6 +8238,10 @@ def build_product_realism_review_state(schema=None, review_snapshot=None):
         anti_gimmick_strengths.append(
             compact_text_excerpt(trust_rows[0].get('progress_summary', trust_rows[0].get('grounding_basis', '')), 180)
         )
+    if cost_mismatch:
+        anti_gimmick_strengths.append(
+            'Prototype-learning value is being kept distinct from product viability, so cost mismatch is not being hidden behind technical novelty.'
+        )
 
     gimmick_risks = []
     if scorecard_use != 'current_truth':
@@ -8208,6 +8264,14 @@ def build_product_realism_review_state(schema=None, review_snapshot=None):
                 220,
             )
         )
+    if cost_mismatch:
+        gimmick_risks.insert(
+            0,
+            compact_text_excerpt(
+                f"Cost posture is `{cost_band}` / `{cost_posture}` with signal `{cost_signal}`, so a discreet consumer-product story would currently outrun the economics the project is actually pointing toward.",
+                240,
+            )
+        )
 
     missing_for_product_candidate = []
     if target_outcome not in ('product_candidate', 'real_product_path'):
@@ -8222,6 +8286,14 @@ def build_product_realism_review_state(schema=None, review_snapshot=None):
         missing_for_product_candidate.append(compact_text_excerpt(implementation_package.get('why_not_ready_yet', ''), 200))
     for row in constrained_rows[:2]:
         missing_for_product_candidate.append(compact_text_excerpt(row.get('next_focus', ''), 180))
+    if cost_mismatch:
+        missing_for_product_candidate.insert(
+            1 if missing_for_product_candidate else 0,
+            compact_text_excerpt(
+                f"Current cost posture `{cost_band}` blocks a credible `{expectations.get('target_product_tier', 'consumer-tier')}` product-candidate claim even if prototype progress continues.",
+                220,
+            )
+        )
 
     missing_for_real_product_path = []
     for item in expectations.get('must_be_true_before_real_product_claim', [])[:3]:
@@ -8235,6 +8307,14 @@ def build_product_realism_review_state(schema=None, review_snapshot=None):
     if seriousness != 'commercial_intent':
         missing_for_real_product_path.append(
             f"Declared seriousness is still `{seriousness}`, so a real-product path claim would currently outrun operator intent."
+        )
+    if cost_mismatch:
+        missing_for_real_product_path.insert(
+            0,
+            compact_text_excerpt(
+                'Real-product-path language is explicitly blocked by current economic mismatch; prototype-learning value does not rescue a weak consumer-tier cost story.',
+                220,
+            )
         )
 
     expected_band_by_quality = {
@@ -8286,6 +8366,10 @@ def build_product_realism_review_state(schema=None, review_snapshot=None):
         practical_summary_parts.append('Current evidence is beginning to resemble a product-candidate path, but gaps remain explicit.')
     if target_outcome not in ('product_candidate', 'real_product_path'):
         practical_summary_parts.append('Operator intent is still prototype-oriented rather than commercial.')
+    if cost_mismatch:
+        practical_summary_parts.append(
+            'Prototype-learning may still be worthwhile, but current cost posture does not justify narrating this as a discreet consumer product path.'
+        )
 
     commercial_view = {
         'status': 'prototype_oriented' if target_outcome not in ('product_candidate', 'real_product_path') else 'product_oriented',
@@ -8311,6 +8395,10 @@ def build_product_realism_review_state(schema=None, review_snapshot=None):
         why_parts.append(f"{len(constrained_rows)} subsystem lane(s) still need attention.")
     if target_outcome not in ('product_candidate', 'real_product_path'):
         why_parts.append(f"Declared intent remains `{target_outcome}` / `{seriousness}`, so stronger product language would be premature.")
+    if cost_mismatch:
+        why_parts.append(
+            f"Current cost posture is `{cost_band}` with signal `{cost_signal}`, which blocks stronger product-path language even if the prototype path remains worthwhile."
+        )
 
     improvement_candidates = []
     for row in constrained_rows[:3]:
@@ -8346,6 +8434,7 @@ def build_product_realism_review_state(schema=None, review_snapshot=None):
             'v1_decision_review': state_surface_generated_at(v1_review_state),
             'draft_artifact_review': state_surface_generated_at(draft_state),
             'project_milestones': state_surface_generated_at(milestone_state),
+            'cost_viability_review': state_surface_generated_at(cost_state),
         },
         'revisable': True,
     }
@@ -11254,6 +11343,27 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
     if overall_summary:
         current_truth_summary.append(overall_summary)
     current_truth_summary.append(project_expectations_summary(project_expectations))
+    current_truth_summary.append(
+        compact_text_excerpt(
+            f"Cost posture is `{cost_viability_state.get('cost_realism_band', 'too_early_for_exact_cost')}` with signal `{cost_viability_state.get('kill_pause_reframe_signal', 'proceed_with_caution')}`.",
+            220,
+        )
+    )
+    cost_signal = str(cost_viability_state.get('kill_pause_reframe_signal', 'proceed_with_caution') or 'proceed_with_caution')
+    if cost_signal in ('reframe_needed', 'stop_if_cost_target_matters'):
+        current_truth_summary.append(
+            compact_text_excerpt(
+                'Prototype-learning may still be worthwhile, but the current direction should not be narrated as a credible discreet consumer product path.',
+                220,
+            )
+        )
+        if cost_signal == 'stop_if_cost_target_matters':
+            current_truth_summary.append(
+                compact_text_excerpt(
+                    'If discreet consumer-tier ambition still matters, reframe or stop before more product-shaped effort is sunk into the current architecture.',
+                    220,
+                )
+            )
 
     if pending_rows:
         labels = ', '.join(row.get('label', '') for row in pending_rows[:3] if row.get('label'))
@@ -11285,12 +11395,6 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
                 220,
             )
         )
-    current_truth_summary.append(
-        compact_text_excerpt(
-            f"Cost posture is `{cost_viability_state.get('cost_realism_band', 'too_early_for_exact_cost')}` with signal `{cost_viability_state.get('kill_pause_reframe_signal', 'proceed_with_caution')}`.",
-            220,
-        )
-    )
 
     if scorecard_dimensions:
         strong = [row.get('label', '') for row in scorecard_dimensions if row.get('status') == 'on_track' and normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown')) == 'grounded']
@@ -11405,8 +11509,8 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
         resume_notes.append('Artifact-emission readiness is currently quiet; no implementation-artifact candidate is mature enough for draft emission.')
     if artifact_review_use != 'current_truth':
         resume_notes.append(artifact_review_reason)
-    if cost_viability_state.get('kill_pause_reframe_signal') in ('reframe_needed', 'stop_if_cost_target_matters'):
-        resume_notes.append(cost_viability_state.get('operator_cost_warning', 'Cost posture is weak enough that product ambition should be reframed rather than assumed.'))
+    if cost_signal in ('reframe_needed', 'stop_if_cost_target_matters'):
+        resume_notes.insert(0, cost_viability_state.get('operator_cost_warning', 'Cost posture is weak enough that product ambition should be reframed rather than assumed.'))
 
     if needs_human_review:
         next_row = needs_human_review[0]
@@ -11502,6 +11606,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
             'summary': product_realism_state.get('why_this_band', ''),
             'quality_bar_alignment': product_realism_state.get('quality_bar_alignment', {}).get('status', ''),
             'top_gimmick_risk': (product_realism_state.get('gimmick_risks', []) or [''])[0],
+            'prototype_vs_product_posture': 'prototype_learning_viable_product_path_not_credible' if cost_signal in ('reframe_needed', 'stop_if_cost_target_matters') else 'product_path_still_open',
         } if product_realism_config(schema).get('include_in_execution_resume', True) else {},
         'component_package': {
             'bom_readiness_band': component_package_state.get('bom_readiness_band', 'not_warranted'),
@@ -11558,6 +11663,11 @@ def render_execution_resume_section(resume_state=None, include_header=True):
         lines.append(
             f"- product_realism: `{product_realism.get('current_realism_band', 'concept_only')}` | "
             f"{product_realism.get('summary', '')}"
+            + (
+                f" | posture `{product_realism.get('prototype_vs_product_posture', '')}`"
+                if product_realism.get('prototype_vs_product_posture')
+                else ''
+            )
         )
     if component_package:
         lines.append(
@@ -11789,9 +11899,15 @@ def refresh_review_state_sync_metadata(schema=None):
     review_snapshot = load_review_state_consumption_snapshot()
     component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
     save_component_package_review_state(component_package_state)
-    resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
-    save_execution_resume_state(resume_state)
-    milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
+    product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
+    cost_state = build_cost_viability_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        product_realism_state=product_realism_state,
+        component_package_state=component_package_state,
+    )
+    save_cost_viability_review_state(cost_state)
+    milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_snapshot)
     save_project_milestones_state(milestone_state)
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
     save_product_realism_review_state(product_realism_state)
@@ -11802,6 +11918,8 @@ def refresh_review_state_sync_metadata(schema=None):
         component_package_state=component_package_state,
     )
     save_cost_viability_review_state(cost_state)
+    resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
+    save_execution_resume_state(resume_state)
     verification_state = build_verification_summary_state(
         schema=schema,
         review_snapshot=review_snapshot,
@@ -14171,9 +14289,15 @@ def generate_scorecard_cycle(changes, prior_reports):
     review_snapshot = load_review_state_consumption_snapshot()
     component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
     save_component_package_review_state(component_package_state)
-    resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
-    save_execution_resume_state(resume_state)
-    milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
+    product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
+    cost_state = build_cost_viability_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        product_realism_state=product_realism_state,
+        component_package_state=component_package_state,
+    )
+    save_cost_viability_review_state(cost_state)
+    milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_snapshot)
     save_project_milestones_state(milestone_state)
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
     save_product_realism_review_state(product_realism_state)
@@ -14184,6 +14308,8 @@ def generate_scorecard_cycle(changes, prior_reports):
         component_package_state=component_package_state,
     )
     save_cost_viability_review_state(cost_state)
+    resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
+    save_execution_resume_state(resume_state)
     verification_state = build_verification_summary_state(
         schema=schema,
         review_snapshot=review_snapshot,

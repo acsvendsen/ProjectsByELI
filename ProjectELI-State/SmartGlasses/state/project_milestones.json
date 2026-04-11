@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-10T09:35:03",
+  "generated_at": "2026-04-11T23:49:17",
   "allowed_approval_states": [
     "not_yet_reviewable",
     "ready_for_review",
@@ -28,17 +28,18 @@
       "required_readiness": "At least one bounded decision should be close enough to review without pretending the overall product is settled.",
       "blocking_factors": [],
       "missing_evidence": [
-        "no bounded current product-definition review front is active",
-        "more grounded decision framing is needed before product-definition review"
+        "Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototype-scoped rather than reading as a `discreet_consumer_assistive_wearable` product path."
       ],
-      "review_questions": [],
+      "review_questions": [
+        "What should the default subtitle position behavior be for V1 live use?"
+      ],
       "approval_state": "not_yet_reviewable",
       "unlocks": [
         "prototype_viability",
         "implementation_package_review"
       ],
       "current_band": "emerging",
-      "why_not_ready_yet": "no bounded current product-definition review front is active; more grounded decision framing is needed before product-definition review",
+      "why_not_ready_yet": "Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototype-scoped rather than reading as a `discreet_consumer_assistive_wearable` product path.",
       "revisable": true
     },
     {
@@ -59,7 +60,8 @@
         "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope."
       ],
       "missing_evidence": [
-        "too many active blockers remain for a credible viability review"
+        "too many active blockers remain for a credible viability review",
+        "Prototype viability can still be worth reviewing, but it must not be mistaken for consumer-tier product viability under the current cost posture."
       ],
       "review_questions": [
         "What is the highest-risk blocker still preventing a credible prototype viability claim?"
@@ -116,8 +118,11 @@
       "required_grounding": "Draft-emission readiness and emitted review artifacts should both be grounded enough to inspect together.",
       "required_readiness": "At least one emitted or strongly draft-ready artifact should exist before package review becomes real.",
       "blocking_factors": [],
-      "missing_evidence": [],
+      "missing_evidence": [
+        "Implementation-package review can stay live for prototype buildability, but current cost posture `product_tier_mismatch_risk` blocks reading it as a `discreet_consumer_assistive_wearable` implementation package."
+      ],
       "review_questions": [
+        "Which parts of this implementation package are still prototype-learning scaffolds and should not be read as consumer-product commitments?",
         "Given the current constraints, should Label + Reason remain the leading default for What confidence format should V1 use by default during live subtitle support?",
         "Given the current constraints, should More Prominent remain the leading default for What should the default subtitle position behavior be for V1 live use?"
       ],
@@ -145,12 +150,14 @@
       "blocking_factors": [
         "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
         "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
-        "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope."
+        "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
+        "Current cost posture is `product_tier_mismatch_risk` with signal `stop_if_cost_target_matters`, so stronger product realism should stay capped until the `discreet_consumer_assistive_wearable` cost story is reframed or materially improved."
       ],
       "missing_evidence": [
         "core runtime behavior is grounded beyond report-only reasoning",
         "trust, privacy, and usability constraints are handled credibly enough to survive real use",
-        "important subsystem risks are no longer being hidden behind prototype-only excuses"
+        "important subsystem risks are no longer being hidden behind prototype-only excuses",
+        "Prototype-learning value may still be real, but product-facing realism should not advance while economic posture is mismatched."
       ],
       "review_questions": [
         "What would have to become true before a stronger product claim would be honest?"
@@ -161,7 +168,7 @@
         "commercial_readiness_review"
       ],
       "current_band": "emerging",
-      "why_not_ready_yet": "Current operator expectations do not yet target a real product claim, so realism review should stay held rather than being forced early.",
+      "why_not_ready_yet": "Current operator expectations do not yet target a real product claim, so realism review should stay held rather than being forced early. Current cost posture is `product_tier_mismatch_risk` with signal `stop_if_cost_target_matters`, so stronger product realism should stay capp...",
       "revisable": true
     }
   ],
@@ -172,5 +179,5 @@
     "held": 1,
     "rejected_for_now": 0
   },
-  "updated_at": "2026-04-10T09:35:03"
+  "updated_at": "2026-04-11T23:49:17"
 }

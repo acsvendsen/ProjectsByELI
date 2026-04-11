@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-10T10:21:31",
+  "generated_at": "2026-04-11T23:49:17",
   "realism_bands": [
     "concept_only",
     "credible_concept",
@@ -10,33 +10,33 @@
     "real_product_path_credible"
   ],
   "current_realism_band": "serious_prototype_path",
-  "why_this_band": "The project is acting like a serious prototype path, but important subsystem and trust gaps still block product-candidate claims. 4 subsystem lane(s) still need attention. Declared intent remains `functional_prototype` / `exploratory`, so stronger product language would be premature.",
+  "why_this_band": "The project is acting like a serious prototype path, but important subsystem and trust gaps still block product-candidate claims. 4 subsystem lane(s) still need attention. Declared intent remains `functional_prototype` / `exploratory`, so stronger product language would be premature. Current cost posture is `product...",
   "anti_gimmick_strengths": [
     "Fresh subsystem grounding exists across 3 areas, so realism is not being judged from narrative alone.",
+    "The active review front is bounded to 1 grounded V1 decision candidate(s) rather than broad speculative scope.",
     "Implementation artifacts remain provisional review drafts instead of being treated as final design truth.",
-    "Meaningful unresolved lanes are explicitly held until new grounding appears, which resists fake progress theater.",
-    "Privacy and trust are not background concerns in this run; they are active shaping forces on memory, boundary, and confidence decisions. That means trust needs explicit behavior..."
+    "Meaningful unresolved lanes are explicitly held until new grounding appears, which resists fake progress theater."
   ],
   "gimmick_risks": [
+    "Cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch` with signal `stop_if_cost_target_matters`, so a discreet consumer-product story would currently outrun the economics the project is actually pointing toward.",
     "Wireless Interface is `needs_attention` with `limited_evidence` grounding: Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
     "Firmware is `needs_attention` with `limited_evidence` grounding: Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
     "Memory System is `needs_attention` with `weakly_grounded` grounding: Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
-    "Declared project intent is still `functional_prototype` with `exploratory` seriousness, so stronger product language would outrun operator-declared scope.",
-    "3 trust- or boundary-relevant lane(s) remain meaningful but held pending new grounding, so they should not be narrated as solved."
+    "Declared project intent is still `functional_prototype` with `exploratory` seriousness, so stronger product language would outrun operator-declared scope."
   ],
   "missing_for_product_candidate": [
     "Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.",
-    "no bounded current product-definition review front is active; more grounded decision framing is needed before product-definition review",
+    "Current cost posture `product_tier_mismatch_risk` blocks a credible `discreet_consumer_assistive_wearable` product-candidate claim even if prototype progress continues.",
+    "Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototype-scoped rather than reading as a `discreet_consumer_assistive_wearable` pro...",
     "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.; Ground firmware readiness in explicit touch-input and display-control behavior inst...",
-    "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
-    "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent."
+    "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
   ],
   "missing_for_real_product_path": [
+    "Real-product-path language is explicitly blocked by current economic mismatch; prototype-learning value does not rescue a weak consumer-tier cost story.",
     "core runtime behavior is grounded beyond report-only reasoning",
     "trust, privacy, and usability constraints are handled credibly enough to survive real use",
     "important subsystem risks are no longer being hidden behind prototype-only excuses",
-    "Current operator expectations do not yet target a real product claim, so realism review should stay held rather than being forced early.",
-    "The declared quality bar is still `credible`, which is below an honest real-product claim posture."
+    "Current operator expectations do not yet target a real product claim, so realism review should stay held rather than being forced early. Current cost posture is `product_tier_mismatch_risk` with signal `stop_if_cost_t..."
   ],
   "quality_bar_alignment": {
     "status": "aligned",
@@ -46,7 +46,7 @@
     "status": "mixed",
     "summary": "Hardware Stack is grounded and on track; Wireless Interface, Firmware is still only limited-evidence",
     "key_strengths": [
-      "Hardware stack is adhering to the core requirements with no critical issues observed."
+      "The hardware stack remains aligned with V1 constraints, focusing on lightweight design and minimal on-glasses compute."
     ],
     "key_gaps": [
       "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
@@ -80,15 +80,15 @@
   },
   "commercial_or_practical_readiness_view": {
     "status": "prototype_oriented",
-    "summary": "Produce something materially useful enough to justify continued build effort before broader product claims.; Current evidence supports a serious prototype path more than a product claim.; Operator intent is still prototype-oriented rather than commercial.",
+    "summary": "Produce something materially useful enough to justify continued build effort before broader product claims.; Current evidence supports a serious prototype path more than a product claim.; Operator intent is still prototype-oriented rather than commercial.;...",
     "key_strengths": [
       "Fresh subsystem grounding exists across 3 areas, so realism is not being judged from narrative alone.",
-      "Implementation artifacts remain provisional review drafts instead of being treated as final design truth."
+      "The active review front is bounded to 1 grounded V1 decision candidate(s) rather than broad speculative scope."
     ],
     "key_gaps": [
       "Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.",
-      "no bounded current product-definition review front is active; more grounded decision framing is needed before product-definition review",
-      "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.; Ground firmware readiness in explicit touch-input and display-c..."
+      "Current cost posture `product_tier_mismatch_risk` blocks a credible `discreet_consumer_assistive_wearable` product-candidate claim even if prototype progress continues.",
+      "Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototype-scoped rather than reading as a `discreet_consumer_ass..."
     ]
   },
   "what_would_materially_improve_realism": [
@@ -96,16 +96,17 @@
     "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
     "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
     "Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.",
-    "no bounded current product-definition review front is active; more grounded decision framing is needed before product-definition review"
+    "Current cost posture `product_tier_mismatch_risk` blocks a credible `discreet_consumer_assistive_wearable` product-candidate claim even if prototype progress continues."
   ],
   "source_generated_at": {
     "project_expectations": "2026-04-10T09:16:32",
-    "project_scorecard": "2026-04-10T10:21:03",
-    "reflect_state": "2026-04-10T10:20:29",
-    "v1_decision_review": "2026-04-10T10:20:29",
+    "project_scorecard": "2026-04-11T23:48:36",
+    "reflect_state": "2026-04-11T23:48:02",
+    "v1_decision_review": "2026-04-11T23:48:02",
     "draft_artifact_review": "2026-04-09T23:02:49",
-    "project_milestones": "2026-04-10T09:35:03"
+    "project_milestones": "2026-04-11T23:49:17",
+    "cost_viability_review": "2026-04-11T23:49:17"
   },
   "revisable": true,
-  "updated_at": "2026-04-10T10:21:31"
+  "updated_at": "2026-04-11T23:49:17"
 }
