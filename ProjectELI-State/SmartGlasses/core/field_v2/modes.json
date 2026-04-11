@@ -1,7 +1,7 @@
 {
   "field": "modes",
   "version": "eli_v2_phase1",
-  "updated_at": "2026-04-10T21:57:17",
+  "updated_at": "2026-04-11T13:27:23",
   "current_mode": "core_deepening",
   "items": [
     {
@@ -14,7 +14,7 @@
       "id": "constraint_pressure",
       "label": "Constraint Pressure",
       "summary": "Surface battery, latency, privacy, and usability limits early so weak directions are killed quickly.",
-      "score": 0.5806
+      "score": 0.5983
     },
     {
       "id": "implementation_grounding",

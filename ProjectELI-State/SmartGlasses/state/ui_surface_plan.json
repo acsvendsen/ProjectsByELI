@@ -1,0 +1,544 @@
+{
+  "generated_at": "2026-04-11T13:22:52",
+  "summary": "Current UI planning warrants Project Creation, Project Overview, Review & Decisions, Build & Realization, Subsystems & Workstreams, Verification & Audit. Keep project creation visible while intent remains tentative, keep review surfaces bounded and non-final, and let build-oriented pages emerge only when realization...",
+  "project_pages": [
+    {
+      "page_id": "project_creation",
+      "title": "Project Creation",
+      "purpose": "Capture and tighten project intent, seriousness, compromise posture, and the conditions required before stronger product claims.",
+      "status": "tentative",
+      "priority": "primary",
+      "why_this_page_exists": "Project expectations remain default-tentative and have not yet been explicitly operator-reviewed.",
+      "driven_by_sources": [
+        "project_expectations"
+      ],
+      "sections": [
+        {
+          "section_id": "intent_and_quality_bar",
+          "title": "Intent & Quality Bar",
+          "purpose": "Show target outcome type, quality bar, seriousness, and whether those defaults are still tentative.",
+          "driven_by_sources": [
+            "project_expectations"
+          ],
+          "show_when": "Project expectations exist and still need explicit confirmation or tightening.",
+          "hide_when": "Hide once intent is operator-reviewed and stable enough to stop driving operator intake."
+        },
+        {
+          "section_id": "claim_guardrails",
+          "title": "Claim Guardrails",
+          "purpose": "Make explicit what the project must not become and what must be true before any real-product claim.",
+          "driven_by_sources": [
+            "project_expectations",
+            "product_realism_review"
+          ],
+          "show_when": "Product posture is still prototype-oriented or operator intent is not yet locked.",
+          "hide_when": "Hide when stronger intent and realism already make these guardrails internalized rather than intake-level."
+        }
+      ],
+      "show_when": "Expectations are still tentative or not operator-reviewed.",
+      "hide_when": "Hide when the intent surface has been explicitly confirmed and no longer needs intake-level visibility.",
+      "representation_risks": [
+        "Do not present conservative defaults as if they were confirmed operator intent."
+      ],
+      "operator_actions_supported": [
+        "confirm or tighten intent",
+        "raise or lower seriousness",
+        "clarify what compromises are acceptable"
+      ]
+    },
+    {
+      "page_id": "project_overview",
+      "title": "Project Overview",
+      "purpose": "Summarize current truth, trust posture, realism posture, and the main fronts that matter right now.",
+      "status": "active",
+      "priority": "primary",
+      "why_this_page_exists": "Every project needs one compact surface for current truth, blockers, realism posture, and what should not be over-read.",
+      "driven_by_sources": [
+        "execution_resume",
+        "product_realism_review",
+        "project_expectations",
+        "verification_summary"
+      ],
+      "sections": [
+        {
+          "section_id": "current_truth_summary",
+          "title": "Current Truth",
+          "purpose": "Show current truth summary and the highest-value unblocked next step without flattening review, held, and blocked lanes together.",
+          "driven_by_sources": [
+            "execution_resume"
+          ],
+          "show_when": "Execution resume is available.",
+          "hide_when": "Hide only if there is no usable execution resume surface."
+        },
+        {
+          "section_id": "realism_posture",
+          "title": "Reality / Realism",
+          "purpose": "Show the current realism band, why that band is honest, and the strongest risk against overclaiming.",
+          "driven_by_sources": [
+            "product_realism_review",
+            "project_expectations"
+          ],
+          "show_when": "Realism review is meaningful enough to guide operator posture.",
+          "hide_when": "Hide only if realism review does not exist yet."
+        },
+        {
+          "section_id": "trust_and_source_authority",
+          "title": "Trust & Source Authority",
+          "purpose": "Show which source currently owns the truth for this page and what remains supporting context.",
+          "driven_by_sources": [
+            "verification_summary",
+            "state_sync_summary"
+          ],
+          "show_when": "More than one truth-bearing surface exists or authority needs explanation.",
+          "hide_when": "Hide only if there is no meaningful current-vs-supporting distinction to explain."
+        }
+      ],
+      "show_when": "Always show once the project has enough structure for steering and trust posture.",
+      "hide_when": "Do not hide while the project is active.",
+      "representation_risks": [
+        "Do not flatten current truth and supporting context into one neat progress story."
+      ],
+      "operator_actions_supported": [
+        "inspect current truth",
+        "see what is blocked",
+        "understand what is actually next"
+      ]
+    },
+    {
+      "page_id": "review_and_decisions",
+      "title": "Review & Decisions",
+      "purpose": "Surface bounded review fronts, milestone gates, and provisional decision or draft surfaces that are honestly ready for human inspection.",
+      "status": "review_oriented",
+      "priority": "primary",
+      "why_this_page_exists": "The project currently has 2 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s).",
+      "driven_by_sources": [
+        "execution_resume",
+        "project_milestones",
+        "v1_decision_review",
+        "draft_artifact_review"
+      ],
+      "sections": [
+        {
+          "section_id": "reviewable_now",
+          "title": "Reviewable Now",
+          "purpose": "Show what is honestly reviewable now, including draft briefs or milestone gates, without implying approval.",
+          "driven_by_sources": [
+            "execution_resume",
+            "draft_artifact_review"
+          ],
+          "show_when": "There is a live review front, ready-for-review milestone, or emitted review artifact.",
+          "hide_when": "Hide when no bounded review front is currently live."
+        },
+        {
+          "section_id": "milestone_gates",
+          "title": "Milestone Gates",
+          "purpose": "Keep milestone gating visible so reviewability is tied to maturity conditions and blockers rather than optimism.",
+          "driven_by_sources": [
+            "project_milestones"
+          ],
+          "show_when": "Milestones have differentiated states such as ready_for_review, held, or not_yet_reviewable.",
+          "hide_when": "Hide when milestone logic is not yet meaningful enough to guide review."
+        },
+        {
+          "section_id": "decision_and_draft_context",
+          "title": "Decision & Draft Context",
+          "purpose": "Show pending decisions, emitted review drafts, and how they relate without treating either as final truth.",
+          "driven_by_sources": [
+            "v1_decision_review",
+            "draft_artifact_review",
+            "artifact_emission_readiness"
+          ],
+          "show_when": "Bounded decisions or provisional draft artifacts exist.",
+          "hide_when": "Hide when there is no live decision or draft-review context."
+        }
+      ],
+      "show_when": "Show when there is a live review front, ready milestone, pending decision, or emitted provisional draft.",
+      "hide_when": "Hide when review surfaces would be empty or purely historical.",
+      "representation_risks": [
+        "Do not present provisional drafts or ready-for-review milestones as approved outcomes.",
+        "Do not assume emitted draft review implies a live pending decision still exists."
+      ],
+      "operator_actions_supported": [
+        "review bounded options",
+        "answer human review questions",
+        "inspect milestone gates"
+      ]
+    },
+    {
+      "page_id": "build_or_realization",
+      "title": "Build & Realization",
+      "purpose": "Expose build-oriented readiness only when implementation maturity, milestone state, or component-package posture makes that surface honest.",
+      "status": "realization_oriented",
+      "priority": "secondary",
+      "why_this_page_exists": "Implementation package review is `ready_for_review` and component-package posture is `early_subsystem_bom_only`, so build-oriented surfaces are now meaningful enough to warrant their own page.",
+      "driven_by_sources": [
+        "component_package_review",
+        "project_milestones",
+        "product_realism_review"
+      ],
+      "sections": [
+        {
+          "section_id": "implementation_package_gate",
+          "title": "Implementation Package Gate",
+          "purpose": "Show whether implementation-package review is actually ready, held, or still blocked by missing evidence.",
+          "driven_by_sources": [
+            "project_milestones"
+          ],
+          "show_when": "Implementation package review has meaningful gating logic.",
+          "hide_when": "Hide when implementation-package gating is not yet meaningful enough to guide realization."
+        },
+        {
+          "section_id": "component_package_readiness",
+          "title": "Component Package Readiness",
+          "purpose": "Show when BOM or component-package structure is warranted and what level of package honesty is justified now.",
+          "driven_by_sources": [
+            "component_package_review"
+          ],
+          "show_when": "BOM readiness is not `not_warranted` or buildability pressure is now materially relevant.",
+          "hide_when": "Hide when component-package readiness is still too weak to justify a build page."
+        },
+        {
+          "section_id": "build_blockers",
+          "title": "Build Blockers",
+          "purpose": "Keep unresolved implementation constraints visible so realization posture does not turn into a fake shopping list.",
+          "driven_by_sources": [
+            "component_package_review",
+            "product_realism_review",
+            "project_scorecard"
+          ],
+          "show_when": "There are unresolved component, subsystem, or realism blockers that materially constrain buildability.",
+          "hide_when": "Hide when build-oriented blockers are not yet materially distinct from general project blockers."
+        }
+      ],
+      "show_when": "Show when component-package readiness or implementation-package gating becomes materially meaningful.",
+      "hide_when": "Hide while build-oriented structure would still be speculative or purely conceptual.",
+      "representation_risks": [
+        "Do not present early subsystem BOM posture as a final part list or settled package."
+      ],
+      "operator_actions_supported": [
+        "inspect buildability posture",
+        "see whether component packaging is warranted",
+        "understand realization blockers"
+      ]
+    },
+    {
+      "page_id": "subsystem_or_workstream",
+      "title": "Subsystems & Workstreams",
+      "purpose": "Expose subsystem status, grounding, trend context, and next focus when the project has meaningful subsystem structure.",
+      "status": "active",
+      "priority": "secondary",
+      "why_this_page_exists": "Fresh scorecard truth currently exposes 7 subsystem lane(s), which is enough to justify a real subsystem page rather than burying everything inside a generic overview.",
+      "driven_by_sources": [
+        "project_scorecard",
+        "verification_summary",
+        "reflect_state"
+      ],
+      "sections": [
+        {
+          "section_id": "subsystem_cards",
+          "title": "Subsystem Cards",
+          "purpose": "Show per-subsystem status, grounding, next focus, and compact history.",
+          "driven_by_sources": [
+            "project_scorecard"
+          ],
+          "show_when": "Fresh scorecard truth exposes meaningful subsystem structure.",
+          "hide_when": "Hide when subsystem structure is too thin or stale to guide operator attention."
+        },
+        {
+          "section_id": "grounding_and_status_meaning",
+          "title": "Grounding & Status Meaning",
+          "purpose": "Help the operator distinguish improving, stalled, weakly grounded, and held lanes without over-reading confidence.",
+          "driven_by_sources": [
+            "project_scorecard",
+            "verification_summary"
+          ],
+          "show_when": "Subsystem cards would otherwise risk being read as vague progress indicators.",
+          "hide_when": "Hide only if subsystem cards are not present."
+        },
+        {
+          "section_id": "blocked_and_held_context",
+          "title": "Blocked & Held Context",
+          "purpose": "Keep blocked and held lanes legible so the operator can tell whether a subsystem is improving, stable, or simply waiting on new grounding.",
+          "driven_by_sources": [
+            "execution_resume",
+            "reflect_state"
+          ],
+          "show_when": "There are blocked or held lanes with meaningful release conditions.",
+          "hide_when": "Hide when subsystem lanes are neither blocked nor held in a meaningful way."
+        }
+      ],
+      "show_when": "Show when fresh scorecard truth exposes real subsystem structure.",
+      "hide_when": "Hide when subsystem structure is too thin or stale for a dedicated page.",
+      "representation_risks": [
+        "Do not let confidence trend visually outrun categorical grounding or status."
+      ],
+      "operator_actions_supported": [
+        "inspect subsystem evolution",
+        "see where grounding is weak",
+        "focus the next subsystem probe"
+      ]
+    },
+    {
+      "page_id": "verification_and_audit",
+      "title": "Verification & Audit",
+      "purpose": "Help the operator verify which surfaces are current truth, what changed recently, and what the UI must not imply.",
+      "status": "supporting",
+      "priority": "supporting",
+      "why_this_page_exists": "The project now has enough truth-bearing surfaces and recent transitions that verification can no longer be left implicit.",
+      "driven_by_sources": [
+        "verification_summary",
+        "execution_resume",
+        "state_sync_summary"
+      ],
+      "sections": [
+        {
+          "section_id": "current_truth_sources",
+          "title": "Current-Truth Sources",
+          "purpose": "Show which canonical surfaces currently own the truth for major operator questions.",
+          "driven_by_sources": [
+            "verification_summary",
+            "state_sync_summary"
+          ],
+          "show_when": "More than one truth-bearing surface exists and source authority matters.",
+          "hide_when": "Hide only if the operator would gain nothing from source-level verification."
+        },
+        {
+          "section_id": "recent_transitions",
+          "title": "Recent Transitions",
+          "purpose": "Show the recent state changes that materially affect what the operator is seeing now.",
+          "driven_by_sources": [
+            "verification_summary",
+            "implementation_artifact_review",
+            "v1_decision_review"
+          ],
+          "show_when": "Transitions are meaningful enough to explain current UI posture.",
+          "hide_when": "Hide when no recent transition materially changes interpretation."
+        },
+        {
+          "section_id": "representation_risks",
+          "title": "Representation Risks",
+          "purpose": "Make visible the UI meanings that are most likely to drift into over-reading if not explicitly constrained.",
+          "driven_by_sources": [
+            "verification_summary",
+            "project_scorecard",
+            "component_package_review"
+          ],
+          "show_when": "There are known places where UI could imply more certainty or concreteness than the state supports.",
+          "hide_when": "Hide only if the UI currently carries no meaningful representation risk."
+        }
+      ],
+      "show_when": "Show when truth authority, transition explanation, or representation risk needs explicit operator visibility.",
+      "hide_when": "Hide when the project is too simple for verification surfaces to add meaning.",
+      "representation_risks": [
+        "Do not turn verification into a raw developer log browser."
+      ],
+      "operator_actions_supported": [
+        "verify which surface is authoritative",
+        "inspect meaningful recent transitions",
+        "check what not to over-read"
+      ]
+    }
+  ],
+  "section_emergence_rules": [
+    {
+      "page_id": "project_creation",
+      "section_id": "intent_and_quality_bar",
+      "emerge_when": "Operator expectations are still tentative or not yet reviewed.",
+      "withhold_when": "Intent is stable enough that creation-time intake would only duplicate steering."
+    },
+    {
+      "page_id": "review_and_decisions",
+      "section_id": "reviewable_now",
+      "emerge_when": "A pending decision, emitted draft, or ready-for-review milestone is materially live.",
+      "withhold_when": "The project has no honest review front and would only be showing empty ceremony."
+    },
+    {
+      "page_id": "subsystem_or_workstream",
+      "section_id": "subsystem_cards",
+      "emerge_when": "Scorecard truth is fresh enough and subsystem structure is materially meaningful.",
+      "withhold_when": "Subsystem structure is too sparse or stale to justify a dedicated page."
+    },
+    {
+      "page_id": "build_or_realization",
+      "section_id": "component_package_readiness",
+      "emerge_when": "Component-package readiness is strong enough to support a build-oriented section.",
+      "withhold_when": "BOM posture is still `not_warranted` and realization detail would be speculative."
+    },
+    {
+      "page_id": "verification_and_audit",
+      "section_id": "current_truth_sources",
+      "emerge_when": "Truth-bearing surfaces and supporting context are distinct enough that the operator needs explicit authority explanation.",
+      "withhold_when": "Source authority is too trivial to justify its own operator-facing explanation."
+    }
+  ],
+  "source_surfaces": [
+    {
+      "surface_id": "project_expectations",
+      "role": "operator_input",
+      "trust_use": "current_truth",
+      "generated_at": "2026-04-10T09:16:32",
+      "why_it_matters": "Defines target outcome, quality bar, seriousness, and whether intent is still tentative."
+    },
+    {
+      "surface_id": "execution_resume",
+      "role": "operational_resume",
+      "trust_use": "current_truth",
+      "generated_at": "2026-04-11T13:22:52",
+      "why_it_matters": "Carries the operator-facing current-truth summary, active review front, held lanes, blockers, and next step."
+    },
+    {
+      "surface_id": "project_milestones",
+      "role": "milestone_gate",
+      "trust_use": "current_truth",
+      "generated_at": "2026-04-11T13:22:52",
+      "why_it_matters": "Keeps reviewability tied to readiness bands, blockers, and approval state rather than vague progress."
+    },
+    {
+      "surface_id": "product_realism_review",
+      "role": "realism_gate",
+      "trust_use": "current_truth",
+      "generated_at": "2026-04-11T13:22:52",
+      "why_it_matters": "Constrains product-language and anti-gimmick posture using grounded realism judgment."
+    },
+    {
+      "surface_id": "project_scorecard",
+      "role": "subsystem_truth",
+      "trust_use": "current_truth",
+      "generated_at": "2026-04-11T13:21:51",
+      "why_it_matters": "The scorecard is fresh enough to use as current subsystem-readiness context."
+    },
+    {
+      "surface_id": "component_package_review",
+      "role": "realization_readiness",
+      "trust_use": "current_truth",
+      "generated_at": "2026-04-10T11:43:03",
+      "why_it_matters": "A concrete part list is still premature, but a bounded subsystem-level BOM frame is now warranted to improve buildability and package thinking without pretending the parts are settled."
+    },
+    {
+      "surface_id": "v1_decision_review",
+      "role": "review_surface",
+      "trust_use": "current_truth",
+      "generated_at": "2026-04-11T13:21:17",
+      "why_it_matters": "This file is close enough to its linked review surfaces to compare operationally."
+    },
+    {
+      "surface_id": "draft_artifact_review",
+      "role": "review_surface",
+      "trust_use": "current_truth",
+      "generated_at": "2026-04-09T23:02:49",
+      "why_it_matters": "This file is close enough to its linked review surfaces to compare operationally."
+    },
+    {
+      "surface_id": "implementation_artifact_review",
+      "role": "supporting_context",
+      "trust_use": "stale_context",
+      "generated_at": "2026-04-09T23:02:49",
+      "why_it_matters": "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history."
+    },
+    {
+      "surface_id": "verification_summary",
+      "role": "verification_support",
+      "trust_use": "supporting_context",
+      "generated_at": "2026-04-11T13:22:52",
+      "why_it_matters": "Explains current-truth authority, recent transitions, and representation risks without replacing the authoritative surfaces themselves."
+    }
+  ],
+  "operator_goals": [
+    "Confirm or tighten project intent, quality bar, and seriousness before stronger product-language or UI emphasis emerges.",
+    "Inspect whether build-oriented realization surfaces are warranted now, without forcing premature component concreteness.",
+    "Inspect subsystem readiness and blockers without treating confidence trend as a substitute for grounding.",
+    "Inspect what is reviewable now without treating provisional drafts, options, or ready-for-review milestones as already approved.",
+    "Use verification surfaces to check which source currently owns the truth when views differ in emphasis or freshness."
+  ],
+  "representation_risks": [
+    "Confidence trend is supporting context only; read the current status and grounding endpoints before inferring improvement from repeated markers.",
+    "A flat evolution strip can mean stable, stalled, or simply repeating. Verify with the endpoint labels and held or blocked reasons.",
+    "Cautionary or provisional surfaces stay visible for continuity, but they should not override current-truth sources.",
+    "Tentative expectations must stay visibly tentative; defaults should not read as confirmed operator ambition.",
+    "Emitted draft artifacts can outlive the current pending-decision front, so review context must not be mistaken for live decision state."
+  ],
+  "page_priority": [
+    {
+      "page_id": "project_creation",
+      "priority": "primary",
+      "why": "Project expectations remain default-tentative and have not yet been explicitly operator-reviewed."
+    },
+    {
+      "page_id": "project_overview",
+      "priority": "primary",
+      "why": "Every project needs one compact surface for current truth, blockers, realism posture, and what should not be over-read."
+    },
+    {
+      "page_id": "review_and_decisions",
+      "priority": "primary",
+      "why": "The project currently has 2 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s)."
+    },
+    {
+      "page_id": "build_or_realization",
+      "priority": "secondary",
+      "why": "Implementation package review is `ready_for_review` and component-package posture is `early_subsystem_bom_only`, so build-oriented surfaces are now meaningful enough to warrant..."
+    },
+    {
+      "page_id": "subsystem_or_workstream",
+      "priority": "secondary",
+      "why": "Fresh scorecard truth currently exposes 7 subsystem lane(s), which is enough to justify a real subsystem page rather than burying everything inside a generic overview."
+    },
+    {
+      "page_id": "verification_and_audit",
+      "priority": "supporting",
+      "why": "The project now has enough truth-bearing surfaces and recent transitions that verification can no longer be left implicit."
+    }
+  ],
+  "page_status": [
+    {
+      "page_id": "project_creation",
+      "status": "tentative",
+      "why": "Project expectations remain default-tentative and have not yet been explicitly operator-reviewed."
+    },
+    {
+      "page_id": "project_overview",
+      "status": "active",
+      "why": "Every project needs one compact surface for current truth, blockers, realism posture, and what should not be over-read."
+    },
+    {
+      "page_id": "review_and_decisions",
+      "status": "review_oriented",
+      "why": "The project currently has 2 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s)."
+    },
+    {
+      "page_id": "build_or_realization",
+      "status": "realization_oriented",
+      "why": "Implementation package review is `ready_for_review` and component-package posture is `early_subsystem_bom_only`, so build-oriented surfaces are now meaningful enough to warrant..."
+    },
+    {
+      "page_id": "subsystem_or_workstream",
+      "status": "active",
+      "why": "Fresh scorecard truth currently exposes 7 subsystem lane(s), which is enough to justify a real subsystem page rather than burying everything inside a generic overview."
+    },
+    {
+      "page_id": "verification_and_audit",
+      "status": "supporting",
+      "why": "The project now has enough truth-bearing surfaces and recent transitions that verification can no longer be left implicit."
+    }
+  ],
+  "trust_posture": {
+    "overall_sync_status": "in_sync",
+    "overall_trust_status": "operational",
+    "review_state_summary": "The current review-state files are close enough in time and linkage to compare operationally.",
+    "scorecard_use": "current_truth",
+    "artifact_review_use": "stale_context"
+  },
+  "source_generated_at": {
+    "project_expectations": "2026-04-10T09:16:32",
+    "execution_resume": "2026-04-11T13:22:52",
+    "project_milestones": "2026-04-11T13:22:52",
+    "product_realism_review": "2026-04-11T13:22:52",
+    "component_package_review": "2026-04-10T11:43:03",
+    "verification_summary": "2026-04-11T13:22:52",
+    "project_scorecard": "2026-04-11T13:21:51",
+    "v1_decision_review": "2026-04-11T13:21:17",
+    "draft_artifact_review": "2026-04-09T23:02:49"
+  },
+  "revisable": true,
+  "updated_at": "2026-04-11T13:22:52"
+}

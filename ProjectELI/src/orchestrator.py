@@ -589,6 +589,7 @@ PROJECT_EXPECTATIONS_PATH = PROJECT_STATE_DIR / "project_expectations.json"
 PROJECT_MILESTONES_PATH = PROJECT_STATE_DIR / "project_milestones.json"
 PRODUCT_REALISM_REVIEW_PATH = PROJECT_STATE_DIR / "product_realism_review.json"
 COMPONENT_PACKAGE_REVIEW_PATH = PROJECT_STATE_DIR / "component_package_review.json"
+UI_SURFACE_PLAN_PATH = PROJECT_STATE_DIR / "ui_surface_plan.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
     str(REPO_ELI_DIR / "attractors.md"),
     str(REPO_ELI_DIR / "tensions.md"),
@@ -927,6 +928,22 @@ DEFAULT_COGNITION_SCHEMA = {
                 'subsystem_breakdown',
             ],
         },
+        'ui_surface_plan': {
+            'enabled': True,
+            'max_pages': 6,
+            'max_sections_per_page': 4,
+            'max_operator_goals': 5,
+            'max_representation_risks': 5,
+            'max_source_surfaces': 10,
+            'page_types': [
+                'project_creation',
+                'project_overview',
+                'subsystem_or_workstream',
+                'review_and_decisions',
+                'build_or_realization',
+                'verification_and_audit',
+            ],
+        },
         'execution_resume': {
             'enabled': True,
             'max_current_truth_summary': 5,
@@ -1257,6 +1274,20 @@ control:
       - schematic_direction
       - interface_map
       - subsystem_breakdown
+  ui_surface_plan:
+    enabled: true
+    max_pages: 6
+    max_sections_per_page: 4
+    max_operator_goals: 5
+    max_representation_risks: 5
+    max_source_surfaces: 10
+    page_types:
+      - project_creation
+      - project_overview
+      - subsystem_or_workstream
+      - review_and_decisions
+      - build_or_realization
+      - verification_and_audit
   execution_resume:
     enabled: true
     max_current_truth_summary: 5
@@ -7279,6 +7310,31 @@ def component_package_review_config(schema=None):
     }
 
 
+def ui_surface_plan_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('ui_surface_plan', {}) if isinstance(control.get('ui_surface_plan', {}), dict) else {}
+    page_types = cfg.get('page_types', [])
+    if not isinstance(page_types, list) or not page_types:
+        page_types = [
+            'project_creation',
+            'project_overview',
+            'subsystem_or_workstream',
+            'review_and_decisions',
+            'build_or_realization',
+            'verification_and_audit',
+        ]
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'max_pages': max(1, safe_int(cfg.get('max_pages', 6), 6)),
+        'max_sections_per_page': max(1, safe_int(cfg.get('max_sections_per_page', 4), 4)),
+        'max_operator_goals': max(1, safe_int(cfg.get('max_operator_goals', 5), 5)),
+        'max_representation_risks': max(1, safe_int(cfg.get('max_representation_risks', 5), 5)),
+        'max_source_surfaces': max(1, safe_int(cfg.get('max_source_surfaces', 10), 10)),
+        'page_types': [normalize_signal_key(item) for item in page_types if normalize_signal_key(item)],
+    }
+
+
 def default_execution_resume_state():
     return {
         'generated_at': '',
@@ -8546,6 +8602,656 @@ def render_component_package_review_context(component_state=None):
     return '\n'.join(lines) + '\n'
 
 
+def default_ui_surface_plan_state():
+    return {
+        'generated_at': '',
+        'summary': '',
+        'project_pages': [],
+        'section_emergence_rules': [],
+        'source_surfaces': [],
+        'operator_goals': [],
+        'representation_risks': [],
+        'page_priority': [],
+        'page_status': [],
+        'trust_posture': {},
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_ui_surface_plan_state():
+    data = load_json_file(UI_SURFACE_PLAN_PATH, default_ui_surface_plan_state())
+    if not isinstance(data, dict):
+        data = default_ui_surface_plan_state()
+    for key in (
+        'project_pages',
+        'section_emergence_rules',
+        'source_surfaces',
+        'operator_goals',
+        'representation_risks',
+        'page_priority',
+        'page_status',
+    ):
+        if not isinstance(data.get(key), list):
+            data[key] = []
+    for key in ('trust_posture', 'source_generated_at'):
+        if not isinstance(data.get(key), dict):
+            data[key] = {}
+    if not isinstance(data.get('summary'), str):
+        data['summary'] = ''
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_ui_surface_plan_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_ui_surface_plan_state()
+    payload['updated_at'] = now_iso()
+    UI_SURFACE_PLAN_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def ui_page_priority_rank(priority):
+    order = {
+        'primary': 0,
+        'secondary': 1,
+        'supporting': 2,
+        'latent': 3,
+    }
+    return order.get(str(priority or '').strip(), 4)
+
+
+def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None):
+    schema = schema or load_cognition_schema()
+    cfg = ui_surface_plan_config(schema)
+    if not cfg.get('enabled', True):
+        return default_ui_surface_plan_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
+    verification_state = verification_state if isinstance(verification_state, dict) else build_verification_summary_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+    )
+
+    expectations = load_project_expectations_state()
+    milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
+    realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
+    component_state = load_component_package_review_state()
+    reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
+    scorecard_state = load_scorecard_state()
+    artifact_review_state = load_implementation_artifact_review_state()
+    scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, execution_resume_config(schema))
+    artifact_review_use, artifact_review_reason = supporting_artifact_review_posture(artifact_review_state, reflect_state)
+    scorecard_dimensions = scorecard_state.get('dimensions', []) if scorecard_use == 'current_truth' and isinstance(scorecard_state.get('dimensions', []), list) else []
+
+    review_surfaces = review_snapshot.get('surfaces', {}) if isinstance(review_snapshot.get('surfaces', {}), dict) else {}
+    v1_surface = review_surfaces.get('v1_decision_review', {})
+    draft_surface = review_surfaces.get('draft_artifact_review', {})
+    v1_state = load_v1_decision_review_state()
+    draft_state = load_draft_artifact_review_state()
+    pending_rows = v1_state.get('pending_v1_decisions', []) if v1_surface.get('consumption_state') in ('current_truth', 'provisional_context') and isinstance(v1_state.get('pending_v1_decisions', []), list) else []
+    draft_rows = draft_state.get('emitted_drafts', []) if draft_surface.get('consumption_state') in ('current_truth', 'provisional_context') and isinstance(draft_state.get('emitted_drafts', []), list) else []
+
+    milestone_rows = milestone_state.get('milestones', []) if isinstance(milestone_state.get('milestones', []), list) else []
+    ready_milestones = [row for row in milestone_rows if str(row.get('approval_state', '') or '') == 'ready_for_review']
+    held_milestones = [row for row in milestone_rows if str(row.get('approval_state', '') or '') == 'held']
+    active_review_front = resume_state.get('active_review_front', []) if isinstance(resume_state.get('active_review_front', []), list) else []
+    needs_human_review = resume_state.get('needs_human_review', []) if isinstance(resume_state.get('needs_human_review', []), list) else []
+    blocked_lanes = resume_state.get('blocked_lanes', []) if isinstance(resume_state.get('blocked_lanes', []), list) else []
+    held_lanes = resume_state.get('held_lanes', []) if isinstance(resume_state.get('held_lanes', []), list) else []
+
+    def make_section(section_id, title, purpose, driven_by_sources, show_when, hide_when):
+        return {
+            'section_id': section_id,
+            'title': title,
+            'purpose': compact_text_excerpt(purpose, 220),
+            'driven_by_sources': [str(item) for item in driven_by_sources if item][:4],
+            'show_when': compact_text_excerpt(show_when, 180),
+            'hide_when': compact_text_excerpt(hide_when, 180),
+        }
+
+    pages = []
+    section_emergence_rules = []
+    source_surfaces = []
+    operator_goals = []
+    representation_risks = []
+
+    seen_goals = set()
+    seen_risks = set()
+    seen_sources = set()
+
+    def push_goal(text):
+        cleaned = compact_text_excerpt(text, 200)
+        if not cleaned:
+            return
+        key = cleaned.lower()
+        if key in seen_goals:
+            return
+        seen_goals.add(key)
+        operator_goals.append(cleaned)
+
+    def push_risk(text):
+        cleaned = compact_text_excerpt(text, 220)
+        if not cleaned:
+            return
+        key = cleaned.lower()
+        if key in seen_risks:
+            return
+        seen_risks.add(key)
+        representation_risks.append(cleaned)
+
+    def push_source(surface_id, role, trust_use, why, generated_at):
+        key = (surface_id, trust_use)
+        if key in seen_sources:
+            return
+        seen_sources.add(key)
+        source_surfaces.append({
+            'surface_id': surface_id,
+            'role': role,
+            'trust_use': trust_use,
+            'generated_at': generated_at or '',
+            'why_it_matters': compact_text_excerpt(why, 220),
+        })
+
+    def append_page(page):
+        if normalize_signal_key(page.get('page_id', '')) not in cfg.get('page_types', []):
+            return
+        page['sections'] = page.get('sections', [])[:cfg.get('max_sections_per_page', 4)]
+        page['representation_risks'] = page.get('representation_risks', [])[:3]
+        page['operator_actions_supported'] = page.get('operator_actions_supported', [])[:4]
+        pages.append(page)
+
+    tentative_expectations = bool(expectations.get('defaults_are_tentative', True)) or not bool(expectations.get('reviewed_by_operator', False))
+    component_band = str(component_state.get('bom_readiness_band', 'not_warranted') or 'not_warranted')
+    implementation_ready = any(str(row.get('milestone_id', '') or '') == 'implementation_package_review' and str(row.get('approval_state', '') or '') == 'ready_for_review' for row in milestone_rows)
+    subsystem_structure_meaningful = scorecard_use == 'current_truth' and len(scorecard_dimensions) >= 3
+    review_front_meaningful = bool(pending_rows or draft_rows or ready_milestones or active_review_front or needs_human_review)
+    verification_meaningful = bool(
+        verification_state.get('current_truth_sources', [])
+        or verification_state.get('recent_transitions', [])
+        or verification_state.get('representation_risks', [])
+    )
+
+    if tentative_expectations:
+        append_page({
+            'page_id': 'project_creation',
+            'title': 'Project Creation',
+            'purpose': 'Capture and tighten project intent, seriousness, compromise posture, and the conditions required before stronger product claims.',
+            'status': 'tentative',
+            'priority': 'primary',
+            'why_this_page_exists': 'Project expectations remain default-tentative and have not yet been explicitly operator-reviewed.',
+            'driven_by_sources': ['project_expectations'],
+            'sections': [
+                make_section(
+                    'intent_and_quality_bar',
+                    'Intent & Quality Bar',
+                    'Show target outcome type, quality bar, seriousness, and whether those defaults are still tentative.',
+                    ['project_expectations'],
+                    'Project expectations exist and still need explicit confirmation or tightening.',
+                    'Hide once intent is operator-reviewed and stable enough to stop driving operator intake.',
+                ),
+                make_section(
+                    'claim_guardrails',
+                    'Claim Guardrails',
+                    'Make explicit what the project must not become and what must be true before any real-product claim.',
+                    ['project_expectations', 'product_realism_review'],
+                    'Product posture is still prototype-oriented or operator intent is not yet locked.',
+                    'Hide when stronger intent and realism already make these guardrails internalized rather than intake-level.',
+                ),
+            ],
+            'show_when': 'Expectations are still tentative or not operator-reviewed.',
+            'hide_when': 'Hide when the intent surface has been explicitly confirmed and no longer needs intake-level visibility.',
+            'representation_risks': [
+                'Do not present conservative defaults as if they were confirmed operator intent.',
+            ],
+            'operator_actions_supported': [
+                'confirm or tighten intent',
+                'raise or lower seriousness',
+                'clarify what compromises are acceptable',
+            ],
+        })
+        section_emergence_rules.append({
+            'page_id': 'project_creation',
+            'section_id': 'intent_and_quality_bar',
+            'emerge_when': 'Operator expectations are still tentative or not yet reviewed.',
+            'withhold_when': 'Intent is stable enough that creation-time intake would only duplicate steering.',
+        })
+
+    append_page({
+        'page_id': 'project_overview',
+        'title': 'Project Overview',
+        'purpose': 'Summarize current truth, trust posture, realism posture, and the main fronts that matter right now.',
+        'status': 'active',
+        'priority': 'primary',
+        'why_this_page_exists': 'Every project needs one compact surface for current truth, blockers, realism posture, and what should not be over-read.',
+        'driven_by_sources': ['execution_resume', 'product_realism_review', 'project_expectations', 'verification_summary'],
+        'sections': [
+            make_section(
+                'current_truth_summary',
+                'Current Truth',
+                'Show current truth summary and the highest-value unblocked next step without flattening review, held, and blocked lanes together.',
+                ['execution_resume'],
+                'Execution resume is available.',
+                'Hide only if there is no usable execution resume surface.',
+            ),
+            make_section(
+                'realism_posture',
+                'Reality / Realism',
+                'Show the current realism band, why that band is honest, and the strongest risk against overclaiming.',
+                ['product_realism_review', 'project_expectations'],
+                'Realism review is meaningful enough to guide operator posture.',
+                'Hide only if realism review does not exist yet.',
+            ),
+            make_section(
+                'trust_and_source_authority',
+                'Trust & Source Authority',
+                'Show which source currently owns the truth for this page and what remains supporting context.',
+                ['verification_summary', 'state_sync_summary'],
+                'More than one truth-bearing surface exists or authority needs explanation.',
+                'Hide only if there is no meaningful current-vs-supporting distinction to explain.',
+            ),
+        ],
+        'show_when': 'Always show once the project has enough structure for steering and trust posture.',
+        'hide_when': 'Do not hide while the project is active.',
+        'representation_risks': [
+            'Do not flatten current truth and supporting context into one neat progress story.',
+        ],
+        'operator_actions_supported': [
+            'inspect current truth',
+            'see what is blocked',
+            'understand what is actually next',
+        ],
+    })
+
+    if review_front_meaningful:
+        append_page({
+            'page_id': 'review_and_decisions',
+            'title': 'Review & Decisions',
+            'purpose': 'Surface bounded review fronts, milestone gates, and provisional decision or draft surfaces that are honestly ready for human inspection.',
+            'status': 'review_oriented',
+            'priority': 'primary',
+            'why_this_page_exists': compact_text_excerpt(
+                f"The project currently has {len(active_review_front)} active review front(s), {len(ready_milestones)} ready-for-review milestone(s), and {len(draft_rows)} emitted draft artifact review row(s).",
+                220,
+            ),
+            'driven_by_sources': ['execution_resume', 'project_milestones', 'v1_decision_review', 'draft_artifact_review'],
+            'sections': [
+                make_section(
+                    'reviewable_now',
+                    'Reviewable Now',
+                    'Show what is honestly reviewable now, including draft briefs or milestone gates, without implying approval.',
+                    ['execution_resume', 'draft_artifact_review'],
+                    'There is a live review front, ready-for-review milestone, or emitted review artifact.',
+                    'Hide when no bounded review front is currently live.',
+                ),
+                make_section(
+                    'milestone_gates',
+                    'Milestone Gates',
+                    'Keep milestone gating visible so reviewability is tied to maturity conditions and blockers rather than optimism.',
+                    ['project_milestones'],
+                    'Milestones have differentiated states such as ready_for_review, held, or not_yet_reviewable.',
+                    'Hide when milestone logic is not yet meaningful enough to guide review.',
+                ),
+                make_section(
+                    'decision_and_draft_context',
+                    'Decision & Draft Context',
+                    'Show pending decisions, emitted review drafts, and how they relate without treating either as final truth.',
+                    ['v1_decision_review', 'draft_artifact_review', 'artifact_emission_readiness'],
+                    'Bounded decisions or provisional draft artifacts exist.',
+                    'Hide when there is no live decision or draft-review context.',
+                ),
+            ],
+            'show_when': 'Show when there is a live review front, ready milestone, pending decision, or emitted provisional draft.',
+            'hide_when': 'Hide when review surfaces would be empty or purely historical.',
+            'representation_risks': [
+                'Do not present provisional drafts or ready-for-review milestones as approved outcomes.',
+                'Do not assume emitted draft review implies a live pending decision still exists.',
+            ],
+            'operator_actions_supported': [
+                'review bounded options',
+                'answer human review questions',
+                'inspect milestone gates',
+            ],
+        })
+        section_emergence_rules.append({
+            'page_id': 'review_and_decisions',
+            'section_id': 'reviewable_now',
+            'emerge_when': 'A pending decision, emitted draft, or ready-for-review milestone is materially live.',
+            'withhold_when': 'The project has no honest review front and would only be showing empty ceremony.',
+        })
+
+    if subsystem_structure_meaningful:
+        append_page({
+            'page_id': 'subsystem_or_workstream',
+            'title': 'Subsystems & Workstreams',
+            'purpose': 'Expose subsystem status, grounding, trend context, and next focus when the project has meaningful subsystem structure.',
+            'status': 'active',
+            'priority': 'secondary',
+            'why_this_page_exists': compact_text_excerpt(
+                f"Fresh scorecard truth currently exposes {len(scorecard_dimensions)} subsystem lane(s), which is enough to justify a real subsystem page rather than burying everything inside a generic overview.",
+                220,
+            ),
+            'driven_by_sources': ['project_scorecard', 'verification_summary', 'reflect_state'],
+            'sections': [
+                make_section(
+                    'subsystem_cards',
+                    'Subsystem Cards',
+                    'Show per-subsystem status, grounding, next focus, and compact history.',
+                    ['project_scorecard'],
+                    'Fresh scorecard truth exposes meaningful subsystem structure.',
+                    'Hide when subsystem structure is too thin or stale to guide operator attention.',
+                ),
+                make_section(
+                    'grounding_and_status_meaning',
+                    'Grounding & Status Meaning',
+                    'Help the operator distinguish improving, stalled, weakly grounded, and held lanes without over-reading confidence.',
+                    ['project_scorecard', 'verification_summary'],
+                    'Subsystem cards would otherwise risk being read as vague progress indicators.',
+                    'Hide only if subsystem cards are not present.',
+                ),
+                make_section(
+                    'blocked_and_held_context',
+                    'Blocked & Held Context',
+                    'Keep blocked and held lanes legible so the operator can tell whether a subsystem is improving, stable, or simply waiting on new grounding.',
+                    ['execution_resume', 'reflect_state'],
+                    'There are blocked or held lanes with meaningful release conditions.',
+                    'Hide when subsystem lanes are neither blocked nor held in a meaningful way.',
+                ),
+            ],
+            'show_when': 'Show when fresh scorecard truth exposes real subsystem structure.',
+            'hide_when': 'Hide when subsystem structure is too thin or stale for a dedicated page.',
+            'representation_risks': [
+                'Do not let confidence trend visually outrun categorical grounding or status.',
+            ],
+            'operator_actions_supported': [
+                'inspect subsystem evolution',
+                'see where grounding is weak',
+                'focus the next subsystem probe',
+            ],
+        })
+        section_emergence_rules.append({
+            'page_id': 'subsystem_or_workstream',
+            'section_id': 'subsystem_cards',
+            'emerge_when': 'Scorecard truth is fresh enough and subsystem structure is materially meaningful.',
+            'withhold_when': 'Subsystem structure is too sparse or stale to justify a dedicated page.',
+        })
+
+    if component_band != 'not_warranted' or implementation_ready:
+        append_page({
+            'page_id': 'build_or_realization',
+            'title': 'Build & Realization',
+            'purpose': 'Expose build-oriented readiness only when implementation maturity, milestone state, or component-package posture makes that surface honest.',
+            'status': 'realization_oriented',
+            'priority': 'secondary',
+            'why_this_page_exists': compact_text_excerpt(
+                f"Implementation package review is `{('ready_for_review' if implementation_ready else 'not_yet_reviewable')}` and component-package posture is `{component_band}`, so build-oriented surfaces are now meaningful enough to warrant their own page.",
+                220,
+            ),
+            'driven_by_sources': ['component_package_review', 'project_milestones', 'product_realism_review'],
+            'sections': [
+                make_section(
+                    'implementation_package_gate',
+                    'Implementation Package Gate',
+                    'Show whether implementation-package review is actually ready, held, or still blocked by missing evidence.',
+                    ['project_milestones'],
+                    'Implementation package review has meaningful gating logic.',
+                    'Hide when implementation-package gating is not yet meaningful enough to guide realization.',
+                ),
+                make_section(
+                    'component_package_readiness',
+                    'Component Package Readiness',
+                    'Show when BOM or component-package structure is warranted and what level of package honesty is justified now.',
+                    ['component_package_review'],
+                    'BOM readiness is not `not_warranted` or buildability pressure is now materially relevant.',
+                    'Hide when component-package readiness is still too weak to justify a build page.',
+                ),
+                make_section(
+                    'build_blockers',
+                    'Build Blockers',
+                    'Keep unresolved implementation constraints visible so realization posture does not turn into a fake shopping list.',
+                    ['component_package_review', 'product_realism_review', 'project_scorecard'],
+                    'There are unresolved component, subsystem, or realism blockers that materially constrain buildability.',
+                    'Hide when build-oriented blockers are not yet materially distinct from general project blockers.',
+                ),
+            ],
+            'show_when': 'Show when component-package readiness or implementation-package gating becomes materially meaningful.',
+            'hide_when': 'Hide while build-oriented structure would still be speculative or purely conceptual.',
+            'representation_risks': [
+                'Do not present early subsystem BOM posture as a final part list or settled package.',
+            ],
+            'operator_actions_supported': [
+                'inspect buildability posture',
+                'see whether component packaging is warranted',
+                'understand realization blockers',
+            ],
+        })
+        section_emergence_rules.append({
+            'page_id': 'build_or_realization',
+            'section_id': 'component_package_readiness',
+            'emerge_when': 'Component-package readiness is strong enough to support a build-oriented section.',
+            'withhold_when': 'BOM posture is still `not_warranted` and realization detail would be speculative.',
+        })
+
+    if verification_meaningful:
+        append_page({
+            'page_id': 'verification_and_audit',
+            'title': 'Verification & Audit',
+            'purpose': 'Help the operator verify which surfaces are current truth, what changed recently, and what the UI must not imply.',
+            'status': 'supporting',
+            'priority': 'supporting',
+            'why_this_page_exists': 'The project now has enough truth-bearing surfaces and recent transitions that verification can no longer be left implicit.',
+            'driven_by_sources': ['verification_summary', 'execution_resume', 'state_sync_summary'],
+            'sections': [
+                make_section(
+                    'current_truth_sources',
+                    'Current-Truth Sources',
+                    'Show which canonical surfaces currently own the truth for major operator questions.',
+                    ['verification_summary', 'state_sync_summary'],
+                    'More than one truth-bearing surface exists and source authority matters.',
+                    'Hide only if the operator would gain nothing from source-level verification.',
+                ),
+                make_section(
+                    'recent_transitions',
+                    'Recent Transitions',
+                    'Show the recent state changes that materially affect what the operator is seeing now.',
+                    ['verification_summary', 'implementation_artifact_review', 'v1_decision_review'],
+                    'Transitions are meaningful enough to explain current UI posture.',
+                    'Hide when no recent transition materially changes interpretation.',
+                ),
+                make_section(
+                    'representation_risks',
+                    'Representation Risks',
+                    'Make visible the UI meanings that are most likely to drift into over-reading if not explicitly constrained.',
+                    ['verification_summary', 'project_scorecard', 'component_package_review'],
+                    'There are known places where UI could imply more certainty or concreteness than the state supports.',
+                    'Hide only if the UI currently carries no meaningful representation risk.',
+                ),
+            ],
+            'show_when': 'Show when truth authority, transition explanation, or representation risk needs explicit operator visibility.',
+            'hide_when': 'Hide when the project is too simple for verification surfaces to add meaning.',
+            'representation_risks': [
+                'Do not turn verification into a raw developer log browser.',
+            ],
+            'operator_actions_supported': [
+                'verify which surface is authoritative',
+                'inspect meaningful recent transitions',
+                'check what not to over-read',
+            ],
+        })
+        section_emergence_rules.append({
+            'page_id': 'verification_and_audit',
+            'section_id': 'current_truth_sources',
+            'emerge_when': 'Truth-bearing surfaces and supporting context are distinct enough that the operator needs explicit authority explanation.',
+            'withhold_when': 'Source authority is too trivial to justify its own operator-facing explanation.',
+        })
+
+    for item in verification_state.get('representation_risks', []) if isinstance(verification_state.get('representation_risks', []), list) else []:
+        push_risk(item)
+    if tentative_expectations:
+        push_risk('Tentative expectations must stay visibly tentative; defaults should not read as confirmed operator ambition.')
+        push_goal('Confirm or tighten project intent, quality bar, and seriousness before stronger product-language or UI emphasis emerges.')
+    if draft_rows and not pending_rows:
+        push_risk('Emitted draft artifacts can outlive the current pending-decision front, so review context must not be mistaken for live decision state.')
+    if component_band != 'not_warranted':
+        push_risk('Build-oriented pages must not imply that early component-package readiness is already a settled BOM or implementation commitment.')
+        push_goal('Inspect whether build-oriented realization surfaces are warranted now, without forcing premature component concreteness.')
+    if subsystem_structure_meaningful:
+        push_risk('Subsystem visuals must keep status and grounding authoritative rather than letting trend graphics imply progress by themselves.')
+        push_goal('Inspect subsystem readiness and blockers without treating confidence trend as a substitute for grounding.')
+    if review_front_meaningful:
+        push_goal('Inspect what is reviewable now without treating provisional drafts, options, or ready-for-review milestones as already approved.')
+    push_goal('Use verification surfaces to check which source currently owns the truth when views differ in emphasis or freshness.')
+    if blocked_lanes or held_lanes:
+        push_risk('Held, blocked, and review-oriented lanes must remain visually distinct so waiting is not misread as progress.')
+
+    push_source(
+        'project_expectations',
+        'operator_input',
+        'current_truth',
+        'Defines target outcome, quality bar, seriousness, and whether intent is still tentative.',
+        state_surface_generated_at(expectations),
+    )
+    push_source(
+        'execution_resume',
+        'operational_resume',
+        'current_truth',
+        'Carries the operator-facing current-truth summary, active review front, held lanes, blockers, and next step.',
+        state_surface_generated_at(resume_state),
+    )
+    push_source(
+        'project_milestones',
+        'milestone_gate',
+        'current_truth',
+        'Keeps reviewability tied to readiness bands, blockers, and approval state rather than vague progress.',
+        state_surface_generated_at(milestone_state),
+    )
+    push_source(
+        'product_realism_review',
+        'realism_gate',
+        'current_truth',
+        'Constrains product-language and anti-gimmick posture using grounded realism judgment.',
+        state_surface_generated_at(realism_state),
+    )
+    push_source(
+        'project_scorecard',
+        'subsystem_truth',
+        scorecard_use,
+        scorecard_reason,
+        state_surface_generated_at(scorecard_state),
+    )
+    push_source(
+        'component_package_review',
+        'realization_readiness',
+        'current_truth' if component_band != 'not_warranted' else 'supporting_context',
+        component_state.get('why_bom_is_or_is_not_warranted', ''),
+        state_surface_generated_at(component_state),
+    )
+    push_source(
+        'v1_decision_review',
+        'review_surface',
+        v1_surface.get('consumption_state', 'provisional_context'),
+        v1_surface.get('consumption_reason', 'Pending-decision context is available through the review-state consumption policy.'),
+        state_surface_generated_at(v1_state),
+    )
+    push_source(
+        'draft_artifact_review',
+        'review_surface',
+        draft_surface.get('consumption_state', 'provisional_context'),
+        draft_surface.get('consumption_reason', 'Draft artifact review is available as provisional review context.'),
+        state_surface_generated_at(draft_state),
+    )
+    push_source(
+        'implementation_artifact_review',
+        'supporting_context',
+        artifact_review_use,
+        artifact_review_reason,
+        state_surface_generated_at(artifact_review_state),
+    )
+    push_source(
+        'verification_summary',
+        'verification_support',
+        'supporting_context',
+        'Explains current-truth authority, recent transitions, and representation risks without replacing the authoritative surfaces themselves.',
+        state_surface_generated_at(verification_state),
+    )
+
+    pages.sort(key=lambda row: (ui_page_priority_rank(row.get('priority', 'supporting')), row.get('title', '')))
+    page_priority = [
+        {
+            'page_id': row.get('page_id', ''),
+            'priority': row.get('priority', 'supporting'),
+            'why': compact_text_excerpt(row.get('why_this_page_exists', ''), 180),
+        }
+        for row in pages[:cfg.get('max_pages', 6)]
+    ]
+    page_status = [
+        {
+            'page_id': row.get('page_id', ''),
+            'status': row.get('status', 'supporting'),
+            'why': compact_text_excerpt(row.get('why_this_page_exists', ''), 180),
+        }
+        for row in pages[:cfg.get('max_pages', 6)]
+    ]
+
+    summary = compact_text_excerpt(
+        'Current UI planning warrants '
+        + ', '.join(row.get('title', row.get('page_id', 'page')) for row in pages[:cfg.get('max_pages', 6)])
+        + '. Keep project creation visible while intent remains tentative, keep review surfaces bounded and non-final, and let build-oriented pages emerge only when realization readiness is materially justified.',
+        320,
+    )
+
+    return {
+        'generated_at': now_iso(),
+        'summary': summary,
+        'project_pages': pages[:cfg.get('max_pages', 6)],
+        'section_emergence_rules': section_emergence_rules[: max(4, cfg.get('max_pages', 6))],
+        'source_surfaces': source_surfaces[:cfg.get('max_source_surfaces', 10)],
+        'operator_goals': operator_goals[:cfg.get('max_operator_goals', 5)],
+        'representation_risks': representation_risks[:cfg.get('max_representation_risks', 5)],
+        'page_priority': page_priority,
+        'page_status': page_status,
+        'trust_posture': {
+            'overall_sync_status': review_snapshot.get('overall_sync_status', 'provisional'),
+            'overall_trust_status': review_snapshot.get('overall_trust_status', 'provisional'),
+            'review_state_summary': review_snapshot.get('summary', ''),
+            'scorecard_use': scorecard_use,
+            'artifact_review_use': artifact_review_use,
+        },
+        'source_generated_at': {
+            'project_expectations': state_surface_generated_at(expectations),
+            'execution_resume': state_surface_generated_at(resume_state),
+            'project_milestones': state_surface_generated_at(milestone_state),
+            'product_realism_review': state_surface_generated_at(realism_state),
+            'component_package_review': state_surface_generated_at(component_state),
+            'verification_summary': state_surface_generated_at(verification_state),
+            'project_scorecard': state_surface_generated_at(scorecard_state),
+            'v1_decision_review': state_surface_generated_at(v1_state),
+            'draft_artifact_review': state_surface_generated_at(draft_state),
+        },
+        'revisable': True,
+    }
+
+
+def render_ui_surface_plan_context(plan_state=None):
+    plan_state = plan_state if isinstance(plan_state, dict) else load_ui_surface_plan_state()
+    lines = ['# UI Surface Plan']
+    if plan_state.get('summary'):
+        lines.append(f"- summary: {plan_state.get('summary', '')}")
+    for row in plan_state.get('page_priority', [])[:4]:
+        lines.append(
+            f"- page_priority: `{row.get('page_id', '')}` as `{row.get('priority', 'supporting')}` | {row.get('why', '')}"
+        )
+    risks = plan_state.get('representation_risks', []) if isinstance(plan_state.get('representation_risks', []), list) else []
+    if risks:
+        lines.append(f"- representation_risks: {'; '.join(str(item) for item in risks[:3])}")
+    goals = plan_state.get('operator_goals', []) if isinstance(plan_state.get('operator_goals', []), list) else []
+    if goals:
+        lines.append(f"- operator_goals: {'; '.join(str(item) for item in goals[:3])}")
+    return '\n'.join(lines) + '\n'
+
+
 def default_verification_summary_state():
     return {
         'generated_at': '',
@@ -9482,7 +10188,14 @@ def refresh_review_state_sync_metadata(schema=None):
     save_execution_resume_state(resume_state)
     save_project_milestones_state(build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
     save_product_realism_review_state(build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot))
-    save_verification_summary_state(build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
+    verification_state = build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
+    save_verification_summary_state(verification_state)
+    save_ui_surface_plan_state(build_ui_surface_plan_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        verification_state=verification_state,
+    ))
     return summary
 
 
@@ -11816,7 +12529,14 @@ def generate_scorecard_cycle(changes, prior_reports):
     save_execution_resume_state(resume_state)
     save_project_milestones_state(build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
     save_product_realism_review_state(build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot))
-    save_verification_summary_state(build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state))
+    verification_state = build_verification_summary_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
+    save_verification_summary_state(verification_state)
+    save_ui_surface_plan_state(build_ui_surface_plan_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        verification_state=verification_state,
+    ))
     return render_scorecard_markdown(scorecard), effort_selection
 
 
@@ -13267,6 +13987,7 @@ def context_with_inputs(changes):
     review_state_consumption = load_review_state_consumption_snapshot()
     milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_state_consumption)
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_state_consumption)
+    ui_surface_plan_state = build_ui_surface_plan_state(schema=schema, review_snapshot=review_state_consumption)
     component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_state_consumption)
     pieces = ['# Core Field\n', core_text(), '\n']
     pieces.append(render_field_layer_context())
@@ -13295,6 +14016,8 @@ def context_with_inputs(changes):
     pieces.append(render_project_milestones_context(milestone_state))
     pieces.append('\n')
     pieces.append(render_product_realism_review_context(product_realism_state))
+    pieces.append('\n')
+    pieces.append(render_ui_surface_plan_context(ui_surface_plan_state))
     pieces.append('\n')
     pieces.append(render_component_package_review_context(component_package_state))
     pieces.append('\n')
