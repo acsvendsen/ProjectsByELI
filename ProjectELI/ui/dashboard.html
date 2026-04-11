@@ -767,12 +767,43 @@
 
     .mini-pill.early_subsystem_bom_only,
     .mini-pill.subsystem_bom,
+    .mini-pill.package_direction_only,
+    .mini-pill.package_only_waiting_for_component_signals,
+    .mini-pill.package,
+    .mini-pill.subsystem_boundary,
     .mini-pill.prototype_component_package,
     .mini-pill.prototype_bom,
     .mini-pill.implementation_package,
     .mini-pill.quality_upgrade_package {
       color: var(--accent);
       background: rgba(13,124,102,0.08);
+    }
+
+    .mini-pill.provisional_component_candidates,
+    .mini-pill.bounded_shortlist_emerging,
+    .mini-pill.component_candidate,
+    .mini-pill.interface_candidate,
+    .mini-pill.emerging {
+      color: var(--late);
+      background: rgba(181,106,45,0.1);
+    }
+
+    .mini-pill.shortlist_ready_for_review,
+    .mini-pill.bounded {
+      color: var(--good);
+      background: rgba(23,100,58,0.08);
+    }
+
+    .mini-pill.not_ready_for_suggestions,
+    .mini-pill.not_yet_warranted,
+    .mini-pill.limited_evidence {
+      color: var(--danger);
+      background: rgba(179,58,58,0.1);
+    }
+
+    .mini-pill.exploratory {
+      color: var(--muted);
+      background: rgba(62,74,87,0.08);
     }
 
     .mono { font-family: var(--font-mono); }
@@ -885,6 +916,7 @@
           <article class="realization-card" id="buildNextStepsCard"></article>
           <article class="realization-card" id="buildBlockedCard"></article>
           <article class="realization-card" id="buildComponentCard"></article>
+          <article class="realization-card" id="buildPartsCard"></article>
           <article class="realization-card wide" id="buildRenderingBriefCard" style="display:none"></article>
         </div>
       </div>
@@ -1373,6 +1405,27 @@
       }).join("")}</div>`;
     }
 
+    function renderPartsReadinessRows(rows, emptyText, limit = 4) {
+      const usable = (rows || []).filter(row => row && row.label).slice(0, limit);
+      if (!usable.length) return `<div class="realization-empty">${emptyText}</div>`;
+      return `<div class="realization-list">${usable.map(row => `
+        <div class="realization-row">
+          <div class="realization-row-head">
+            <strong>${truncateText(row.label, 88)}</strong>
+            <div class="mini-pills">
+              <span class="mini-pill ${row.suggestion_type || ""}">${humanizeToken(row.suggestion_type || "package")}</span>
+              <span class="mini-pill ${row.confidence || ""}">${humanizeToken(row.confidence || "provisional")}</span>
+              <span class="mini-pill ${row.truth_posture || ""}">${humanizeToken(row.truth_posture || "provisional")}</span>
+            </div>
+          </div>
+          <div>${truncateText(row.why_suggested_now || "No suggestion rationale is recorded.", 220)}</div>
+          ${row.scope ? `<div class="footer"><strong>Scope:</strong> ${truncateText(humanizeToken(row.scope), 120)}</div>` : ``}
+          ${(row.depends_on || []).length ? `<div class="footer"><strong>Depends on:</strong> ${(row.depends_on || []).map(item => truncateText(item, 120)).join(" · ")}</div>` : ``}
+          ${row.what_could_replace_it ? `<div class="footer"><strong>Could be replaced by:</strong> ${truncateText(row.what_could_replace_it, 180)}</div>` : ``}
+        </div>
+      `).join("")}</div>`;
+    }
+
     function renderProjectCreation(status) {
       const pageMap = collectPageMap(status);
       const page = pageMap.project_creation;
@@ -1505,6 +1558,7 @@
 
       panel.style.display = "";
       const componentReview = status.component_package_review || {};
+      const partsReadiness = status.parts_readiness_review || {};
       const milestonesState = status.project_milestones || {};
       const milestones = milestonesState.milestones || [];
       const realism = status.product_realism_review || {};
@@ -1513,6 +1567,7 @@
       const implementationGateSection = sections.find(section => section.section_id === "implementation_package_gate") || {};
       const componentSection = sections.find(section => section.section_id === "component_package_readiness") || {};
       const blockersSection = sections.find(section => section.section_id === "build_blockers") || {};
+      const partsSection = sections.find(section => section.section_id === "parts_readiness") || {};
       const renderingSection = sections.find(section => section.section_id === "exploratory_rendering_briefs") || {};
       const implementationGate = milestones.find(row => row.milestone_id === "implementation_package_review") || {};
       const realismGate = milestones.find(row => row.milestone_id === "product_realism_check") || {};
@@ -1522,10 +1577,14 @@
       const renderingUseState = renderingTrust.use_state || "supporting_context";
       const renderingUseStateClass = renderingUseState === "supporting_context" ? "provisional_context" : renderingUseState;
       const supportedNow = uniqueTextValues(componentReview.required_now || [], 3);
-      const evidenceNext = uniqueTextValues(realism.what_would_materially_improve_realism || [], 3);
+      const evidenceNext = uniqueTextValues([
+        ...(partsReadiness.next_evidence_needed || []),
+        ...(realism.what_would_materially_improve_realism || []),
+      ], 3);
       const blockers = uniqueTextValues([
         ...(componentReview.blocked_by_unresolved_choices || []),
         ...(componentReview.missing_for_stronger_bom || []),
+        ...(partsReadiness.blocked_for_stronger_shortlist || []),
       ], 5);
       const trustNotes = [];
       if (componentReview.trust_posture?.overall_sync_status || componentReview.trust_posture?.overall_trust_status) {
@@ -1639,6 +1698,31 @@
         </div>
         <div class="footer"><strong>Package posture:</strong> Subsystem BOM frame only. This is not a locked parts list or final build package.</div>
         ${componentSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(componentSection.purpose, 220)}</div>` : ""}
+      `;
+
+      document.getElementById("buildPartsCard").innerHTML = `
+        <div class="verification-heading">Parts Readiness</div>
+        <div class="mini-pills">
+          <span class="mini-pill ${partsReadiness.parts_readiness_band || ""}">${humanizeToken(partsReadiness.parts_readiness_band || "not_ready_for_suggestions")}</span>
+          <span class="mini-pill ${partsReadiness.current_shortlist_posture || ""}">${humanizeToken(partsReadiness.current_shortlist_posture || "not_yet_warranted")}</span>
+          ${partsReadiness.trust_posture?.use_state ? `<span class="mini-pill ${partsReadiness.trust_posture.use_state === "supporting_context" ? "provisional_context" : partsReadiness.trust_posture.use_state}">${partsReadiness.trust_posture.use_state === "supporting_context" ? "Supporting context" : humanizeToken(partsReadiness.trust_posture.use_state)}</span>` : ``}
+        </div>
+        <div class="realization-copy">${truncateText(partsReadiness.why_not_stronger_yet || "No parts-readiness explanation is available yet.", 240)}</div>
+        <div class="realization-subhead">Suggested packages now</div>
+        ${renderPartsReadinessRows(
+          partsReadiness.suggested_packages_now || [],
+          "Current truth supports no package suggestion yet.",
+          4
+        )}
+        <div class="realization-subhead">Provisional part suggestions now</div>
+        ${renderPartsReadinessRows(
+          partsReadiness.suggested_now || [],
+          "No concrete part or interface candidate is honest yet; current posture is still package-level.",
+          3
+        )}
+        ${(partsReadiness.blocked_for_stronger_shortlist || []).length ? `<div class="footer"><strong>Top blocker:</strong> ${truncateText(partsReadiness.blocked_for_stronger_shortlist[0], 220)}</div>` : ""}
+        ${(partsReadiness.operator_waiting_for || []).length ? `<div class="footer"><strong>Operator waiting for:</strong> ${truncateText(partsReadiness.operator_waiting_for[0], 220)}</div>` : ""}
+        ${partsSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(partsSection.purpose, 220)}</div>` : ""}
       `;
 
       const renderingCard = document.getElementById("buildRenderingBriefCard");

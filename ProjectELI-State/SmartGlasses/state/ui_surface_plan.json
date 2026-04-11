@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-11T23:05:55",
+  "generated_at": "2026-04-12T00:42:44",
   "summary": "Current UI planning warrants Project Creation, Project Overview, Review & Decisions, Build & Realization, Subsystems & Workstreams, Extensions & Agents, Verification & Audit. Keep project creation visible while intent remains tentative, keep review surfaces bounded and non-final, let build-oriented pages emerge only...",
   "project_pages": [
     {
@@ -197,9 +197,10 @@
       "purpose": "Expose build-oriented readiness only when implementation maturity, milestone state, or component-package posture makes that surface honest.",
       "status": "realization_oriented",
       "priority": "secondary",
-      "why_this_page_exists": "Implementation package review is `ready_for_review` and component-package posture is `early_subsystem_bom_only`. 3 exploratory hardware-aware rendering brief(s) are available for bounded build-facing comparison, so bu...",
+      "why_this_page_exists": "Implementation package review is `ready_for_review`, component-package posture is `early_subsystem_bom_only`, and parts-readiness posture is `package_direction_only`. 3 exploratory hardware-aware rendering brief(s) ar...",
       "driven_by_sources": [
         "component_package_review",
+        "parts_readiness_review",
         "project_milestones",
         "product_realism_review",
         "hardware_aware_rendering_brief_review"
@@ -238,6 +239,18 @@
           "hide_when": "Hide when build-oriented blockers are not yet materially distinct from general project blockers."
         },
         {
+          "section_id": "parts_readiness",
+          "title": "Parts Readiness",
+          "purpose": "Show whether current truth supports package-only suggestions, provisional component candidates, or a stronger shortlist yet.",
+          "driven_by_sources": [
+            "parts_readiness_review",
+            "component_package_review",
+            "project_scorecard"
+          ],
+          "show_when": "Package posture or parts-readiness state is meaningful enough that the operator should not have to guess whether part suggestions are actually ready yet.",
+          "hide_when": "Hide when build posture is too weak to justify any honest package or part suggestion."
+        },
+        {
           "section_id": "exploratory_rendering_briefs",
           "title": "Exploratory Rendering Briefs",
           "purpose": "Show bounded hardware-aware rendering briefs only as exploratory review aids for packaging, placement, and comparison.",
@@ -254,11 +267,13 @@
       "hide_when": "Hide while build-oriented structure would still be speculative or purely conceptual.",
       "representation_risks": [
         "Do not present early subsystem BOM posture as a final part list or settled package.",
+        "Do not let subsystem confidence read as part confidence when the state still only justifies package-level suggestions.",
         "Do not let exploratory rendering briefs read as accepted design direction or solved industrial design."
       ],
       "operator_actions_supported": [
         "inspect buildability posture",
         "see whether component packaging is warranted",
+        "see how far the project is from a real suggested-parts list",
         "understand realization blockers"
       ]
     },
@@ -488,15 +503,15 @@
     },
     {
       "page_id": "build_or_realization",
+      "section_id": "parts_readiness",
+      "emerge_when": "The operator needs an explicit answer about whether the current state supports only package placeholders or actual part suggestions.",
+      "withhold_when": "Build posture is too weak for any honest package or part readiness view."
+    },
+    {
+      "page_id": "build_or_realization",
       "section_id": "exploratory_rendering_briefs",
       "emerge_when": "A hardware-aware rendering brief exists and current prototype build posture is strong enough to benefit from bounded visual drafting.",
       "withhold_when": "No rendering brief is warranted or visual drafting would only create cosmetic progress theater."
-    },
-    {
-      "page_id": "verification_and_audit",
-      "section_id": "current_truth_sources",
-      "emerge_when": "Truth-bearing surfaces and supporting context are distinct enough that the operator needs explicit authority explanation.",
-      "withhold_when": "Source authority is too trivial to justify its own operator-facing explanation."
     }
   ],
   "source_surfaces": [
@@ -511,63 +526,63 @@
       "surface_id": "execution_resume",
       "role": "operational_resume",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T23:05:55",
+      "generated_at": "2026-04-12T00:42:44",
       "why_it_matters": "Carries the operator-facing current-truth summary, active review front, held lanes, blockers, and next step."
     },
     {
       "surface_id": "project_milestones",
       "role": "milestone_gate",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T23:05:55",
+      "generated_at": "2026-04-12T00:42:44",
       "why_it_matters": "Keeps reviewability tied to readiness bands, blockers, and approval state rather than vague progress."
     },
     {
       "surface_id": "product_realism_review",
       "role": "realism_gate",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T23:05:55",
+      "generated_at": "2026-04-12T00:42:44",
       "why_it_matters": "Constrains product-language and anti-gimmick posture using grounded realism judgment."
     },
     {
       "surface_id": "cost_viability_review",
       "role": "economic_viability",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T23:05:55",
+      "generated_at": "2026-04-12T00:42:44",
       "why_it_matters": "Current hardware, packaging, and subsystem pressure already look mismatched to a discreet consumer-tier wearable cost story. Wireless and firmware gaps still add likely hidden cost pressure. Declared intent remains `f..."
     },
     {
       "surface_id": "project_scorecard",
       "role": "subsystem_truth",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T23:04:08",
+      "generated_at": "2026-04-12T00:39:51",
       "why_it_matters": "The scorecard is fresh enough to use as current subsystem-readiness context."
     },
     {
       "surface_id": "component_package_review",
       "role": "realization_readiness",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-10T11:43:03",
+      "generated_at": "2026-04-12T00:42:44",
       "why_it_matters": "A concrete part list is still premature, but a bounded subsystem-level BOM frame is now warranted to improve buildability and package thinking without pretending the parts are settled."
+    },
+    {
+      "surface_id": "parts_readiness_review",
+      "role": "parts_readiness",
+      "trust_use": "current_truth",
+      "generated_at": "2026-04-12T00:42:44",
+      "why_it_matters": "Package-level suggestions are warranted now, but no grounded component-shortlist or equivalent implementation artifact justifies stronger part claims yet."
     },
     {
       "surface_id": "hardware_aware_rendering_brief_review",
       "role": "exploratory_visual_review",
       "trust_use": "supporting_context",
-      "generated_at": "2026-04-11T23:05:55",
+      "generated_at": "2026-04-12T00:42:44",
       "why_it_matters": "Use this surface to frame bounded exploratory rendering requests for review. It does not override current truth about subsystem readiness, pending decisions, realism, or build posture."
     },
     {
       "surface_id": "v1_decision_review",
       "role": "review_surface",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-11T23:03:31",
-      "why_it_matters": "This file is close enough to its linked review surfaces to compare operationally."
-    },
-    {
-      "surface_id": "draft_artifact_review",
-      "role": "review_surface",
-      "trust_use": "current_truth",
-      "generated_at": "2026-04-09T23:02:49",
+      "generated_at": "2026-04-12T00:42:32",
       "why_it_matters": "This file is close enough to its linked review surfaces to compare operationally."
     }
   ],
@@ -604,7 +619,7 @@
     {
       "page_id": "build_or_realization",
       "priority": "secondary",
-      "why": "Implementation package review is `ready_for_review` and component-package posture is `early_subsystem_bom_only`. 3 exploratory hardware-aware rendering brief(s) are available fo..."
+      "why": "Implementation package review is `ready_for_review`, component-package posture is `early_subsystem_bom_only`, and parts-readiness posture is `package_direction_only`. 3 explorat..."
     },
     {
       "page_id": "subsystem_or_workstream",
@@ -641,7 +656,7 @@
     {
       "page_id": "build_or_realization",
       "status": "realization_oriented",
-      "why": "Implementation package review is `ready_for_review` and component-package posture is `early_subsystem_bom_only`. 3 exploratory hardware-aware rendering brief(s) are available fo..."
+      "why": "Implementation package review is `ready_for_review`, component-package posture is `early_subsystem_bom_only`, and parts-readiness posture is `package_direction_only`. 3 explorat..."
     },
     {
       "page_id": "subsystem_or_workstream",
@@ -668,18 +683,19 @@
   },
   "source_generated_at": {
     "project_expectations": "2026-04-10T09:16:32",
-    "execution_resume": "2026-04-11T23:05:55",
-    "project_milestones": "2026-04-11T23:05:55",
-    "product_realism_review": "2026-04-11T23:05:55",
-    "cost_viability_review": "2026-04-11T23:05:55",
-    "component_package_review": "2026-04-10T11:43:03",
-    "extensions_capability_review": "2026-04-11T23:05:55",
-    "hardware_aware_rendering_brief_review": "2026-04-11T23:05:55",
-    "verification_summary": "2026-04-11T23:05:55",
-    "project_scorecard": "2026-04-11T23:04:08",
-    "v1_decision_review": "2026-04-11T23:03:31",
+    "execution_resume": "2026-04-12T00:42:44",
+    "project_milestones": "2026-04-12T00:42:44",
+    "product_realism_review": "2026-04-12T00:42:44",
+    "cost_viability_review": "2026-04-12T00:42:44",
+    "component_package_review": "2026-04-12T00:42:44",
+    "parts_readiness_review": "2026-04-12T00:42:44",
+    "extensions_capability_review": "2026-04-12T00:42:44",
+    "hardware_aware_rendering_brief_review": "2026-04-12T00:42:44",
+    "verification_summary": "2026-04-12T00:42:44",
+    "project_scorecard": "2026-04-12T00:39:51",
+    "v1_decision_review": "2026-04-12T00:42:32",
     "draft_artifact_review": "2026-04-09T23:02:49"
   },
   "revisable": true,
-  "updated_at": "2026-04-11T23:05:55"
+  "updated_at": "2026-04-12T00:42:44"
 }

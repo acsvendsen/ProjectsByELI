@@ -21,6 +21,7 @@ from orchestrator import (
     EXTENSIONS_CAPABILITY_REVIEW_PATH,
     HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH,
     OPERATOR_GUIDANCE_PATH,
+    PARTS_READINESS_REVIEW_PATH,
     PROJECT_DIR,
     PROJECT_EXPECTATIONS_PATH,
     PROJECT_MILESTONES_PATH,
@@ -381,6 +382,18 @@ def load_dashboard_data():
         "realism_link": {},
         "trust_posture": {},
     })
+    parts_readiness_review = read_json(PARTS_READINESS_REVIEW_PATH, {
+        "generated_at": "",
+        "parts_readiness_band": "not_ready_for_suggestions",
+        "current_shortlist_posture": "not_yet_warranted",
+        "suggested_now": [],
+        "suggested_packages_now": [],
+        "blocked_for_stronger_shortlist": [],
+        "why_not_stronger_yet": "",
+        "next_evidence_needed": [],
+        "operator_waiting_for": [],
+        "trust_posture": {},
+    })
     cost_viability_review = read_json(COST_VIABILITY_REVIEW_PATH, {
         "generated_at": "",
         "cost_realism_band": "too_early_for_exact_cost",
@@ -557,6 +570,7 @@ def load_dashboard_data():
         "product_realism_review": product_realism_review,
         "execution_resume": execution_resume,
         "component_package_review": component_package_review,
+        "parts_readiness_review": parts_readiness_review,
         "cost_viability_review": cost_viability_review,
         "hardware_aware_rendering_brief_review": hardware_aware_rendering_brief_review,
         "extensions_capability_review": extensions_capability_review,

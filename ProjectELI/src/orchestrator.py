@@ -207,6 +207,26 @@ COMPONENT_PACKAGE_KINDS = (
     'implementation_package',
     'quality_upgrade_package',
 )
+PARTS_READINESS_BANDS = (
+    'not_ready_for_suggestions',
+    'package_direction_only',
+    'provisional_component_candidates',
+    'bounded_shortlist_emerging',
+    'shortlist_ready_for_review',
+)
+PARTS_SHORTLIST_POSTURES = (
+    'not_yet_warranted',
+    'package_only_waiting_for_component_signals',
+    'provisional_component_candidates_only',
+    'bounded_shortlist_emerging',
+    'shortlist_ready_for_review',
+)
+PARTS_CONFIDENCE_LEVELS = (
+    'bounded_directional',
+    'emerging',
+    'limited_evidence',
+    'provisional',
+)
 HARDWARE_AWARE_RENDERING_OBJECT_TYPES = (
     'frame_variant_comparison',
     'component_zone_layout',
@@ -634,6 +654,7 @@ PROJECT_EXPECTATIONS_PATH = PROJECT_STATE_DIR / "project_expectations.json"
 PROJECT_MILESTONES_PATH = PROJECT_STATE_DIR / "project_milestones.json"
 PRODUCT_REALISM_REVIEW_PATH = PROJECT_STATE_DIR / "product_realism_review.json"
 COMPONENT_PACKAGE_REVIEW_PATH = PROJECT_STATE_DIR / "component_package_review.json"
+PARTS_READINESS_REVIEW_PATH = PROJECT_STATE_DIR / "parts_readiness_review.json"
 COST_VIABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "cost_viability_review.json"
 EXTENSIONS_CAPABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "extensions_capability_review.json"
 HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH = PROJECT_STATE_DIR / "hardware_aware_rendering_brief_review.json"
@@ -975,6 +996,14 @@ DEFAULT_COGNITION_SCHEMA = {
                 'interface_map',
                 'subsystem_breakdown',
             ],
+        },
+        'parts_readiness_review': {
+            'enabled': True,
+            'max_suggested_now': 4,
+            'max_suggested_packages_now': 6,
+            'max_blocked_for_stronger_shortlist': 5,
+            'max_next_evidence_needed': 5,
+            'max_operator_waiting_for': 4,
         },
         'cost_viability_review': {
             'enabled': True,
@@ -1343,6 +1372,13 @@ control:
       - schematic_direction
       - interface_map
       - subsystem_breakdown
+  parts_readiness_review:
+    enabled: true
+    max_suggested_now: 4
+    max_suggested_packages_now: 6
+    max_blocked_for_stronger_shortlist: 5
+    max_next_evidence_needed: 5
+    max_operator_waiting_for: 4
   cost_viability_review:
     enabled: true
     include_in_execution_resume: true
@@ -1363,7 +1399,7 @@ control:
   ui_surface_plan:
     enabled: true
     max_pages: 7
-    max_sections_per_page: 4
+    max_sections_per_page: 5
     max_operator_goals: 5
     max_representation_risks: 5
     max_source_surfaces: 10
@@ -7397,6 +7433,20 @@ def component_package_review_config(schema=None):
     }
 
 
+def parts_readiness_review_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('parts_readiness_review', {}) if isinstance(control.get('parts_readiness_review', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'max_suggested_now': max(1, safe_int(cfg.get('max_suggested_now', 4), 4)),
+        'max_suggested_packages_now': max(1, safe_int(cfg.get('max_suggested_packages_now', 6), 6)),
+        'max_blocked_for_stronger_shortlist': max(1, safe_int(cfg.get('max_blocked_for_stronger_shortlist', 5), 5)),
+        'max_next_evidence_needed': max(1, safe_int(cfg.get('max_next_evidence_needed', 5), 5)),
+        'max_operator_waiting_for': max(1, safe_int(cfg.get('max_operator_waiting_for', 4), 4)),
+    }
+
+
 def cost_viability_review_config(schema=None):
     schema = schema or load_cognition_schema()
     control = schema.get('control', {}) if isinstance(schema, dict) else {}
@@ -9183,6 +9233,382 @@ def render_component_package_review_context(component_state=None):
     return '\n'.join(lines) + '\n'
 
 
+def default_parts_readiness_review_state():
+    return {
+        'generated_at': '',
+        'parts_readiness_bands': list(PARTS_READINESS_BANDS),
+        'shortlist_postures': list(PARTS_SHORTLIST_POSTURES),
+        'confidence_levels': list(PARTS_CONFIDENCE_LEVELS),
+        'parts_readiness_band': 'not_ready_for_suggestions',
+        'current_shortlist_posture': 'not_yet_warranted',
+        'suggested_now': [],
+        'suggested_packages_now': [],
+        'blocked_for_stronger_shortlist': [],
+        'why_not_stronger_yet': '',
+        'next_evidence_needed': [],
+        'operator_waiting_for': [],
+        'trust_posture': {},
+        'source_authority': {},
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_parts_readiness_review_state():
+    data = load_json_file(PARTS_READINESS_REVIEW_PATH, default_parts_readiness_review_state())
+    if not isinstance(data, dict):
+        data = default_parts_readiness_review_state()
+    for key in (
+        'parts_readiness_bands',
+        'shortlist_postures',
+        'confidence_levels',
+        'suggested_now',
+        'suggested_packages_now',
+        'blocked_for_stronger_shortlist',
+        'next_evidence_needed',
+        'operator_waiting_for',
+    ):
+        if not isinstance(data.get(key), list):
+            data[key] = list(default_parts_readiness_review_state().get(key, []))
+    for key in ('trust_posture', 'source_authority', 'source_generated_at'):
+        if not isinstance(data.get(key), dict):
+            data[key] = {}
+    for key in ('parts_readiness_band', 'current_shortlist_posture', 'why_not_stronger_yet'):
+        if not isinstance(data.get(key), str):
+            data[key] = str(default_parts_readiness_review_state().get(key, ''))
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_parts_readiness_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_parts_readiness_review_state()
+    payload['updated_at'] = now_iso()
+    PARTS_READINESS_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def parts_confidence_from_row(row, default='provisional'):
+    row = row if isinstance(row, dict) else {}
+    status = normalize_scorecard_status(row.get('status', 'unknown'))
+    grounding = normalize_scorecard_grounding_status(row.get('grounding_status', 'unknown'))
+    if grounding == 'grounded' and status == 'on_track':
+        return 'bounded_directional'
+    if grounding in ('grounded', 'weakly_grounded'):
+        return 'emerging'
+    if grounding == 'limited_evidence' or status in ('needs_attention', 'blocked'):
+        return 'limited_evidence'
+    return default
+
+
+def parts_truth_posture_for_confidence(confidence, prefer_bounded=False):
+    confidence = str(confidence or 'provisional')
+    if confidence == 'bounded_directional' and prefer_bounded:
+        return 'bounded'
+    if confidence in ('emerging', 'limited_evidence'):
+        return 'provisional'
+    return 'exploratory'
+
+
+def parts_target_row_for_label(label, target_rows):
+    hay = normalize_signal_key(label)
+    for row in target_rows or []:
+        if not isinstance(row, dict):
+            continue
+        row_tokens = [
+            normalize_signal_key(row.get('label', '')),
+            normalize_signal_key(row.get('id', '')),
+        ]
+        if any(token and token in hay for token in row_tokens):
+            return row
+    return {}
+
+
+def parts_readiness_item(item_id, label, scope, suggestion_type, confidence, why_suggested_now, depends_on, what_could_replace_it, truth_posture):
+    return {
+        'item_id': normalize_signal_key(item_id or label),
+        'label': str(label or '').strip(),
+        'scope': str(scope or '').strip(),
+        'suggestion_type': str(suggestion_type or 'package').strip(),
+        'confidence': str(confidence or 'provisional').strip(),
+        'why_suggested_now': compact_text_excerpt(why_suggested_now, 220),
+        'depends_on': [compact_text_excerpt(item, 160) for item in (depends_on or []) if compact_text_excerpt(item, 160)][:3],
+        'what_could_replace_it': compact_text_excerpt(what_could_replace_it, 200),
+        'truth_posture': str(truth_posture or 'provisional').strip(),
+    }
+
+
+def build_parts_readiness_review_state(schema=None, review_snapshot=None, component_state=None):
+    schema = schema or load_cognition_schema()
+    cfg = parts_readiness_review_config(schema)
+    if not cfg.get('enabled', True):
+        return default_parts_readiness_review_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    component_state = component_state if isinstance(component_state, dict) else build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
+    reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
+    scorecard_state = load_scorecard_state()
+    artifact_review_state = load_implementation_artifact_review_state()
+
+    exec_cfg = execution_resume_config(schema)
+    scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
+    artifact_review_use, artifact_review_reason = supporting_artifact_review_posture(artifact_review_state, reflect_state)
+    component_cfg = component_package_review_config(schema)
+    scorecard_dimensions = scorecard_state.get('dimensions', []) if scorecard_use == 'current_truth' and isinstance(scorecard_state.get('dimensions', []), list) else []
+    target_rows = component_package_target_rows(scorecard_dimensions, component_cfg)
+
+    artifact_rows = artifact_review_state.get('implementation_artifact_candidates', []) if artifact_review_use in ('current_truth', 'provisional_context') and isinstance(artifact_review_state.get('implementation_artifact_candidates', []), list) else []
+    component_artifact_rows = [
+        row for row in artifact_rows
+        if normalize_signal_key(row.get('artifact_type', '')) in set(component_cfg.get('component_signal_artifact_types', []))
+    ]
+
+    suggested_packages_now = []
+    for scope_name, labels in (
+        ('required_now', component_state.get('required_now', [])),
+        ('recommended_for_quality', component_state.get('recommended_for_quality', [])),
+        ('optional_or_later', component_state.get('optional_or_later', [])),
+    ):
+        for label in labels[:cfg.get('max_suggested_packages_now', 6)]:
+            row = parts_target_row_for_label(label, target_rows)
+            confidence_default = 'provisional' if scope_name == 'optional_or_later' else 'emerging'
+            confidence = parts_confidence_from_row(row, default=confidence_default)
+            if scope_name == 'optional_or_later':
+                confidence = 'provisional'
+            suggestion_type = 'subsystem_boundary' if 'boundary_package' in normalize_signal_key(label) else 'package'
+            if scope_name == 'required_now':
+                why = (
+                    f"{row.get('label', 'This subsystem')} is grounded enough to justify a bounded package placeholder now."
+                    if row else
+                    'This package boundary is suggested now because subsystem packaging is ready enough to inspect without pretending parts are settled.'
+                )
+            elif scope_name == 'recommended_for_quality':
+                why = (
+                    f"{row.get('label', 'This subsystem')} still needs stronger evidence, so only a quality-focused package placeholder is honest now."
+                    if row else
+                    'This package is suggested now to improve build quality without pretending the underlying parts list is ready.'
+                )
+            else:
+                why = 'This package remains visible as later-stage scope only; current truth does not justify stronger part specificity yet.'
+            depends_on = [
+                component_state.get('milestone_link', {}).get('primary_milestone_id', 'implementation_package_review'),
+                row.get('label', '') if row else '',
+            ]
+            suggested_packages_now.append(
+                parts_readiness_item(
+                    f"{scope_name}_{label}",
+                    label,
+                    scope_name,
+                    suggestion_type,
+                    confidence,
+                    why,
+                    depends_on,
+                    'A grounded component shortlist, schematic direction, interface map, or subsystem breakdown could replace this package placeholder with stronger part-level guidance.',
+                    parts_truth_posture_for_confidence(confidence, prefer_bounded=(scope_name == 'required_now' and suggestion_type == 'subsystem_boundary')),
+                )
+            )
+    suggested_packages_now = suggested_packages_now[:cfg.get('max_suggested_packages_now', 6)]
+
+    suggested_now = []
+    for row in component_artifact_rows[:cfg.get('max_suggested_now', 4)]:
+        artifact_type = normalize_signal_key(row.get('artifact_type', ''))
+        if artifact_type == 'component_shortlist':
+            labels = row.get('candidate_components', []) if isinstance(row.get('candidate_components', []), list) else []
+            suggestion_type = 'component_candidate'
+            scope = row.get('label', row.get('artifact_type_label', 'component_shortlist'))
+        elif artifact_type == 'interface_map':
+            labels = row.get('relevant_interfaces', []) if isinstance(row.get('relevant_interfaces', []), list) else []
+            suggestion_type = 'interface_candidate'
+            scope = row.get('label', row.get('artifact_type_label', 'interface_map'))
+        else:
+            labels = row.get('candidate_directions', []) if isinstance(row.get('candidate_directions', []), list) else []
+            suggestion_type = 'subsystem_boundary'
+            scope = row.get('label', row.get('artifact_type_label', row.get('artifact_type', 'component_signal')))
+        confidence = parts_confidence_from_row({'grounding_status': row.get('grounding_status', 'unknown')}, default='provisional')
+        truth_posture = parts_truth_posture_for_confidence(confidence, prefer_bounded=False)
+        for label in labels[: max(1, cfg.get('max_suggested_now', 4) - len(suggested_now))]:
+            suggested_now.append(
+                parts_readiness_item(
+                    f"{artifact_type}_{label}",
+                    label,
+                    scope,
+                    suggestion_type,
+                    confidence,
+                    row.get('reason', row.get('why_surfaced', 'This candidate is only provisional and should not be treated as a settled part choice.')),
+                    [row.get('label', ''), row.get('source_lane', '')],
+                    'A stronger grounded shortlist or schematic direction with better repo/runtime evidence could replace this provisional candidate.',
+                    truth_posture,
+                )
+            )
+            if len(suggested_now) >= cfg.get('max_suggested_now', 4):
+                break
+
+    component_band = str(component_state.get('bom_readiness_band', 'not_warranted') or 'not_warranted')
+    if suggested_now:
+        if any(item.get('confidence') == 'bounded_directional' for item in suggested_now):
+            parts_band = 'bounded_shortlist_emerging'
+            shortlist_posture = 'bounded_shortlist_emerging'
+        else:
+            parts_band = 'provisional_component_candidates'
+            shortlist_posture = 'provisional_component_candidates_only'
+    elif suggested_packages_now and component_band != 'not_warranted':
+        parts_band = 'package_direction_only'
+        shortlist_posture = 'package_only_waiting_for_component_signals'
+    else:
+        parts_band = 'not_ready_for_suggestions'
+        shortlist_posture = 'not_yet_warranted'
+
+    blocked_for_stronger_shortlist = []
+    seen_blockers = set()
+    def push_blocker(text):
+        cleaned = compact_text_excerpt(text, 200)
+        if not cleaned:
+            return
+        key = cleaned.lower()
+        if key in seen_blockers:
+            return
+        seen_blockers.add(key)
+        blocked_for_stronger_shortlist.append(cleaned)
+
+    if artifact_review_use != 'current_truth':
+        push_blocker(artifact_review_reason)
+    for item in component_state.get('missing_for_stronger_bom', [])[:cfg.get('max_blocked_for_stronger_shortlist', 5)]:
+        push_blocker(item)
+    for item in component_state.get('blocked_by_unresolved_choices', [])[:cfg.get('max_blocked_for_stronger_shortlist', 5)]:
+        push_blocker(item)
+    blocked_for_stronger_shortlist = blocked_for_stronger_shortlist[:cfg.get('max_blocked_for_stronger_shortlist', 5)]
+
+    next_evidence_needed = []
+    seen_evidence = set()
+    def push_evidence(text):
+        cleaned = compact_text_excerpt(text, 180)
+        if not cleaned:
+            return
+        key = cleaned.lower()
+        if key in seen_evidence:
+            return
+        seen_evidence.add(key)
+        next_evidence_needed.append(cleaned)
+
+    for item in component_state.get('missing_for_stronger_bom', [])[:cfg.get('max_next_evidence_needed', 5)]:
+        push_evidence(item)
+    if not component_artifact_rows:
+        push_evidence('A grounded component-shortlist, schematic-direction, interface-map, or subsystem-breakdown artifact is still missing.')
+    next_evidence_needed = next_evidence_needed[:cfg.get('max_next_evidence_needed', 5)]
+
+    operator_waiting_for = []
+    seen_waiting = set()
+    def push_waiting(text):
+        cleaned = compact_text_excerpt(text, 160)
+        if not cleaned:
+            return
+        key = cleaned.lower()
+        if key in seen_waiting:
+            return
+        seen_waiting.add(key)
+        operator_waiting_for.append(cleaned)
+
+    for item in next_evidence_needed:
+        push_waiting(item)
+    for item in component_state.get('blocked_by_unresolved_choices', [])[:cfg.get('max_operator_waiting_for', 4)]:
+        push_waiting(item)
+    operator_waiting_for = operator_waiting_for[:cfg.get('max_operator_waiting_for', 4)]
+
+    if parts_band == 'package_direction_only':
+        why_not_stronger_yet = compact_text_excerpt(
+            'Package-level suggestions are warranted now, but no grounded component-shortlist or equivalent implementation artifact justifies stronger part claims yet.',
+            240,
+        )
+    elif parts_band == 'provisional_component_candidates':
+        why_not_stronger_yet = compact_text_excerpt(
+            'Some provisional component or interface candidates exist, but the shortlist is still too weak to read as bounded parts guidance.',
+            240,
+        )
+    elif parts_band == 'bounded_shortlist_emerging':
+        why_not_stronger_yet = compact_text_excerpt(
+            'A bounded shortlist is starting to emerge, but it remains revisable and below procurement-grade confidence.',
+            220,
+        )
+    else:
+        why_not_stronger_yet = compact_text_excerpt(
+            'Current truth does not yet justify concrete part suggestions; the operator is still waiting on subsystem/package grounding to strengthen first.',
+            220,
+        )
+
+    trust_use = 'current_truth' if scorecard_use == 'current_truth' and component_state.get('trust_posture', {}).get('overall_trust_status', 'operational') == 'operational' else 'provisional_context'
+    trust_reason = (
+        'Use this surface to distinguish package posture from actual part-suggestion readiness. It is honest about package-only suggestions when component confidence is not there yet.'
+        if trust_use == 'current_truth' else
+        'Treat this surface as provisional parts-readiness context until component-package and subsystem truth are operationally fresh.'
+    )
+
+    return {
+        'generated_at': now_iso(),
+        'parts_readiness_bands': list(PARTS_READINESS_BANDS),
+        'shortlist_postures': list(PARTS_SHORTLIST_POSTURES),
+        'confidence_levels': list(PARTS_CONFIDENCE_LEVELS),
+        'parts_readiness_band': parts_band,
+        'current_shortlist_posture': shortlist_posture,
+        'suggested_now': suggested_now,
+        'suggested_packages_now': suggested_packages_now,
+        'blocked_for_stronger_shortlist': blocked_for_stronger_shortlist,
+        'why_not_stronger_yet': why_not_stronger_yet,
+        'next_evidence_needed': next_evidence_needed,
+        'operator_waiting_for': operator_waiting_for,
+        'trust_posture': {
+            'surface_role': 'current_truth_review_surface',
+            'use_state': trust_use,
+            'authority_scope': 'parts readiness and provisional shortlist posture',
+            'trust_reason': compact_text_excerpt(trust_reason, 240),
+        },
+        'source_authority': {
+            'component_package_truth': 'component_package_review',
+            'subsystem_truth': 'project_scorecard',
+            'artifact_truth': 'implementation_artifact_review',
+        },
+        'source_generated_at': {
+            'component_package_review': state_surface_generated_at(component_state),
+            'project_scorecard': state_surface_generated_at(scorecard_state),
+            'implementation_artifact_review': state_surface_generated_at(artifact_review_state),
+            'reflect_state': state_surface_generated_at(reflect_state),
+        },
+        'revisable': True,
+    }
+
+
+def render_parts_readiness_review_context(parts_state=None):
+    parts_state = parts_state if isinstance(parts_state, dict) else load_parts_readiness_review_state()
+    lines = ['# Parts Readiness Review']
+    lines.append(f"- parts_readiness_band: `{parts_state.get('parts_readiness_band', 'not_ready_for_suggestions')}`")
+    lines.append(f"- current_shortlist_posture: `{parts_state.get('current_shortlist_posture', 'not_yet_warranted')}`")
+    if parts_state.get('why_not_stronger_yet'):
+        lines.append(f"- why_not_stronger_yet: {parts_state.get('why_not_stronger_yet', '')}")
+    packages = parts_state.get('suggested_packages_now', []) if isinstance(parts_state.get('suggested_packages_now', []), list) else []
+    if packages:
+        lines.append(
+            "- suggested_packages_now: "
+            + '; '.join(
+                f"{row.get('label', 'item')} [{row.get('confidence', 'provisional')}]"
+                for row in packages[:3]
+                if isinstance(row, dict)
+            )
+        )
+    suggested = parts_state.get('suggested_now', []) if isinstance(parts_state.get('suggested_now', []), list) else []
+    if suggested:
+        lines.append(
+            "- suggested_now: "
+            + '; '.join(
+                f"{row.get('label', 'item')} [{row.get('confidence', 'provisional')}]"
+                for row in suggested[:3]
+                if isinstance(row, dict)
+            )
+        )
+    blocked = parts_state.get('blocked_for_stronger_shortlist', []) if isinstance(parts_state.get('blocked_for_stronger_shortlist', []), list) else []
+    if blocked:
+        lines.append(f"- blocked_for_stronger_shortlist: {'; '.join(str(item) for item in blocked[:3])}")
+    return '\n'.join(lines) + '\n'
+
+
 def default_extensions_capability_review_state():
     return {
         'generated_at': '',
@@ -10082,7 +10508,7 @@ def ui_page_priority_rank(priority):
     return order.get(str(priority or '').strip(), 4)
 
 
-def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None):
+def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None):
     schema = schema or load_cognition_schema()
     cfg = ui_surface_plan_config(schema)
     if not cfg.get('enabled', True):
@@ -10100,6 +10526,11 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
     realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
     component_state = load_component_package_review_state()
+    parts_state = parts_state if isinstance(parts_state, dict) else build_parts_readiness_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        component_state=component_state,
+    )
     cost_state = cost_state if isinstance(cost_state, dict) else build_cost_viability_review_state(
         schema=schema,
         review_snapshot=review_snapshot,
@@ -10457,10 +10888,10 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'status': 'realization_oriented',
             'priority': 'secondary',
             'why_this_page_exists': compact_text_excerpt(
-                f"Implementation package review is `{('ready_for_review' if implementation_ready else 'not_yet_reviewable')}` and component-package posture is `{component_band}`. {len(rendering_briefs)} exploratory hardware-aware rendering brief(s) are available for bounded build-facing comparison, so build-oriented surfaces are now meaningful enough to warrant their own page.",
+                f"Implementation package review is `{('ready_for_review' if implementation_ready else 'not_yet_reviewable')}`, component-package posture is `{component_band}`, and parts-readiness posture is `{parts_state.get('parts_readiness_band', 'not_ready_for_suggestions')}`. {len(rendering_briefs)} exploratory hardware-aware rendering brief(s) are available for bounded build-facing comparison, so build-oriented surfaces are now meaningful enough to warrant their own page.",
                 220,
             ),
-            'driven_by_sources': ['component_package_review', 'project_milestones', 'product_realism_review', 'hardware_aware_rendering_brief_review'],
+            'driven_by_sources': ['component_package_review', 'parts_readiness_review', 'project_milestones', 'product_realism_review', 'hardware_aware_rendering_brief_review'],
             'sections': [
                 make_section(
                     'implementation_package_gate',
@@ -10487,6 +10918,14 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
                     'Hide when build-oriented blockers are not yet materially distinct from general project blockers.',
                 ),
                 make_section(
+                    'parts_readiness',
+                    'Parts Readiness',
+                    'Show whether current truth supports package-only suggestions, provisional component candidates, or a stronger shortlist yet.',
+                    ['parts_readiness_review', 'component_package_review', 'project_scorecard'],
+                    'Package posture or parts-readiness state is meaningful enough that the operator should not have to guess whether part suggestions are actually ready yet.',
+                    'Hide when build posture is too weak to justify any honest package or part suggestion.',
+                ),
+                make_section(
                     'exploratory_rendering_briefs',
                     'Exploratory Rendering Briefs',
                     'Show bounded hardware-aware rendering briefs only as exploratory review aids for packaging, placement, and comparison.',
@@ -10499,11 +10938,13 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'hide_when': 'Hide while build-oriented structure would still be speculative or purely conceptual.',
             'representation_risks': [
                 'Do not present early subsystem BOM posture as a final part list or settled package.',
+                'Do not let subsystem confidence read as part confidence when the state still only justifies package-level suggestions.',
                 'Do not let exploratory rendering briefs read as accepted design direction or solved industrial design.',
             ],
             'operator_actions_supported': [
                 'inspect buildability posture',
                 'see whether component packaging is warranted',
+                'see how far the project is from a real suggested-parts list',
                 'understand realization blockers',
             ],
         })
@@ -10512,6 +10953,12 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'section_id': 'component_package_readiness',
             'emerge_when': 'Component-package readiness is strong enough to support a build-oriented section.',
             'withhold_when': 'BOM posture is still `not_warranted` and realization detail would be speculative.',
+        })
+        section_emergence_rules.append({
+            'page_id': 'build_or_realization',
+            'section_id': 'parts_readiness',
+            'emerge_when': 'The operator needs an explicit answer about whether the current state supports only package placeholders or actual part suggestions.',
+            'withhold_when': 'Build posture is too weak for any honest package or part readiness view.',
         })
         if rendering_briefs:
             section_emergence_rules.append({
@@ -10717,6 +11164,13 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         component_state.get('why_bom_is_or_is_not_warranted', ''),
         state_surface_generated_at(component_state),
     )
+    push_source(
+        'parts_readiness_review',
+        'parts_readiness',
+        parts_state.get('trust_posture', {}).get('use_state', 'current_truth') if isinstance(parts_state.get('trust_posture', {}), dict) else 'current_truth',
+        parts_state.get('why_not_stronger_yet', ''),
+        state_surface_generated_at(parts_state),
+    )
     if rendering_briefs:
         push_source(
             'hardware_aware_rendering_brief_review',
@@ -10824,6 +11278,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'product_realism_review': state_surface_generated_at(realism_state),
             'cost_viability_review': state_surface_generated_at(cost_state),
             'component_package_review': state_surface_generated_at(component_state),
+            'parts_readiness_review': state_surface_generated_at(parts_state),
             'extensions_capability_review': state_surface_generated_at(extensions_state),
             'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
             'verification_summary': state_surface_generated_at(verification_state),
@@ -11899,6 +12354,8 @@ def refresh_review_state_sync_metadata(schema=None):
     review_snapshot = load_review_state_consumption_snapshot()
     component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
     save_component_package_review_state(component_package_state)
+    parts_state = build_parts_readiness_review_state(schema=schema, review_snapshot=review_snapshot, component_state=component_package_state)
+    save_parts_readiness_review_state(parts_state)
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
     cost_state = build_cost_viability_review_state(
         schema=schema,
@@ -11958,6 +12415,7 @@ def refresh_review_state_sync_metadata(schema=None):
         verification_state=verification_state,
         rendering_state=rendering_state,
         cost_state=cost_state,
+        parts_state=parts_state,
     ))
     return summary
 
@@ -14289,6 +14747,8 @@ def generate_scorecard_cycle(changes, prior_reports):
     review_snapshot = load_review_state_consumption_snapshot()
     component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
     save_component_package_review_state(component_package_state)
+    parts_state = build_parts_readiness_review_state(schema=schema, review_snapshot=review_snapshot, component_state=component_package_state)
+    save_parts_readiness_review_state(parts_state)
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
     cost_state = build_cost_viability_review_state(
         schema=schema,
@@ -14348,6 +14808,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         verification_state=verification_state,
         rendering_state=rendering_state,
         cost_state=cost_state,
+        parts_state=parts_state,
     ))
     return render_scorecard_markdown(scorecard), effort_selection
 
@@ -15801,6 +16262,11 @@ def context_with_inputs(changes):
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_state_consumption)
     extensions_capability_state = build_extensions_capability_review_state(schema=schema, review_snapshot=review_state_consumption)
     component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_state_consumption)
+    parts_readiness_state = build_parts_readiness_review_state(
+        schema=schema,
+        review_snapshot=review_state_consumption,
+        component_state=component_package_state,
+    )
     cost_viability_state = build_cost_viability_review_state(
         schema=schema,
         review_snapshot=review_state_consumption,
@@ -15853,6 +16319,8 @@ def context_with_inputs(changes):
     pieces.append(render_ui_surface_plan_context(ui_surface_plan_state))
     pieces.append('\n')
     pieces.append(render_component_package_review_context(component_package_state))
+    pieces.append('\n')
+    pieces.append(render_parts_readiness_review_context(parts_readiness_state))
     pieces.append('\n')
     pieces.append(render_review_state_consumption_context(review_state_consumption))
     pieces.append('\n')
