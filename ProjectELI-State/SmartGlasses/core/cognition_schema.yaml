@@ -245,6 +245,12 @@ control:
     max_blocked_for_stronger_shortlist: 5
     max_next_evidence_needed: 5
     max_operator_waiting_for: 4
+  pricing_alternatives_review:
+    enabled: true
+    max_current_rows: 4
+    max_alternative_rows: 4
+    max_fail_reasons: 4
+    max_help_reasons: 4
   cost_viability_review:
     enabled: true
     include_in_execution_resume: true
@@ -265,7 +271,7 @@ control:
   ui_surface_plan:
     enabled: true
     max_pages: 7
-    max_sections_per_page: 5
+    max_sections_per_page: 6
     max_operator_goals: 5
     max_representation_risks: 5
     max_source_surfaces: 10

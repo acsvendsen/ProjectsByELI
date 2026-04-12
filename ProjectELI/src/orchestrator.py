@@ -227,6 +227,12 @@ PARTS_CONFIDENCE_LEVELS = (
     'limited_evidence',
     'provisional',
 )
+PRICING_CONFIDENCE_POSTURES = (
+    'too_early_for_directional_pricing',
+    'package_level_directional_only',
+    'mixed_directional_candidates',
+    'bounded_candidate_comparison',
+)
 HARDWARE_AWARE_RENDERING_OBJECT_TYPES = (
     'frame_variant_comparison',
     'component_zone_layout',
@@ -656,6 +662,7 @@ PRODUCT_REALISM_REVIEW_PATH = PROJECT_STATE_DIR / "product_realism_review.json"
 COMPONENT_PACKAGE_REVIEW_PATH = PROJECT_STATE_DIR / "component_package_review.json"
 PARTS_READINESS_REVIEW_PATH = PROJECT_STATE_DIR / "parts_readiness_review.json"
 COST_VIABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "cost_viability_review.json"
+PRICING_ALTERNATIVES_REVIEW_PATH = PROJECT_STATE_DIR / "pricing_alternatives_review.json"
 EXTENSIONS_CAPABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "extensions_capability_review.json"
 HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH = PROJECT_STATE_DIR / "hardware_aware_rendering_brief_review.json"
 UI_SURFACE_PLAN_PATH = PROJECT_STATE_DIR / "ui_surface_plan.json"
@@ -1005,6 +1012,13 @@ DEFAULT_COGNITION_SCHEMA = {
             'max_next_evidence_needed': 5,
             'max_operator_waiting_for': 4,
         },
+        'pricing_alternatives_review': {
+            'enabled': True,
+            'max_current_rows': 4,
+            'max_alternative_rows': 4,
+            'max_fail_reasons': 4,
+            'max_help_reasons': 4,
+        },
         'cost_viability_review': {
             'enabled': True,
             'include_in_execution_resume': True,
@@ -1028,7 +1042,7 @@ DEFAULT_COGNITION_SCHEMA = {
         'ui_surface_plan': {
             'enabled': True,
             'max_pages': 7,
-            'max_sections_per_page': 4,
+            'max_sections_per_page': 6,
             'max_operator_goals': 5,
             'max_representation_risks': 5,
             'max_source_surfaces': 10,
@@ -1379,6 +1393,12 @@ control:
     max_blocked_for_stronger_shortlist: 5
     max_next_evidence_needed: 5
     max_operator_waiting_for: 4
+  pricing_alternatives_review:
+    enabled: true
+    max_current_rows: 4
+    max_alternative_rows: 4
+    max_fail_reasons: 4
+    max_help_reasons: 4
   cost_viability_review:
     enabled: true
     include_in_execution_resume: true
@@ -1399,7 +1419,7 @@ control:
   ui_surface_plan:
     enabled: true
     max_pages: 7
-    max_sections_per_page: 5
+    max_sections_per_page: 6
     max_operator_goals: 5
     max_representation_risks: 5
     max_source_surfaces: 10
@@ -7447,6 +7467,19 @@ def parts_readiness_review_config(schema=None):
     }
 
 
+def pricing_alternatives_review_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('pricing_alternatives_review', {}) if isinstance(control.get('pricing_alternatives_review', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'max_current_rows': max(1, safe_int(cfg.get('max_current_rows', 4), 4)),
+        'max_alternative_rows': max(1, safe_int(cfg.get('max_alternative_rows', 4), 4)),
+        'max_fail_reasons': max(1, safe_int(cfg.get('max_fail_reasons', 4), 4)),
+        'max_help_reasons': max(1, safe_int(cfg.get('max_help_reasons', 4), 4)),
+    }
+
+
 def cost_viability_review_config(schema=None):
     schema = schema or load_cognition_schema()
     control = schema.get('control', {}) if isinstance(schema, dict) else {}
@@ -9609,6 +9642,370 @@ def render_parts_readiness_review_context(parts_state=None):
     return '\n'.join(lines) + '\n'
 
 
+def default_pricing_alternatives_review_state():
+    return {
+        'generated_at': '',
+        'pricing_confidence_posture': 'too_early_for_directional_pricing',
+        'current_candidate_rows': [],
+        'alternative_rows': [],
+        'cost_direction_view': '',
+        'fit_for_target_tier': 'unknown',
+        'why_current_choice_may_fail': [],
+        'why_alternative_may_help': [],
+        'operator_warning': '',
+        'trust_posture': {},
+        'source_authority': {},
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_pricing_alternatives_review_state():
+    data = load_json_file(PRICING_ALTERNATIVES_REVIEW_PATH, default_pricing_alternatives_review_state())
+    if not isinstance(data, dict):
+        data = default_pricing_alternatives_review_state()
+    for key in ('current_candidate_rows', 'alternative_rows', 'why_current_choice_may_fail', 'why_alternative_may_help'):
+        if not isinstance(data.get(key), list):
+            data[key] = []
+    for key in ('trust_posture', 'source_authority', 'source_generated_at'):
+        if not isinstance(data.get(key), dict):
+            data[key] = {}
+    for key in ('pricing_confidence_posture', 'cost_direction_view', 'fit_for_target_tier', 'operator_warning'):
+        if not isinstance(data.get(key), str):
+            data[key] = str(default_pricing_alternatives_review_state().get(key, ''))
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_pricing_alternatives_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_pricing_alternatives_review_state()
+    payload['updated_at'] = now_iso()
+    PRICING_ALTERNATIVES_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def pricing_candidate_row(label, scope, cost_posture, confidence, fit_for_target, why_it_is_current_or_alternative, replacement_priority):
+    return {
+        'label': compact_text_excerpt(label, 120),
+        'scope': compact_text_excerpt(scope, 80),
+        'cost_posture': compact_text_excerpt(cost_posture, 80),
+        'confidence': compact_text_excerpt(confidence, 80),
+        'fit_for_target': compact_text_excerpt(fit_for_target, 120),
+        'why_it_is_current_or_alternative': compact_text_excerpt(why_it_is_current_or_alternative, 220),
+        'replacement_priority': compact_text_excerpt(replacement_priority, 100),
+    }
+
+
+def pricing_subject_from_label(label):
+    text = str(label or '').strip()
+    for suffix in (
+        ' subsystem boundary package',
+        ' quality-upgrade package',
+        ' later-stage package',
+        ' package',
+    ):
+        if text.lower().endswith(suffix):
+            return text[: -len(suffix)].strip()
+    return text
+
+
+def pricing_relevant_reason(subject, sources, fallback=''):
+    subject_tokens = [token for token in normalize_signal_key(subject).split('_') if token]
+    for item in sources or []:
+        cleaned = compact_text_excerpt(item, 200)
+        if not cleaned:
+            continue
+        hay = normalize_signal_key(cleaned)
+        if subject_tokens and any(token in hay for token in subject_tokens):
+            return cleaned
+    return compact_text_excerpt(fallback, 200)
+
+
+def pricing_current_cost_posture(row, cost_signal):
+    row = row if isinstance(row, dict) else {}
+    scope = normalize_signal_key(row.get('scope', ''))
+    suggestion_type = normalize_signal_key(row.get('suggestion_type', ''))
+    confidence = normalize_signal_key(row.get('confidence', 'provisional'))
+    if suggestion_type in ('component_candidate', 'interface_candidate'):
+        return 'directional_component_only'
+    if scope == 'required_now' and suggestion_type == 'subsystem_boundary':
+        return 'prototype_foundation_only'
+    if scope == 'recommended_for_quality' and cost_signal in ('reframe_needed', 'stop_if_cost_target_matters'):
+        return 'cost_risky_for_target_tier'
+    if scope == 'recommended_for_quality':
+        return 'quality_tradeoff'
+    if scope == 'optional_or_later':
+        return 'defer_until_needed'
+    if confidence == 'bounded_directional':
+        return 'directional_only'
+    return 'prototype_only_cost_shape'
+
+
+def pricing_current_fit_for_target(row, cost_signal):
+    row = row if isinstance(row, dict) else {}
+    scope = normalize_signal_key(row.get('scope', ''))
+    suggestion_type = normalize_signal_key(row.get('suggestion_type', ''))
+    if cost_signal == 'stop_if_cost_target_matters':
+        if scope == 'required_now' and suggestion_type == 'subsystem_boundary':
+            return 'prototype_learning_only'
+        return 'weak_for_target_tier'
+    if cost_signal == 'reframe_needed':
+        return 'reframe_needed_for_target_tier'
+    if scope == 'optional_or_later':
+        return 'not_currently_credible'
+    return 'unclear_for_target_tier'
+
+
+def build_pricing_alternatives_review_state(schema=None, review_snapshot=None, parts_state=None, component_state=None, cost_state=None):
+    schema = schema or load_cognition_schema()
+    cfg = pricing_alternatives_review_config(schema)
+    if not cfg.get('enabled', True):
+        return default_pricing_alternatives_review_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    parts_state = parts_state if isinstance(parts_state, dict) else build_parts_readiness_review_state(schema=schema, review_snapshot=review_snapshot)
+    component_state = component_state if isinstance(component_state, dict) else build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
+    cost_state = cost_state if isinstance(cost_state, dict) else build_cost_viability_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        component_package_state=component_state,
+    )
+    expectations = load_project_expectations_state()
+
+    cost_signal = str(cost_state.get('kill_pause_reframe_signal', 'proceed_with_caution') or 'proceed_with_caution')
+    current_rows = []
+    current_source_rows = []
+    current_source_rows.extend([
+        row for row in (parts_state.get('suggested_packages_now', []) if isinstance(parts_state.get('suggested_packages_now', []), list) else [])
+        if isinstance(row, dict) and normalize_signal_key(row.get('scope', '')) in ('required_now', 'recommended_for_quality')
+    ])
+    current_source_rows.extend([
+        row for row in (parts_state.get('suggested_now', []) if isinstance(parts_state.get('suggested_now', []), list) else [])
+        if isinstance(row, dict)
+    ])
+    current_source_rows = current_source_rows[:cfg.get('max_current_rows', 4)]
+
+    fail_reason_sources = []
+    fail_reason_sources.extend(cost_state.get('major_cost_risk_factors', []) if isinstance(cost_state.get('major_cost_risk_factors', []), list) else [])
+    fail_reason_sources.extend(component_state.get('missing_for_stronger_bom', []) if isinstance(component_state.get('missing_for_stronger_bom', []), list) else [])
+    fail_reason_sources.extend(component_state.get('blocked_by_unresolved_choices', []) if isinstance(component_state.get('blocked_by_unresolved_choices', []), list) else [])
+    fail_reason_sources.extend(parts_state.get('blocked_for_stronger_shortlist', []) if isinstance(parts_state.get('blocked_for_stronger_shortlist', []), list) else [])
+
+    def unique_lines(items, limit, width=220):
+        seen = set()
+        results = []
+        for item in items:
+            text = compact_text_excerpt(item, width)
+            if not text:
+                continue
+            key = text.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            results.append(text)
+            if len(results) >= limit:
+                break
+        return results
+
+    for row in current_source_rows:
+        if not isinstance(row, dict):
+            continue
+        subject = pricing_subject_from_label(row.get('label', 'current package'))
+        why = compact_text_excerpt(
+            f"{row.get('why_suggested_now', 'This is the current package-level suggestion.')} "
+            f"{pricing_relevant_reason(subject, fail_reason_sources, cost_state.get('why_this_posture', ''))}",
+            220,
+        )
+        current_rows.append(
+            pricing_candidate_row(
+                row.get('label', subject or 'Current candidate'),
+                row.get('scope', 'current'),
+                pricing_current_cost_posture(row, cost_signal),
+                row.get('confidence', 'provisional'),
+                pricing_current_fit_for_target(row, cost_signal),
+                why,
+                'hold_as_directional_placeholder' if normalize_signal_key(row.get('scope', '')) == 'required_now' else 'replace_if_cost_target_matters',
+            )
+        )
+
+    alternative_rows = []
+    for row in current_source_rows:
+        if not isinstance(row, dict):
+            continue
+        scope = normalize_signal_key(row.get('scope', ''))
+        suggestion_type = normalize_signal_key(row.get('suggestion_type', ''))
+        subject = pricing_subject_from_label(row.get('label', 'current package'))
+        relevant_reason = pricing_relevant_reason(subject, fail_reason_sources, cost_state.get('prototype_only_vs_product_viable_view', ''))
+        if scope == 'required_now' and suggestion_type == 'subsystem_boundary':
+            alternative_rows.append(
+                pricing_candidate_row(
+                    f"{subject} boundary-only prototype package",
+                    'prototype_only_alternative',
+                    'cheaper_simpler_direction',
+                    row.get('confidence', 'bounded_directional'),
+                    'prototype_learning_only',
+                    compact_text_excerpt(
+                        f"Cheaper and simpler than expanding {subject} beyond its current boundary package before stronger component evidence exists. {relevant_reason}",
+                        220,
+                    ),
+                    'prefer_if_simpler_prototype_path',
+                )
+            )
+        elif scope == 'recommended_for_quality':
+            tradeoff = 'This is cheaper and simpler now, but it weakens the quality and trust/performance margin carried by that subsystem package.'
+            alternative_rows.append(
+                pricing_candidate_row(
+                    f"Defer {subject} quality package",
+                    'defer_quality_package',
+                    'cheaper_simpler_direction',
+                    'emerging' if normalize_signal_key(row.get('confidence', '')) == 'limited_evidence' else row.get('confidence', 'provisional'),
+                    'still_not_good_enough_for_target_tier',
+                    compact_text_excerpt(
+                        f"Defer this package until stronger evidence exists. {tradeoff} {relevant_reason}",
+                        220,
+                    ),
+                    'consider_if_cost_target_matters',
+                )
+            )
+        if len(alternative_rows) >= cfg.get('max_alternative_rows', 4):
+            break
+
+    if not alternative_rows and cost_signal in ('reframe_needed', 'stop_if_cost_target_matters'):
+        alternative_rows.append(
+            pricing_candidate_row(
+                'Prototype-only package discipline',
+                'project_posture_alternative',
+                'better_fit_if_ambition_relaxes',
+                'bounded_directional',
+                'prototype_learning_only',
+                'Treat the current package suggestions strictly as prototype-learning scaffolds. This is cheaper and more honest than pushing toward discreet consumer claims before cost posture improves.',
+                'prefer_if_cost_target_matters',
+            )
+        )
+
+    alternative_rows = alternative_rows[:cfg.get('max_alternative_rows', 4)]
+
+    if not current_rows:
+        pricing_confidence_posture = 'too_early_for_directional_pricing'
+    elif parts_state.get('parts_readiness_band') == 'package_direction_only':
+        pricing_confidence_posture = 'package_level_directional_only'
+    elif any(normalize_signal_key(row.get('scope', '')) in ('current', 'required_now', 'recommended_for_quality') for row in current_rows):
+        pricing_confidence_posture = 'mixed_directional_candidates'
+    else:
+        pricing_confidence_posture = 'bounded_candidate_comparison'
+
+    if cost_signal == 'stop_if_cost_target_matters':
+        fit_for_target_tier = 'no_candidate_currently_credible_for_target_tier'
+        cost_direction_view = compact_text_excerpt(
+            'Current package suggestions may still help prototype learning, but the cost direction is still mismatched to the declared discreet consumer target. Cheaper or simpler alternatives mainly help by reducing overbuild, not by making the target tier credible.',
+            260,
+        )
+    elif cost_signal == 'reframe_needed':
+        fit_for_target_tier = 'reframe_needed_for_target_tier'
+        cost_direction_view = compact_text_excerpt(
+            'Current package direction is still too expensive or complex for the intended tier. Alternatives may help narrow the prototype, but stronger product narration should wait for a cost reframe.',
+            260,
+        )
+    else:
+        fit_for_target_tier = 'directionally_unclear_for_target_tier'
+        cost_direction_view = compact_text_excerpt(
+            'Pricing posture is still directional only. Current suggestions help compare build directions, but they do not yet justify procurement or confident target-tier claims.',
+            240,
+        )
+
+    why_current_choice_may_fail = unique_lines(
+        list(fail_reason_sources) + [parts_state.get('why_not_stronger_yet', '')],
+        cfg.get('max_fail_reasons', 4),
+        width=200,
+    )
+    why_alternative_may_help = unique_lines(
+        [row.get('why_it_is_current_or_alternative', '') for row in alternative_rows],
+        cfg.get('max_help_reasons', 4),
+        width=200,
+    )
+
+    operator_warning = compact_text_excerpt(
+        (
+            'Current suggestions are still useful mainly for prototype learning. '
+            'No current or cheaper/simpler alternative is good enough yet for the declared target tier, so stay prototype-only unless cost posture improves.'
+            if cost_signal == 'stop_if_cost_target_matters'
+            else 'Use this surface for directional package comparison only. Do not read it as procurement guidance or proof that the target tier now makes sense.'
+        ),
+        260,
+    )
+
+    trust_use = 'current_truth' if parts_state.get('trust_posture', {}).get('use_state', 'current_truth') == 'current_truth' else 'provisional_context'
+    trust_reason = (
+        'Use this surface to compare current package suggestions against cheaper or simpler alternatives without pretending the project has vendor-ready parts.'
+        if trust_use == 'current_truth' else
+        'Treat this surface as provisional pricing context until parts-readiness and cost posture are operationally fresh.'
+    )
+
+    return {
+        'generated_at': now_iso(),
+        'pricing_confidence_posture': pricing_confidence_posture,
+        'current_candidate_rows': current_rows,
+        'alternative_rows': alternative_rows,
+        'cost_direction_view': cost_direction_view,
+        'fit_for_target_tier': fit_for_target_tier,
+        'why_current_choice_may_fail': why_current_choice_may_fail,
+        'why_alternative_may_help': why_alternative_may_help,
+        'operator_warning': operator_warning,
+        'trust_posture': {
+            'surface_role': 'current_truth_review_surface',
+            'use_state': trust_use,
+            'authority_scope': 'pricing posture and directional alternatives for current package suggestions',
+            'trust_reason': compact_text_excerpt(trust_reason, 240),
+        },
+        'source_authority': {
+            'parts_readiness_truth': 'parts_readiness_review',
+            'cost_truth': 'cost_viability_review',
+            'component_package_truth': 'component_package_review',
+            'project_expectations': 'project_expectations',
+        },
+        'source_generated_at': {
+            'parts_readiness_review': state_surface_generated_at(parts_state),
+            'component_package_review': state_surface_generated_at(component_state),
+            'cost_viability_review': state_surface_generated_at(cost_state),
+            'project_expectations': state_surface_generated_at(expectations),
+        },
+        'revisable': True,
+    }
+
+
+def render_pricing_alternatives_review_context(pricing_state=None):
+    pricing_state = pricing_state if isinstance(pricing_state, dict) else load_pricing_alternatives_review_state()
+    lines = ['# Pricing Alternatives Review']
+    lines.append(f"- pricing_confidence_posture: `{pricing_state.get('pricing_confidence_posture', 'too_early_for_directional_pricing')}`")
+    lines.append(f"- fit_for_target_tier: `{pricing_state.get('fit_for_target_tier', 'unknown')}`")
+    if pricing_state.get('cost_direction_view'):
+        lines.append(f"- cost_direction_view: {pricing_state.get('cost_direction_view', '')}")
+    current_rows = pricing_state.get('current_candidate_rows', []) if isinstance(pricing_state.get('current_candidate_rows', []), list) else []
+    if current_rows:
+        lines.append(
+            "- current_candidate_rows: "
+            + '; '.join(
+                f"{row.get('label', 'candidate')} ({row.get('cost_posture', 'directional')}, {row.get('fit_for_target', 'unknown')})"
+                for row in current_rows[:3]
+                if isinstance(row, dict)
+            )
+        )
+    alternative_rows = pricing_state.get('alternative_rows', []) if isinstance(pricing_state.get('alternative_rows', []), list) else []
+    if alternative_rows:
+        lines.append(
+            "- alternative_rows: "
+            + '; '.join(
+                f"{row.get('label', 'alternative')} ({row.get('cost_posture', 'directional')}, {row.get('fit_for_target', 'unknown')})"
+                for row in alternative_rows[:3]
+                if isinstance(row, dict)
+            )
+        )
+    if pricing_state.get('operator_warning'):
+        lines.append(f"- operator_warning: {pricing_state.get('operator_warning', '')}")
+    return '\n'.join(lines) + '\n'
+
+
 def default_extensions_capability_review_state():
     return {
         'generated_at': '',
@@ -10508,7 +10905,7 @@ def ui_page_priority_rank(priority):
     return order.get(str(priority or '').strip(), 4)
 
 
-def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None):
+def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None):
     schema = schema or load_cognition_schema()
     cfg = ui_surface_plan_config(schema)
     if not cfg.get('enabled', True):
@@ -10536,6 +10933,13 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         review_snapshot=review_snapshot,
         product_realism_state=realism_state,
         component_package_state=component_state,
+    )
+    pricing_state = pricing_state if isinstance(pricing_state, dict) else build_pricing_alternatives_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        parts_state=parts_state,
+        component_state=component_state,
+        cost_state=cost_state,
     )
     extensions_state = build_extensions_capability_review_state(
         schema=schema,
@@ -10888,10 +11292,10 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'status': 'realization_oriented',
             'priority': 'secondary',
             'why_this_page_exists': compact_text_excerpt(
-                f"Implementation package review is `{('ready_for_review' if implementation_ready else 'not_yet_reviewable')}`, component-package posture is `{component_band}`, and parts-readiness posture is `{parts_state.get('parts_readiness_band', 'not_ready_for_suggestions')}`. {len(rendering_briefs)} exploratory hardware-aware rendering brief(s) are available for bounded build-facing comparison, so build-oriented surfaces are now meaningful enough to warrant their own page.",
+                f"Implementation package review is `{('ready_for_review' if implementation_ready else 'not_yet_reviewable')}`, component-package posture is `{component_band}`, parts-readiness posture is `{parts_state.get('parts_readiness_band', 'not_ready_for_suggestions')}`, and pricing posture is `{pricing_state.get('pricing_confidence_posture', 'too_early_for_directional_pricing')}`. {len(rendering_briefs)} exploratory hardware-aware rendering brief(s) are available for bounded build-facing comparison, so build-oriented surfaces are now meaningful enough to warrant their own page.",
                 220,
             ),
-            'driven_by_sources': ['component_package_review', 'parts_readiness_review', 'project_milestones', 'product_realism_review', 'hardware_aware_rendering_brief_review'],
+            'driven_by_sources': ['component_package_review', 'parts_readiness_review', 'pricing_alternatives_review', 'project_milestones', 'product_realism_review', 'hardware_aware_rendering_brief_review'],
             'sections': [
                 make_section(
                     'implementation_package_gate',
@@ -10926,6 +11330,14 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
                     'Hide when build posture is too weak to justify any honest package or part suggestion.',
                 ),
                 make_section(
+                    'pricing_alternatives',
+                    'Pricing & Alternatives',
+                    'Compare current package suggestions against cheaper, simpler, or better-fit alternatives without pretending the project has procurement-grade certainty.',
+                    ['pricing_alternatives_review', 'parts_readiness_review', 'cost_viability_review', 'component_package_review'],
+                    'Current package direction is meaningful enough that the operator should see whether cheaper or simpler alternatives are better than waiting silently.',
+                    'Hide when build posture is too weak for any honest pricing-direction comparison.',
+                ),
+                make_section(
                     'exploratory_rendering_briefs',
                     'Exploratory Rendering Briefs',
                     'Show bounded hardware-aware rendering briefs only as exploratory review aids for packaging, placement, and comparison.',
@@ -10939,12 +11351,14 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'representation_risks': [
                 'Do not present early subsystem BOM posture as a final part list or settled package.',
                 'Do not let subsystem confidence read as part confidence when the state still only justifies package-level suggestions.',
+                'Do not let pricing alternatives read like vendor quotes or procurement-grade certainty when the state still only justifies directional comparison.',
                 'Do not let exploratory rendering briefs read as accepted design direction or solved industrial design.',
             ],
             'operator_actions_supported': [
                 'inspect buildability posture',
                 'see whether component packaging is warranted',
                 'see how far the project is from a real suggested-parts list',
+                'compare current package direction against cheaper or simpler alternatives',
                 'understand realization blockers',
             ],
         })
@@ -10959,6 +11373,12 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'section_id': 'parts_readiness',
             'emerge_when': 'The operator needs an explicit answer about whether the current state supports only package placeholders or actual part suggestions.',
             'withhold_when': 'Build posture is too weak for any honest package or part readiness view.',
+        })
+        section_emergence_rules.append({
+            'page_id': 'build_or_realization',
+            'section_id': 'pricing_alternatives',
+            'emerge_when': 'Current package posture is meaningful enough that cheaper or simpler alternatives should be compared explicitly instead of assumed away.',
+            'withhold_when': 'No honest pricing-direction comparison can be made without inventing unsupported part or procurement detail.',
         })
         if rendering_briefs:
             section_emergence_rules.append({
@@ -11096,6 +11516,9 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     if component_band != 'not_warranted':
         push_risk('Build-oriented pages must not imply that early component-package readiness is already a settled BOM or implementation commitment.')
         push_goal('Inspect whether build-oriented realization surfaces are warranted now, without forcing premature component concreteness.')
+    if pricing_state.get('current_candidate_rows') or pricing_state.get('alternative_rows'):
+        push_risk('Pricing alternatives must remain directional and package-first; they should not read as vendor-ready pricing or hidden procurement state.')
+        push_goal('Compare current package direction against cheaper or simpler alternatives without pretending the project has settled parts or exact cost.')
     if cost_signal in ('reframe_needed', 'stop_if_cost_target_matters'):
         push_risk('Technically interesting prototype progress must not hide the possibility that the project is already economically weak for its implied target tier.')
     if rendering_briefs:
@@ -11170,6 +11593,13 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         parts_state.get('trust_posture', {}).get('use_state', 'current_truth') if isinstance(parts_state.get('trust_posture', {}), dict) else 'current_truth',
         parts_state.get('why_not_stronger_yet', ''),
         state_surface_generated_at(parts_state),
+    )
+    push_source(
+        'pricing_alternatives_review',
+        'pricing_direction_comparison',
+        pricing_state.get('trust_posture', {}).get('use_state', 'current_truth') if isinstance(pricing_state.get('trust_posture', {}), dict) else 'current_truth',
+        pricing_state.get('cost_direction_view', ''),
+        state_surface_generated_at(pricing_state),
     )
     if rendering_briefs:
         push_source(
@@ -11279,6 +11709,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'cost_viability_review': state_surface_generated_at(cost_state),
             'component_package_review': state_surface_generated_at(component_state),
             'parts_readiness_review': state_surface_generated_at(parts_state),
+            'pricing_alternatives_review': state_surface_generated_at(pricing_state),
             'extensions_capability_review': state_surface_generated_at(extensions_state),
             'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
             'verification_summary': state_surface_generated_at(verification_state),
@@ -12375,6 +12806,14 @@ def refresh_review_state_sync_metadata(schema=None):
         component_package_state=component_package_state,
     )
     save_cost_viability_review_state(cost_state)
+    pricing_state = build_pricing_alternatives_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        parts_state=parts_state,
+        component_state=component_package_state,
+        cost_state=cost_state,
+    )
+    save_pricing_alternatives_review_state(pricing_state)
     resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
     save_execution_resume_state(resume_state)
     verification_state = build_verification_summary_state(
@@ -12416,6 +12855,7 @@ def refresh_review_state_sync_metadata(schema=None):
         rendering_state=rendering_state,
         cost_state=cost_state,
         parts_state=parts_state,
+        pricing_state=pricing_state,
     ))
     return summary
 
@@ -14768,6 +15208,14 @@ def generate_scorecard_cycle(changes, prior_reports):
         component_package_state=component_package_state,
     )
     save_cost_viability_review_state(cost_state)
+    pricing_state = build_pricing_alternatives_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        parts_state=parts_state,
+        component_state=component_package_state,
+        cost_state=cost_state,
+    )
+    save_pricing_alternatives_review_state(pricing_state)
     resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
     save_execution_resume_state(resume_state)
     verification_state = build_verification_summary_state(
@@ -14809,6 +15257,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         rendering_state=rendering_state,
         cost_state=cost_state,
         parts_state=parts_state,
+        pricing_state=pricing_state,
     ))
     return render_scorecard_markdown(scorecard), effort_selection
 
@@ -16273,6 +16722,13 @@ def context_with_inputs(changes):
         product_realism_state=product_realism_state,
         component_package_state=component_package_state,
     )
+    pricing_alternatives_state = build_pricing_alternatives_review_state(
+        schema=schema,
+        review_snapshot=review_state_consumption,
+        parts_state=parts_readiness_state,
+        component_state=component_package_state,
+        cost_state=cost_viability_state,
+    )
     rendering_brief_state = build_hardware_aware_rendering_brief_review_state(
         schema=schema,
         review_snapshot=review_state_consumption,
@@ -16281,7 +16737,14 @@ def context_with_inputs(changes):
         component_state=component_package_state,
         extensions_state=extensions_capability_state,
     )
-    ui_surface_plan_state = build_ui_surface_plan_state(schema=schema, review_snapshot=review_state_consumption)
+    ui_surface_plan_state = build_ui_surface_plan_state(
+        schema=schema,
+        review_snapshot=review_state_consumption,
+        cost_state=cost_viability_state,
+        parts_state=parts_readiness_state,
+        pricing_state=pricing_alternatives_state,
+        rendering_state=rendering_brief_state,
+    )
     pieces = ['# Core Field\n', core_text(), '\n']
     pieces.append(render_field_layer_context())
     pieces.append(f'# {PROJECT_DISPLAY_NAME} Project Guardrails\n')
@@ -16321,6 +16784,8 @@ def context_with_inputs(changes):
     pieces.append(render_component_package_review_context(component_package_state))
     pieces.append('\n')
     pieces.append(render_parts_readiness_review_context(parts_readiness_state))
+    pieces.append('\n')
+    pieces.append(render_pricing_alternatives_review_context(pricing_alternatives_state))
     pieces.append('\n')
     pieces.append(render_review_state_consumption_context(review_state_consumption))
     pieces.append('\n')

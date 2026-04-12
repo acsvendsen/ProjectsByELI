@@ -1,7 +1,7 @@
 {
   "entries": [
     {
-      "timestamp": "2026-04-11T23:49:00",
+      "timestamp": "2026-04-12T08:08:47",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -13,121 +13,13 @@
           }
         ],
         "protected_paths": [
-          "latest_sleep.md",
-          "20260411_234900_sleep.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:50:03",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "dream",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260411_235003_dream.md",
-          "latest_dream.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:50:27",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reality",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260411_235027_reality.md",
-          "latest_reality.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:51:18",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reflect",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_reflect.md",
-          "20260411_235118_reflect.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:51:45",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "scorecard",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_scorecard.md",
-          "20260411_235145_scorecard.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:51:45",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "daily_snapshot",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260411_235145_daily_snapshot.md",
-          "latest_daily_snapshot.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:52:01",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "sleep",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260411_235201_sleep.md",
+          "20260412_080847_sleep.md",
           "latest_sleep.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-11T23:52:53",
+      "timestamp": "2026-04-12T08:09:35",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -139,13 +31,13 @@
           }
         ],
         "protected_paths": [
-          "20260411_235253_dream.md",
+          "20260412_080935_dream.md",
           "latest_dream.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-11T23:53:09",
+      "timestamp": "2026-04-12T08:09:49",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -157,13 +49,13 @@
           }
         ],
         "protected_paths": [
-          "20260411_235309_reality.md",
+          "20260412_080949_reality.md",
           "latest_reality.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-11T23:53:55",
+      "timestamp": "2026-04-12T08:10:30",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -176,12 +68,12 @@
         ],
         "protected_paths": [
           "latest_reflect.md",
-          "20260411_235355_reflect.md"
+          "20260412_081030_reflect.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-11T23:54:24",
+      "timestamp": "2026-04-12T08:10:57",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -193,229 +85,13 @@
           }
         ],
         "protected_paths": [
-          "latest_scorecard.md",
-          "20260411_235424_scorecard.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:54:24",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "daily_snapshot",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_daily_snapshot.md",
-          "20260411_235424_daily_snapshot.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:54:41",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "sleep",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260411_235441_sleep.md",
-          "latest_sleep.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:55:38",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "dream",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260411_235538_dream.md",
-          "latest_dream.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:55:49",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reality",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260411_235549_reality.md",
-          "latest_reality.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:56:38",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reflect",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_reflect.md",
-          "20260411_235638_reflect.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:56:59",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "scorecard",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_scorecard.md",
-          "20260411_235659_scorecard.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:56:59",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "daily_snapshot",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_daily_snapshot.md",
-          "20260411_235659_daily_snapshot.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:57:18",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "sleep",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260411_235718_sleep.md",
-          "latest_sleep.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:58:17",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "dream",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260411_235816_dream.md",
-          "latest_dream.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:58:35",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reality",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260411_235835_reality.md",
-          "latest_reality.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:59:22",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reflect",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_reflect.md",
-          "20260411_235922_reflect.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-11T23:59:39",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "scorecard",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260411_235939_scorecard.md",
+          "20260412_081057_scorecard.md",
           "latest_scorecard.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-11T23:59:39",
+      "timestamp": "2026-04-12T08:10:57",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -427,13 +103,13 @@
           }
         ],
         "protected_paths": [
-          "20260411_235939_daily_snapshot.md",
-          "latest_daily_snapshot.md"
+          "latest_daily_snapshot.md",
+          "20260412_081057_daily_snapshot.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-11T23:59:55",
+      "timestamp": "2026-04-12T08:11:15",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -445,13 +121,13 @@
           }
         ],
         "protected_paths": [
-          "latest_sleep.md",
-          "20260411_235955_sleep.md"
+          "20260412_081115_sleep.md",
+          "latest_sleep.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:00:42",
+      "timestamp": "2026-04-12T08:12:03",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -463,13 +139,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_000042_dream.md",
+          "20260412_081203_dream.md",
           "latest_dream.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:00:59",
+      "timestamp": "2026-04-12T08:12:16",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -481,13 +157,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_000059_reality.md",
+          "20260412_081216_reality.md",
           "latest_reality.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:01:42",
+      "timestamp": "2026-04-12T08:13:02",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -500,12 +176,12 @@
         ],
         "protected_paths": [
           "latest_reflect.md",
-          "20260412_000142_reflect.md"
+          "20260412_081302_reflect.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:02:11",
+      "timestamp": "2026-04-12T08:13:29",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -517,13 +193,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_000211_scorecard.md",
+          "20260412_081329_scorecard.md",
           "latest_scorecard.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:02:11",
+      "timestamp": "2026-04-12T08:13:29",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -536,12 +212,12 @@
         ],
         "protected_paths": [
           "latest_daily_snapshot.md",
-          "20260412_000211_daily_snapshot.md"
+          "20260412_081329_daily_snapshot.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:02:27",
+      "timestamp": "2026-04-12T08:13:45",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -553,13 +229,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_000227_sleep.md",
-          "latest_sleep.md"
+          "latest_sleep.md",
+          "20260412_081345_sleep.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:03:10",
+      "timestamp": "2026-04-12T08:14:32",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -571,13 +247,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_000310_dream.md",
+          "20260412_081432_dream.md",
           "latest_dream.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:03:24",
+      "timestamp": "2026-04-12T08:14:43",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -589,13 +265,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_000323_reality.md",
+          "20260412_081443_reality.md",
           "latest_reality.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:04:15",
+      "timestamp": "2026-04-12T08:15:33",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -608,12 +284,12 @@
         ],
         "protected_paths": [
           "latest_reflect.md",
-          "20260412_000415_reflect.md"
+          "20260412_081533_reflect.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:04:43",
+      "timestamp": "2026-04-12T08:15:59",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -625,13 +301,229 @@
           }
         ],
         "protected_paths": [
-          "20260412_000443_scorecard.md",
+          "latest_scorecard.md",
+          "20260412_081559_scorecard.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:15:59",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_daily_snapshot.md",
+          "20260412_081559_daily_snapshot.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:16:15",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "sleep",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_081615_sleep.md",
+          "latest_sleep.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:16:58",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "dream",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_081658_dream.md",
+          "latest_dream.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:17:10",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reality",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_081710_reality.md",
+          "latest_reality.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:17:50",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reflect",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_081750_reflect.md",
+          "latest_reflect.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:18:17",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "scorecard",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_scorecard.md",
+          "20260412_081817_scorecard.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:18:17",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_daily_snapshot.md",
+          "20260412_081817_daily_snapshot.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:18:33",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "sleep",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_sleep.md",
+          "20260412_081833_sleep.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:19:19",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "dream",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_081919_dream.md",
+          "latest_dream.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:19:35",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reality",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_081935_reality.md",
+          "latest_reality.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:20:18",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reflect",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_reflect.md",
+          "20260412_082018_reflect.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:20:45",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "scorecard",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_082045_scorecard.md",
           "latest_scorecard.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:04:43",
+      "timestamp": "2026-04-12T08:20:45",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -644,12 +536,12 @@
         ],
         "protected_paths": [
           "latest_daily_snapshot.md",
-          "20260412_000443_daily_snapshot.md"
+          "20260412_082045_daily_snapshot.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:04:59",
+      "timestamp": "2026-04-12T08:21:01",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -661,121 +553,13 @@
           }
         ],
         "protected_paths": [
-          "latest_sleep.md",
-          "20260412_000459_sleep.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:05:48",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "dream",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_000548_dream.md",
-          "latest_dream.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:06:02",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reality",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_000602_reality.md",
-          "latest_reality.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:06:51",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reflect",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_reflect.md",
-          "20260412_000651_reflect.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:07:19",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "scorecard",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_scorecard.md",
-          "20260412_000719_scorecard.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:07:19",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "daily_snapshot",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_daily_snapshot.md",
-          "20260412_000719_daily_snapshot.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:07:34",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "sleep",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_000734_sleep.md",
+          "20260412_082101_sleep.md",
           "latest_sleep.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:08:32",
+      "timestamp": "2026-04-12T08:21:48",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -787,229 +571,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_000832_dream.md",
+          "20260412_082148_dream.md",
           "latest_dream.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:08:49",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reality",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_000848_reality.md",
-          "latest_reality.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:09:36",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reflect",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_reflect.md",
-          "20260412_000936_reflect.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:10:05",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "scorecard",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_scorecard.md",
-          "20260412_001005_scorecard.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:10:05",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "daily_snapshot",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_001005_daily_snapshot.md",
-          "latest_daily_snapshot.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:10:22",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "sleep",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_sleep.md",
-          "20260412_001022_sleep.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:11:12",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "dream",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_001112_dream.md",
-          "latest_dream.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:11:29",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reality",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_001129_reality.md",
-          "latest_reality.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:12:14",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reflect",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_reflect.md",
-          "20260412_001214_reflect.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:12:43",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "scorecard",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_scorecard.md",
-          "20260412_001243_scorecard.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:12:43",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "daily_snapshot",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_001243_daily_snapshot.md",
-          "latest_daily_snapshot.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:12:58",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "sleep",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_001258_sleep.md",
-          "latest_sleep.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:13:43",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "dream",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_001343_dream.md",
-          "latest_dream.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:13:55",
+      "timestamp": "2026-04-12T08:22:01",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1022,12 +590,12 @@
         ],
         "protected_paths": [
           "latest_reality.md",
-          "20260412_001355_reality.md"
+          "20260412_082201_reality.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:14:46",
+      "timestamp": "2026-04-12T08:22:47",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1040,12 +608,12 @@
         ],
         "protected_paths": [
           "latest_reflect.md",
-          "20260412_001446_reflect.md"
+          "20260412_082247_reflect.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:15:13",
+      "timestamp": "2026-04-12T08:23:14",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1057,121 +625,13 @@
           }
         ],
         "protected_paths": [
-          "latest_scorecard.md",
-          "20260412_001513_scorecard.md"
+          "20260412_082314_scorecard.md",
+          "latest_scorecard.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:15:14",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "daily_snapshot",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_001513_daily_snapshot.md",
-          "latest_daily_snapshot.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:15:28",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "sleep",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_001528_sleep.md",
-          "latest_sleep.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:16:20",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "dream",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_001620_dream.md",
-          "latest_dream.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:16:35",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reality",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_001635_reality.md",
-          "latest_reality.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:17:20",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reflect",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_001720_reflect.md",
-          "latest_reflect.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:17:48",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "scorecard",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_scorecard.md",
-          "20260412_001748_scorecard.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:17:48",
+      "timestamp": "2026-04-12T08:23:14",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1184,12 +644,12 @@
         ],
         "protected_paths": [
           "latest_daily_snapshot.md",
-          "20260412_001748_daily_snapshot.md"
+          "20260412_082314_daily_snapshot.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:18:03",
+      "timestamp": "2026-04-12T08:23:33",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1201,13 +661,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_001803_sleep.md",
+          "20260412_082333_sleep.md",
           "latest_sleep.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:18:55",
+      "timestamp": "2026-04-12T08:24:15",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1220,12 +680,12 @@
         ],
         "protected_paths": [
           "latest_dream.md",
-          "20260412_001855_dream.md"
+          "20260412_082415_dream.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:19:09",
+      "timestamp": "2026-04-12T08:24:28",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1237,121 +697,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_001909_reality.md",
+          "20260412_082428_reality.md",
           "latest_reality.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:19:59",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reflect",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_001958_reflect.md",
-          "latest_reflect.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:20:27",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "scorecard",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_002027_scorecard.md",
-          "latest_scorecard.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:20:27",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "daily_snapshot",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_daily_snapshot.md",
-          "20260412_002027_daily_snapshot.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:20:43",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "sleep",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_sleep.md",
-          "20260412_002043_sleep.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:21:31",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "dream",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_002131_dream.md",
-          "latest_dream.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:21:48",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reality",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_reality.md",
-          "20260412_002148_reality.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:22:30",
+      "timestamp": "2026-04-12T08:25:19",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1364,12 +716,120 @@
         ],
         "protected_paths": [
           "latest_reflect.md",
-          "20260412_002230_reflect.md"
+          "20260412_082519_reflect.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:22:59",
+      "timestamp": "2026-04-12T08:25:48",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "scorecard",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_082548_scorecard.md",
+          "latest_scorecard.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:25:48",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_daily_snapshot.md",
+          "20260412_082548_daily_snapshot.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:26:05",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "sleep",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_082605_sleep.md",
+          "latest_sleep.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:26:55",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "dream",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_082655_dream.md",
+          "latest_dream.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:27:09",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reality",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_082709_reality.md",
+          "latest_reality.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:27:51",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reflect",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_reflect.md",
+          "20260412_082750_reflect.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:28:17",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1382,12 +842,12 @@
         ],
         "protected_paths": [
           "latest_scorecard.md",
-          "20260412_002259_scorecard.md"
+          "20260412_082817_scorecard.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:22:59",
+      "timestamp": "2026-04-12T08:28:17",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1400,12 +860,12 @@
         ],
         "protected_paths": [
           "latest_daily_snapshot.md",
-          "20260412_002259_daily_snapshot.md"
+          "20260412_082817_daily_snapshot.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:23:15",
+      "timestamp": "2026-04-12T08:28:34",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1417,13 +877,13 @@
           }
         ],
         "protected_paths": [
-          "latest_sleep.md",
-          "20260412_002315_sleep.md"
+          "20260412_082834_sleep.md",
+          "latest_sleep.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:24:00",
+      "timestamp": "2026-04-12T08:29:15",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1435,13 +895,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_002400_dream.md",
+          "20260412_082915_dream.md",
           "latest_dream.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:24:16",
+      "timestamp": "2026-04-12T08:29:32",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1454,12 +914,12 @@
         ],
         "protected_paths": [
           "latest_reality.md",
-          "20260412_002415_reality.md"
+          "20260412_082932_reality.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:25:00",
+      "timestamp": "2026-04-12T08:30:20",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1472,12 +932,12 @@
         ],
         "protected_paths": [
           "latest_reflect.md",
-          "20260412_002500_reflect.md"
+          "20260412_083020_reflect.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:25:28",
+      "timestamp": "2026-04-12T08:30:46",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1489,13 +949,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_002528_scorecard.md",
-          "latest_scorecard.md"
+          "latest_scorecard.md",
+          "20260412_083046_scorecard.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:25:28",
+      "timestamp": "2026-04-12T08:30:46",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1507,13 +967,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_002528_daily_snapshot.md",
+          "20260412_083046_daily_snapshot.md",
           "latest_daily_snapshot.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:25:47",
+      "timestamp": "2026-04-12T08:31:02",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1525,13 +985,661 @@
           }
         ],
         "protected_paths": [
-          "20260412_002547_sleep.md",
+          "20260412_083102_sleep.md",
           "latest_sleep.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:26:35",
+      "timestamp": "2026-04-12T08:31:52",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "dream",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_083152_dream.md",
+          "latest_dream.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:32:05",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reality",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_reality.md",
+          "20260412_083205_reality.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:32:52",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reflect",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_083252_reflect.md",
+          "latest_reflect.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:33:19",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "scorecard",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_scorecard.md",
+          "20260412_083319_scorecard.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:33:19",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_daily_snapshot.md",
+          "20260412_083319_daily_snapshot.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:33:34",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "sleep",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_083334_sleep.md",
+          "latest_sleep.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:34:21",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "dream",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_083421_dream.md",
+          "latest_dream.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:34:33",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reality",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_reality.md",
+          "20260412_083433_reality.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:35:18",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reflect",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_reflect.md",
+          "20260412_083518_reflect.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:35:43",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "scorecard",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_083543_scorecard.md",
+          "latest_scorecard.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:35:43",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_083543_daily_snapshot.md",
+          "latest_daily_snapshot.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:36:03",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "sleep",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_083603_sleep.md",
+          "latest_sleep.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:36:49",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "dream",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_083649_dream.md",
+          "latest_dream.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:37:03",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reality",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_083703_reality.md",
+          "latest_reality.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:37:51",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reflect",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_reflect.md",
+          "20260412_083751_reflect.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:38:18",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "scorecard",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_scorecard.md",
+          "20260412_083818_scorecard.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:38:18",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_083818_daily_snapshot.md",
+          "latest_daily_snapshot.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:38:34",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "sleep",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_sleep.md",
+          "20260412_083834_sleep.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:39:17",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "dream",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_083917_dream.md",
+          "latest_dream.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:39:31",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reality",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_083931_reality.md",
+          "latest_reality.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:40:10",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reflect",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_reflect.md",
+          "20260412_084010_reflect.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:40:35",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "scorecard",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_scorecard.md",
+          "20260412_084035_scorecard.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:40:35",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_084035_daily_snapshot.md",
+          "latest_daily_snapshot.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:40:51",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "sleep",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_084051_sleep.md",
+          "latest_sleep.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:41:38",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "dream",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_084138_dream.md",
+          "latest_dream.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:41:54",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reality",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_reality.md",
+          "20260412_084154_reality.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:42:41",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reflect",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_reflect.md",
+          "20260412_084241_reflect.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:43:07",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "scorecard",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_scorecard.md",
+          "20260412_084307_scorecard.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:43:07",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_daily_snapshot.md",
+          "20260412_084307_daily_snapshot.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:43:21",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "sleep",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_084321_sleep.md",
+          "latest_sleep.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:44:03",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "dream",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_084402_dream.md",
+          "latest_dream.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:44:17",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reality",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_084417_reality.md",
+          "latest_reality.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:45:03",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reflect",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_reflect.md",
+          "20260412_084503_reflect.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:45:31",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "scorecard",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_scorecard.md",
+          "20260412_084531_scorecard.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:45:31",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_daily_snapshot.md",
+          "20260412_084531_daily_snapshot.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:45:48",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "sleep",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_084548_sleep.md",
+          "latest_sleep.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:46:34",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1544,12 +1652,12 @@
         ],
         "protected_paths": [
           "latest_dream.md",
-          "20260412_002635_dream.md"
+          "20260412_084634_dream.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:26:47",
+      "timestamp": "2026-04-12T08:46:48",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1561,13 +1669,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_002647_reality.md",
+          "20260412_084648_reality.md",
           "latest_reality.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:27:38",
+      "timestamp": "2026-04-12T08:47:41",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1580,120 +1688,12 @@
         ],
         "protected_paths": [
           "latest_reflect.md",
-          "20260412_002738_reflect.md"
+          "20260412_084741_reflect.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:28:03",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "scorecard",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_002803_scorecard.md",
-          "latest_scorecard.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:28:03",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "daily_snapshot",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_002803_daily_snapshot.md",
-          "latest_daily_snapshot.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:28:19",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "sleep",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_002819_sleep.md",
-          "latest_sleep.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:29:01",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "dream",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_002901_dream.md",
-          "latest_dream.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:29:15",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reality",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_002915_reality.md",
-          "latest_reality.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:30:03",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reflect",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_reflect.md",
-          "20260412_003003_reflect.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:30:31",
+      "timestamp": "2026-04-12T08:48:08",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1706,12 +1706,12 @@
         ],
         "protected_paths": [
           "latest_scorecard.md",
-          "20260412_003031_scorecard.md"
+          "20260412_084808_scorecard.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:30:31",
+      "timestamp": "2026-04-12T08:48:08",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1723,13 +1723,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_003031_daily_snapshot.md",
+          "20260412_084808_daily_snapshot.md",
           "latest_daily_snapshot.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:30:48",
+      "timestamp": "2026-04-12T08:48:24",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1741,13 +1741,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_003048_sleep.md",
-          "latest_sleep.md"
+          "latest_sleep.md",
+          "20260412_084824_sleep.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:31:35",
+      "timestamp": "2026-04-12T08:49:16",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1759,13 +1759,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_003135_dream.md",
+          "20260412_084915_dream.md",
           "latest_dream.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:31:54",
+      "timestamp": "2026-04-12T08:49:44",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1777,13 +1777,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_003154_reality.md",
+          "20260412_084944_reality.md",
           "latest_reality.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:32:46",
+      "timestamp": "2026-04-12T08:50:40",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1796,12 +1796,12 @@
         ],
         "protected_paths": [
           "latest_reflect.md",
-          "20260412_003246_reflect.md"
+          "20260412_085040_reflect.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:33:24",
+      "timestamp": "2026-04-12T08:51:15",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1813,13 +1813,121 @@
           }
         ],
         "protected_paths": [
-          "20260412_003324_scorecard.md",
+          "20260412_085115_scorecard.md",
           "latest_scorecard.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:33:24",
+      "timestamp": "2026-04-12T08:51:15",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_085115_daily_snapshot.md",
+          "latest_daily_snapshot.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:51:35",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "sleep",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_085135_sleep.md",
+          "latest_sleep.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:52:33",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "dream",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_085233_dream.md",
+          "latest_dream.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:52:51",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reality",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_085251_reality.md",
+          "latest_reality.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:53:52",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reflect",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_reflect.md",
+          "20260412_085352_reflect.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:54:26",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "scorecard",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_085426_scorecard.md",
+          "latest_scorecard.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:54:26",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1832,12 +1940,12 @@
         ],
         "protected_paths": [
           "latest_daily_snapshot.md",
-          "20260412_003324_daily_snapshot.md"
+          "20260412_085426_daily_snapshot.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:33:44",
+      "timestamp": "2026-04-12T08:54:46",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1849,13 +1957,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_003344_sleep.md",
+          "20260412_085446_sleep.md",
           "latest_sleep.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:34:54",
+      "timestamp": "2026-04-12T08:55:40",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1867,13 +1975,121 @@
           }
         ],
         "protected_paths": [
-          "20260412_003454_dream.md",
+          "20260412_085540_dream.md",
           "latest_dream.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:35:13",
+      "timestamp": "2026-04-12T08:56:00",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reality",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_085600_reality.md",
+          "latest_reality.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:56:53",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "reflect",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_reflect.md",
+          "20260412_085653_reflect.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:57:28",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "scorecard",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_085728_scorecard.md",
+          "latest_scorecard.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:57:28",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_daily_snapshot.md",
+          "20260412_085728_daily_snapshot.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:57:57",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "sleep",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_sleep.md",
+          "20260412_085757_sleep.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:59:00",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "dream",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260412_085859_dream.md",
+          "latest_dream.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-12T08:59:18",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1886,12 +2102,12 @@
         ],
         "protected_paths": [
           "latest_reality.md",
-          "20260412_003513_reality.md"
+          "20260412_085918_reality.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:36:10",
+      "timestamp": "2026-04-12T09:00:04",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1904,12 +2120,12 @@
         ],
         "protected_paths": [
           "latest_reflect.md",
-          "20260412_003610_reflect.md"
+          "20260412_090004_reflect.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:36:37",
+      "timestamp": "2026-04-12T09:00:38",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1921,13 +2137,13 @@
           }
         ],
         "protected_paths": [
-          "20260412_003637_scorecard.md",
-          "latest_scorecard.md"
+          "latest_scorecard.md",
+          "20260412_090038_scorecard.md"
         ]
       }
     },
     {
-      "timestamp": "2026-04-12T00:36:37",
+      "timestamp": "2026-04-12T09:00:38",
       "kind": "report_prune",
       "summary": {
         "removed_count": 1,
@@ -1940,226 +2156,10 @@
         ],
         "protected_paths": [
           "latest_daily_snapshot.md",
-          "20260412_003637_daily_snapshot.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:36:58",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "sleep",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_003658_sleep.md",
-          "latest_sleep.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:38:01",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "dream",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_003801_dream.md",
-          "latest_dream.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:38:21",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reality",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_003821_reality.md",
-          "latest_reality.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:39:15",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reflect",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_reflect.md",
-          "20260412_003915_reflect.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:39:51",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "scorecard",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_003951_scorecard.md",
-          "latest_scorecard.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:39:51",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "daily_snapshot",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_003951_daily_snapshot.md",
-          "latest_daily_snapshot.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:40:13",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "sleep",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_004013_sleep.md",
-          "latest_sleep.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:41:12",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "dream",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_004112_dream.md",
-          "latest_dream.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:41:36",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reality",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_004136_reality.md",
-          "latest_reality.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:42:32",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reflect",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_reflect.md",
-          "20260412_004232_reflect.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:43:08",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "scorecard",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260412_004308_scorecard.md",
-          "latest_scorecard.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-12T00:43:08",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "daily_snapshot",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_daily_snapshot.md",
-          "20260412_004308_daily_snapshot.md"
+          "20260412_090038_daily_snapshot.md"
         ]
       }
     }
   ],
-  "updated_at": "2026-04-12T00:43:08"
+  "updated_at": "2026-04-12T09:00:38"
 }

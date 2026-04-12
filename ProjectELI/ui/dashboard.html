@@ -917,6 +917,7 @@
           <article class="realization-card" id="buildBlockedCard"></article>
           <article class="realization-card" id="buildComponentCard"></article>
           <article class="realization-card" id="buildPartsCard"></article>
+          <article class="realization-card" id="buildPricingCard"></article>
           <article class="realization-card wide" id="buildRenderingBriefCard" style="display:none"></article>
         </div>
       </div>
@@ -1426,6 +1427,26 @@
       `).join("")}</div>`;
     }
 
+    function renderPricingRows(rows, emptyText, limit = 3) {
+      const usable = (rows || []).filter(row => row && row.label).slice(0, limit);
+      if (!usable.length) return `<div class="realization-empty">${emptyText}</div>`;
+      return `<div class="realization-list">${usable.map(row => `
+        <div class="realization-row">
+          <div class="realization-row-head">
+            <strong>${truncateText(row.label, 92)}</strong>
+            <div class="mini-pills">
+              <span class="mini-pill ${row.cost_posture || ""}">${humanizeToken(row.cost_posture || "directional_only")}</span>
+              <span class="mini-pill ${row.confidence || ""}">${humanizeToken(row.confidence || "provisional")}</span>
+              <span class="mini-pill ${row.fit_for_target || ""}">${humanizeToken(row.fit_for_target || "unknown")}</span>
+            </div>
+          </div>
+          <div>${truncateText(row.why_it_is_current_or_alternative || "No comparison rationale is recorded.", 220)}</div>
+          ${row.scope ? `<div class="footer"><strong>Scope:</strong> ${truncateText(humanizeToken(row.scope), 120)}</div>` : ``}
+          ${row.replacement_priority ? `<div class="footer"><strong>Replacement priority:</strong> ${truncateText(humanizeToken(row.replacement_priority), 140)}</div>` : ``}
+        </div>
+      `).join("")}</div>`;
+    }
+
     function renderProjectCreation(status) {
       const pageMap = collectPageMap(status);
       const page = pageMap.project_creation;
@@ -1559,6 +1580,7 @@
       panel.style.display = "";
       const componentReview = status.component_package_review || {};
       const partsReadiness = status.parts_readiness_review || {};
+      const pricingAlternatives = status.pricing_alternatives_review || {};
       const milestonesState = status.project_milestones || {};
       const milestones = milestonesState.milestones || [];
       const realism = status.product_realism_review || {};
@@ -1568,6 +1590,7 @@
       const componentSection = sections.find(section => section.section_id === "component_package_readiness") || {};
       const blockersSection = sections.find(section => section.section_id === "build_blockers") || {};
       const partsSection = sections.find(section => section.section_id === "parts_readiness") || {};
+      const pricingSection = sections.find(section => section.section_id === "pricing_alternatives") || {};
       const renderingSection = sections.find(section => section.section_id === "exploratory_rendering_briefs") || {};
       const implementationGate = milestones.find(row => row.milestone_id === "implementation_package_review") || {};
       const realismGate = milestones.find(row => row.milestone_id === "product_realism_check") || {};
@@ -1723,6 +1746,32 @@
         ${(partsReadiness.blocked_for_stronger_shortlist || []).length ? `<div class="footer"><strong>Top blocker:</strong> ${truncateText(partsReadiness.blocked_for_stronger_shortlist[0], 220)}</div>` : ""}
         ${(partsReadiness.operator_waiting_for || []).length ? `<div class="footer"><strong>Operator waiting for:</strong> ${truncateText(partsReadiness.operator_waiting_for[0], 220)}</div>` : ""}
         ${partsSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(partsSection.purpose, 220)}</div>` : ""}
+      `;
+
+      document.getElementById("buildPricingCard").innerHTML = `
+        <div class="verification-heading">Pricing & Alternatives</div>
+        <div class="mini-pills">
+          <span class="mini-pill ${pricingAlternatives.pricing_confidence_posture || ""}">${humanizeToken(pricingAlternatives.pricing_confidence_posture || "too_early_for_directional_pricing")}</span>
+          <span class="mini-pill ${pricingAlternatives.fit_for_target_tier || ""}">${humanizeToken(pricingAlternatives.fit_for_target_tier || "unknown")}</span>
+          ${pricingAlternatives.trust_posture?.use_state ? `<span class="mini-pill ${pricingAlternatives.trust_posture.use_state === "supporting_context" ? "provisional_context" : pricingAlternatives.trust_posture.use_state}">${pricingAlternatives.trust_posture.use_state === "supporting_context" ? "Supporting context" : humanizeToken(pricingAlternatives.trust_posture.use_state)}</span>` : ``}
+        </div>
+        <div class="realization-copy">${truncateText(pricingAlternatives.cost_direction_view || "No pricing-direction comparison is available yet.", 240)}</div>
+        <div class="realization-subhead">Current suggestions</div>
+        ${renderPricingRows(
+          pricingAlternatives.current_candidate_rows || [],
+          "No honest pricing-direction row exists until package or part suggestions become real.",
+          3
+        )}
+        <div class="realization-subhead">Alternatives</div>
+        ${renderPricingRows(
+          pricingAlternatives.alternative_rows || [],
+          "No cheaper or simpler alternative is grounded enough yet to compare honestly.",
+          3
+        )}
+        ${(pricingAlternatives.why_current_choice_may_fail || []).length ? `<div class="footer"><strong>Why current choice may fail:</strong> ${truncateText(pricingAlternatives.why_current_choice_may_fail[0], 220)}</div>` : ""}
+        ${(pricingAlternatives.why_alternative_may_help || []).length ? `<div class="footer"><strong>Why an alternative may help:</strong> ${truncateText(pricingAlternatives.why_alternative_may_help[0], 220)}</div>` : ""}
+        ${pricingAlternatives.operator_warning ? `<div class="footer"><strong>Operator warning:</strong> ${truncateText(pricingAlternatives.operator_warning, 220)}</div>` : ""}
+        ${pricingSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(pricingSection.purpose, 220)}</div>` : ""}
       `;
 
       const renderingCard = document.getElementById("buildRenderingBriefCard");

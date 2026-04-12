@@ -1,7 +1,7 @@
 {
   "field": "tensions",
   "version": "eli_v2_phase1",
-  "updated_at": "2026-04-11T23:56:38",
+  "updated_at": "2026-04-12T01:19:26",
   "items": [
     {
       "id": "privacy_vs_usefulness",
@@ -15,14 +15,14 @@
       "label": "Latency vs richness",
       "summary": "The system should provide timely help without overloading the runtime with richer but slower processing.",
       "pressure": "high",
-      "score": 0.8752
+      "score": 0.8793
     },
     {
       "id": "discreet_ux_vs_visual_clarity",
       "label": "Discreet UX vs visual clarity",
       "summary": "Display behavior should remain socially acceptable while still being readable in motion and noise.",
       "pressure": "medium",
-      "score": 0.7377
+      "score": 0.7428
     }
   ]
 }

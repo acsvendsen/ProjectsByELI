@@ -22,6 +22,7 @@ from orchestrator import (
     HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH,
     OPERATOR_GUIDANCE_PATH,
     PARTS_READINESS_REVIEW_PATH,
+    PRICING_ALTERNATIVES_REVIEW_PATH,
     PROJECT_DIR,
     PROJECT_EXPECTATIONS_PATH,
     PROJECT_MILESTONES_PATH,
@@ -394,6 +395,18 @@ def load_dashboard_data():
         "operator_waiting_for": [],
         "trust_posture": {},
     })
+    pricing_alternatives_review = read_json(PRICING_ALTERNATIVES_REVIEW_PATH, {
+        "generated_at": "",
+        "pricing_confidence_posture": "too_early_for_directional_pricing",
+        "current_candidate_rows": [],
+        "alternative_rows": [],
+        "cost_direction_view": "",
+        "fit_for_target_tier": "unknown",
+        "why_current_choice_may_fail": [],
+        "why_alternative_may_help": [],
+        "operator_warning": "",
+        "trust_posture": {},
+    })
     cost_viability_review = read_json(COST_VIABILITY_REVIEW_PATH, {
         "generated_at": "",
         "cost_realism_band": "too_early_for_exact_cost",
@@ -571,6 +584,7 @@ def load_dashboard_data():
         "execution_resume": execution_resume,
         "component_package_review": component_package_review,
         "parts_readiness_review": parts_readiness_review,
+        "pricing_alternatives_review": pricing_alternatives_review,
         "cost_viability_review": cost_viability_review,
         "hardware_aware_rendering_brief_review": hardware_aware_rendering_brief_review,
         "extensions_capability_review": extensions_capability_review,
