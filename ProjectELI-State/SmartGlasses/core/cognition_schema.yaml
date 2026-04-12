@@ -251,6 +251,13 @@ control:
     max_alternative_rows: 4
     max_fail_reasons: 4
     max_help_reasons: 4
+  execution_boundaries:
+    enabled: true
+    include_in_execution_resume: true
+    max_default_stop_conditions: 4
+    max_pause_conditions: 4
+    max_stop_conditions: 3
+    max_operator_review_required_when: 4
   cost_viability_review:
     enabled: true
     include_in_execution_resume: true

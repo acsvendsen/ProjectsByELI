@@ -227,6 +227,14 @@ PARTS_CONFIDENCE_LEVELS = (
     'limited_evidence',
     'provisional',
 )
+EXECUTION_BOUNDARY_WORKING_MODES = (
+    'until_next_reviewable_milestone',
+    'until_operator_decision_needed',
+    'until_no_new_grounding',
+    'until_deadline',
+    'paused',
+    'stopped',
+)
 PRICING_CONFIDENCE_POSTURES = (
     'too_early_for_directional_pricing',
     'package_level_directional_only',
@@ -663,6 +671,7 @@ COMPONENT_PACKAGE_REVIEW_PATH = PROJECT_STATE_DIR / "component_package_review.js
 PARTS_READINESS_REVIEW_PATH = PROJECT_STATE_DIR / "parts_readiness_review.json"
 COST_VIABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "cost_viability_review.json"
 PRICING_ALTERNATIVES_REVIEW_PATH = PROJECT_STATE_DIR / "pricing_alternatives_review.json"
+EXECUTION_BOUNDARIES_PATH = PROJECT_STATE_DIR / "execution_boundaries.json"
 EXTENSIONS_CAPABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "extensions_capability_review.json"
 HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH = PROJECT_STATE_DIR / "hardware_aware_rendering_brief_review.json"
 UI_SURFACE_PLAN_PATH = PROJECT_STATE_DIR / "ui_surface_plan.json"
@@ -1018,6 +1027,14 @@ DEFAULT_COGNITION_SCHEMA = {
             'max_alternative_rows': 4,
             'max_fail_reasons': 4,
             'max_help_reasons': 4,
+        },
+        'execution_boundaries': {
+            'enabled': True,
+            'include_in_execution_resume': True,
+            'max_default_stop_conditions': 4,
+            'max_pause_conditions': 4,
+            'max_stop_conditions': 3,
+            'max_operator_review_required_when': 4,
         },
         'cost_viability_review': {
             'enabled': True,
@@ -1399,6 +1416,13 @@ control:
     max_alternative_rows: 4
     max_fail_reasons: 4
     max_help_reasons: 4
+  execution_boundaries:
+    enabled: true
+    include_in_execution_resume: true
+    max_default_stop_conditions: 4
+    max_pause_conditions: 4
+    max_stop_conditions: 3
+    max_operator_review_required_when: 4
   cost_viability_review:
     enabled: true
     include_in_execution_resume: true
@@ -7480,6 +7504,20 @@ def pricing_alternatives_review_config(schema=None):
     }
 
 
+def execution_boundaries_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('execution_boundaries', {}) if isinstance(control.get('execution_boundaries', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'include_in_execution_resume': bool(cfg.get('include_in_execution_resume', True)),
+        'max_default_stop_conditions': max(1, safe_int(cfg.get('max_default_stop_conditions', 4), 4)),
+        'max_pause_conditions': max(1, safe_int(cfg.get('max_pause_conditions', 4), 4)),
+        'max_stop_conditions': max(1, safe_int(cfg.get('max_stop_conditions', 3), 3)),
+        'max_operator_review_required_when': max(1, safe_int(cfg.get('max_operator_review_required_when', 4), 4)),
+    }
+
+
 def cost_viability_review_config(schema=None):
     schema = schema or load_cognition_schema()
     control = schema.get('control', {}) if isinstance(schema, dict) else {}
@@ -7549,6 +7587,7 @@ def default_execution_resume_state():
         'generated_at': '',
         'source_generated_at': {},
         'trust_posture': {},
+        'execution_boundaries': {},
         'project_intent': {},
         'product_realism': {},
         'component_package': {},
@@ -7580,6 +7619,8 @@ def load_execution_resume_state():
         data['unblocked_next'] = {}
     if not isinstance(data.get('trust_posture'), dict):
         data['trust_posture'] = {}
+    if not isinstance(data.get('execution_boundaries'), dict):
+        data['execution_boundaries'] = {}
     if not isinstance(data.get('project_intent'), dict):
         data['project_intent'] = {}
     if not isinstance(data.get('product_realism'), dict):
@@ -10006,6 +10047,341 @@ def render_pricing_alternatives_review_context(pricing_state=None):
     return '\n'.join(lines) + '\n'
 
 
+def default_execution_boundaries_state():
+    return {
+        'generated_at': '',
+        'working_mode': 'until_next_reviewable_milestone',
+        'target_milestone_id': '',
+        'target_milestone_title': '',
+        'deadline_posture': 'no_explicit_deadline',
+        'review_cadence': 'at_next_reviewable_milestone_or_operator_decision',
+        'default_stop_conditions': [],
+        'pause_conditions': [],
+        'stop_conditions': [],
+        'operator_review_required_when': [],
+        'staleness_stop_condition': '',
+        'no_new_grounding_stop_condition': '',
+        'cost_stop_condition': '',
+        'current_boundary_summary': '',
+        'current_reason_to_continue': '',
+        'current_reason_to_pause': '',
+        'current_reason_to_stop': '',
+        'current_reason_to_escalate': '',
+        'prototype_vs_product_boundary_note': '',
+        'trust_posture': {},
+        'source_authority': {},
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_execution_boundaries_state():
+    data = load_json_file(EXECUTION_BOUNDARIES_PATH, default_execution_boundaries_state())
+    if not isinstance(data, dict):
+        data = default_execution_boundaries_state()
+    for key in ('default_stop_conditions', 'pause_conditions', 'stop_conditions', 'operator_review_required_when'):
+        if not isinstance(data.get(key), list):
+            data[key] = []
+    for key in ('trust_posture', 'source_authority', 'source_generated_at'):
+        if not isinstance(data.get(key), dict):
+            data[key] = {}
+    for key in (
+        'working_mode',
+        'target_milestone_id',
+        'target_milestone_title',
+        'deadline_posture',
+        'review_cadence',
+        'staleness_stop_condition',
+        'no_new_grounding_stop_condition',
+        'cost_stop_condition',
+        'current_boundary_summary',
+        'current_reason_to_continue',
+        'current_reason_to_pause',
+        'current_reason_to_stop',
+        'current_reason_to_escalate',
+        'prototype_vs_product_boundary_note',
+    ):
+        if not isinstance(data.get(key), str):
+            data[key] = str(default_execution_boundaries_state().get(key, ''))
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_execution_boundaries_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_execution_boundaries_state()
+    payload['updated_at'] = now_iso()
+    EXECUTION_BOUNDARIES_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def build_execution_boundaries_state(schema=None, review_snapshot=None, milestone_state=None, cost_state=None, parts_state=None, pricing_state=None):
+    schema = schema or load_cognition_schema()
+    cfg = execution_boundaries_config(schema)
+    if not cfg.get('enabled', True):
+        return default_execution_boundaries_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    milestone_state = milestone_state if isinstance(milestone_state, dict) else build_project_milestones_state(schema=schema, review_snapshot=review_snapshot)
+    cost_state = cost_state if isinstance(cost_state, dict) else build_cost_viability_review_state(schema=schema, review_snapshot=review_snapshot)
+    parts_state = parts_state if isinstance(parts_state, dict) else build_parts_readiness_review_state(schema=schema, review_snapshot=review_snapshot)
+    pricing_state = pricing_state if isinstance(pricing_state, dict) else build_pricing_alternatives_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        parts_state=parts_state,
+        cost_state=cost_state,
+    )
+    project_expectations = load_project_expectations_state()
+    reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
+    scorecard_state = load_scorecard_state()
+    artifact_review_state = load_implementation_artifact_review_state()
+
+    exec_cfg = execution_resume_config(schema)
+    scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
+    artifact_review_use, artifact_review_reason = supporting_artifact_review_posture(artifact_review_state, reflect_state)
+    scorecard_dimensions = scorecard_state.get('dimensions', []) if scorecard_use == 'current_truth' and isinstance(scorecard_state.get('dimensions', []), list) else []
+    milestone_rows = milestone_state.get('milestones', []) if isinstance(milestone_state.get('milestones', []), list) else []
+    milestone_by_id = {
+        normalize_signal_key(row.get('milestone_id', '')): row
+        for row in milestone_rows
+        if isinstance(row, dict) and row.get('milestone_id')
+    }
+    ready_review_rows = [row for row in milestone_rows if str(row.get('approval_state', '') or '') == 'ready_for_review']
+    implementation_milestone = milestone_by_id.get('implementation_package_review', {})
+    product_realism_milestone = milestone_by_id.get('product_realism_check', {})
+
+    review_surfaces = review_snapshot.get('surfaces', {}) if isinstance(review_snapshot.get('surfaces', {}), dict) else {}
+    v1_surface = review_surfaces.get('v1_decision_review', {})
+    v1_payload = v1_surface.get('payload', {}) if isinstance(v1_surface.get('payload', {}), dict) else {}
+    pending_rows = v1_payload.get('pending_v1_decisions', []) if v1_surface.get('consumption_state') in ('current_truth', 'provisional_context') and isinstance(v1_payload.get('pending_v1_decisions', []), list) else []
+
+    blocked_rows = []
+    for row in scorecard_dimensions:
+        if normalize_scorecard_status(row.get('status', 'unknown')) not in ('needs_attention', 'blocked'):
+            continue
+        blocked_rows.append({
+            'title': row.get('label', row.get('id', 'subsystem')),
+            'reason': compact_text_excerpt(row.get('next_focus', row.get('progress_summary', '')), 200),
+        })
+
+    tentative_expectations = bool(project_expectations.get('defaults_are_tentative', True)) or not bool(project_expectations.get('reviewed_by_operator', False))
+    cost_signal = str(cost_state.get('kill_pause_reframe_signal', 'proceed_with_caution') or 'proceed_with_caution')
+    parts_band = str(parts_state.get('parts_readiness_band', 'not_ready_for_suggestions') or 'not_ready_for_suggestions')
+    pricing_fit = str(pricing_state.get('fit_for_target_tier', 'unknown') or 'unknown')
+
+    target_row = implementation_milestone if implementation_milestone else (ready_review_rows[0] if ready_review_rows else (milestone_rows[0] if milestone_rows else {}))
+    target_milestone_id = str(target_row.get('milestone_id', '') or '')
+    target_milestone_title = str(target_row.get('title', '') or '')
+
+    blocked_titles = [row.get('title', '') for row in blocked_rows[:3] if row.get('title')]
+    blocked_title_text = ', '.join(blocked_titles)
+    no_new_grounding_stop_condition = compact_text_excerpt(
+        (
+            f"Pause if another cycle does not add materially new grounding on {blocked_title_text}; repeating the same blocker posture is not a valid reason to continue."
+            if blocked_titles else
+            "Pause if another cycle does not add materially new repo/runtime grounding or a stronger implementation artifact."
+        ),
+        240,
+    )
+    if parts_band == 'package_direction_only':
+        no_new_grounding_stop_condition = compact_text_excerpt(
+            f"{no_new_grounding_stop_condition} Package-only parts posture and directional-only pricing are not enough to justify endless refinement without stronger component signals.",
+            260,
+        )
+
+    staleness_stop_condition = compact_text_excerpt(
+        (
+            f"Pause when build-facing continuation depends on stale implementation-artifact history instead of fresher current-truth state. {artifact_review_reason}"
+            if artifact_review_use != 'current_truth' else
+            "Pause when build-facing continuation is no longer backed by fresh current-truth state."
+        ),
+        240,
+    )
+
+    cost_stop_condition = compact_text_excerpt(
+        (
+            f"Stop product-shaped continuation if the `{project_expectations.get('target_product_tier', 'current target tier')}` target still matters. Cost signal is `{cost_signal}` and pricing fit is `{pricing_fit}`."
+            if cost_signal == 'stop_if_cost_target_matters' else
+            "Do not stop prototype-learning by default, but stop stronger product-path narration if cost posture remains mismatched."
+        ),
+        240,
+    )
+
+    operator_review_required_when = []
+    if target_milestone_id and str(target_row.get('approval_state', '') or '') == 'ready_for_review':
+        operator_review_required_when.append(
+            compact_text_excerpt(
+                f"{target_milestone_title or target_milestone_id.replace('_', ' ').title()} is already `ready_for_review`; more internal cycling should not be treated as a substitute for review.",
+                220,
+            )
+        )
+    if pending_rows:
+        labels = ', '.join(row.get('label', '') for row in pending_rows[:2] if row.get('label'))
+        operator_review_required_when.append(
+            compact_text_excerpt(
+                f"Pending V1 decision(s) now gate progress: {labels or 'operator review is required before the next shaping move'}.",
+                220,
+            )
+        )
+    if tentative_expectations and cost_signal in ('reframe_needed', 'stop_if_cost_target_matters'):
+        operator_review_required_when.append(
+            compact_text_excerpt(
+                'Operator intent tightening is now required before stronger product-shaped continuation is honest under the current cost posture.',
+                220,
+            )
+        )
+    operator_review_required_when = operator_review_required_when[:cfg.get('max_operator_review_required_when', 4)]
+
+    pause_conditions = [
+        no_new_grounding_stop_condition,
+        staleness_stop_condition,
+        compact_text_excerpt(
+            'Pause when parts readiness stays package-only and pricing stays directional-only without any stronger component signal or subsystem grounding shift.',
+            220,
+        ),
+    ]
+    if operator_review_required_when:
+        pause_conditions.append(
+            compact_text_excerpt(
+                'Pause autonomous continuation when operator review or milestone review is the actual bottleneck rather than new grounding.',
+                220,
+            )
+        )
+    pause_conditions = list(dict.fromkeys(item for item in pause_conditions if item))[:cfg.get('max_pause_conditions', 4)]
+
+    stop_conditions = [cost_stop_condition]
+    if pricing_fit == 'no_candidate_currently_credible_for_target_tier':
+        stop_conditions.append(
+            compact_text_excerpt(
+                'Stop product-tier narration while no current or cheaper/simpler package direction is credible for the declared target tier.',
+                220,
+            )
+        )
+    stop_conditions = list(dict.fromkeys(item for item in stop_conditions if item))[:cfg.get('max_stop_conditions', 3)]
+
+    default_stop_conditions = list(dict.fromkeys(
+        [no_new_grounding_stop_condition, staleness_stop_condition, cost_stop_condition]
+        + operator_review_required_when[:1]
+    ))[:cfg.get('max_default_stop_conditions', 4)]
+
+    if operator_review_required_when:
+        working_mode = 'until_operator_decision_needed'
+    elif target_milestone_id:
+        working_mode = 'until_next_reviewable_milestone'
+    elif blocked_rows:
+        working_mode = 'until_no_new_grounding'
+    else:
+        working_mode = 'paused'
+
+    current_reason_to_continue = compact_text_excerpt(
+        (
+            f"Continue only prototype-learning work that can materially reduce blockers toward {target_milestone_title or 'the next milestone'} by adding new grounding on {blocked_title_text}."
+            if blocked_titles and target_milestone_title else
+            f"Continue only until {target_milestone_title or 'the next review boundary'} becomes the bottleneck; do not keep cycling after that as if open-ended refinement were justified."
+            if target_milestone_title else
+            'Continue only when a next cycle is expected to add materially new grounding rather than repeating the current story.'
+        ),
+        240,
+    )
+    current_reason_to_pause = pause_conditions[0] if pause_conditions else ''
+    current_reason_to_stop = cost_stop_condition if cost_signal in ('reframe_needed', 'stop_if_cost_target_matters') else ''
+    current_reason_to_escalate = compact_text_excerpt(
+        (
+            f"Escalate now because {target_milestone_title or 'the current milestone'} is review-gated and operator review is the current bottleneck. {' '.join(operator_review_required_when[:2])}"
+            if operator_review_required_when else
+            ''
+        ),
+        240,
+    )
+
+    prototype_vs_product_boundary_note = compact_text_excerpt(
+        'Continue prototype-learning only when new grounding is appearing. Do not let implementation-package work, parts posture, or pricing comparisons silently become product-path narration while cost posture still caps that story.',
+        240,
+    )
+
+    current_boundary_summary = compact_text_excerpt(
+        (
+            f"Work only until the next operator-review boundary around {target_milestone_title or 'the current milestone'}. Pause when no new grounding appears. Stop product-shaped continuation if the current cost target still matters."
+            if working_mode == 'until_operator_decision_needed' else
+            f"Work only until {target_milestone_title or 'the next reviewable milestone'} is reached, then escalate for review instead of refining indefinitely."
+            if working_mode == 'until_next_reviewable_milestone' else
+            'Work only while new grounding is still appearing. If the next cycle only restates the same blockers, pause instead of narrating progress.'
+            if working_mode == 'until_no_new_grounding' else
+            'Execution is currently paused because the next honest move depends more on review or new grounding than on another internal cycle.'
+        ),
+        260,
+    )
+
+    return {
+        'generated_at': now_iso(),
+        'working_mode': working_mode,
+        'target_milestone_id': target_milestone_id,
+        'target_milestone_title': target_milestone_title,
+        'deadline_posture': 'no_explicit_deadline_review_bounded',
+        'review_cadence': 'at_next_reviewable_milestone_or_operator_decision',
+        'default_stop_conditions': default_stop_conditions,
+        'pause_conditions': pause_conditions,
+        'stop_conditions': stop_conditions,
+        'operator_review_required_when': operator_review_required_when,
+        'staleness_stop_condition': staleness_stop_condition,
+        'no_new_grounding_stop_condition': no_new_grounding_stop_condition,
+        'cost_stop_condition': cost_stop_condition,
+        'current_boundary_summary': current_boundary_summary,
+        'current_reason_to_continue': current_reason_to_continue,
+        'current_reason_to_pause': current_reason_to_pause,
+        'current_reason_to_stop': current_reason_to_stop,
+        'current_reason_to_escalate': current_reason_to_escalate,
+        'prototype_vs_product_boundary_note': prototype_vs_product_boundary_note,
+        'trust_posture': {
+            'surface_role': 'current_truth_operational_control_surface',
+            'use_state': 'current_truth',
+            'authority_scope': 'execution continuation pause stop and escalation posture',
+            'trust_reason': 'This surface is derived from current milestone, cost, parts, pricing, and review truth to stop ELI from treating open-ended refinement as the default.',
+        },
+        'source_authority': {
+            'milestone_truth': 'project_milestones',
+            'cost_truth': 'cost_viability_review',
+            'parts_truth': 'parts_readiness_review',
+            'pricing_truth': 'pricing_alternatives_review',
+            'review_truth': 'v1_decision_review',
+            'subsystem_truth': 'project_scorecard',
+        },
+        'source_generated_at': {
+            'project_milestones': state_surface_generated_at(milestone_state),
+            'cost_viability_review': state_surface_generated_at(cost_state),
+            'parts_readiness_review': state_surface_generated_at(parts_state),
+            'pricing_alternatives_review': state_surface_generated_at(pricing_state),
+            'v1_decision_review': state_surface_generated_at(v1_payload),
+            'project_scorecard': state_surface_generated_at(scorecard_state),
+            'implementation_artifact_review': state_surface_generated_at(artifact_review_state),
+        },
+        'revisable': True,
+    }
+
+
+def render_execution_boundaries_context(boundary_state=None):
+    boundary_state = boundary_state if isinstance(boundary_state, dict) else load_execution_boundaries_state()
+    lines = ['# Execution Boundaries']
+    lines.append(f"- working_mode: `{boundary_state.get('working_mode', 'until_next_reviewable_milestone')}`")
+    if boundary_state.get('target_milestone_title'):
+        lines.append(
+            f"- target_milestone: {boundary_state.get('target_milestone_title', '')} "
+            f"(`{boundary_state.get('target_milestone_id', '')}`)"
+        )
+    lines.append(f"- deadline_posture: `{boundary_state.get('deadline_posture', 'no_explicit_deadline')}`")
+    if boundary_state.get('current_boundary_summary'):
+        lines.append(f"- current_boundary_summary: {boundary_state.get('current_boundary_summary', '')}")
+    if boundary_state.get('current_reason_to_continue'):
+        lines.append(f"- continue: {boundary_state.get('current_reason_to_continue', '')}")
+    if boundary_state.get('current_reason_to_pause'):
+        lines.append(f"- pause: {boundary_state.get('current_reason_to_pause', '')}")
+    if boundary_state.get('current_reason_to_stop'):
+        lines.append(f"- stop: {boundary_state.get('current_reason_to_stop', '')}")
+    if boundary_state.get('current_reason_to_escalate'):
+        lines.append(f"- escalate: {boundary_state.get('current_reason_to_escalate', '')}")
+    return '\n'.join(lines) + '\n'
+
+
 def default_extensions_capability_review_state():
     return {
         'generated_at': '',
@@ -10905,7 +11281,7 @@ def ui_page_priority_rank(priority):
     return order.get(str(priority or '').strip(), 4)
 
 
-def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None):
+def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None, boundary_state=None):
     schema = schema or load_cognition_schema()
     cfg = ui_surface_plan_config(schema)
     if not cfg.get('enabled', True):
@@ -10940,6 +11316,14 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         parts_state=parts_state,
         component_state=component_state,
         cost_state=cost_state,
+    )
+    boundary_state = boundary_state if isinstance(boundary_state, dict) else build_execution_boundaries_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        milestone_state=milestone_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
     )
     extensions_state = build_extensions_capability_review_state(
         schema=schema,
@@ -11123,7 +11507,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         'status': 'active',
         'priority': 'primary',
         'why_this_page_exists': 'Every project needs one compact surface for current truth, blockers, realism posture, and what should not be over-read.',
-        'driven_by_sources': ['execution_resume', 'product_realism_review', 'project_expectations', 'cost_viability_review', 'verification_summary'],
+        'driven_by_sources': ['execution_resume', 'execution_boundaries', 'product_realism_review', 'project_expectations', 'cost_viability_review', 'verification_summary'],
         'sections': [
             make_section(
                 'current_truth_summary',
@@ -11150,6 +11534,14 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
                 'Hide only if there is no meaningful current-vs-supporting distinction to explain.',
             ),
             make_section(
+                'execution_boundaries',
+                'Execution Boundaries',
+                'Show the current working mode, target milestone, and the explicit continue, pause, stop, and escalation boundaries so ELI does not read open-ended refinement as the default.',
+                ['execution_boundaries', 'execution_resume', 'project_milestones', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+                'No explicit deadline exists and milestone, cost, or grounding posture is strong enough that execution must be bounded operationally.',
+                'Hide only if the project truly has no meaningful execution boundary to explain.',
+            ),
+            make_section(
                 'cost_viability',
                 'Cost Viability',
                 'Show whether the project still makes economic sense beyond a prototype path, including any pause, stop, or reframe signal.',
@@ -11163,9 +11555,11 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         'representation_risks': [
             'Do not flatten current truth and supporting context into one neat progress story.',
             'Do not let prototype progress visually imply that the economics are becoming sensible by default.',
+            'Do not confuse cognition modes with execution pause or stop semantics; the execution boundary surface is the control layer.',
         ],
         'operator_actions_supported': [
             'inspect current truth',
+            'see what makes ELI continue, pause, stop, or escalate',
             'see what is blocked',
             'understand what is actually next',
         ],
@@ -11521,6 +11915,9 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         push_goal('Compare current package direction against cheaper or simpler alternatives without pretending the project has settled parts or exact cost.')
     if cost_signal in ('reframe_needed', 'stop_if_cost_target_matters'):
         push_risk('Technically interesting prototype progress must not hide the possibility that the project is already economically weak for its implied target tier.')
+    if boundary_state.get('current_boundary_summary'):
+        push_risk('Execution boundaries must stay separate from cognition modes so pause or stop posture is not hidden behind continuous internal cycling.')
+        push_goal('See explicitly when ELI should continue, pause, stop product-shaped continuation, or escalate instead of assuming another cycle is useful.')
     if rendering_briefs:
         push_risk('Hardware-aware rendering briefs are exploratory supporting context only; they must not be read as current-truth design acceptance.')
         push_goal('Use hardware-aware rendering briefs for bounded packaging and comparison review without over-reading them as final design.')
@@ -11593,6 +11990,13 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         parts_state.get('trust_posture', {}).get('use_state', 'current_truth') if isinstance(parts_state.get('trust_posture', {}), dict) else 'current_truth',
         parts_state.get('why_not_stronger_yet', ''),
         state_surface_generated_at(parts_state),
+    )
+    push_source(
+        'execution_boundaries',
+        'execution_control',
+        boundary_state.get('trust_posture', {}).get('use_state', 'current_truth') if isinstance(boundary_state.get('trust_posture', {}), dict) else 'current_truth',
+        boundary_state.get('current_boundary_summary', ''),
+        state_surface_generated_at(boundary_state),
     )
     push_source(
         'pricing_alternatives_review',
@@ -11709,6 +12113,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'cost_viability_review': state_surface_generated_at(cost_state),
             'component_package_review': state_surface_generated_at(component_state),
             'parts_readiness_review': state_surface_generated_at(parts_state),
+            'execution_boundaries': state_surface_generated_at(boundary_state),
             'pricing_alternatives_review': state_surface_generated_at(pricing_state),
             'extensions_capability_review': state_surface_generated_at(extensions_state),
             'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
@@ -11844,7 +12249,7 @@ def build_verification_transition_rows(v1_review_state, artifact_review_state, l
     return rows[:max(1, limit)]
 
 
-def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None):
+def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None, boundary_state=None):
     schema = schema or load_cognition_schema()
     review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
     resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
@@ -11857,6 +12262,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
     draft_state = load_draft_artifact_review_state()
     rendering_state = rendering_state if isinstance(rendering_state, dict) else load_hardware_aware_rendering_brief_review_state()
     cost_state = cost_state if isinstance(cost_state, dict) else build_cost_viability_review_state(schema=schema, review_snapshot=review_snapshot)
+    boundary_state = boundary_state if isinstance(boundary_state, dict) else build_execution_boundaries_state(schema=schema, review_snapshot=review_snapshot)
 
     exec_cfg = execution_resume_config(schema)
     scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
@@ -12004,6 +12410,18 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             cost_state.get('kill_pause_reframe_signal', ''),
         ],
     ))
+    current_truth_sources.append(build_verification_source_entry(
+        'Execution continuation, pause, stop, and escalation posture',
+        'execution_boundaries',
+        boundary_state.get('trust_posture', {}).get('use_state', 'current_truth'),
+        boundary_state.get('trust_posture', {}).get('trust_reason', boundary_state.get('current_boundary_summary', '')),
+        state_surface_generated_at(boundary_state),
+        supporting_surfaces=['project_milestones', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+        sample_titles=[
+            boundary_state.get('working_mode', ''),
+            boundary_state.get('target_milestone_title', ''),
+        ],
+    ))
 
     for surface_name, surface in review_surfaces.items():
         if not isinstance(surface, dict):
@@ -12071,6 +12489,15 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             220,
         ),
     })
+    recent_source_wins.append({
+        'question': 'Execution continue/pause/stop boundary',
+        'winning_surface': 'execution_boundaries',
+        'supporting_surfaces': ['project_milestones', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+        'why': compact_text_excerpt(
+            'This surface owns the current bounded answer to whether ELI should keep working, pause, stop product-shaped continuation, or escalate for operator review.',
+            220,
+        ),
+    })
 
     representation_risks.append('Confidence trend is supporting context only; read the current status and grounding endpoints before inferring improvement from repeated markers.')
     representation_risks.append('A flat evolution strip can mean stable, stalled, or simply repeating. Verify with the endpoint labels and held or blocked reasons.')
@@ -12080,6 +12507,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         representation_risks.append('Hardware-aware rendering briefs are exploratory visual framing only; do not treat them as accepted design direction or settled implementation truth.')
     if cost_warning:
         representation_risks.append('Prototype-feasible and product-viable are not the same thing; read the cost posture before treating build progress as commercial sense.')
+    representation_risks.append('Do not confuse cognition modes like dream or sleep with execution pause or stop boundaries; execution control is a separate steering layer.')
 
     operator_checks.append('Use current truth sources to verify which surface currently owns each question before trusting the UI impression.')
     operator_checks.append('Use recent transitions to check what actually changed, rather than reading repeated markers as progress by themselves.')
@@ -12091,6 +12519,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         operator_checks.append('For rendering briefs, verify the current-truth subsystem and build-posture sources before reading a visual comparison as settled design intent.')
     if cost_warning:
         operator_checks.append('For product ambition, verify the cost viability signal before assuming a technically interesting prototype makes business sense.')
+    operator_checks.append('Before assuming another cycle is justified, verify the execution boundary surface for continue, pause, stop, and operator-review conditions.')
 
     lane_explanations = {
         'active': [{
@@ -12131,19 +12560,20 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             'draft_artifact_review': state_surface_generated_at(draft_state),
             'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
             'cost_viability_review': state_surface_generated_at(cost_state),
+            'execution_boundaries': state_surface_generated_at(boundary_state),
         },
         'summary': summary,
         'subsystem_card_source': subsystem_card_source,
-        'current_truth_sources': current_truth_sources[:6],
+        'current_truth_sources': current_truth_sources[:7],
         'supporting_context_sources': supporting_context_sources[:5],
         'recent_transitions': recent_transitions,
         'lane_explanations': lane_explanations,
         'recent_source_wins': recent_source_wins[:5],
         'surfaces_with_caution': surfaces_with_caution[:5],
         'representation_risks': list(dict.fromkeys(item for item in representation_risks if item))[:4],
-        'operator_checks': list(dict.fromkeys(item for item in operator_checks if item))[:4],
+        'operator_checks': list(dict.fromkeys(item for item in operator_checks if item))[:5],
         'counts': {
-            'current_truth_sources': len(current_truth_sources[:6]),
+            'current_truth_sources': len(current_truth_sources[:7]),
             'supporting_context_sources': len(supporting_context_sources[:5]),
             'recent_transitions': len(recent_transitions),
             'surfaces_with_caution': len(surfaces_with_caution[:5]),
@@ -12177,7 +12607,7 @@ def supporting_artifact_review_posture(artifact_review_state, reflect_state):
     return 'provisional_context', 'Implementation artifact review is usable as supporting context, but it is not an authoritative current-truth surface.'
 
 
-def build_execution_resume_state(schema=None, review_snapshot=None):
+def build_execution_resume_state(schema=None, review_snapshot=None, boundary_state=None):
     schema = schema or load_cognition_schema()
     cfg = execution_resume_config(schema)
     if not cfg.get('enabled', True):
@@ -12189,12 +12619,30 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
     project_expectations = load_project_expectations_state()
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
     component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
+    parts_readiness_state = build_parts_readiness_review_state(schema=schema, review_snapshot=review_snapshot, component_state=component_package_state)
     cost_viability_state = build_cost_viability_review_state(
         schema=schema,
         review_snapshot=review_snapshot,
         product_realism_state=product_realism_state,
         component_package_state=component_package_state,
     )
+    pricing_alternatives_state = build_pricing_alternatives_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        parts_state=parts_readiness_state,
+        component_state=component_package_state,
+        cost_state=cost_viability_state,
+    )
+    boundary_state = boundary_state if isinstance(boundary_state, dict) else load_execution_boundaries_state()
+    if not boundary_state.get('generated_at'):
+        boundary_state = build_execution_boundaries_state(
+            schema=schema,
+            review_snapshot=review_snapshot,
+            milestone_state=load_project_milestones_state(),
+            cost_state=cost_viability_state,
+            parts_state=parts_readiness_state,
+            pricing_state=pricing_alternatives_state,
+        )
     reflect_payload = reflect_state.get('reflect', {}) if isinstance(reflect_state.get('reflect', {}), dict) else {}
     evidence = reflect_state.get('evidence_analysis', {}) if isinstance(reflect_state.get('evidence_analysis', {}), dict) else {}
     operational_visibility = evidence.get('operational_visibility', {}) if isinstance(evidence.get('operational_visibility', {}), dict) else {}
@@ -12250,6 +12698,8 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
                     220,
                 )
             )
+    if boundary_state.get('current_boundary_summary'):
+        current_truth_summary.append(compact_text_excerpt(boundary_state.get('current_boundary_summary', ''), 220))
 
     if pending_rows:
         labels = ', '.join(row.get('label', '') for row in pending_rows[:3] if row.get('label'))
@@ -12460,6 +12910,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
             'implementation_artifact_review': state_surface_generated_at(artifact_review_state),
             'component_package_review': state_surface_generated_at(component_package_state),
             'cost_viability_review': state_surface_generated_at(cost_viability_state),
+            'execution_boundaries': state_surface_generated_at(boundary_state),
             'v1_decision_review': state_surface_generated_at(v1_payload),
             'artifact_emission_readiness': state_surface_generated_at(emission_payload),
             'draft_artifact_review': state_surface_generated_at(draft_payload),
@@ -12487,6 +12938,17 @@ def build_execution_resume_state(schema=None, review_snapshot=None):
             'reviewed_by_operator': bool(project_expectations.get('reviewed_by_operator', False)),
             'defaults_are_tentative': bool(project_expectations.get('defaults_are_tentative', True)),
         },
+        'execution_boundaries': {
+            'working_mode': boundary_state.get('working_mode', 'until_next_reviewable_milestone'),
+            'target_milestone_id': boundary_state.get('target_milestone_id', ''),
+            'target_milestone_title': boundary_state.get('target_milestone_title', ''),
+            'current_boundary_summary': boundary_state.get('current_boundary_summary', ''),
+            'current_reason_to_continue': boundary_state.get('current_reason_to_continue', ''),
+            'current_reason_to_pause': boundary_state.get('current_reason_to_pause', ''),
+            'current_reason_to_stop': boundary_state.get('current_reason_to_stop', ''),
+            'current_reason_to_escalate': boundary_state.get('current_reason_to_escalate', ''),
+            'prototype_vs_product_boundary_note': boundary_state.get('prototype_vs_product_boundary_note', ''),
+        } if execution_boundaries_config(schema).get('include_in_execution_resume', True) else {},
         'product_realism': {
             'current_realism_band': product_realism_state.get('current_realism_band', 'concept_only'),
             'summary': product_realism_state.get('why_this_band', ''),
@@ -12530,6 +12992,7 @@ def render_execution_resume_section(resume_state=None, include_header=True):
     lines = ['## Execution Resume'] if include_header else []
     trust = resume_state.get('trust_posture', {}) if isinstance(resume_state.get('trust_posture', {}), dict) else {}
     project_intent = resume_state.get('project_intent', {}) if isinstance(resume_state.get('project_intent', {}), dict) else {}
+    execution_boundaries = resume_state.get('execution_boundaries', {}) if isinstance(resume_state.get('execution_boundaries', {}), dict) else {}
     product_realism = resume_state.get('product_realism', {}) if isinstance(resume_state.get('product_realism', {}), dict) else {}
     component_package = resume_state.get('component_package', {}) if isinstance(resume_state.get('component_package', {}), dict) else {}
     cost_viability = resume_state.get('cost_viability', {}) if isinstance(resume_state.get('cost_viability', {}), dict) else {}
@@ -12544,6 +13007,20 @@ def render_execution_resume_section(resume_state=None, include_header=True):
             f"seriousness `{project_intent.get('intended_seriousness', 'exploratory')}` | "
             f"tier `{project_intent.get('target_product_tier', 'unknown')}` | "
             f"{'operator-reviewed' if project_intent.get('reviewed_by_operator') else 'default-tentative'}"
+        )
+    if execution_boundaries:
+        lines.append(
+            f"- execution_boundary: mode `{execution_boundaries.get('working_mode', 'until_next_reviewable_milestone')}`"
+            + (
+                f" | target `{execution_boundaries.get('target_milestone_title', '')}`"
+                if execution_boundaries.get('target_milestone_title')
+                else ''
+            )
+            + (
+                f" | {execution_boundaries.get('current_boundary_summary', '')}"
+                if execution_boundaries.get('current_boundary_summary')
+                else ''
+            )
         )
     if product_realism:
         lines.append(
@@ -12814,13 +13291,23 @@ def refresh_review_state_sync_metadata(schema=None):
         cost_state=cost_state,
     )
     save_pricing_alternatives_review_state(pricing_state)
-    resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
+    boundary_state = build_execution_boundaries_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        milestone_state=milestone_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+    )
+    save_execution_boundaries_state(boundary_state)
+    resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot, boundary_state=boundary_state)
     save_execution_resume_state(resume_state)
     verification_state = build_verification_summary_state(
         schema=schema,
         review_snapshot=review_snapshot,
         resume_state=resume_state,
         cost_state=cost_state,
+        boundary_state=boundary_state,
     )
     save_verification_summary_state(verification_state)
     extensions_state = build_extensions_capability_review_state(
@@ -12845,6 +13332,7 @@ def refresh_review_state_sync_metadata(schema=None):
         resume_state=resume_state,
         rendering_state=rendering_state,
         cost_state=cost_state,
+        boundary_state=boundary_state,
     )
     save_verification_summary_state(verification_state)
     save_ui_surface_plan_state(build_ui_surface_plan_state(
@@ -12856,6 +13344,7 @@ def refresh_review_state_sync_metadata(schema=None):
         cost_state=cost_state,
         parts_state=parts_state,
         pricing_state=pricing_state,
+        boundary_state=boundary_state,
     ))
     return summary
 
@@ -15216,13 +15705,23 @@ def generate_scorecard_cycle(changes, prior_reports):
         cost_state=cost_state,
     )
     save_pricing_alternatives_review_state(pricing_state)
-    resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
+    boundary_state = build_execution_boundaries_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        milestone_state=milestone_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+    )
+    save_execution_boundaries_state(boundary_state)
+    resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot, boundary_state=boundary_state)
     save_execution_resume_state(resume_state)
     verification_state = build_verification_summary_state(
         schema=schema,
         review_snapshot=review_snapshot,
         resume_state=resume_state,
         cost_state=cost_state,
+        boundary_state=boundary_state,
     )
     save_verification_summary_state(verification_state)
     extensions_state = build_extensions_capability_review_state(
@@ -15247,6 +15746,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         resume_state=resume_state,
         rendering_state=rendering_state,
         cost_state=cost_state,
+        boundary_state=boundary_state,
     )
     save_verification_summary_state(verification_state)
     save_ui_surface_plan_state(build_ui_surface_plan_state(
@@ -15258,6 +15758,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         cost_state=cost_state,
         parts_state=parts_state,
         pricing_state=pricing_state,
+        boundary_state=boundary_state,
     ))
     return render_scorecard_markdown(scorecard), effort_selection
 
@@ -16729,6 +17230,13 @@ def context_with_inputs(changes):
         component_state=component_package_state,
         cost_state=cost_viability_state,
     )
+    execution_boundaries_state = build_execution_boundaries_state(
+        schema=schema,
+        review_snapshot=review_state_consumption,
+        cost_state=cost_viability_state,
+        parts_state=parts_readiness_state,
+        pricing_state=pricing_alternatives_state,
+    )
     rendering_brief_state = build_hardware_aware_rendering_brief_review_state(
         schema=schema,
         review_snapshot=review_state_consumption,
@@ -16743,6 +17251,7 @@ def context_with_inputs(changes):
         cost_state=cost_viability_state,
         parts_state=parts_readiness_state,
         pricing_state=pricing_alternatives_state,
+        boundary_state=execution_boundaries_state,
         rendering_state=rendering_brief_state,
     )
     pieces = ['# Core Field\n', core_text(), '\n']
@@ -16786,6 +17295,8 @@ def context_with_inputs(changes):
     pieces.append(render_parts_readiness_review_context(parts_readiness_state))
     pieces.append('\n')
     pieces.append(render_pricing_alternatives_review_context(pricing_alternatives_state))
+    pieces.append('\n')
+    pieces.append(render_execution_boundaries_context(execution_boundaries_state))
     pieces.append('\n')
     pieces.append(render_review_state_consumption_context(review_state_consumption))
     pieces.append('\n')

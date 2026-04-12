@@ -1,17 +1,17 @@
 {
   "aliases": {
     "daily_snapshot": {
-      "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090038_daily_snapshot.md",
-      "source_name": "20260412_090038_daily_snapshot.md",
-      "stamp": "20260412_090038",
-      "written_at": "2026-04-12T09:00:38",
+      "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092823_daily_snapshot.md",
+      "source_name": "20260412_092823_daily_snapshot.md",
+      "stamp": "20260412_092823",
+      "written_at": "2026-04-12T09:28:23",
       "report_name": "daily_snapshot"
     },
     "dream": {
-      "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_085859_dream.md",
-      "source_name": "20260412_085859_dream.md",
-      "stamp": "20260412_085859",
-      "written_at": "2026-04-12T08:58:59",
+      "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092944_dream.md",
+      "source_name": "20260412_092944_dream.md",
+      "stamp": "20260412_092944",
+      "written_at": "2026-04-12T09:29:44",
       "report_name": "dream"
     },
     "dream_error": {
@@ -22,10 +22,10 @@
       "report_name": "dream_error"
     },
     "reality": {
-      "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_085918_reality.md",
-      "source_name": "20260412_085918_reality.md",
-      "stamp": "20260412_085918",
-      "written_at": "2026-04-12T08:59:18",
+      "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092959_reality.md",
+      "source_name": "20260412_092959_reality.md",
+      "stamp": "20260412_092959",
+      "written_at": "2026-04-12T09:29:59",
       "report_name": "reality"
     },
     "reality_error": {
@@ -59,10 +59,10 @@
       "report_name": "reflect_error"
     },
     "scorecard": {
-      "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090038_scorecard.md",
-      "source_name": "20260412_090038_scorecard.md",
-      "stamp": "20260412_090038",
-      "written_at": "2026-04-12T09:00:38",
+      "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092823_scorecard.md",
+      "source_name": "20260412_092823_scorecard.md",
+      "stamp": "20260412_092823",
+      "written_at": "2026-04-12T09:28:23",
       "report_name": "scorecard",
       "scorecard_quality": {
         "quality_score": 21,
@@ -79,10 +79,10 @@
       "report_name": "scorecard_error"
     },
     "sleep": {
-      "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_085757_sleep.md",
-      "source_name": "20260412_085757_sleep.md",
-      "stamp": "20260412_085757",
-      "written_at": "2026-04-12T08:57:57",
+      "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092845_sleep.md",
+      "source_name": "20260412_092845_sleep.md",
+      "stamp": "20260412_092845",
+      "written_at": "2026-04-12T09:28:45",
       "report_name": "sleep"
     },
     "sleep_error": {
@@ -94,1604 +94,6 @@
     }
   },
   "entries": [
-    {
-      "timestamp": "2026-04-12T08:08:47",
-      "report_name": "sleep",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_080847_sleep.md",
-        "source_name": "20260412_080847_sleep.md",
-        "stamp": "20260412_080847",
-        "written_at": "2026-04-12T08:08:47",
-        "report_name": "sleep"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_080628_sleep.md",
-        "source_name": "20260412_080628_sleep.md",
-        "stamp": "20260412_080628",
-        "written_at": "2026-04-12T08:06:28",
-        "report_name": "sleep"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:09:35",
-      "report_name": "dream",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_080935_dream.md",
-        "source_name": "20260412_080935_dream.md",
-        "stamp": "20260412_080935",
-        "written_at": "2026-04-12T08:09:35",
-        "report_name": "dream"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_080717_dream.md",
-        "source_name": "20260412_080717_dream.md",
-        "stamp": "20260412_080717",
-        "written_at": "2026-04-12T08:07:17",
-        "report_name": "dream"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:09:49",
-      "report_name": "reality",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_080949_reality.md",
-        "source_name": "20260412_080949_reality.md",
-        "stamp": "20260412_080949",
-        "written_at": "2026-04-12T08:09:49",
-        "report_name": "reality"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_080730_reality.md",
-        "source_name": "20260412_080730_reality.md",
-        "stamp": "20260412_080730",
-        "written_at": "2026-04-12T08:07:30",
-        "report_name": "reality"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:10:30",
-      "report_name": "reflect",
-      "action": "kept_existing",
-      "reason": "preserved_stronger_reflect",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081030_reflect.md",
-        "source_name": "20260412_081030_reflect.md",
-        "stamp": "20260412_081030",
-        "written_at": "2026-04-12T08:10:30",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "needs_attention",
-        "reflect_quality": {
-          "quality_score": 12,
-          "diagnostic_status": "needs_attention",
-          "diagnostic_rank": 0,
-          "core_section_count": 5,
-          "operational_section_count": 2,
-          "diagnostics_visible": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
-        "source_name": "20260409_074602_reflect.md",
-        "stamp": "20260409_074602",
-        "written_at": "2026-04-09T07:54:09",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "valid",
-        "reflect_quality": {
-          "quality_score": 58,
-          "diagnostic_status": "valid",
-          "diagnostic_rank": 3,
-          "core_section_count": 5,
-          "operational_section_count": 3,
-          "diagnostics_visible": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:10:57",
-      "report_name": "scorecard",
-      "action": "updated",
-      "reason": "newer_equal_grounding",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081057_scorecard.md",
-        "source_name": "20260412_081057_scorecard.md",
-        "stamp": "20260412_081057",
-        "written_at": "2026-04-12T08:10:57",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_080831_scorecard.md",
-        "source_name": "20260412_080831_scorecard.md",
-        "stamp": "20260412_080831",
-        "written_at": "2026-04-12T08:08:31",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:10:57",
-      "report_name": "daily_snapshot",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081057_daily_snapshot.md",
-        "source_name": "20260412_081057_daily_snapshot.md",
-        "stamp": "20260412_081057",
-        "written_at": "2026-04-12T08:10:57",
-        "report_name": "daily_snapshot"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_080831_daily_snapshot.md",
-        "source_name": "20260412_080831_daily_snapshot.md",
-        "stamp": "20260412_080831",
-        "written_at": "2026-04-12T08:08:31",
-        "report_name": "daily_snapshot"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:11:15",
-      "report_name": "sleep",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081115_sleep.md",
-        "source_name": "20260412_081115_sleep.md",
-        "stamp": "20260412_081115",
-        "written_at": "2026-04-12T08:11:15",
-        "report_name": "sleep"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_080847_sleep.md",
-        "source_name": "20260412_080847_sleep.md",
-        "stamp": "20260412_080847",
-        "written_at": "2026-04-12T08:08:47",
-        "report_name": "sleep"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:12:03",
-      "report_name": "dream",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081203_dream.md",
-        "source_name": "20260412_081203_dream.md",
-        "stamp": "20260412_081203",
-        "written_at": "2026-04-12T08:12:03",
-        "report_name": "dream"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_080935_dream.md",
-        "source_name": "20260412_080935_dream.md",
-        "stamp": "20260412_080935",
-        "written_at": "2026-04-12T08:09:35",
-        "report_name": "dream"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:12:16",
-      "report_name": "reality",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081216_reality.md",
-        "source_name": "20260412_081216_reality.md",
-        "stamp": "20260412_081216",
-        "written_at": "2026-04-12T08:12:16",
-        "report_name": "reality"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_080949_reality.md",
-        "source_name": "20260412_080949_reality.md",
-        "stamp": "20260412_080949",
-        "written_at": "2026-04-12T08:09:49",
-        "report_name": "reality"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:13:02",
-      "report_name": "reflect",
-      "action": "kept_existing",
-      "reason": "preserved_stronger_reflect",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081302_reflect.md",
-        "source_name": "20260412_081302_reflect.md",
-        "stamp": "20260412_081302",
-        "written_at": "2026-04-12T08:13:02",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "needs_attention",
-        "reflect_quality": {
-          "quality_score": 12,
-          "diagnostic_status": "needs_attention",
-          "diagnostic_rank": 0,
-          "core_section_count": 5,
-          "operational_section_count": 2,
-          "diagnostics_visible": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
-        "source_name": "20260409_074602_reflect.md",
-        "stamp": "20260409_074602",
-        "written_at": "2026-04-09T07:54:09",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "valid",
-        "reflect_quality": {
-          "quality_score": 58,
-          "diagnostic_status": "valid",
-          "diagnostic_rank": 3,
-          "core_section_count": 5,
-          "operational_section_count": 3,
-          "diagnostics_visible": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:13:29",
-      "report_name": "scorecard",
-      "action": "updated",
-      "reason": "newer_equal_grounding",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081329_scorecard.md",
-        "source_name": "20260412_081329_scorecard.md",
-        "stamp": "20260412_081329",
-        "written_at": "2026-04-12T08:13:29",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081057_scorecard.md",
-        "source_name": "20260412_081057_scorecard.md",
-        "stamp": "20260412_081057",
-        "written_at": "2026-04-12T08:10:57",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:13:29",
-      "report_name": "daily_snapshot",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081329_daily_snapshot.md",
-        "source_name": "20260412_081329_daily_snapshot.md",
-        "stamp": "20260412_081329",
-        "written_at": "2026-04-12T08:13:29",
-        "report_name": "daily_snapshot"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081057_daily_snapshot.md",
-        "source_name": "20260412_081057_daily_snapshot.md",
-        "stamp": "20260412_081057",
-        "written_at": "2026-04-12T08:10:57",
-        "report_name": "daily_snapshot"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:13:45",
-      "report_name": "sleep",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081345_sleep.md",
-        "source_name": "20260412_081345_sleep.md",
-        "stamp": "20260412_081345",
-        "written_at": "2026-04-12T08:13:45",
-        "report_name": "sleep"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081115_sleep.md",
-        "source_name": "20260412_081115_sleep.md",
-        "stamp": "20260412_081115",
-        "written_at": "2026-04-12T08:11:15",
-        "report_name": "sleep"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:14:32",
-      "report_name": "dream",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081432_dream.md",
-        "source_name": "20260412_081432_dream.md",
-        "stamp": "20260412_081432",
-        "written_at": "2026-04-12T08:14:32",
-        "report_name": "dream"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081203_dream.md",
-        "source_name": "20260412_081203_dream.md",
-        "stamp": "20260412_081203",
-        "written_at": "2026-04-12T08:12:03",
-        "report_name": "dream"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:14:43",
-      "report_name": "reality",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081443_reality.md",
-        "source_name": "20260412_081443_reality.md",
-        "stamp": "20260412_081443",
-        "written_at": "2026-04-12T08:14:43",
-        "report_name": "reality"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081216_reality.md",
-        "source_name": "20260412_081216_reality.md",
-        "stamp": "20260412_081216",
-        "written_at": "2026-04-12T08:12:16",
-        "report_name": "reality"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:15:33",
-      "report_name": "reflect",
-      "action": "kept_existing",
-      "reason": "preserved_stronger_reflect",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081533_reflect.md",
-        "source_name": "20260412_081533_reflect.md",
-        "stamp": "20260412_081533",
-        "written_at": "2026-04-12T08:15:33",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "needs_attention",
-        "reflect_quality": {
-          "quality_score": 12,
-          "diagnostic_status": "needs_attention",
-          "diagnostic_rank": 0,
-          "core_section_count": 5,
-          "operational_section_count": 2,
-          "diagnostics_visible": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
-        "source_name": "20260409_074602_reflect.md",
-        "stamp": "20260409_074602",
-        "written_at": "2026-04-09T07:54:09",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "valid",
-        "reflect_quality": {
-          "quality_score": 58,
-          "diagnostic_status": "valid",
-          "diagnostic_rank": 3,
-          "core_section_count": 5,
-          "operational_section_count": 3,
-          "diagnostics_visible": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:15:59",
-      "report_name": "scorecard",
-      "action": "updated",
-      "reason": "newer_equal_grounding",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081559_scorecard.md",
-        "source_name": "20260412_081559_scorecard.md",
-        "stamp": "20260412_081559",
-        "written_at": "2026-04-12T08:15:59",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081329_scorecard.md",
-        "source_name": "20260412_081329_scorecard.md",
-        "stamp": "20260412_081329",
-        "written_at": "2026-04-12T08:13:29",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:15:59",
-      "report_name": "daily_snapshot",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081559_daily_snapshot.md",
-        "source_name": "20260412_081559_daily_snapshot.md",
-        "stamp": "20260412_081559",
-        "written_at": "2026-04-12T08:15:59",
-        "report_name": "daily_snapshot"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081329_daily_snapshot.md",
-        "source_name": "20260412_081329_daily_snapshot.md",
-        "stamp": "20260412_081329",
-        "written_at": "2026-04-12T08:13:29",
-        "report_name": "daily_snapshot"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:16:15",
-      "report_name": "sleep",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081615_sleep.md",
-        "source_name": "20260412_081615_sleep.md",
-        "stamp": "20260412_081615",
-        "written_at": "2026-04-12T08:16:15",
-        "report_name": "sleep"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081345_sleep.md",
-        "source_name": "20260412_081345_sleep.md",
-        "stamp": "20260412_081345",
-        "written_at": "2026-04-12T08:13:45",
-        "report_name": "sleep"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:16:58",
-      "report_name": "dream",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081658_dream.md",
-        "source_name": "20260412_081658_dream.md",
-        "stamp": "20260412_081658",
-        "written_at": "2026-04-12T08:16:58",
-        "report_name": "dream"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081432_dream.md",
-        "source_name": "20260412_081432_dream.md",
-        "stamp": "20260412_081432",
-        "written_at": "2026-04-12T08:14:32",
-        "report_name": "dream"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:17:10",
-      "report_name": "reality",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081710_reality.md",
-        "source_name": "20260412_081710_reality.md",
-        "stamp": "20260412_081710",
-        "written_at": "2026-04-12T08:17:10",
-        "report_name": "reality"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081443_reality.md",
-        "source_name": "20260412_081443_reality.md",
-        "stamp": "20260412_081443",
-        "written_at": "2026-04-12T08:14:43",
-        "report_name": "reality"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:17:50",
-      "report_name": "reflect",
-      "action": "kept_existing",
-      "reason": "preserved_stronger_reflect",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081750_reflect.md",
-        "source_name": "20260412_081750_reflect.md",
-        "stamp": "20260412_081750",
-        "written_at": "2026-04-12T08:17:50",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "needs_attention",
-        "reflect_quality": {
-          "quality_score": 12,
-          "diagnostic_status": "needs_attention",
-          "diagnostic_rank": 0,
-          "core_section_count": 5,
-          "operational_section_count": 2,
-          "diagnostics_visible": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
-        "source_name": "20260409_074602_reflect.md",
-        "stamp": "20260409_074602",
-        "written_at": "2026-04-09T07:54:09",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "valid",
-        "reflect_quality": {
-          "quality_score": 58,
-          "diagnostic_status": "valid",
-          "diagnostic_rank": 3,
-          "core_section_count": 5,
-          "operational_section_count": 3,
-          "diagnostics_visible": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:18:17",
-      "report_name": "scorecard",
-      "action": "updated",
-      "reason": "newer_equal_grounding",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081817_scorecard.md",
-        "source_name": "20260412_081817_scorecard.md",
-        "stamp": "20260412_081817",
-        "written_at": "2026-04-12T08:18:17",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081559_scorecard.md",
-        "source_name": "20260412_081559_scorecard.md",
-        "stamp": "20260412_081559",
-        "written_at": "2026-04-12T08:15:59",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:18:17",
-      "report_name": "daily_snapshot",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081817_daily_snapshot.md",
-        "source_name": "20260412_081817_daily_snapshot.md",
-        "stamp": "20260412_081817",
-        "written_at": "2026-04-12T08:18:17",
-        "report_name": "daily_snapshot"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081559_daily_snapshot.md",
-        "source_name": "20260412_081559_daily_snapshot.md",
-        "stamp": "20260412_081559",
-        "written_at": "2026-04-12T08:15:59",
-        "report_name": "daily_snapshot"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:18:33",
-      "report_name": "sleep",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081833_sleep.md",
-        "source_name": "20260412_081833_sleep.md",
-        "stamp": "20260412_081833",
-        "written_at": "2026-04-12T08:18:33",
-        "report_name": "sleep"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081615_sleep.md",
-        "source_name": "20260412_081615_sleep.md",
-        "stamp": "20260412_081615",
-        "written_at": "2026-04-12T08:16:15",
-        "report_name": "sleep"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:19:19",
-      "report_name": "dream",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081919_dream.md",
-        "source_name": "20260412_081919_dream.md",
-        "stamp": "20260412_081919",
-        "written_at": "2026-04-12T08:19:19",
-        "report_name": "dream"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081658_dream.md",
-        "source_name": "20260412_081658_dream.md",
-        "stamp": "20260412_081658",
-        "written_at": "2026-04-12T08:16:58",
-        "report_name": "dream"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:19:35",
-      "report_name": "reality",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081935_reality.md",
-        "source_name": "20260412_081935_reality.md",
-        "stamp": "20260412_081935",
-        "written_at": "2026-04-12T08:19:35",
-        "report_name": "reality"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081710_reality.md",
-        "source_name": "20260412_081710_reality.md",
-        "stamp": "20260412_081710",
-        "written_at": "2026-04-12T08:17:10",
-        "report_name": "reality"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:20:18",
-      "report_name": "reflect",
-      "action": "kept_existing",
-      "reason": "preserved_stronger_reflect",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082018_reflect.md",
-        "source_name": "20260412_082018_reflect.md",
-        "stamp": "20260412_082018",
-        "written_at": "2026-04-12T08:20:18",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "needs_attention",
-        "reflect_quality": {
-          "quality_score": 12,
-          "diagnostic_status": "needs_attention",
-          "diagnostic_rank": 0,
-          "core_section_count": 5,
-          "operational_section_count": 2,
-          "diagnostics_visible": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
-        "source_name": "20260409_074602_reflect.md",
-        "stamp": "20260409_074602",
-        "written_at": "2026-04-09T07:54:09",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "valid",
-        "reflect_quality": {
-          "quality_score": 58,
-          "diagnostic_status": "valid",
-          "diagnostic_rank": 3,
-          "core_section_count": 5,
-          "operational_section_count": 3,
-          "diagnostics_visible": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:20:45",
-      "report_name": "scorecard",
-      "action": "updated",
-      "reason": "newer_equal_grounding",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082045_scorecard.md",
-        "source_name": "20260412_082045_scorecard.md",
-        "stamp": "20260412_082045",
-        "written_at": "2026-04-12T08:20:45",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081817_scorecard.md",
-        "source_name": "20260412_081817_scorecard.md",
-        "stamp": "20260412_081817",
-        "written_at": "2026-04-12T08:18:17",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:20:45",
-      "report_name": "daily_snapshot",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082045_daily_snapshot.md",
-        "source_name": "20260412_082045_daily_snapshot.md",
-        "stamp": "20260412_082045",
-        "written_at": "2026-04-12T08:20:45",
-        "report_name": "daily_snapshot"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081817_daily_snapshot.md",
-        "source_name": "20260412_081817_daily_snapshot.md",
-        "stamp": "20260412_081817",
-        "written_at": "2026-04-12T08:18:17",
-        "report_name": "daily_snapshot"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:21:01",
-      "report_name": "sleep",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082101_sleep.md",
-        "source_name": "20260412_082101_sleep.md",
-        "stamp": "20260412_082101",
-        "written_at": "2026-04-12T08:21:01",
-        "report_name": "sleep"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081833_sleep.md",
-        "source_name": "20260412_081833_sleep.md",
-        "stamp": "20260412_081833",
-        "written_at": "2026-04-12T08:18:33",
-        "report_name": "sleep"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:21:48",
-      "report_name": "dream",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082148_dream.md",
-        "source_name": "20260412_082148_dream.md",
-        "stamp": "20260412_082148",
-        "written_at": "2026-04-12T08:21:48",
-        "report_name": "dream"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081919_dream.md",
-        "source_name": "20260412_081919_dream.md",
-        "stamp": "20260412_081919",
-        "written_at": "2026-04-12T08:19:19",
-        "report_name": "dream"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:22:01",
-      "report_name": "reality",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082201_reality.md",
-        "source_name": "20260412_082201_reality.md",
-        "stamp": "20260412_082201",
-        "written_at": "2026-04-12T08:22:01",
-        "report_name": "reality"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_081935_reality.md",
-        "source_name": "20260412_081935_reality.md",
-        "stamp": "20260412_081935",
-        "written_at": "2026-04-12T08:19:35",
-        "report_name": "reality"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:22:47",
-      "report_name": "reflect",
-      "action": "kept_existing",
-      "reason": "preserved_stronger_reflect",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082247_reflect.md",
-        "source_name": "20260412_082247_reflect.md",
-        "stamp": "20260412_082247",
-        "written_at": "2026-04-12T08:22:47",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "needs_attention",
-        "reflect_quality": {
-          "quality_score": 12,
-          "diagnostic_status": "needs_attention",
-          "diagnostic_rank": 0,
-          "core_section_count": 5,
-          "operational_section_count": 2,
-          "diagnostics_visible": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
-        "source_name": "20260409_074602_reflect.md",
-        "stamp": "20260409_074602",
-        "written_at": "2026-04-09T07:54:09",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "valid",
-        "reflect_quality": {
-          "quality_score": 58,
-          "diagnostic_status": "valid",
-          "diagnostic_rank": 3,
-          "core_section_count": 5,
-          "operational_section_count": 3,
-          "diagnostics_visible": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:23:14",
-      "report_name": "scorecard",
-      "action": "updated",
-      "reason": "newer_equal_grounding",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082314_scorecard.md",
-        "source_name": "20260412_082314_scorecard.md",
-        "stamp": "20260412_082314",
-        "written_at": "2026-04-12T08:23:14",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082045_scorecard.md",
-        "source_name": "20260412_082045_scorecard.md",
-        "stamp": "20260412_082045",
-        "written_at": "2026-04-12T08:20:45",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:23:14",
-      "report_name": "daily_snapshot",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082314_daily_snapshot.md",
-        "source_name": "20260412_082314_daily_snapshot.md",
-        "stamp": "20260412_082314",
-        "written_at": "2026-04-12T08:23:14",
-        "report_name": "daily_snapshot"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082045_daily_snapshot.md",
-        "source_name": "20260412_082045_daily_snapshot.md",
-        "stamp": "20260412_082045",
-        "written_at": "2026-04-12T08:20:45",
-        "report_name": "daily_snapshot"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:23:33",
-      "report_name": "sleep",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082333_sleep.md",
-        "source_name": "20260412_082333_sleep.md",
-        "stamp": "20260412_082333",
-        "written_at": "2026-04-12T08:23:33",
-        "report_name": "sleep"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082101_sleep.md",
-        "source_name": "20260412_082101_sleep.md",
-        "stamp": "20260412_082101",
-        "written_at": "2026-04-12T08:21:01",
-        "report_name": "sleep"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:24:15",
-      "report_name": "dream",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082415_dream.md",
-        "source_name": "20260412_082415_dream.md",
-        "stamp": "20260412_082415",
-        "written_at": "2026-04-12T08:24:15",
-        "report_name": "dream"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082148_dream.md",
-        "source_name": "20260412_082148_dream.md",
-        "stamp": "20260412_082148",
-        "written_at": "2026-04-12T08:21:48",
-        "report_name": "dream"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:24:28",
-      "report_name": "reality",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082428_reality.md",
-        "source_name": "20260412_082428_reality.md",
-        "stamp": "20260412_082428",
-        "written_at": "2026-04-12T08:24:28",
-        "report_name": "reality"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082201_reality.md",
-        "source_name": "20260412_082201_reality.md",
-        "stamp": "20260412_082201",
-        "written_at": "2026-04-12T08:22:01",
-        "report_name": "reality"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:25:19",
-      "report_name": "reflect",
-      "action": "kept_existing",
-      "reason": "preserved_stronger_reflect",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082519_reflect.md",
-        "source_name": "20260412_082519_reflect.md",
-        "stamp": "20260412_082519",
-        "written_at": "2026-04-12T08:25:19",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "needs_attention",
-        "reflect_quality": {
-          "quality_score": 12,
-          "diagnostic_status": "needs_attention",
-          "diagnostic_rank": 0,
-          "core_section_count": 5,
-          "operational_section_count": 2,
-          "diagnostics_visible": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
-        "source_name": "20260409_074602_reflect.md",
-        "stamp": "20260409_074602",
-        "written_at": "2026-04-09T07:54:09",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "valid",
-        "reflect_quality": {
-          "quality_score": 58,
-          "diagnostic_status": "valid",
-          "diagnostic_rank": 3,
-          "core_section_count": 5,
-          "operational_section_count": 3,
-          "diagnostics_visible": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:25:48",
-      "report_name": "scorecard",
-      "action": "updated",
-      "reason": "newer_equal_grounding",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082548_scorecard.md",
-        "source_name": "20260412_082548_scorecard.md",
-        "stamp": "20260412_082548",
-        "written_at": "2026-04-12T08:25:48",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082314_scorecard.md",
-        "source_name": "20260412_082314_scorecard.md",
-        "stamp": "20260412_082314",
-        "written_at": "2026-04-12T08:23:14",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:25:48",
-      "report_name": "daily_snapshot",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082548_daily_snapshot.md",
-        "source_name": "20260412_082548_daily_snapshot.md",
-        "stamp": "20260412_082548",
-        "written_at": "2026-04-12T08:25:48",
-        "report_name": "daily_snapshot"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082314_daily_snapshot.md",
-        "source_name": "20260412_082314_daily_snapshot.md",
-        "stamp": "20260412_082314",
-        "written_at": "2026-04-12T08:23:14",
-        "report_name": "daily_snapshot"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:26:05",
-      "report_name": "sleep",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082605_sleep.md",
-        "source_name": "20260412_082605_sleep.md",
-        "stamp": "20260412_082605",
-        "written_at": "2026-04-12T08:26:05",
-        "report_name": "sleep"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082333_sleep.md",
-        "source_name": "20260412_082333_sleep.md",
-        "stamp": "20260412_082333",
-        "written_at": "2026-04-12T08:23:33",
-        "report_name": "sleep"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:26:55",
-      "report_name": "dream",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082655_dream.md",
-        "source_name": "20260412_082655_dream.md",
-        "stamp": "20260412_082655",
-        "written_at": "2026-04-12T08:26:55",
-        "report_name": "dream"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082415_dream.md",
-        "source_name": "20260412_082415_dream.md",
-        "stamp": "20260412_082415",
-        "written_at": "2026-04-12T08:24:15",
-        "report_name": "dream"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:27:09",
-      "report_name": "reality",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082709_reality.md",
-        "source_name": "20260412_082709_reality.md",
-        "stamp": "20260412_082709",
-        "written_at": "2026-04-12T08:27:09",
-        "report_name": "reality"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082428_reality.md",
-        "source_name": "20260412_082428_reality.md",
-        "stamp": "20260412_082428",
-        "written_at": "2026-04-12T08:24:28",
-        "report_name": "reality"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:27:50",
-      "report_name": "reflect",
-      "action": "kept_existing",
-      "reason": "preserved_stronger_reflect",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082750_reflect.md",
-        "source_name": "20260412_082750_reflect.md",
-        "stamp": "20260412_082750",
-        "written_at": "2026-04-12T08:27:50",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "needs_attention",
-        "reflect_quality": {
-          "quality_score": 12,
-          "diagnostic_status": "needs_attention",
-          "diagnostic_rank": 0,
-          "core_section_count": 5,
-          "operational_section_count": 2,
-          "diagnostics_visible": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
-        "source_name": "20260409_074602_reflect.md",
-        "stamp": "20260409_074602",
-        "written_at": "2026-04-09T07:54:09",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "valid",
-        "reflect_quality": {
-          "quality_score": 58,
-          "diagnostic_status": "valid",
-          "diagnostic_rank": 3,
-          "core_section_count": 5,
-          "operational_section_count": 3,
-          "diagnostics_visible": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:28:17",
-      "report_name": "scorecard",
-      "action": "updated",
-      "reason": "newer_equal_grounding",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082817_scorecard.md",
-        "source_name": "20260412_082817_scorecard.md",
-        "stamp": "20260412_082817",
-        "written_at": "2026-04-12T08:28:17",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082548_scorecard.md",
-        "source_name": "20260412_082548_scorecard.md",
-        "stamp": "20260412_082548",
-        "written_at": "2026-04-12T08:25:48",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:28:17",
-      "report_name": "daily_snapshot",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082817_daily_snapshot.md",
-        "source_name": "20260412_082817_daily_snapshot.md",
-        "stamp": "20260412_082817",
-        "written_at": "2026-04-12T08:28:17",
-        "report_name": "daily_snapshot"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082548_daily_snapshot.md",
-        "source_name": "20260412_082548_daily_snapshot.md",
-        "stamp": "20260412_082548",
-        "written_at": "2026-04-12T08:25:48",
-        "report_name": "daily_snapshot"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:28:34",
-      "report_name": "sleep",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082834_sleep.md",
-        "source_name": "20260412_082834_sleep.md",
-        "stamp": "20260412_082834",
-        "written_at": "2026-04-12T08:28:34",
-        "report_name": "sleep"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082605_sleep.md",
-        "source_name": "20260412_082605_sleep.md",
-        "stamp": "20260412_082605",
-        "written_at": "2026-04-12T08:26:05",
-        "report_name": "sleep"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:29:15",
-      "report_name": "dream",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082915_dream.md",
-        "source_name": "20260412_082915_dream.md",
-        "stamp": "20260412_082915",
-        "written_at": "2026-04-12T08:29:15",
-        "report_name": "dream"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082655_dream.md",
-        "source_name": "20260412_082655_dream.md",
-        "stamp": "20260412_082655",
-        "written_at": "2026-04-12T08:26:55",
-        "report_name": "dream"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:29:32",
-      "report_name": "reality",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082932_reality.md",
-        "source_name": "20260412_082932_reality.md",
-        "stamp": "20260412_082932",
-        "written_at": "2026-04-12T08:29:32",
-        "report_name": "reality"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082709_reality.md",
-        "source_name": "20260412_082709_reality.md",
-        "stamp": "20260412_082709",
-        "written_at": "2026-04-12T08:27:09",
-        "report_name": "reality"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:30:20",
-      "report_name": "reflect",
-      "action": "kept_existing",
-      "reason": "preserved_stronger_reflect",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083020_reflect.md",
-        "source_name": "20260412_083020_reflect.md",
-        "stamp": "20260412_083020",
-        "written_at": "2026-04-12T08:30:20",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "needs_attention",
-        "reflect_quality": {
-          "quality_score": 12,
-          "diagnostic_status": "needs_attention",
-          "diagnostic_rank": 0,
-          "core_section_count": 5,
-          "operational_section_count": 2,
-          "diagnostics_visible": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
-        "source_name": "20260409_074602_reflect.md",
-        "stamp": "20260409_074602",
-        "written_at": "2026-04-09T07:54:09",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "valid",
-        "reflect_quality": {
-          "quality_score": 58,
-          "diagnostic_status": "valid",
-          "diagnostic_rank": 3,
-          "core_section_count": 5,
-          "operational_section_count": 3,
-          "diagnostics_visible": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:30:46",
-      "report_name": "scorecard",
-      "action": "updated",
-      "reason": "newer_equal_grounding",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083046_scorecard.md",
-        "source_name": "20260412_083046_scorecard.md",
-        "stamp": "20260412_083046",
-        "written_at": "2026-04-12T08:30:46",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082817_scorecard.md",
-        "source_name": "20260412_082817_scorecard.md",
-        "stamp": "20260412_082817",
-        "written_at": "2026-04-12T08:28:17",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:30:46",
-      "report_name": "daily_snapshot",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083046_daily_snapshot.md",
-        "source_name": "20260412_083046_daily_snapshot.md",
-        "stamp": "20260412_083046",
-        "written_at": "2026-04-12T08:30:46",
-        "report_name": "daily_snapshot"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082817_daily_snapshot.md",
-        "source_name": "20260412_082817_daily_snapshot.md",
-        "stamp": "20260412_082817",
-        "written_at": "2026-04-12T08:28:17",
-        "report_name": "daily_snapshot"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:31:02",
-      "report_name": "sleep",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083102_sleep.md",
-        "source_name": "20260412_083102_sleep.md",
-        "stamp": "20260412_083102",
-        "written_at": "2026-04-12T08:31:02",
-        "report_name": "sleep"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082834_sleep.md",
-        "source_name": "20260412_082834_sleep.md",
-        "stamp": "20260412_082834",
-        "written_at": "2026-04-12T08:28:34",
-        "report_name": "sleep"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:31:52",
-      "report_name": "dream",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083152_dream.md",
-        "source_name": "20260412_083152_dream.md",
-        "stamp": "20260412_083152",
-        "written_at": "2026-04-12T08:31:52",
-        "report_name": "dream"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082915_dream.md",
-        "source_name": "20260412_082915_dream.md",
-        "stamp": "20260412_082915",
-        "written_at": "2026-04-12T08:29:15",
-        "report_name": "dream"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:32:05",
-      "report_name": "reality",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083205_reality.md",
-        "source_name": "20260412_083205_reality.md",
-        "stamp": "20260412_083205",
-        "written_at": "2026-04-12T08:32:05",
-        "report_name": "reality"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_082932_reality.md",
-        "source_name": "20260412_082932_reality.md",
-        "stamp": "20260412_082932",
-        "written_at": "2026-04-12T08:29:32",
-        "report_name": "reality"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:32:52",
-      "report_name": "reflect",
-      "action": "kept_existing",
-      "reason": "preserved_stronger_reflect",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083252_reflect.md",
-        "source_name": "20260412_083252_reflect.md",
-        "stamp": "20260412_083252",
-        "written_at": "2026-04-12T08:32:52",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "needs_attention",
-        "reflect_quality": {
-          "quality_score": 12,
-          "diagnostic_status": "needs_attention",
-          "diagnostic_rank": 0,
-          "core_section_count": 5,
-          "operational_section_count": 2,
-          "diagnostics_visible": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
-        "source_name": "20260409_074602_reflect.md",
-        "stamp": "20260409_074602",
-        "written_at": "2026-04-09T07:54:09",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "valid",
-        "reflect_quality": {
-          "quality_score": 58,
-          "diagnostic_status": "valid",
-          "diagnostic_rank": 3,
-          "core_section_count": 5,
-          "operational_section_count": 3,
-          "diagnostics_visible": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:33:19",
-      "report_name": "scorecard",
-      "action": "updated",
-      "reason": "newer_equal_grounding",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083319_scorecard.md",
-        "source_name": "20260412_083319_scorecard.md",
-        "stamp": "20260412_083319",
-        "written_at": "2026-04-12T08:33:19",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083046_scorecard.md",
-        "source_name": "20260412_083046_scorecard.md",
-        "stamp": "20260412_083046",
-        "written_at": "2026-04-12T08:30:46",
-        "report_name": "scorecard",
-        "scorecard_quality": {
-          "quality_score": 21,
-          "known_status_count": 7,
-          "unknown_status_count": 0,
-          "ungrounded_count": 0
-        }
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:33:19",
-      "report_name": "daily_snapshot",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083319_daily_snapshot.md",
-        "source_name": "20260412_083319_daily_snapshot.md",
-        "stamp": "20260412_083319",
-        "written_at": "2026-04-12T08:33:19",
-        "report_name": "daily_snapshot"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083046_daily_snapshot.md",
-        "source_name": "20260412_083046_daily_snapshot.md",
-        "stamp": "20260412_083046",
-        "written_at": "2026-04-12T08:30:46",
-        "report_name": "daily_snapshot"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:33:34",
-      "report_name": "sleep",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083334_sleep.md",
-        "source_name": "20260412_083334_sleep.md",
-        "stamp": "20260412_083334",
-        "written_at": "2026-04-12T08:33:34",
-        "report_name": "sleep"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083102_sleep.md",
-        "source_name": "20260412_083102_sleep.md",
-        "stamp": "20260412_083102",
-        "written_at": "2026-04-12T08:31:02",
-        "report_name": "sleep"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:34:21",
-      "report_name": "dream",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083421_dream.md",
-        "source_name": "20260412_083421_dream.md",
-        "stamp": "20260412_083421",
-        "written_at": "2026-04-12T08:34:21",
-        "report_name": "dream"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083152_dream.md",
-        "source_name": "20260412_083152_dream.md",
-        "stamp": "20260412_083152",
-        "written_at": "2026-04-12T08:31:52",
-        "report_name": "dream"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:34:33",
-      "report_name": "reality",
-      "action": "updated",
-      "reason": "newer_report",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083433_reality.md",
-        "source_name": "20260412_083433_reality.md",
-        "stamp": "20260412_083433",
-        "written_at": "2026-04-12T08:34:33",
-        "report_name": "reality"
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083205_reality.md",
-        "source_name": "20260412_083205_reality.md",
-        "stamp": "20260412_083205",
-        "written_at": "2026-04-12T08:32:05",
-        "report_name": "reality"
-      }
-    },
-    {
-      "timestamp": "2026-04-12T08:35:18",
-      "report_name": "reflect",
-      "action": "kept_existing",
-      "reason": "preserved_stronger_reflect",
-      "candidate": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_083518_reflect.md",
-        "source_name": "20260412_083518_reflect.md",
-        "stamp": "20260412_083518",
-        "written_at": "2026-04-12T08:35:18",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "needs_attention",
-        "reflect_quality": {
-          "quality_score": 12,
-          "diagnostic_status": "needs_attention",
-          "diagnostic_rank": 0,
-          "core_section_count": 5,
-          "operational_section_count": 2,
-          "diagnostics_visible": 0
-        }
-      },
-      "current": {
-        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
-        "source_name": "20260409_074602_reflect.md",
-        "stamp": "20260409_074602",
-        "written_at": "2026-04-09T07:54:09",
-        "report_name": "reflect",
-        "reflect_diagnostic_status": "valid",
-        "reflect_quality": {
-          "quality_score": 58,
-          "diagnostic_status": "valid",
-          "diagnostic_rank": 3,
-          "core_section_count": 5,
-          "operational_section_count": 3,
-          "diagnostics_visible": 0
-        }
-      }
-    },
     {
       "timestamp": "2026-04-12T08:35:43",
       "report_name": "scorecard",
@@ -3093,7 +1495,1605 @@
         "written_at": "2026-04-12T08:57:28",
         "report_name": "daily_snapshot"
       }
+    },
+    {
+      "timestamp": "2026-04-12T09:00:54",
+      "report_name": "sleep",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090054_sleep.md",
+        "source_name": "20260412_090054_sleep.md",
+        "stamp": "20260412_090054",
+        "written_at": "2026-04-12T09:00:54",
+        "report_name": "sleep"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_085757_sleep.md",
+        "source_name": "20260412_085757_sleep.md",
+        "stamp": "20260412_085757",
+        "written_at": "2026-04-12T08:57:57",
+        "report_name": "sleep"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:01:48",
+      "report_name": "dream",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090148_dream.md",
+        "source_name": "20260412_090148_dream.md",
+        "stamp": "20260412_090148",
+        "written_at": "2026-04-12T09:01:48",
+        "report_name": "dream"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_085859_dream.md",
+        "source_name": "20260412_085859_dream.md",
+        "stamp": "20260412_085859",
+        "written_at": "2026-04-12T08:58:59",
+        "report_name": "dream"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:02:09",
+      "report_name": "reality",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090209_reality.md",
+        "source_name": "20260412_090209_reality.md",
+        "stamp": "20260412_090209",
+        "written_at": "2026-04-12T09:02:09",
+        "report_name": "reality"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_085918_reality.md",
+        "source_name": "20260412_085918_reality.md",
+        "stamp": "20260412_085918",
+        "written_at": "2026-04-12T08:59:18",
+        "report_name": "reality"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:03:00",
+      "report_name": "reflect",
+      "action": "kept_existing",
+      "reason": "preserved_stronger_reflect",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090300_reflect.md",
+        "source_name": "20260412_090300_reflect.md",
+        "stamp": "20260412_090300",
+        "written_at": "2026-04-12T09:03:00",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "needs_attention",
+        "reflect_quality": {
+          "quality_score": 12,
+          "diagnostic_status": "needs_attention",
+          "diagnostic_rank": 0,
+          "core_section_count": 5,
+          "operational_section_count": 2,
+          "diagnostics_visible": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
+        "source_name": "20260409_074602_reflect.md",
+        "stamp": "20260409_074602",
+        "written_at": "2026-04-09T07:54:09",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "valid",
+        "reflect_quality": {
+          "quality_score": 58,
+          "diagnostic_status": "valid",
+          "diagnostic_rank": 3,
+          "core_section_count": 5,
+          "operational_section_count": 3,
+          "diagnostics_visible": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:03:16",
+      "report_name": "scorecard",
+      "action": "updated",
+      "reason": "newer_equal_grounding",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090316_scorecard.md",
+        "source_name": "20260412_090316_scorecard.md",
+        "stamp": "20260412_090316",
+        "written_at": "2026-04-12T09:03:16",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090038_scorecard.md",
+        "source_name": "20260412_090038_scorecard.md",
+        "stamp": "20260412_090038",
+        "written_at": "2026-04-12T09:00:38",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:03:16",
+      "report_name": "daily_snapshot",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090316_daily_snapshot.md",
+        "source_name": "20260412_090316_daily_snapshot.md",
+        "stamp": "20260412_090316",
+        "written_at": "2026-04-12T09:03:16",
+        "report_name": "daily_snapshot"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090038_daily_snapshot.md",
+        "source_name": "20260412_090038_daily_snapshot.md",
+        "stamp": "20260412_090038",
+        "written_at": "2026-04-12T09:00:38",
+        "report_name": "daily_snapshot"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:03:35",
+      "report_name": "sleep",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090335_sleep.md",
+        "source_name": "20260412_090335_sleep.md",
+        "stamp": "20260412_090335",
+        "written_at": "2026-04-12T09:03:35",
+        "report_name": "sleep"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090054_sleep.md",
+        "source_name": "20260412_090054_sleep.md",
+        "stamp": "20260412_090054",
+        "written_at": "2026-04-12T09:00:54",
+        "report_name": "sleep"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:04:27",
+      "report_name": "dream",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090427_dream.md",
+        "source_name": "20260412_090427_dream.md",
+        "stamp": "20260412_090427",
+        "written_at": "2026-04-12T09:04:27",
+        "report_name": "dream"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090148_dream.md",
+        "source_name": "20260412_090148_dream.md",
+        "stamp": "20260412_090148",
+        "written_at": "2026-04-12T09:01:48",
+        "report_name": "dream"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:04:40",
+      "report_name": "reality",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090440_reality.md",
+        "source_name": "20260412_090440_reality.md",
+        "stamp": "20260412_090440",
+        "written_at": "2026-04-12T09:04:40",
+        "report_name": "reality"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090209_reality.md",
+        "source_name": "20260412_090209_reality.md",
+        "stamp": "20260412_090209",
+        "written_at": "2026-04-12T09:02:09",
+        "report_name": "reality"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:05:29",
+      "report_name": "reflect",
+      "action": "kept_existing",
+      "reason": "preserved_stronger_reflect",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090529_reflect.md",
+        "source_name": "20260412_090529_reflect.md",
+        "stamp": "20260412_090529",
+        "written_at": "2026-04-12T09:05:29",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "needs_attention",
+        "reflect_quality": {
+          "quality_score": 12,
+          "diagnostic_status": "needs_attention",
+          "diagnostic_rank": 0,
+          "core_section_count": 5,
+          "operational_section_count": 2,
+          "diagnostics_visible": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
+        "source_name": "20260409_074602_reflect.md",
+        "stamp": "20260409_074602",
+        "written_at": "2026-04-09T07:54:09",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "valid",
+        "reflect_quality": {
+          "quality_score": 58,
+          "diagnostic_status": "valid",
+          "diagnostic_rank": 3,
+          "core_section_count": 5,
+          "operational_section_count": 3,
+          "diagnostics_visible": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:05:44",
+      "report_name": "scorecard",
+      "action": "updated",
+      "reason": "newer_equal_grounding",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090544_scorecard.md",
+        "source_name": "20260412_090544_scorecard.md",
+        "stamp": "20260412_090544",
+        "written_at": "2026-04-12T09:05:44",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090316_scorecard.md",
+        "source_name": "20260412_090316_scorecard.md",
+        "stamp": "20260412_090316",
+        "written_at": "2026-04-12T09:03:16",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:05:44",
+      "report_name": "daily_snapshot",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090544_daily_snapshot.md",
+        "source_name": "20260412_090544_daily_snapshot.md",
+        "stamp": "20260412_090544",
+        "written_at": "2026-04-12T09:05:44",
+        "report_name": "daily_snapshot"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090316_daily_snapshot.md",
+        "source_name": "20260412_090316_daily_snapshot.md",
+        "stamp": "20260412_090316",
+        "written_at": "2026-04-12T09:03:16",
+        "report_name": "daily_snapshot"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:06:04",
+      "report_name": "sleep",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090604_sleep.md",
+        "source_name": "20260412_090604_sleep.md",
+        "stamp": "20260412_090604",
+        "written_at": "2026-04-12T09:06:04",
+        "report_name": "sleep"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090335_sleep.md",
+        "source_name": "20260412_090335_sleep.md",
+        "stamp": "20260412_090335",
+        "written_at": "2026-04-12T09:03:35",
+        "report_name": "sleep"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:06:56",
+      "report_name": "dream",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090656_dream.md",
+        "source_name": "20260412_090656_dream.md",
+        "stamp": "20260412_090656",
+        "written_at": "2026-04-12T09:06:56",
+        "report_name": "dream"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090427_dream.md",
+        "source_name": "20260412_090427_dream.md",
+        "stamp": "20260412_090427",
+        "written_at": "2026-04-12T09:04:27",
+        "report_name": "dream"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:07:09",
+      "report_name": "reality",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090709_reality.md",
+        "source_name": "20260412_090709_reality.md",
+        "stamp": "20260412_090709",
+        "written_at": "2026-04-12T09:07:09",
+        "report_name": "reality"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090440_reality.md",
+        "source_name": "20260412_090440_reality.md",
+        "stamp": "20260412_090440",
+        "written_at": "2026-04-12T09:04:40",
+        "report_name": "reality"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:07:53",
+      "report_name": "reflect",
+      "action": "kept_existing",
+      "reason": "preserved_stronger_reflect",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090753_reflect.md",
+        "source_name": "20260412_090753_reflect.md",
+        "stamp": "20260412_090753",
+        "written_at": "2026-04-12T09:07:53",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "needs_attention",
+        "reflect_quality": {
+          "quality_score": 12,
+          "diagnostic_status": "needs_attention",
+          "diagnostic_rank": 0,
+          "core_section_count": 5,
+          "operational_section_count": 2,
+          "diagnostics_visible": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
+        "source_name": "20260409_074602_reflect.md",
+        "stamp": "20260409_074602",
+        "written_at": "2026-04-09T07:54:09",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "valid",
+        "reflect_quality": {
+          "quality_score": 58,
+          "diagnostic_status": "valid",
+          "diagnostic_rank": 3,
+          "core_section_count": 5,
+          "operational_section_count": 3,
+          "diagnostics_visible": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:08:21",
+      "report_name": "scorecard",
+      "action": "updated",
+      "reason": "newer_equal_grounding",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090821_scorecard.md",
+        "source_name": "20260412_090821_scorecard.md",
+        "stamp": "20260412_090821",
+        "written_at": "2026-04-12T09:08:21",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090544_scorecard.md",
+        "source_name": "20260412_090544_scorecard.md",
+        "stamp": "20260412_090544",
+        "written_at": "2026-04-12T09:05:44",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:08:21",
+      "report_name": "daily_snapshot",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090821_daily_snapshot.md",
+        "source_name": "20260412_090821_daily_snapshot.md",
+        "stamp": "20260412_090821",
+        "written_at": "2026-04-12T09:08:21",
+        "report_name": "daily_snapshot"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090544_daily_snapshot.md",
+        "source_name": "20260412_090544_daily_snapshot.md",
+        "stamp": "20260412_090544",
+        "written_at": "2026-04-12T09:05:44",
+        "report_name": "daily_snapshot"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:08:47",
+      "report_name": "sleep",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090847_sleep.md",
+        "source_name": "20260412_090847_sleep.md",
+        "stamp": "20260412_090847",
+        "written_at": "2026-04-12T09:08:47",
+        "report_name": "sleep"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090604_sleep.md",
+        "source_name": "20260412_090604_sleep.md",
+        "stamp": "20260412_090604",
+        "written_at": "2026-04-12T09:06:04",
+        "report_name": "sleep"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:09:40",
+      "report_name": "dream",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090940_dream.md",
+        "source_name": "20260412_090940_dream.md",
+        "stamp": "20260412_090940",
+        "written_at": "2026-04-12T09:09:40",
+        "report_name": "dream"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090656_dream.md",
+        "source_name": "20260412_090656_dream.md",
+        "stamp": "20260412_090656",
+        "written_at": "2026-04-12T09:06:56",
+        "report_name": "dream"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:09:55",
+      "report_name": "reality",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090955_reality.md",
+        "source_name": "20260412_090955_reality.md",
+        "stamp": "20260412_090955",
+        "written_at": "2026-04-12T09:09:55",
+        "report_name": "reality"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090709_reality.md",
+        "source_name": "20260412_090709_reality.md",
+        "stamp": "20260412_090709",
+        "written_at": "2026-04-12T09:07:09",
+        "report_name": "reality"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:10:45",
+      "report_name": "reflect",
+      "action": "kept_existing",
+      "reason": "preserved_stronger_reflect",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091045_reflect.md",
+        "source_name": "20260412_091045_reflect.md",
+        "stamp": "20260412_091045",
+        "written_at": "2026-04-12T09:10:45",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "needs_attention",
+        "reflect_quality": {
+          "quality_score": 12,
+          "diagnostic_status": "needs_attention",
+          "diagnostic_rank": 0,
+          "core_section_count": 5,
+          "operational_section_count": 2,
+          "diagnostics_visible": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
+        "source_name": "20260409_074602_reflect.md",
+        "stamp": "20260409_074602",
+        "written_at": "2026-04-09T07:54:09",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "valid",
+        "reflect_quality": {
+          "quality_score": 58,
+          "diagnostic_status": "valid",
+          "diagnostic_rank": 3,
+          "core_section_count": 5,
+          "operational_section_count": 3,
+          "diagnostics_visible": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:11:13",
+      "report_name": "scorecard",
+      "action": "updated",
+      "reason": "newer_equal_grounding",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091113_scorecard.md",
+        "source_name": "20260412_091113_scorecard.md",
+        "stamp": "20260412_091113",
+        "written_at": "2026-04-12T09:11:13",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090821_scorecard.md",
+        "source_name": "20260412_090821_scorecard.md",
+        "stamp": "20260412_090821",
+        "written_at": "2026-04-12T09:08:21",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:11:13",
+      "report_name": "daily_snapshot",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091113_daily_snapshot.md",
+        "source_name": "20260412_091113_daily_snapshot.md",
+        "stamp": "20260412_091113",
+        "written_at": "2026-04-12T09:11:13",
+        "report_name": "daily_snapshot"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090821_daily_snapshot.md",
+        "source_name": "20260412_090821_daily_snapshot.md",
+        "stamp": "20260412_090821",
+        "written_at": "2026-04-12T09:08:21",
+        "report_name": "daily_snapshot"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:11:33",
+      "report_name": "sleep",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091133_sleep.md",
+        "source_name": "20260412_091133_sleep.md",
+        "stamp": "20260412_091133",
+        "written_at": "2026-04-12T09:11:33",
+        "report_name": "sleep"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090847_sleep.md",
+        "source_name": "20260412_090847_sleep.md",
+        "stamp": "20260412_090847",
+        "written_at": "2026-04-12T09:08:47",
+        "report_name": "sleep"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:12:19",
+      "report_name": "dream",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091219_dream.md",
+        "source_name": "20260412_091219_dream.md",
+        "stamp": "20260412_091219",
+        "written_at": "2026-04-12T09:12:19",
+        "report_name": "dream"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090940_dream.md",
+        "source_name": "20260412_090940_dream.md",
+        "stamp": "20260412_090940",
+        "written_at": "2026-04-12T09:09:40",
+        "report_name": "dream"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:12:32",
+      "report_name": "reality",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091232_reality.md",
+        "source_name": "20260412_091232_reality.md",
+        "stamp": "20260412_091232",
+        "written_at": "2026-04-12T09:12:32",
+        "report_name": "reality"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_090955_reality.md",
+        "source_name": "20260412_090955_reality.md",
+        "stamp": "20260412_090955",
+        "written_at": "2026-04-12T09:09:55",
+        "report_name": "reality"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:13:20",
+      "report_name": "reflect",
+      "action": "kept_existing",
+      "reason": "preserved_stronger_reflect",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091320_reflect.md",
+        "source_name": "20260412_091320_reflect.md",
+        "stamp": "20260412_091320",
+        "written_at": "2026-04-12T09:13:20",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "needs_attention",
+        "reflect_quality": {
+          "quality_score": 12,
+          "diagnostic_status": "needs_attention",
+          "diagnostic_rank": 0,
+          "core_section_count": 5,
+          "operational_section_count": 2,
+          "diagnostics_visible": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
+        "source_name": "20260409_074602_reflect.md",
+        "stamp": "20260409_074602",
+        "written_at": "2026-04-09T07:54:09",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "valid",
+        "reflect_quality": {
+          "quality_score": 58,
+          "diagnostic_status": "valid",
+          "diagnostic_rank": 3,
+          "core_section_count": 5,
+          "operational_section_count": 3,
+          "diagnostics_visible": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:13:50",
+      "report_name": "scorecard",
+      "action": "updated",
+      "reason": "newer_equal_grounding",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091350_scorecard.md",
+        "source_name": "20260412_091350_scorecard.md",
+        "stamp": "20260412_091350",
+        "written_at": "2026-04-12T09:13:50",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091113_scorecard.md",
+        "source_name": "20260412_091113_scorecard.md",
+        "stamp": "20260412_091113",
+        "written_at": "2026-04-12T09:11:13",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:13:50",
+      "report_name": "daily_snapshot",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091350_daily_snapshot.md",
+        "source_name": "20260412_091350_daily_snapshot.md",
+        "stamp": "20260412_091350",
+        "written_at": "2026-04-12T09:13:50",
+        "report_name": "daily_snapshot"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091113_daily_snapshot.md",
+        "source_name": "20260412_091113_daily_snapshot.md",
+        "stamp": "20260412_091113",
+        "written_at": "2026-04-12T09:11:13",
+        "report_name": "daily_snapshot"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:14:07",
+      "report_name": "sleep",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091407_sleep.md",
+        "source_name": "20260412_091407_sleep.md",
+        "stamp": "20260412_091407",
+        "written_at": "2026-04-12T09:14:07",
+        "report_name": "sleep"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091133_sleep.md",
+        "source_name": "20260412_091133_sleep.md",
+        "stamp": "20260412_091133",
+        "written_at": "2026-04-12T09:11:33",
+        "report_name": "sleep"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:14:58",
+      "report_name": "dream",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091458_dream.md",
+        "source_name": "20260412_091458_dream.md",
+        "stamp": "20260412_091458",
+        "written_at": "2026-04-12T09:14:58",
+        "report_name": "dream"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091219_dream.md",
+        "source_name": "20260412_091219_dream.md",
+        "stamp": "20260412_091219",
+        "written_at": "2026-04-12T09:12:19",
+        "report_name": "dream"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:15:16",
+      "report_name": "reality",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091516_reality.md",
+        "source_name": "20260412_091516_reality.md",
+        "stamp": "20260412_091516",
+        "written_at": "2026-04-12T09:15:16",
+        "report_name": "reality"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091232_reality.md",
+        "source_name": "20260412_091232_reality.md",
+        "stamp": "20260412_091232",
+        "written_at": "2026-04-12T09:12:32",
+        "report_name": "reality"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:16:07",
+      "report_name": "reflect",
+      "action": "kept_existing",
+      "reason": "preserved_stronger_reflect",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091607_reflect.md",
+        "source_name": "20260412_091607_reflect.md",
+        "stamp": "20260412_091607",
+        "written_at": "2026-04-12T09:16:07",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "needs_attention",
+        "reflect_quality": {
+          "quality_score": 12,
+          "diagnostic_status": "needs_attention",
+          "diagnostic_rank": 0,
+          "core_section_count": 5,
+          "operational_section_count": 2,
+          "diagnostics_visible": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
+        "source_name": "20260409_074602_reflect.md",
+        "stamp": "20260409_074602",
+        "written_at": "2026-04-09T07:54:09",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "valid",
+        "reflect_quality": {
+          "quality_score": 58,
+          "diagnostic_status": "valid",
+          "diagnostic_rank": 3,
+          "core_section_count": 5,
+          "operational_section_count": 3,
+          "diagnostics_visible": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:16:38",
+      "report_name": "scorecard",
+      "action": "updated",
+      "reason": "newer_equal_grounding",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091638_scorecard.md",
+        "source_name": "20260412_091638_scorecard.md",
+        "stamp": "20260412_091638",
+        "written_at": "2026-04-12T09:16:38",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091350_scorecard.md",
+        "source_name": "20260412_091350_scorecard.md",
+        "stamp": "20260412_091350",
+        "written_at": "2026-04-12T09:13:50",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:16:38",
+      "report_name": "daily_snapshot",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091638_daily_snapshot.md",
+        "source_name": "20260412_091638_daily_snapshot.md",
+        "stamp": "20260412_091638",
+        "written_at": "2026-04-12T09:16:38",
+        "report_name": "daily_snapshot"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091350_daily_snapshot.md",
+        "source_name": "20260412_091350_daily_snapshot.md",
+        "stamp": "20260412_091350",
+        "written_at": "2026-04-12T09:13:50",
+        "report_name": "daily_snapshot"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:16:54",
+      "report_name": "sleep",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091654_sleep.md",
+        "source_name": "20260412_091654_sleep.md",
+        "stamp": "20260412_091654",
+        "written_at": "2026-04-12T09:16:54",
+        "report_name": "sleep"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091407_sleep.md",
+        "source_name": "20260412_091407_sleep.md",
+        "stamp": "20260412_091407",
+        "written_at": "2026-04-12T09:14:07",
+        "report_name": "sleep"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:17:38",
+      "report_name": "dream",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091738_dream.md",
+        "source_name": "20260412_091738_dream.md",
+        "stamp": "20260412_091738",
+        "written_at": "2026-04-12T09:17:38",
+        "report_name": "dream"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091458_dream.md",
+        "source_name": "20260412_091458_dream.md",
+        "stamp": "20260412_091458",
+        "written_at": "2026-04-12T09:14:58",
+        "report_name": "dream"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:17:49",
+      "report_name": "reality",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091749_reality.md",
+        "source_name": "20260412_091749_reality.md",
+        "stamp": "20260412_091749",
+        "written_at": "2026-04-12T09:17:49",
+        "report_name": "reality"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091516_reality.md",
+        "source_name": "20260412_091516_reality.md",
+        "stamp": "20260412_091516",
+        "written_at": "2026-04-12T09:15:16",
+        "report_name": "reality"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:18:37",
+      "report_name": "reflect",
+      "action": "kept_existing",
+      "reason": "preserved_stronger_reflect",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091837_reflect.md",
+        "source_name": "20260412_091837_reflect.md",
+        "stamp": "20260412_091837",
+        "written_at": "2026-04-12T09:18:37",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "needs_attention",
+        "reflect_quality": {
+          "quality_score": 12,
+          "diagnostic_status": "needs_attention",
+          "diagnostic_rank": 0,
+          "core_section_count": 5,
+          "operational_section_count": 2,
+          "diagnostics_visible": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
+        "source_name": "20260409_074602_reflect.md",
+        "stamp": "20260409_074602",
+        "written_at": "2026-04-09T07:54:09",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "valid",
+        "reflect_quality": {
+          "quality_score": 58,
+          "diagnostic_status": "valid",
+          "diagnostic_rank": 3,
+          "core_section_count": 5,
+          "operational_section_count": 3,
+          "diagnostics_visible": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:19:11",
+      "report_name": "scorecard",
+      "action": "updated",
+      "reason": "newer_equal_grounding",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091911_scorecard.md",
+        "source_name": "20260412_091911_scorecard.md",
+        "stamp": "20260412_091911",
+        "written_at": "2026-04-12T09:19:11",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091638_scorecard.md",
+        "source_name": "20260412_091638_scorecard.md",
+        "stamp": "20260412_091638",
+        "written_at": "2026-04-12T09:16:38",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:19:11",
+      "report_name": "daily_snapshot",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091911_daily_snapshot.md",
+        "source_name": "20260412_091911_daily_snapshot.md",
+        "stamp": "20260412_091911",
+        "written_at": "2026-04-12T09:19:11",
+        "report_name": "daily_snapshot"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091638_daily_snapshot.md",
+        "source_name": "20260412_091638_daily_snapshot.md",
+        "stamp": "20260412_091638",
+        "written_at": "2026-04-12T09:16:38",
+        "report_name": "daily_snapshot"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:19:31",
+      "report_name": "sleep",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091931_sleep.md",
+        "source_name": "20260412_091931_sleep.md",
+        "stamp": "20260412_091931",
+        "written_at": "2026-04-12T09:19:31",
+        "report_name": "sleep"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091654_sleep.md",
+        "source_name": "20260412_091654_sleep.md",
+        "stamp": "20260412_091654",
+        "written_at": "2026-04-12T09:16:54",
+        "report_name": "sleep"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:20:32",
+      "report_name": "dream",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092032_dream.md",
+        "source_name": "20260412_092032_dream.md",
+        "stamp": "20260412_092032",
+        "written_at": "2026-04-12T09:20:32",
+        "report_name": "dream"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091738_dream.md",
+        "source_name": "20260412_091738_dream.md",
+        "stamp": "20260412_091738",
+        "written_at": "2026-04-12T09:17:38",
+        "report_name": "dream"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:20:50",
+      "report_name": "reality",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092050_reality.md",
+        "source_name": "20260412_092050_reality.md",
+        "stamp": "20260412_092050",
+        "written_at": "2026-04-12T09:20:50",
+        "report_name": "reality"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091749_reality.md",
+        "source_name": "20260412_091749_reality.md",
+        "stamp": "20260412_091749",
+        "written_at": "2026-04-12T09:17:49",
+        "report_name": "reality"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:21:48",
+      "report_name": "reflect",
+      "action": "kept_existing",
+      "reason": "preserved_stronger_reflect",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092148_reflect.md",
+        "source_name": "20260412_092148_reflect.md",
+        "stamp": "20260412_092148",
+        "written_at": "2026-04-12T09:21:48",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "needs_attention",
+        "reflect_quality": {
+          "quality_score": 12,
+          "diagnostic_status": "needs_attention",
+          "diagnostic_rank": 0,
+          "core_section_count": 5,
+          "operational_section_count": 2,
+          "diagnostics_visible": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
+        "source_name": "20260409_074602_reflect.md",
+        "stamp": "20260409_074602",
+        "written_at": "2026-04-09T07:54:09",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "valid",
+        "reflect_quality": {
+          "quality_score": 58,
+          "diagnostic_status": "valid",
+          "diagnostic_rank": 3,
+          "core_section_count": 5,
+          "operational_section_count": 3,
+          "diagnostics_visible": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:22:21",
+      "report_name": "scorecard",
+      "action": "updated",
+      "reason": "newer_equal_grounding",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092221_scorecard.md",
+        "source_name": "20260412_092221_scorecard.md",
+        "stamp": "20260412_092221",
+        "written_at": "2026-04-12T09:22:21",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091911_scorecard.md",
+        "source_name": "20260412_091911_scorecard.md",
+        "stamp": "20260412_091911",
+        "written_at": "2026-04-12T09:19:11",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:22:21",
+      "report_name": "daily_snapshot",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092221_daily_snapshot.md",
+        "source_name": "20260412_092221_daily_snapshot.md",
+        "stamp": "20260412_092221",
+        "written_at": "2026-04-12T09:22:21",
+        "report_name": "daily_snapshot"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091911_daily_snapshot.md",
+        "source_name": "20260412_091911_daily_snapshot.md",
+        "stamp": "20260412_091911",
+        "written_at": "2026-04-12T09:19:11",
+        "report_name": "daily_snapshot"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:22:41",
+      "report_name": "sleep",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092241_sleep.md",
+        "source_name": "20260412_092241_sleep.md",
+        "stamp": "20260412_092241",
+        "written_at": "2026-04-12T09:22:41",
+        "report_name": "sleep"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_091931_sleep.md",
+        "source_name": "20260412_091931_sleep.md",
+        "stamp": "20260412_091931",
+        "written_at": "2026-04-12T09:19:31",
+        "report_name": "sleep"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:23:37",
+      "report_name": "dream",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092337_dream.md",
+        "source_name": "20260412_092337_dream.md",
+        "stamp": "20260412_092337",
+        "written_at": "2026-04-12T09:23:37",
+        "report_name": "dream"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092032_dream.md",
+        "source_name": "20260412_092032_dream.md",
+        "stamp": "20260412_092032",
+        "written_at": "2026-04-12T09:20:32",
+        "report_name": "dream"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:23:52",
+      "report_name": "reality",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092352_reality.md",
+        "source_name": "20260412_092352_reality.md",
+        "stamp": "20260412_092352",
+        "written_at": "2026-04-12T09:23:52",
+        "report_name": "reality"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092050_reality.md",
+        "source_name": "20260412_092050_reality.md",
+        "stamp": "20260412_092050",
+        "written_at": "2026-04-12T09:20:50",
+        "report_name": "reality"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:24:50",
+      "report_name": "reflect",
+      "action": "kept_existing",
+      "reason": "preserved_stronger_reflect",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092450_reflect.md",
+        "source_name": "20260412_092450_reflect.md",
+        "stamp": "20260412_092450",
+        "written_at": "2026-04-12T09:24:50",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "needs_attention",
+        "reflect_quality": {
+          "quality_score": 12,
+          "diagnostic_status": "needs_attention",
+          "diagnostic_rank": 0,
+          "core_section_count": 5,
+          "operational_section_count": 2,
+          "diagnostics_visible": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
+        "source_name": "20260409_074602_reflect.md",
+        "stamp": "20260409_074602",
+        "written_at": "2026-04-09T07:54:09",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "valid",
+        "reflect_quality": {
+          "quality_score": 58,
+          "diagnostic_status": "valid",
+          "diagnostic_rank": 3,
+          "core_section_count": 5,
+          "operational_section_count": 3,
+          "diagnostics_visible": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:25:23",
+      "report_name": "scorecard",
+      "action": "updated",
+      "reason": "newer_equal_grounding",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092523_scorecard.md",
+        "source_name": "20260412_092523_scorecard.md",
+        "stamp": "20260412_092523",
+        "written_at": "2026-04-12T09:25:23",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092221_scorecard.md",
+        "source_name": "20260412_092221_scorecard.md",
+        "stamp": "20260412_092221",
+        "written_at": "2026-04-12T09:22:21",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:25:23",
+      "report_name": "daily_snapshot",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092523_daily_snapshot.md",
+        "source_name": "20260412_092523_daily_snapshot.md",
+        "stamp": "20260412_092523",
+        "written_at": "2026-04-12T09:25:23",
+        "report_name": "daily_snapshot"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092221_daily_snapshot.md",
+        "source_name": "20260412_092221_daily_snapshot.md",
+        "stamp": "20260412_092221",
+        "written_at": "2026-04-12T09:22:21",
+        "report_name": "daily_snapshot"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:25:42",
+      "report_name": "sleep",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092542_sleep.md",
+        "source_name": "20260412_092542_sleep.md",
+        "stamp": "20260412_092542",
+        "written_at": "2026-04-12T09:25:42",
+        "report_name": "sleep"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092241_sleep.md",
+        "source_name": "20260412_092241_sleep.md",
+        "stamp": "20260412_092241",
+        "written_at": "2026-04-12T09:22:41",
+        "report_name": "sleep"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:26:42",
+      "report_name": "dream",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092642_dream.md",
+        "source_name": "20260412_092642_dream.md",
+        "stamp": "20260412_092642",
+        "written_at": "2026-04-12T09:26:42",
+        "report_name": "dream"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092337_dream.md",
+        "source_name": "20260412_092337_dream.md",
+        "stamp": "20260412_092337",
+        "written_at": "2026-04-12T09:23:37",
+        "report_name": "dream"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:26:59",
+      "report_name": "reality",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092659_reality.md",
+        "source_name": "20260412_092659_reality.md",
+        "stamp": "20260412_092659",
+        "written_at": "2026-04-12T09:26:59",
+        "report_name": "reality"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092352_reality.md",
+        "source_name": "20260412_092352_reality.md",
+        "stamp": "20260412_092352",
+        "written_at": "2026-04-12T09:23:52",
+        "report_name": "reality"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:27:56",
+      "report_name": "reflect",
+      "action": "kept_existing",
+      "reason": "preserved_stronger_reflect",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092756_reflect.md",
+        "source_name": "20260412_092756_reflect.md",
+        "stamp": "20260412_092756",
+        "written_at": "2026-04-12T09:27:56",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "needs_attention",
+        "reflect_quality": {
+          "quality_score": 12,
+          "diagnostic_status": "needs_attention",
+          "diagnostic_rank": 0,
+          "core_section_count": 5,
+          "operational_section_count": 2,
+          "diagnostics_visible": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
+        "source_name": "20260409_074602_reflect.md",
+        "stamp": "20260409_074602",
+        "written_at": "2026-04-09T07:54:09",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "valid",
+        "reflect_quality": {
+          "quality_score": 58,
+          "diagnostic_status": "valid",
+          "diagnostic_rank": 3,
+          "core_section_count": 5,
+          "operational_section_count": 3,
+          "diagnostics_visible": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:28:23",
+      "report_name": "scorecard",
+      "action": "updated",
+      "reason": "newer_equal_grounding",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092823_scorecard.md",
+        "source_name": "20260412_092823_scorecard.md",
+        "stamp": "20260412_092823",
+        "written_at": "2026-04-12T09:28:23",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092523_scorecard.md",
+        "source_name": "20260412_092523_scorecard.md",
+        "stamp": "20260412_092523",
+        "written_at": "2026-04-12T09:25:23",
+        "report_name": "scorecard",
+        "scorecard_quality": {
+          "quality_score": 21,
+          "known_status_count": 7,
+          "unknown_status_count": 0,
+          "ungrounded_count": 0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:28:23",
+      "report_name": "daily_snapshot",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092823_daily_snapshot.md",
+        "source_name": "20260412_092823_daily_snapshot.md",
+        "stamp": "20260412_092823",
+        "written_at": "2026-04-12T09:28:23",
+        "report_name": "daily_snapshot"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092523_daily_snapshot.md",
+        "source_name": "20260412_092523_daily_snapshot.md",
+        "stamp": "20260412_092523",
+        "written_at": "2026-04-12T09:25:23",
+        "report_name": "daily_snapshot"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:28:45",
+      "report_name": "sleep",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092845_sleep.md",
+        "source_name": "20260412_092845_sleep.md",
+        "stamp": "20260412_092845",
+        "written_at": "2026-04-12T09:28:45",
+        "report_name": "sleep"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092542_sleep.md",
+        "source_name": "20260412_092542_sleep.md",
+        "stamp": "20260412_092542",
+        "written_at": "2026-04-12T09:25:42",
+        "report_name": "sleep"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:29:44",
+      "report_name": "dream",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092944_dream.md",
+        "source_name": "20260412_092944_dream.md",
+        "stamp": "20260412_092944",
+        "written_at": "2026-04-12T09:29:44",
+        "report_name": "dream"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092642_dream.md",
+        "source_name": "20260412_092642_dream.md",
+        "stamp": "20260412_092642",
+        "written_at": "2026-04-12T09:26:42",
+        "report_name": "dream"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:29:59",
+      "report_name": "reality",
+      "action": "updated",
+      "reason": "newer_report",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092959_reality.md",
+        "source_name": "20260412_092959_reality.md",
+        "stamp": "20260412_092959",
+        "written_at": "2026-04-12T09:29:59",
+        "report_name": "reality"
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_092659_reality.md",
+        "source_name": "20260412_092659_reality.md",
+        "stamp": "20260412_092659",
+        "written_at": "2026-04-12T09:26:59",
+        "report_name": "reality"
+      }
+    },
+    {
+      "timestamp": "2026-04-12T09:30:53",
+      "report_name": "reflect",
+      "action": "kept_existing",
+      "reason": "preserved_stronger_reflect",
+      "candidate": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260412_093053_reflect.md",
+        "source_name": "20260412_093053_reflect.md",
+        "stamp": "20260412_093053",
+        "written_at": "2026-04-12T09:30:53",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "needs_attention",
+        "reflect_quality": {
+          "quality_score": 12,
+          "diagnostic_status": "needs_attention",
+          "diagnostic_rank": 0,
+          "core_section_count": 5,
+          "operational_section_count": 2,
+          "diagnostics_visible": 0
+        }
+      },
+      "current": {
+        "source_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/reports/20260409_074602_reflect.md",
+        "source_name": "20260409_074602_reflect.md",
+        "stamp": "20260409_074602",
+        "written_at": "2026-04-09T07:54:09",
+        "report_name": "reflect",
+        "reflect_diagnostic_status": "valid",
+        "reflect_quality": {
+          "quality_score": 58,
+          "diagnostic_status": "valid",
+          "diagnostic_rank": 3,
+          "core_section_count": 5,
+          "operational_section_count": 3,
+          "diagnostics_visible": 0
+        }
+      }
     }
   ],
-  "updated_at": "2026-04-12T09:00:38"
+  "updated_at": "2026-04-12T09:30:53"
 }

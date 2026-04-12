@@ -898,6 +898,7 @@
         <div class="steering-grid">
           <article class="steering-card" id="steeringIntent"></article>
           <article class="steering-card" id="steeringRealism"></article>
+          <article class="steering-card" id="steeringBoundary"></article>
           <article class="steering-card" id="steeringReviewable"></article>
           <article class="steering-card" id="steeringBlockers"></article>
           <article class="steering-card wide" id="steeringMilestones"></article>
@@ -1881,11 +1882,15 @@
     }
 
     function renderProjectSteering(status) {
+      const pageMap = collectPageMap(status);
+      const page = pageMap.project_overview || {};
+      const sections = page.sections || [];
       const expectations = status.project_expectations || {};
       const milestonesState = status.project_milestones || {};
       const milestones = milestonesState.milestones || [];
       const realism = status.product_realism_review || {};
       const resume = status.execution_resume || {};
+      const boundaries = status.execution_boundaries || resume.execution_boundaries || {};
       const cost = status.cost_viability_review || {};
       const verification = status.verification_summary || {};
       const reviewable = milestones.filter(row => row.approval_state === "ready_for_review");
@@ -1896,6 +1901,10 @@
       const currentTruthOwner = (verification.current_truth_sources || []).find(row =>
         row.question === "Pending V1 decisions and active review front"
       );
+      const boundaryTruthOwner = (verification.current_truth_sources || []).find(row =>
+        row.question === "Execution continuation, pause, stop, and escalation posture"
+      );
+      const boundarySection = sections.find(section => section.section_id === "execution_boundaries") || {};
 
       document.getElementById("steeringIntent").innerHTML = `
         <div class="verification-heading">Intent</div>
@@ -1923,6 +1932,25 @@
         ${topRisk ? `<div class="footer"><strong>Top anti-gimmick risk:</strong> ${truncateText(topRisk, 220)}</div>` : ""}
         ${cost.operator_cost_warning ? `<div class="footer"><strong>Cost warning:</strong> ${truncateText(cost.operator_cost_warning, 220)}</div>` : ""}
         ${(realism.anti_gimmick_strengths || []).length ? `<div class="footer"><strong>Grounded counterweight:</strong> ${truncateText(realism.anti_gimmick_strengths[0], 220)}</div>` : ""}
+      `;
+
+      document.getElementById("steeringBoundary").innerHTML = `
+        <div class="verification-heading">Execution Boundary</div>
+        <div class="mini-pills">
+          <span class="mini-pill ${boundaries.working_mode || ""}">${humanizeToken(boundaries.working_mode || "until_next_reviewable_milestone")}</span>
+          <span class="mini-pill">${humanizeToken(boundaries.deadline_posture || "no_explicit_deadline")}</span>
+          ${boundaries.trust_posture?.use_state ? `<span class="mini-pill ${boundaries.trust_posture.use_state}">${humanizeToken(boundaries.trust_posture.use_state)}</span>` : ``}
+        </div>
+        <div class="steering-copy">${boundaries.current_boundary_summary || "No execution boundary posture is available yet."}</div>
+        ${boundaries.target_milestone_title ? `<div class="footer"><strong>Target milestone:</strong> ${truncateText(boundaries.target_milestone_title, 180)}</div>` : ""}
+        ${boundaries.current_reason_to_continue ? `<div class="footer"><strong>Continue:</strong> ${truncateText(boundaries.current_reason_to_continue, 220)}</div>` : ""}
+        ${boundaries.current_reason_to_pause ? `<div class="footer"><strong>Pause:</strong> ${truncateText(boundaries.current_reason_to_pause, 220)}</div>` : ""}
+        ${boundaries.current_reason_to_stop ? `<div class="footer"><strong>Stop:</strong> ${truncateText(boundaries.current_reason_to_stop, 220)}</div>` : ""}
+        ${boundaries.current_reason_to_escalate ? `<div class="footer"><strong>Escalate:</strong> ${truncateText(boundaries.current_reason_to_escalate, 220)}</div>` : ""}
+        ${(boundaries.operator_review_required_when || []).length ? `<div class="footer"><strong>Operator review required when:</strong> ${truncateText(boundaries.operator_review_required_when[0], 220)}</div>` : ""}
+        ${boundaries.prototype_vs_product_boundary_note ? `<div class="footer"><strong>Prototype vs product:</strong> ${truncateText(boundaries.prototype_vs_product_boundary_note, 220)}</div>` : ""}
+        ${boundaryTruthOwner ? `<div class="footer"><strong>Current truth owner:</strong> ${boundaryTruthOwner.source_surface}</div>` : ""}
+        ${boundarySection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(boundarySection.purpose, 220)}</div>` : ""}
       `;
 
       document.getElementById("steeringReviewable").innerHTML = `

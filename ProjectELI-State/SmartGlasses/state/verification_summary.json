@@ -1,22 +1,23 @@
 {
-  "generated_at": "2026-04-11T23:49:17",
+  "generated_at": "2026-04-12T09:26:51",
   "source_generated_at": {
     "review_state_consumption": "2026-04-09T23:02:49",
-    "execution_resume": "2026-04-11T23:49:17",
-    "reflect_state": "2026-04-11T23:48:02",
-    "project_scorecard": "2026-04-11T23:48:36",
-    "v1_decision_review": "2026-04-11T23:48:02",
+    "execution_resume": "2026-04-12T09:26:51",
+    "reflect_state": "2026-04-12T09:24:50",
+    "project_scorecard": "2026-04-12T09:25:23",
+    "v1_decision_review": "2026-04-12T09:24:50",
     "implementation_artifact_review": "2026-04-09T23:02:49",
     "artifact_emission_readiness": "2026-04-09T23:02:49",
     "draft_artifact_review": "2026-04-09T23:02:49",
     "hardware_aware_rendering_brief_review": "2026-04-11T19:39:47",
-    "cost_viability_review": "2026-04-11T23:49:17"
+    "cost_viability_review": "2026-04-12T09:26:51",
+    "execution_boundaries": "2026-04-12T09:26:51"
   },
   "summary": "The current review-state files are close enough in time and linkage to compare operationally.",
   "subsystem_card_source": {
     "source_surface": "project_scorecard",
     "use_state": "current_truth",
-    "generated_at": "2026-04-11T23:48:36",
+    "generated_at": "2026-04-12T09:25:23",
     "why": "The scorecard is fresh enough to use as current subsystem-readiness context."
   },
   "current_truth_sources": [
@@ -24,7 +25,7 @@
       "question": "Held lanes and action judgment",
       "source_surface": "reflect_state",
       "use_state": "current_truth",
-      "generated_at": "2026-04-11T23:48:02",
+      "generated_at": "2026-04-12T09:24:50",
       "why": "Reflect-owned action judgment remains the authoritative source for whether a lane is active, held, killed, or still unresolved.",
       "supporting_surfaces": [],
       "sample_titles": [
@@ -36,7 +37,7 @@
       "question": "Subsystem cards and readiness",
       "source_surface": "project_scorecard",
       "use_state": "current_truth",
-      "generated_at": "2026-04-11T23:48:36",
+      "generated_at": "2026-04-12T09:25:23",
       "why": "The scorecard is fresh enough to use as current subsystem-readiness context.",
       "supporting_surfaces": [],
       "sample_titles": [
@@ -49,12 +50,10 @@
       "question": "Pending V1 decisions and active review front",
       "source_surface": "v1_decision_review",
       "use_state": "current_truth",
-      "generated_at": "2026-04-11T23:48:02",
+      "generated_at": "2026-04-12T09:24:50",
       "why": "This file is close enough to its linked review surfaces to compare operationally.",
       "supporting_surfaces": [],
-      "sample_titles": [
-        "V1 Default Subtitle Position"
-      ]
+      "sample_titles": []
     },
     {
       "question": "Emitted structured design brief drafts",
@@ -86,7 +85,7 @@
       "question": "Cost viability and economic posture",
       "source_surface": "cost_viability_review",
       "use_state": "current_truth",
-      "generated_at": "2026-04-11T23:49:17",
+      "generated_at": "2026-04-12T09:26:51",
       "why": "Use this surface to judge whether the current project direction still makes economic sense as more than a prototype path. It is directional and conservative, not a fake BOM calculator.",
       "supporting_surfaces": [
         "project_expectations",
@@ -97,6 +96,23 @@
       "sample_titles": [
         "product_tier_mismatch_risk",
         "stop_if_cost_target_matters"
+      ]
+    },
+    {
+      "question": "Execution continuation, pause, stop, and escalation posture",
+      "source_surface": "execution_boundaries",
+      "use_state": "current_truth",
+      "generated_at": "2026-04-12T09:26:51",
+      "why": "This surface is derived from current milestone, cost, parts, pricing, and review truth to stop ELI from treating open-ended refinement as the default.",
+      "supporting_surfaces": [
+        "project_milestones",
+        "cost_viability_review",
+        "parts_readiness_review",
+        "pricing_alternatives_review"
+      ],
+      "sample_titles": [
+        "until_operator_decision_needed",
+        "Implementation Package Review"
       ]
     }
   ],
@@ -173,9 +189,14 @@
   "lane_explanations": {
     "active": [
       {
-        "title": "V1 Default Subtitle Position",
-        "source_surface": "v1_decision_review",
-        "why": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit..."
+        "title": "V1 Confidence Display Format Draft Design Brief",
+        "source_surface": "draft_artifact_review",
+        "why": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission."
+      },
+      {
+        "title": "V1 Default Subtitle Position Draft Design Brief",
+        "source_surface": "draft_artifact_review",
+        "why": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission."
       }
     ],
     "held": [
@@ -296,13 +317,14 @@
     "Use current truth sources to verify which surface currently owns each question before trusting the UI impression.",
     "Use recent transitions to check what actually changed, rather than reading repeated markers as progress by themselves.",
     "For a subsystem marked needs_attention, read the blocked-lane reason and next focus before interpreting the confidence strip.",
-    "For held lanes, verify the release signals before trying to reopen the lane as active work."
+    "For held lanes, verify the release signals before trying to reopen the lane as active work.",
+    "For rendering briefs, verify the current-truth subsystem and build-posture sources before reading a visual comparison as settled design intent."
   ],
   "counts": {
-    "current_truth_sources": 6,
+    "current_truth_sources": 7,
     "supporting_context_sources": 2,
     "recent_transitions": 4,
     "surfaces_with_caution": 1
   },
-  "updated_at": "2026-04-11T23:49:17"
+  "updated_at": "2026-04-12T09:26:51"
 }

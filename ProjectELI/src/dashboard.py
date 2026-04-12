@@ -18,6 +18,7 @@ from orchestrator import (
     COST_VIABILITY_REVIEW_PATH,
     DB_PATH,
     EXECUTION_RESUME_PATH,
+    EXECUTION_BOUNDARIES_PATH,
     EXTENSIONS_CAPABILITY_REVIEW_PATH,
     HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH,
     OPERATOR_GUIDANCE_PATH,
@@ -360,6 +361,7 @@ def load_dashboard_data():
     })
     execution_resume = read_json(EXECUTION_RESUME_PATH, {
         "generated_at": "",
+        "execution_boundaries": {},
         "project_intent": {},
         "product_realism": {},
         "component_package": {},
@@ -367,6 +369,28 @@ def load_dashboard_data():
         "unblocked_next": {},
         "needs_human_review": [],
         "resume_notes": [],
+    })
+    execution_boundaries = read_json(EXECUTION_BOUNDARIES_PATH, {
+        "generated_at": "",
+        "working_mode": "until_next_reviewable_milestone",
+        "target_milestone_id": "",
+        "target_milestone_title": "",
+        "deadline_posture": "no_explicit_deadline",
+        "review_cadence": "at_next_reviewable_milestone_or_operator_decision",
+        "default_stop_conditions": [],
+        "pause_conditions": [],
+        "stop_conditions": [],
+        "operator_review_required_when": [],
+        "staleness_stop_condition": "",
+        "no_new_grounding_stop_condition": "",
+        "cost_stop_condition": "",
+        "current_boundary_summary": "",
+        "current_reason_to_continue": "",
+        "current_reason_to_pause": "",
+        "current_reason_to_stop": "",
+        "current_reason_to_escalate": "",
+        "prototype_vs_product_boundary_note": "",
+        "trust_posture": {},
     })
     component_package_review = read_json(COMPONENT_PACKAGE_REVIEW_PATH, {
         "generated_at": "",
@@ -582,6 +606,7 @@ def load_dashboard_data():
         "project_milestones": project_milestones,
         "product_realism_review": product_realism_review,
         "execution_resume": execution_resume,
+        "execution_boundaries": execution_boundaries,
         "component_package_review": component_package_review,
         "parts_readiness_review": parts_readiness_review,
         "pricing_alternatives_review": pricing_alternatives_review,

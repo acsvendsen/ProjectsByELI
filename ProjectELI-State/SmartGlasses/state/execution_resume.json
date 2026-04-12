@@ -1,13 +1,14 @@
 {
-  "generated_at": "2026-04-11T23:49:17",
+  "generated_at": "2026-04-12T09:26:51",
   "source_generated_at": {
     "review_state_consumption": "2026-04-09T23:02:49",
-    "reflect_state": "2026-04-11T23:48:02",
-    "project_scorecard": "2026-04-11T23:48:36",
+    "reflect_state": "2026-04-12T09:24:50",
+    "project_scorecard": "2026-04-12T09:25:23",
     "implementation_artifact_review": "2026-04-09T23:02:49",
-    "component_package_review": "2026-04-11T23:49:17",
-    "cost_viability_review": "2026-04-11T23:49:17",
-    "v1_decision_review": "2026-04-11T23:48:02",
+    "component_package_review": "2026-04-12T09:26:51",
+    "cost_viability_review": "2026-04-12T09:26:51",
+    "execution_boundaries": "2026-04-12T09:26:51",
+    "v1_decision_review": "2026-04-12T09:24:50",
     "artifact_emission_readiness": "2026-04-09T23:02:49",
     "draft_artifact_review": "2026-04-09T23:02:49"
   },
@@ -37,6 +38,17 @@
     "acceptable_cost_posture": "prototype_only_until_costs_grounded",
     "reviewed_by_operator": false,
     "defaults_are_tentative": true
+  },
+  "execution_boundaries": {
+    "working_mode": "until_operator_decision_needed",
+    "target_milestone_id": "implementation_package_review",
+    "target_milestone_title": "Implementation Package Review",
+    "current_boundary_summary": "Work only until the next operator-review boundary around Implementation Package Review. Pause when no new grounding appears. Stop product-shaped continuation if the current cost target still matters.",
+    "current_reason_to_continue": "Continue only prototype-learning work that can materially reduce blockers toward Implementation Package Review by adding new grounding on Wireless Interface, Firmware, Memory System.",
+    "current_reason_to_pause": "Pause if another cycle does not add materially new grounding on Wireless Interface, Firmware, Memory System; repeating the same blocker posture is not a valid reason to continue. Package-only parts posture and directional-only pricing are not enough to just...",
+    "current_reason_to_stop": "Stop product-shaped continuation if the `discreet_consumer_assistive_wearable` target still matters. Cost signal is `stop_if_cost_target_matters` and pricing fit is `no_candidate_currently_credible_for_target_tier`.",
+    "current_reason_to_escalate": "Escalate now because Implementation Package Review is review-gated and operator review is the current bottleneck. Implementation Package Review is already `ready_for_review`; more internal cycling should not be treated as a substitute fo...",
+    "prototype_vs_product_boundary_note": "Continue prototype-learning only when new grounding is appearing. Do not let implementation-package work, parts posture, or pricing comparisons silently become product-path narration while cost posture still caps that story."
   },
   "product_realism": {
     "current_realism_band": "serious_prototype_path",
@@ -69,11 +81,24 @@
   ],
   "active_review_front": [
     {
-      "lane": "pending_v1_decision",
-      "title": "V1 Default Subtitle Position",
-      "source_surface": "v1_decision_review",
+      "lane": "draft_artifact_review",
+      "title": "V1 Confidence Display Format Draft Design Brief",
+      "source_surface": "draft_artifact_review",
       "trust_use": "current_truth",
-      "why_active_now": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit...",
+      "why_active_now": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.",
+      "current_direction": "Label + Reason",
+      "bounded_options": [
+        "Label Only",
+        "Label + Reason"
+      ],
+      "revisable": true
+    },
+    {
+      "lane": "draft_artifact_review",
+      "title": "V1 Default Subtitle Position Draft Design Brief",
+      "source_surface": "draft_artifact_review",
+      "trust_use": "current_truth",
+      "why_active_now": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.",
       "current_direction": "More Prominent",
       "bounded_options": [
         "Stable Default",
@@ -118,6 +143,18 @@
         "meaningfully stronger architectural pull",
         "meaningfully lower resistance"
       ]
+    },
+    {
+      "title": "Phone/Cloud Boundary",
+      "source_surface": "reflect_state",
+      "judgment": "hold_until_new_grounding",
+      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Latency vs richness, Privacy vs usefulness; needs counterweight discipline on Latency vs richness, Privacy vs usefulness; still...",
+      "release_on": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ]
     }
   ],
   "blocked_lanes": [
@@ -155,30 +192,38 @@
     }
   ],
   "unblocked_next": {
-    "kind": "pending_v1_decision",
-    "title": "V1 Default Subtitle Position",
-    "source_surface": "v1_decision_review",
-    "why_now": "What should the default subtitle position behavior be for V1 live use?",
+    "kind": "structured_design_brief",
+    "title": "V1 Confidence Display Format Draft Design Brief",
+    "source_surface": "draft_artifact_review",
+    "why_now": "Given the current constraints, should Label + Reason remain the leading default for What confidence format should V1 use by default during live subtitle support?",
     "revisable": true
   },
   "needs_human_review": [
     {
-      "kind": "pending_v1_decision",
-      "title": "V1 Default Subtitle Position",
-      "source_surface": "v1_decision_review",
-      "review_question": "What should the default subtitle position behavior be for V1 live use?",
+      "kind": "structured_design_brief",
+      "title": "V1 Confidence Display Format Draft Design Brief",
+      "source_surface": "draft_artifact_review",
+      "review_question": "Given the current constraints, should Label + Reason remain the leading default for What confidence format should V1 use by default during live subtitle support?",
+      "revisable": true
+    },
+    {
+      "kind": "structured_design_brief",
+      "title": "V1 Default Subtitle Position Draft Design Brief",
+      "source_surface": "draft_artifact_review",
+      "review_question": "Given the current constraints, should More Prominent remain the leading default for What should the default subtitle position behavior be for V1 live use?",
       "revisable": true
     }
   ],
   "resume_notes": [
     "Do not assume this becomes a real product just because the prototype direction is interesting. Current cost posture is weak enough that commercial ambition should pause, stop, or reframe unless cost-sensitive assumptions improve.",
+    "There is no live pending V1 decision front right now; do not infer missing work from older review surfaces.",
     "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history."
   ],
   "counts": {
-    "active_review_front": 1,
-    "held_lanes": 3,
+    "active_review_front": 2,
+    "held_lanes": 4,
     "blocked_lanes": 4,
-    "needs_human_review": 1
+    "needs_human_review": 2
   },
-  "updated_at": "2026-04-11T23:49:17"
+  "updated_at": "2026-04-12T09:26:51"
 }
