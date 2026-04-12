@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-12T09:26:51",
+  "generated_at": "2026-04-12T09:46:18",
   "summary": "Current UI planning warrants Project Creation, Project Overview, Review & Decisions, Build & Realization, Subsystems & Workstreams, Extensions & Agents, Verification & Audit. Keep project creation visible while intent remains tentative, keep review surfaces bounded and non-final, let build-oriented pages emerge only...",
   "project_pages": [
     {
@@ -109,8 +109,8 @@
         },
         {
           "section_id": "execution_boundaries",
-          "title": "Execution Boundaries",
-          "purpose": "Show the current working mode, target milestone, and the explicit continue, pause, stop, and escalation boundaries so ELI does not read open-ended refinement as the default.",
+          "title": "Current Working Target",
+          "purpose": "Show the one current milestone target, why it is active now, what it could unlock, what blocks it, and when ELI should escalate instead of continuing.",
           "driven_by_sources": [
             "execution_boundaries",
             "execution_resume",
@@ -153,7 +153,7 @@
       "purpose": "Surface bounded review fronts, milestone gates, and provisional decision or draft surfaces that are honestly ready for human inspection.",
       "status": "review_oriented",
       "priority": "primary",
-      "why_this_page_exists": "The project currently has 2 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s).",
+      "why_this_page_exists": "The project currently has 1 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s).",
       "driven_by_sources": [
         "execution_resume",
         "project_milestones",
@@ -556,35 +556,35 @@
       "surface_id": "execution_resume",
       "role": "operational_resume",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-12T09:26:51",
+      "generated_at": "2026-04-12T09:46:18",
       "why_it_matters": "Carries the operator-facing current-truth summary, active review front, held lanes, blockers, and next step."
     },
     {
       "surface_id": "project_milestones",
       "role": "milestone_gate",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-12T09:26:51",
+      "generated_at": "2026-04-12T09:46:18",
       "why_it_matters": "Keeps reviewability tied to readiness bands, blockers, and approval state rather than vague progress."
     },
     {
       "surface_id": "product_realism_review",
       "role": "realism_gate",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-12T09:26:51",
+      "generated_at": "2026-04-12T09:46:18",
       "why_it_matters": "Constrains product-language and anti-gimmick posture using grounded realism judgment."
     },
     {
       "surface_id": "cost_viability_review",
       "role": "economic_viability",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-12T09:26:51",
+      "generated_at": "2026-04-12T09:46:18",
       "why_it_matters": "Current hardware, packaging, and subsystem pressure already look mismatched to a discreet consumer-tier wearable cost story. Wireless and firmware gaps still add likely hidden cost pressure. Declared intent remains `f..."
     },
     {
       "surface_id": "project_scorecard",
       "role": "subsystem_truth",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-12T09:25:23",
+      "generated_at": "2026-04-12T09:45:18",
       "why_it_matters": "The scorecard is fresh enough to use as current subsystem-readiness context."
     },
     {
@@ -598,21 +598,21 @@
       "surface_id": "parts_readiness_review",
       "role": "parts_readiness",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-12T09:26:51",
+      "generated_at": "2026-04-12T09:46:18",
       "why_it_matters": "Package-level suggestions are warranted now, but no grounded component-shortlist or equivalent implementation artifact justifies stronger part claims yet."
     },
     {
       "surface_id": "execution_boundaries",
       "role": "execution_control",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-12T09:26:51",
+      "generated_at": "2026-04-12T09:46:18",
       "why_it_matters": "Work only until the next operator-review boundary around Implementation Package Review. Pause when no new grounding appears. Stop product-shaped continuation if the current cost target still matters."
     },
     {
       "surface_id": "pricing_alternatives_review",
       "role": "pricing_direction_comparison",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-12T09:26:51",
+      "generated_at": "2026-04-12T09:46:18",
       "why_it_matters": "Current package suggestions may still help prototype learning, but the cost direction is still mismatched to the declared discreet consumer target. Cheaper or simpler alternatives mainly help by reducing overbuild, no..."
     }
   ],
@@ -644,7 +644,7 @@
     {
       "page_id": "review_and_decisions",
       "priority": "primary",
-      "why": "The project currently has 2 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s)."
+      "why": "The project currently has 1 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s)."
     },
     {
       "page_id": "build_or_realization",
@@ -681,7 +681,7 @@
     {
       "page_id": "review_and_decisions",
       "status": "review_oriented",
-      "why": "The project currently has 2 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s)."
+      "why": "The project currently has 1 active review front(s), 1 ready-for-review milestone(s), and 2 emitted draft artifact review row(s)."
     },
     {
       "page_id": "build_or_realization",
@@ -713,21 +713,21 @@
   },
   "source_generated_at": {
     "project_expectations": "2026-04-10T09:16:32",
-    "execution_resume": "2026-04-12T09:26:51",
-    "project_milestones": "2026-04-12T09:26:51",
-    "product_realism_review": "2026-04-12T09:26:51",
-    "cost_viability_review": "2026-04-12T09:26:51",
+    "execution_resume": "2026-04-12T09:46:18",
+    "project_milestones": "2026-04-12T09:46:18",
+    "product_realism_review": "2026-04-12T09:46:18",
+    "cost_viability_review": "2026-04-12T09:46:18",
     "component_package_review": "2026-04-12T00:42:44",
-    "parts_readiness_review": "2026-04-12T09:26:51",
-    "execution_boundaries": "2026-04-12T09:26:51",
-    "pricing_alternatives_review": "2026-04-12T09:26:51",
-    "extensions_capability_review": "2026-04-12T09:26:51",
-    "hardware_aware_rendering_brief_review": "2026-04-12T09:26:51",
-    "verification_summary": "2026-04-12T09:26:51",
-    "project_scorecard": "2026-04-12T09:25:23",
-    "v1_decision_review": "2026-04-12T09:24:50",
+    "parts_readiness_review": "2026-04-12T09:46:18",
+    "execution_boundaries": "2026-04-12T09:46:18",
+    "pricing_alternatives_review": "2026-04-12T09:46:18",
+    "extensions_capability_review": "2026-04-12T09:46:18",
+    "hardware_aware_rendering_brief_review": "2026-04-12T09:46:18",
+    "verification_summary": "2026-04-12T09:46:18",
+    "project_scorecard": "2026-04-12T09:45:18",
+    "v1_decision_review": "2026-04-12T09:44:43",
     "draft_artifact_review": "2026-04-09T23:02:49"
   },
   "revisable": true,
-  "updated_at": "2026-04-12T09:26:51"
+  "updated_at": "2026-04-12T09:46:18"
 }

@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-04-12T09:26:51",
+  "generated_at": "2026-04-12T09:46:18",
   "source_generated_at": {
     "review_state_consumption": "2026-04-09T23:02:49",
-    "reflect_state": "2026-04-12T09:24:50",
-    "project_scorecard": "2026-04-12T09:25:23",
+    "reflect_state": "2026-04-12T09:44:43",
+    "project_scorecard": "2026-04-12T09:45:18",
     "implementation_artifact_review": "2026-04-09T23:02:49",
-    "component_package_review": "2026-04-12T09:26:51",
-    "cost_viability_review": "2026-04-12T09:26:51",
-    "execution_boundaries": "2026-04-12T09:26:51",
-    "v1_decision_review": "2026-04-12T09:24:50",
+    "component_package_review": "2026-04-12T09:46:18",
+    "cost_viability_review": "2026-04-12T09:46:18",
+    "execution_boundaries": "2026-04-12T09:46:18",
+    "v1_decision_review": "2026-04-12T09:44:43",
     "artifact_emission_readiness": "2026-04-09T23:02:49",
     "draft_artifact_review": "2026-04-09T23:02:49"
   },
@@ -43,6 +43,44 @@
     "working_mode": "until_operator_decision_needed",
     "target_milestone_id": "implementation_package_review",
     "target_milestone_title": "Implementation Package Review",
+    "current_milestone_target_id": "implementation_package_review",
+    "current_milestone_target_title": "Implementation Package Review",
+    "why_this_target_now": "Implementation Package Review is the nearest honest review boundary because it is already `ready_for_review`. It is the strongest current gate for prototype buildability interpretation, while Product Realism Check, Product Definition Review remain held, blo...",
+    "current_target_posture": "reviewable_now",
+    "what_unlocks_if_reviewed": [
+      "Clearer prototype buildability interpretation of the current implementation package.",
+      "A bounded decision on whether the current emitted package is strong enough to carry forward as prototype-oriented implementation context.",
+      "More honest separation between prototype scaffolding and any later product-facing implementation claims."
+    ],
+    "what_blocks_progress": [
+      "Wireless Interface: Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+      "Firmware: Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+      "Memory System: Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
+      "Parts posture is still package-only, so this front cannot yet be read as a grounded component shortlist or consumer-tier implementation package."
+    ],
+    "when_to_escalate_to_operator": "Escalate when Implementation Package Review is already `ready_for_review`, when operator intent tightening is the limiting factor, or when another cycle adds no new grounding on this front.",
+    "when_to_stop_working_this_front": "Stop autonomous work on Implementation Package Review when it is only repeating the same blockers, when it starts reading like a consumer-tier implementation package, or when the current cost target still matters and cost posture remains...",
+    "prototype_vs_product_interpretation": "Treat Implementation Package Review only as a prototype-learning and buildability gate. It does not justify discreet consumer product narration while cost posture still says `stop_if_cost_target_matters`.",
+    "competing_milestones_deferred": [
+      {
+        "milestone_id": "product_realism_check",
+        "title": "Product Realism Check",
+        "approval_state": "held",
+        "why_deferred": "Current operator expectations do not yet target a real product claim, so realism review should stay held rather than being forced early. Current cost posture is `product_tier_mismatch_risk` with signal `stop_if_cost_t..."
+      },
+      {
+        "milestone_id": "product_definition",
+        "title": "Product Definition Review",
+        "approval_state": "not_yet_reviewable",
+        "why_deferred": "Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototype-scoped rather than reading as a `discreet_consumer_assistive_wearable` product path."
+      },
+      {
+        "milestone_id": "prototype_viability",
+        "title": "Prototype Viability Review",
+        "approval_state": "not_yet_reviewable",
+        "why_deferred": "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.; Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it..."
+      }
+    ],
     "current_boundary_summary": "Work only until the next operator-review boundary around Implementation Package Review. Pause when no new grounding appears. Stop product-shaped continuation if the current cost target still matters.",
     "current_reason_to_continue": "Continue only prototype-learning work that can materially reduce blockers toward Implementation Package Review by adding new grounding on Wireless Interface, Firmware, Memory System.",
     "current_reason_to_pause": "Pause if another cycle does not add materially new grounding on Wireless Interface, Firmware, Memory System; repeating the same blocker posture is not a valid reason to continue. Package-only parts posture and directional-only pricing are not enough to just...",
@@ -81,24 +119,11 @@
   ],
   "active_review_front": [
     {
-      "lane": "draft_artifact_review",
-      "title": "V1 Confidence Display Format Draft Design Brief",
-      "source_surface": "draft_artifact_review",
+      "lane": "pending_v1_decision",
+      "title": "V1 Default Subtitle Position",
+      "source_surface": "v1_decision_review",
       "trust_use": "current_truth",
-      "why_active_now": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.",
-      "current_direction": "Label + Reason",
-      "bounded_options": [
-        "Label Only",
-        "Label + Reason"
-      ],
-      "revisable": true
-    },
-    {
-      "lane": "draft_artifact_review",
-      "title": "V1 Default Subtitle Position Draft Design Brief",
-      "source_surface": "draft_artifact_review",
-      "trust_use": "current_truth",
-      "why_active_now": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.",
+      "why_active_now": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit...",
       "current_direction": "More Prominent",
       "bounded_options": [
         "Stable Default",
@@ -112,7 +137,19 @@
       "title": "Memory/Cache Policy",
       "source_surface": "reflect_state",
       "judgment": "hold_until_new_grounding",
-      "why_held": "aligns with Trustworthy memory support; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs usefulness, Latency vs richness; still meaningful, but not newly a...",
+      "why_held": "aligns with Trustworthy memory support; also addresses under-attended pressure in Latency vs richness; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs use...",
+      "release_on": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ]
+    },
+    {
+      "title": "Confidence Display",
+      "source_surface": "reflect_state",
+      "judgment": "hold_until_new_grounding",
+      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Latency vs richness; meets resistance from Discreet UX vs visual clarity, Latency vs richness; needs counte...",
       "release_on": [
         "real repo change or stronger repo grounding",
         "a new source type such as runtime truth or code-config evidence",
@@ -125,30 +162,6 @@
       "source_surface": "reflect_state",
       "judgment": "hold_until_new_grounding",
       "why_held": "aligns with Real-time subtitle clarity, Low-friction assistance; meets resistance from Discreet UX vs visual clarity; needs counterweight discipline on Discreet UX vs visual clarity; still meaningful, but not newly ac...",
-      "release_on": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully stronger architectural pull",
-        "meaningfully lower resistance"
-      ]
-    },
-    {
-      "title": "Confidence Display",
-      "source_surface": "reflect_state",
-      "judgment": "hold_until_new_grounding",
-      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Discreet UX vs visual clarity, Latency vs richness; needs counterweight discipline on Latency vs richness, Discreet UX vs visua...",
-      "release_on": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully stronger architectural pull",
-        "meaningfully lower resistance"
-      ]
-    },
-    {
-      "title": "Phone/Cloud Boundary",
-      "source_surface": "reflect_state",
-      "judgment": "hold_until_new_grounding",
-      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Latency vs richness, Privacy vs usefulness; needs counterweight discipline on Latency vs richness, Privacy vs usefulness; still...",
       "release_on": [
         "real repo change or stronger repo grounding",
         "a new source type such as runtime truth or code-config evidence",
@@ -192,38 +205,30 @@
     }
   ],
   "unblocked_next": {
-    "kind": "structured_design_brief",
-    "title": "V1 Confidence Display Format Draft Design Brief",
-    "source_surface": "draft_artifact_review",
-    "why_now": "Given the current constraints, should Label + Reason remain the leading default for What confidence format should V1 use by default during live subtitle support?",
+    "kind": "pending_v1_decision",
+    "title": "V1 Default Subtitle Position",
+    "source_surface": "v1_decision_review",
+    "why_now": "What should the default subtitle position behavior be for V1 live use?",
     "revisable": true
   },
   "needs_human_review": [
     {
-      "kind": "structured_design_brief",
-      "title": "V1 Confidence Display Format Draft Design Brief",
-      "source_surface": "draft_artifact_review",
-      "review_question": "Given the current constraints, should Label + Reason remain the leading default for What confidence format should V1 use by default during live subtitle support?",
-      "revisable": true
-    },
-    {
-      "kind": "structured_design_brief",
-      "title": "V1 Default Subtitle Position Draft Design Brief",
-      "source_surface": "draft_artifact_review",
-      "review_question": "Given the current constraints, should More Prominent remain the leading default for What should the default subtitle position behavior be for V1 live use?",
+      "kind": "pending_v1_decision",
+      "title": "V1 Default Subtitle Position",
+      "source_surface": "v1_decision_review",
+      "review_question": "What should the default subtitle position behavior be for V1 live use?",
       "revisable": true
     }
   ],
   "resume_notes": [
     "Do not assume this becomes a real product just because the prototype direction is interesting. Current cost posture is weak enough that commercial ambition should pause, stop, or reframe unless cost-sensitive assumptions improve.",
-    "There is no live pending V1 decision front right now; do not infer missing work from older review surfaces.",
     "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history."
   ],
   "counts": {
-    "active_review_front": 2,
-    "held_lanes": 4,
+    "active_review_front": 1,
+    "held_lanes": 3,
     "blocked_lanes": 4,
-    "needs_human_review": 2
+    "needs_human_review": 1
   },
-  "updated_at": "2026-04-12T09:26:51"
+  "updated_at": "2026-04-12T09:46:18"
 }

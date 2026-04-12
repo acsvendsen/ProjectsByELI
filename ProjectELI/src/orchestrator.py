@@ -10053,6 +10053,8 @@ def default_execution_boundaries_state():
         'working_mode': 'until_next_reviewable_milestone',
         'target_milestone_id': '',
         'target_milestone_title': '',
+        'current_milestone_target_id': '',
+        'current_milestone_target_title': '',
         'deadline_posture': 'no_explicit_deadline',
         'review_cadence': 'at_next_reviewable_milestone_or_operator_decision',
         'default_stop_conditions': [],
@@ -10063,6 +10065,14 @@ def default_execution_boundaries_state():
         'no_new_grounding_stop_condition': '',
         'cost_stop_condition': '',
         'current_boundary_summary': '',
+        'why_this_target_now': '',
+        'current_target_posture': '',
+        'what_unlocks_if_reviewed': [],
+        'what_blocks_progress': [],
+        'when_to_escalate_to_operator': '',
+        'when_to_stop_working_this_front': '',
+        'prototype_vs_product_interpretation': '',
+        'competing_milestones_deferred': [],
         'current_reason_to_continue': '',
         'current_reason_to_pause': '',
         'current_reason_to_stop': '',
@@ -10079,7 +10089,15 @@ def load_execution_boundaries_state():
     data = load_json_file(EXECUTION_BOUNDARIES_PATH, default_execution_boundaries_state())
     if not isinstance(data, dict):
         data = default_execution_boundaries_state()
-    for key in ('default_stop_conditions', 'pause_conditions', 'stop_conditions', 'operator_review_required_when'):
+    for key in (
+        'default_stop_conditions',
+        'pause_conditions',
+        'stop_conditions',
+        'operator_review_required_when',
+        'what_unlocks_if_reviewed',
+        'what_blocks_progress',
+        'competing_milestones_deferred',
+    ):
         if not isinstance(data.get(key), list):
             data[key] = []
     for key in ('trust_posture', 'source_authority', 'source_generated_at'):
@@ -10089,12 +10107,19 @@ def load_execution_boundaries_state():
         'working_mode',
         'target_milestone_id',
         'target_milestone_title',
+        'current_milestone_target_id',
+        'current_milestone_target_title',
         'deadline_posture',
         'review_cadence',
         'staleness_stop_condition',
         'no_new_grounding_stop_condition',
         'cost_stop_condition',
         'current_boundary_summary',
+        'why_this_target_now',
+        'current_target_posture',
+        'when_to_escalate_to_operator',
+        'when_to_stop_working_this_front',
+        'prototype_vs_product_interpretation',
         'current_reason_to_continue',
         'current_reason_to_pause',
         'current_reason_to_stop',
@@ -10172,6 +10197,7 @@ def build_execution_boundaries_state(schema=None, review_snapshot=None, mileston
     target_row = implementation_milestone if implementation_milestone else (ready_review_rows[0] if ready_review_rows else (milestone_rows[0] if milestone_rows else {}))
     target_milestone_id = str(target_row.get('milestone_id', '') or '')
     target_milestone_title = str(target_row.get('title', '') or '')
+    target_approval_state = normalize_signal_key(target_row.get('approval_state', '')) or 'not_yet_reviewable'
 
     blocked_titles = [row.get('title', '') for row in blocked_rows[:3] if row.get('title')]
     blocked_title_text = ', '.join(blocked_titles)
@@ -10273,6 +10299,102 @@ def build_execution_boundaries_state(schema=None, review_snapshot=None, mileston
     else:
         working_mode = 'paused'
 
+    current_target_posture = (
+        'reviewable_now'
+        if target_approval_state == 'ready_for_review' else
+        'held'
+        if target_approval_state == 'held' else
+        'blocked_by_grounding'
+        if blocked_rows or target_row.get('blocking_factors') or target_row.get('missing_evidence') else
+        'active_grounding_front'
+    )
+
+    deferred_rows = []
+    for row in milestone_rows:
+        if not isinstance(row, dict):
+            continue
+        row_id = normalize_signal_key(row.get('milestone_id', ''))
+        if not row_id or row_id == target_milestone_id:
+            continue
+        why_deferred = compact_text_excerpt(
+            str(row.get('why_not_ready_yet', '') or '')
+            or '; '.join(str(item) for item in row.get('blocking_factors', [])[:2] if item)
+            or '; '.join(str(item) for item in row.get('missing_evidence', [])[:2] if item),
+            220,
+        )
+        deferred_rows.append({
+            'milestone_id': row_id,
+            'title': row.get('title', humanize_review_signal(row_id)),
+            'approval_state': row.get('approval_state', 'not_yet_reviewable'),
+            'why_deferred': why_deferred,
+        })
+    deferred_rows.sort(
+        key=lambda row: (
+            {'held': 0, 'not_yet_reviewable': 1, 'ready_for_review': 2, 'approved': 3, 'rejected_for_now': 4}.get(
+                normalize_signal_key(row.get('approval_state', 'not_yet_reviewable')),
+                9,
+            ),
+            row.get('title', ''),
+        )
+    )
+    competing_milestones_deferred = deferred_rows[:3]
+    deferred_titles = [row.get('title', '') for row in competing_milestones_deferred if row.get('title')]
+
+    why_this_target_now = compact_text_excerpt(
+        (
+            f"{target_milestone_title} is the nearest honest review boundary because it is already `ready_for_review`. It is the strongest current gate for prototype buildability interpretation, while {', '.join(deferred_titles[:2]) or 'other milestones'} remain held, blocked, or premature."
+            if target_milestone_title and target_approval_state == 'ready_for_review' else
+            f"{target_milestone_title or 'This milestone'} is the least premature current front because it can still unlock downstream progress without pretending stronger product-facing milestones are ready."
+            if target_milestone_title else
+            "No stronger milestone target is currently justified; continue only on the least premature front."
+        ),
+        260,
+    )
+
+    if target_milestone_id == 'implementation_package_review':
+        what_unlocks_if_reviewed = [
+            'Clearer prototype buildability interpretation of the current implementation package.',
+            'A bounded decision on whether the current emitted package is strong enough to carry forward as prototype-oriented implementation context.',
+            'More honest separation between prototype scaffolding and any later product-facing implementation claims.',
+        ]
+    else:
+        what_unlocks_if_reviewed = []
+        for item in target_row.get('unlocks', [])[:3]:
+            if not isinstance(item, str):
+                continue
+            unlock_row = milestone_by_id.get(normalize_signal_key(item), {})
+            unlock_title = str(unlock_row.get('title', '') or humanize_review_signal(item))
+            if unlock_title:
+                what_unlocks_if_reviewed.append(
+                    f"Potentially clarifies {unlock_title} next, if later grounding still supports it."
+                )
+
+    what_blocks_progress = []
+    if blocked_rows:
+        for row in blocked_rows[:3]:
+            title = row.get('title', 'blocked subsystem')
+            reason = row.get('reason', '')
+            what_blocks_progress.append(compact_text_excerpt(f"{title}: {reason}" if reason else title, 220))
+    for item in target_row.get('blocking_factors', [])[:2]:
+        text = compact_text_excerpt(str(item), 220)
+        if text and text not in what_blocks_progress:
+            what_blocks_progress.append(text)
+    if parts_band == 'package_direction_only':
+        what_blocks_progress.append(
+            compact_text_excerpt(
+                'Parts posture is still package-only, so this front cannot yet be read as a grounded component shortlist or consumer-tier implementation package.',
+                220,
+            )
+        )
+    if pricing_fit == 'no_candidate_currently_credible_for_target_tier':
+        what_blocks_progress.append(
+            compact_text_excerpt(
+                'No current package direction is yet credible for the declared target tier, so implementation review must stay prototype-scoped.',
+                220,
+            )
+        )
+    what_blocks_progress = list(dict.fromkeys(item for item in what_blocks_progress if item))[:4]
+
     current_reason_to_continue = compact_text_excerpt(
         (
             f"Continue only prototype-learning work that can materially reduce blockers toward {target_milestone_title or 'the next milestone'} by adding new grounding on {blocked_title_text}."
@@ -10294,8 +10416,34 @@ def build_execution_boundaries_state(schema=None, review_snapshot=None, mileston
         240,
     )
 
+    when_to_escalate_to_operator = compact_text_excerpt(
+        (
+            f"Escalate when {target_milestone_title or 'the current target'} is already `ready_for_review`, when operator intent tightening is the limiting factor, or when another cycle adds no new grounding on this front."
+            if target_milestone_title else
+            "Escalate when operator review or stronger intent is the real bottleneck rather than another internal cycle."
+        ),
+        240,
+    )
+
+    when_to_stop_working_this_front = compact_text_excerpt(
+        (
+            f"Stop autonomous work on {target_milestone_title or 'this front'} when it is only repeating the same blockers, when it starts reading like a consumer-tier implementation package, or when the current cost target still matters and cost posture remains `{cost_signal}`."
+            if target_milestone_title else
+            f"Stop this front when it repeats the same blockers or outruns the current cost posture `{cost_signal}`."
+        ),
+        240,
+    )
+
     prototype_vs_product_boundary_note = compact_text_excerpt(
         'Continue prototype-learning only when new grounding is appearing. Do not let implementation-package work, parts posture, or pricing comparisons silently become product-path narration while cost posture still caps that story.',
+        240,
+    )
+    prototype_vs_product_interpretation = compact_text_excerpt(
+        (
+            f"Treat {target_milestone_title or 'the current target'} only as a prototype-learning and buildability gate. It does not justify discreet consumer product narration while cost posture still says `{cost_signal}`."
+            if target_milestone_title else
+            f"Treat the current front as prototype-learning only; do not let it become product-path narration while cost posture still says `{cost_signal}`."
+        ),
         240,
     )
 
@@ -10317,6 +10465,8 @@ def build_execution_boundaries_state(schema=None, review_snapshot=None, mileston
         'working_mode': working_mode,
         'target_milestone_id': target_milestone_id,
         'target_milestone_title': target_milestone_title,
+        'current_milestone_target_id': target_milestone_id,
+        'current_milestone_target_title': target_milestone_title,
         'deadline_posture': 'no_explicit_deadline_review_bounded',
         'review_cadence': 'at_next_reviewable_milestone_or_operator_decision',
         'default_stop_conditions': default_stop_conditions,
@@ -10327,6 +10477,14 @@ def build_execution_boundaries_state(schema=None, review_snapshot=None, mileston
         'no_new_grounding_stop_condition': no_new_grounding_stop_condition,
         'cost_stop_condition': cost_stop_condition,
         'current_boundary_summary': current_boundary_summary,
+        'why_this_target_now': why_this_target_now,
+        'current_target_posture': current_target_posture,
+        'what_unlocks_if_reviewed': what_unlocks_if_reviewed,
+        'what_blocks_progress': what_blocks_progress,
+        'when_to_escalate_to_operator': when_to_escalate_to_operator,
+        'when_to_stop_working_this_front': when_to_stop_working_this_front,
+        'prototype_vs_product_interpretation': prototype_vs_product_interpretation,
+        'competing_milestones_deferred': competing_milestones_deferred,
         'current_reason_to_continue': current_reason_to_continue,
         'current_reason_to_pause': current_reason_to_pause,
         'current_reason_to_stop': current_reason_to_stop,
@@ -10335,8 +10493,8 @@ def build_execution_boundaries_state(schema=None, review_snapshot=None, mileston
         'trust_posture': {
             'surface_role': 'current_truth_operational_control_surface',
             'use_state': 'current_truth',
-            'authority_scope': 'execution continuation pause stop and escalation posture',
-            'trust_reason': 'This surface is derived from current milestone, cost, parts, pricing, and review truth to stop ELI from treating open-ended refinement as the default.',
+            'authority_scope': 'execution continuation pause stop escalation and current milestone target focus',
+            'trust_reason': 'This surface is derived from current milestone, cost, parts, pricing, and review truth to stop ELI from treating open-ended refinement or multi-front drift as the default.',
         },
         'source_authority': {
             'milestone_truth': 'project_milestones',
@@ -10363,11 +10521,23 @@ def render_execution_boundaries_context(boundary_state=None):
     boundary_state = boundary_state if isinstance(boundary_state, dict) else load_execution_boundaries_state()
     lines = ['# Execution Boundaries']
     lines.append(f"- working_mode: `{boundary_state.get('working_mode', 'until_next_reviewable_milestone')}`")
-    if boundary_state.get('target_milestone_title'):
+    if boundary_state.get('current_milestone_target_title') or boundary_state.get('target_milestone_title'):
         lines.append(
-            f"- target_milestone: {boundary_state.get('target_milestone_title', '')} "
-            f"(`{boundary_state.get('target_milestone_id', '')}`)"
+            f"- current_milestone_target: {boundary_state.get('current_milestone_target_title', boundary_state.get('target_milestone_title', ''))} "
+            f"(`{boundary_state.get('current_milestone_target_id', boundary_state.get('target_milestone_id', ''))}`)"
         )
+    if boundary_state.get('current_target_posture'):
+        lines.append(f"- current_target_posture: `{boundary_state.get('current_target_posture', '')}`")
+    if boundary_state.get('why_this_target_now'):
+        lines.append(f"- why_this_target_now: {boundary_state.get('why_this_target_now', '')}")
+    if boundary_state.get('what_unlocks_if_reviewed'):
+        lines.append("- what_unlocks_if_reviewed:")
+        for item in boundary_state.get('what_unlocks_if_reviewed', [])[:3]:
+            lines.append(f"  - {item}")
+    if boundary_state.get('what_blocks_progress'):
+        lines.append("- what_blocks_progress:")
+        for item in boundary_state.get('what_blocks_progress', [])[:4]:
+            lines.append(f"  - {item}")
     lines.append(f"- deadline_posture: `{boundary_state.get('deadline_posture', 'no_explicit_deadline')}`")
     if boundary_state.get('current_boundary_summary'):
         lines.append(f"- current_boundary_summary: {boundary_state.get('current_boundary_summary', '')}")
@@ -10379,6 +10549,21 @@ def render_execution_boundaries_context(boundary_state=None):
         lines.append(f"- stop: {boundary_state.get('current_reason_to_stop', '')}")
     if boundary_state.get('current_reason_to_escalate'):
         lines.append(f"- escalate: {boundary_state.get('current_reason_to_escalate', '')}")
+    if boundary_state.get('when_to_escalate_to_operator'):
+        lines.append(f"- when_to_escalate_to_operator: {boundary_state.get('when_to_escalate_to_operator', '')}")
+    if boundary_state.get('when_to_stop_working_this_front'):
+        lines.append(f"- when_to_stop_working_this_front: {boundary_state.get('when_to_stop_working_this_front', '')}")
+    if boundary_state.get('prototype_vs_product_interpretation'):
+        lines.append(f"- prototype_vs_product_interpretation: {boundary_state.get('prototype_vs_product_interpretation', '')}")
+    deferred = boundary_state.get('competing_milestones_deferred', [])
+    if isinstance(deferred, list) and deferred:
+        lines.append("- competing_milestones_deferred:")
+        for row in deferred[:3]:
+            if not isinstance(row, dict):
+                continue
+            lines.append(
+                f"  - {row.get('title', '')} (`{row.get('approval_state', '')}`): {row.get('why_deferred', '')}"
+            )
     return '\n'.join(lines) + '\n'
 
 
@@ -11535,8 +11720,8 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             ),
             make_section(
                 'execution_boundaries',
-                'Execution Boundaries',
-                'Show the current working mode, target milestone, and the explicit continue, pause, stop, and escalation boundaries so ELI does not read open-ended refinement as the default.',
+                'Current Working Target',
+                'Show the one current milestone target, why it is active now, what it could unlock, what blocks it, and when ELI should escalate instead of continuing.',
                 ['execution_boundaries', 'execution_resume', 'project_milestones', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
                 'No explicit deadline exists and milestone, cost, or grounding posture is strong enough that execution must be bounded operationally.',
                 'Hide only if the project truly has no meaningful execution boundary to explain.',
@@ -12419,7 +12604,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         supporting_surfaces=['project_milestones', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
         sample_titles=[
             boundary_state.get('working_mode', ''),
-            boundary_state.get('target_milestone_title', ''),
+            boundary_state.get('current_milestone_target_title', boundary_state.get('target_milestone_title', '')),
+            boundary_state.get('current_target_posture', ''),
         ],
     ))
 
@@ -12494,7 +12680,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         'winning_surface': 'execution_boundaries',
         'supporting_surfaces': ['project_milestones', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
         'why': compact_text_excerpt(
-            'This surface owns the current bounded answer to whether ELI should keep working, pause, stop product-shaped continuation, or escalate for operator review.',
+            'This surface owns the current bounded answer to which milestone target ELI is working toward, when it should keep working, and when it should pause, stop product-shaped continuation, or escalate for operator review.',
             220,
         ),
     })
@@ -12942,6 +13128,16 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             'working_mode': boundary_state.get('working_mode', 'until_next_reviewable_milestone'),
             'target_milestone_id': boundary_state.get('target_milestone_id', ''),
             'target_milestone_title': boundary_state.get('target_milestone_title', ''),
+            'current_milestone_target_id': boundary_state.get('current_milestone_target_id', boundary_state.get('target_milestone_id', '')),
+            'current_milestone_target_title': boundary_state.get('current_milestone_target_title', boundary_state.get('target_milestone_title', '')),
+            'why_this_target_now': boundary_state.get('why_this_target_now', ''),
+            'current_target_posture': boundary_state.get('current_target_posture', ''),
+            'what_unlocks_if_reviewed': boundary_state.get('what_unlocks_if_reviewed', []),
+            'what_blocks_progress': boundary_state.get('what_blocks_progress', []),
+            'when_to_escalate_to_operator': boundary_state.get('when_to_escalate_to_operator', ''),
+            'when_to_stop_working_this_front': boundary_state.get('when_to_stop_working_this_front', ''),
+            'prototype_vs_product_interpretation': boundary_state.get('prototype_vs_product_interpretation', ''),
+            'competing_milestones_deferred': boundary_state.get('competing_milestones_deferred', []),
             'current_boundary_summary': boundary_state.get('current_boundary_summary', ''),
             'current_reason_to_continue': boundary_state.get('current_reason_to_continue', ''),
             'current_reason_to_pause': boundary_state.get('current_reason_to_pause', ''),
@@ -13012,8 +13208,13 @@ def render_execution_resume_section(resume_state=None, include_header=True):
         lines.append(
             f"- execution_boundary: mode `{execution_boundaries.get('working_mode', 'until_next_reviewable_milestone')}`"
             + (
-                f" | target `{execution_boundaries.get('target_milestone_title', '')}`"
-                if execution_boundaries.get('target_milestone_title')
+                f" | target `{execution_boundaries.get('current_milestone_target_title', execution_boundaries.get('target_milestone_title', ''))}`"
+                if execution_boundaries.get('current_milestone_target_title', execution_boundaries.get('target_milestone_title', ''))
+                else ''
+            )
+            + (
+                f" | posture `{execution_boundaries.get('current_target_posture', '')}`"
+                if execution_boundaries.get('current_target_posture')
                 else ''
             )
             + (

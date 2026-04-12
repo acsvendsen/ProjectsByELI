@@ -1905,6 +1905,13 @@
         row.question === "Execution continuation, pause, stop, and escalation posture"
       );
       const boundarySection = sections.find(section => section.section_id === "execution_boundaries") || {};
+      const targetTitle = boundaries.current_milestone_target_title || boundaries.target_milestone_title || "";
+      const targetWhy = boundaries.why_this_target_now || boundaries.current_boundary_summary || "";
+      const targetUnlocks = (boundaries.what_unlocks_if_reviewed || []).slice(0, 2);
+      const targetBlocks = (boundaries.what_blocks_progress || []).slice(0, 3);
+      const targetEscalate = boundaries.when_to_escalate_to_operator || boundaries.current_reason_to_escalate || "";
+      const targetStop = boundaries.when_to_stop_working_this_front || boundaries.current_reason_to_stop || "";
+      const targetPrototypeNote = boundaries.prototype_vs_product_interpretation || boundaries.prototype_vs_product_boundary_note || "";
 
       document.getElementById("steeringIntent").innerHTML = `
         <div class="verification-heading">Intent</div>
@@ -1935,20 +1942,22 @@
       `;
 
       document.getElementById("steeringBoundary").innerHTML = `
-        <div class="verification-heading">Execution Boundary</div>
+        <div class="verification-heading">${boundarySection.title || "Current Working Target"}</div>
         <div class="mini-pills">
           <span class="mini-pill ${boundaries.working_mode || ""}">${humanizeToken(boundaries.working_mode || "until_next_reviewable_milestone")}</span>
-          <span class="mini-pill">${humanizeToken(boundaries.deadline_posture || "no_explicit_deadline")}</span>
+          ${boundaries.current_target_posture ? `<span class="mini-pill ${boundaries.current_target_posture}">${humanizeToken(boundaries.current_target_posture)}</span>` : ``}
           ${boundaries.trust_posture?.use_state ? `<span class="mini-pill ${boundaries.trust_posture.use_state}">${humanizeToken(boundaries.trust_posture.use_state)}</span>` : ``}
         </div>
-        <div class="steering-copy">${boundaries.current_boundary_summary || "No execution boundary posture is available yet."}</div>
-        ${boundaries.target_milestone_title ? `<div class="footer"><strong>Target milestone:</strong> ${truncateText(boundaries.target_milestone_title, 180)}</div>` : ""}
+        <div class="steering-copy">${targetWhy || "No current milestone target is available yet."}</div>
+        ${targetTitle ? `<div class="footer"><strong>Active target:</strong> ${truncateText(targetTitle, 180)}</div>` : ""}
+        ${targetUnlocks.length ? `<div class="footer"><strong>Unlocks if reviewed:</strong> ${truncateText(targetUnlocks.join(" "), 240)}</div>` : ""}
+        ${targetBlocks.length ? `<div class="footer"><strong>Blocks progress:</strong> ${truncateText(targetBlocks.join(" "), 240)}</div>` : ""}
         ${boundaries.current_reason_to_continue ? `<div class="footer"><strong>Continue:</strong> ${truncateText(boundaries.current_reason_to_continue, 220)}</div>` : ""}
         ${boundaries.current_reason_to_pause ? `<div class="footer"><strong>Pause:</strong> ${truncateText(boundaries.current_reason_to_pause, 220)}</div>` : ""}
-        ${boundaries.current_reason_to_stop ? `<div class="footer"><strong>Stop:</strong> ${truncateText(boundaries.current_reason_to_stop, 220)}</div>` : ""}
-        ${boundaries.current_reason_to_escalate ? `<div class="footer"><strong>Escalate:</strong> ${truncateText(boundaries.current_reason_to_escalate, 220)}</div>` : ""}
+        ${targetStop ? `<div class="footer"><strong>Stop this front:</strong> ${truncateText(targetStop, 220)}</div>` : ""}
+        ${targetEscalate ? `<div class="footer"><strong>Escalate:</strong> ${truncateText(targetEscalate, 220)}</div>` : ""}
         ${(boundaries.operator_review_required_when || []).length ? `<div class="footer"><strong>Operator review required when:</strong> ${truncateText(boundaries.operator_review_required_when[0], 220)}</div>` : ""}
-        ${boundaries.prototype_vs_product_boundary_note ? `<div class="footer"><strong>Prototype vs product:</strong> ${truncateText(boundaries.prototype_vs_product_boundary_note, 220)}</div>` : ""}
+        ${targetPrototypeNote ? `<div class="footer"><strong>Prototype vs product:</strong> ${truncateText(targetPrototypeNote, 220)}</div>` : ""}
         ${boundaryTruthOwner ? `<div class="footer"><strong>Current truth owner:</strong> ${boundaryTruthOwner.source_surface}</div>` : ""}
         ${boundarySection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(boundarySection.purpose, 220)}</div>` : ""}
       `;
