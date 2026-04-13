@@ -1,0 +1,254 @@
+{
+  "generated_at": "2026-04-13T11:31:29",
+  "current_direction_summary": "ELI is currently steering SmartGlasses toward a boundary-first, phone-first, touch-first, subtitle-first functional prototype that can be reviewed for prototype buildability while consumer-tier product narration remains capped by cost and grounding gaps.",
+  "hardware_direction": "Favor a boundary-first hardware stack with minimal on-glasses compute, explicit weight/bulk discipline, and later-stage hardware packages kept deferred.",
+  "software_direction": "Favor phone-first runtime and lightweight on-glasses logic over heavier autonomous glasses compute. Do not reopen boundary changes until stronger link evidence appears.",
+  "interaction_direction": "Favor touch-first control, lightweight display behavior, and conservative visible trust cues over richer interaction assumptions.",
+  "product_shaping_direction": "Favor a subtitle-first assistive prototype path that can be reviewed for prototype buildability without implying a discreet consumer product path.",
+  "favored_choices": [
+    {
+      "choice_id": "hardware_boundary_first",
+      "label": "Boundary-first hardware stack with minimal on-glasses compute",
+      "domain": "hardware",
+      "status": "favored",
+      "why_it_is_in_this_position": "Hardware direction is strongest when it stays simple, discreet, and package-boundary-first instead of implying tightly integrated consumer-tier hardware.",
+      "what_supports_it": [
+        "Hardware Stack is `on_track` / `grounded`.",
+        "Required package posture is `Hardware Stack subsystem boundary package`.",
+        "Current cost posture rewards simpler prototype-scoped hardware over heavier integrated product hardware."
+      ],
+      "what_weakens_it": [
+        "Review and finalize subtitle placement rules to ensure they align with V1 constraints.",
+        "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
+      ],
+      "truth_posture": "current_truth",
+      "budget_tier_hint": "prototype_foundation_only",
+      "revisable": true
+    },
+    {
+      "choice_id": "phone_first_runtime",
+      "label": "Phone-first runtime over heavier autonomous on-glasses compute",
+      "domain": "software_runtime",
+      "status": "favored",
+      "why_it_is_in_this_position": "Software direction is currently winning when heavy compute stays off-glasses and the phone-first path is treated as the working runtime assumption.",
+      "what_supports_it": [
+        "The software stack is still pointed in the right direction: implementation grounding and phone-first constraints remain active, and the cycle is not drifting toward generic feat...",
+        "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+        "Battery, thermal, and cost posture still punish heavier self-contained glasses compute."
+      ],
+      "what_weakens_it": [
+        "Link-latency and reconnect evidence are still missing on the current phone-first path.",
+        "The phone/cloud boundary is still resisted enough that boundary changes should not be narrated as settled."
+      ],
+      "truth_posture": "bounded",
+      "budget_tier_hint": "cheaper_simpler_direction",
+      "revisable": true
+    },
+    {
+      "choice_id": "touch_first_lightweight_behavior",
+      "label": "Touch-first, lightweight display-control behavior",
+      "domain": "interaction",
+      "status": "favored",
+      "why_it_is_in_this_position": "Interaction direction is currently strongest when it stays simple, touch-first, and aligned with lightweight subtitle behavior.",
+      "what_supports_it": [
+        "Keep firmware simple, robust, and aligned with touch-first input and lightweight display behavior.",
+        "Subtitle readiness is the strongest grounded subsystem in this run. The real question is no longer whether subtitles belong in V1, but how to preserve clarity and trust without...",
+        "Trust posture is stronger when wearer-visible behavior stays simple enough to explain clearly."
+      ],
+      "what_weakens_it": [
+        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+        "V1 Confidence Display Format"
+      ],
+      "truth_posture": "provisional",
+      "budget_tier_hint": "prototype_foundation_only",
+      "revisable": true
+    },
+    {
+      "choice_id": "subtitle_first_trust_visible_experience",
+      "label": "Subtitle-first assistive experience with conservative visible trust cues",
+      "domain": "product_shaping",
+      "status": "favored",
+      "why_it_is_in_this_position": "The strongest user-facing direction is still subtitle-first assistance with visible trust cues rather than broader speculative feature breadth.",
+      "what_supports_it": [
+        "Subtitle System is `on_track` / `grounded`.",
+        "Tie confidence display, memory reinforcement, and boundary choices to explicit wearer-visible trust rules and consent handling.",
+        "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable` and acceptable co..."
+      ],
+      "what_weakens_it": [
+        "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
+        "V1 Confidence Display Format"
+      ],
+      "truth_posture": "bounded",
+      "budget_tier_hint": "assistive_prototype_learning",
+      "revisable": true
+    },
+    {
+      "choice_id": "prototype_buildability_over_product_claim",
+      "label": "Prototype buildability over discreet consumer product narration",
+      "domain": "project_posture",
+      "status": "favored",
+      "why_it_is_in_this_position": "The current winner is a buildable prototype-learning path that can be reviewed honestly without pretending it has become a discreet consumer product direction.",
+      "what_supports_it": [
+        "Current working target is `Implementation Package Review`.",
+        "Realism remains `serious_prototype_path`.",
+        "Cost posture is `product_tier_mismatch_risk` / `stop_if_cost_target_matters`."
+      ],
+      "what_weakens_it": [
+        "No current package direction is credible for `discreet_consumer_assistive_wearable`.",
+        "Package-only parts posture is still too weak for consumer-tier interpretation."
+      ],
+      "truth_posture": "current_truth",
+      "budget_tier_hint": "product_tier_mismatch_risk",
+      "revisable": true
+    }
+  ],
+  "deferred_or_weaker_choices": [
+    {
+      "choice_id": "discreet_consumer_product_path",
+      "label": "Discreet consumer product path on the current tier",
+      "domain": "product_shaping",
+      "status": "blocked",
+      "why_it_is_in_this_position": "This remains weaker than the current favored path because the current tier story outruns both the economics and the grounded implementation evidence.",
+      "what_supports_it": [
+        "Target tier is still `discreet_consumer_assistive_wearable`.",
+        "A normal-looking discreet wearable remains a meaningful product-shaping desire."
+      ],
+      "what_weakens_it": [
+        "Do not assume this becomes a real product just because the prototype direction is interesting. Current cost posture is weak enough that commercial ambition should pause, stop, o...",
+        "The project is acting like a serious prototype path, but important subsystem and trust gaps still block product-candidate claims. 4 subsystem lane(s) still need attention. Decla...",
+        "Current suggestions are still useful mainly for prototype learning. No current or cheaper/simpler alternative is good enough yet for the declared target tier, so stay prototype-..."
+      ],
+      "truth_posture": "current_truth",
+      "budget_tier_hint": "consumer_tier_mismatch_risk",
+      "revisable": true
+    },
+    {
+      "choice_id": "heavier_on_glasses_compute",
+      "label": "Heavier on-glasses compute / more autonomous glasses runtime",
+      "domain": "software_runtime",
+      "status": "deferred",
+      "why_it_is_in_this_position": "This alternative is still interesting in principle, but it is weaker now because it increases battery, thermal, packaging, and cost pressure before the simpler path is even grounded well enough.",
+      "what_supports_it": [
+        "Could reduce dependence on the phone path later if wireless evidence stays weak."
+      ],
+      "what_weakens_it": [
+        "Keep V1 lightweight, discreet, socially acceptable, and dependent on minimal on-glasses compute.",
+        "Current hardware, packaging, and subsystem pressure already look mismatched to a discreet consumer-tier wearable cost story. Wireless and firmware gaps still add likely hidden c..."
+      ],
+      "truth_posture": "exploratory",
+      "budget_tier_hint": "cost_risky_for_target_tier",
+      "revisable": true
+    },
+    {
+      "choice_id": "wireless_quality_upgrade_as_current_commitment",
+      "label": "Wireless quality-upgrade package as a current commitment",
+      "domain": "wireless",
+      "status": "blocked",
+      "why_it_is_in_this_position": "Wireless upgrades remain structurally relevant, but they are not winning as the current direction because the evidence is still thin and the cost posture is already harsh.",
+      "what_supports_it": [
+        "Phone-first runtime still depends on a reliable glasses-phone link.",
+        "Wireless Interface quality-upgrade package"
+      ],
+      "what_weakens_it": [
+        "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+        "A discreet consumer-wearable posture pushes miniaturization, packaging, and industrial-design pressure before cost credibility is proven."
+      ],
+      "truth_posture": "provisional",
+      "budget_tier_hint": "cost_risky_for_target_tier",
+      "revisable": true
+    },
+    {
+      "choice_id": "firmware_quality_upgrade_as_current_commitment",
+      "label": "Firmware quality-upgrade package as a current commitment",
+      "domain": "firmware",
+      "status": "blocked",
+      "why_it_is_in_this_position": "Firmware upgrades are important, but they are not winning as the current direction because the interaction behavior is still under-grounded and the package remains cost-risky.",
+      "what_supports_it": [
+        "Touch-first interaction still depends on robust firmware behavior.",
+        "Firmware quality-upgrade package"
+      ],
+      "what_weakens_it": [
+        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+        "Current component posture is only subsystem-BOM-level, which is enough to see packaging pressure but not enough to support a consumer-tier cost story."
+      ],
+      "truth_posture": "provisional",
+      "budget_tier_hint": "cost_risky_for_target_tier",
+      "revisable": true
+    },
+    {
+      "choice_id": "richer_input_model",
+      "label": "Richer input model beyond touch-first control",
+      "domain": "interaction",
+      "status": "deferred",
+      "why_it_is_in_this_position": "A richer input stack is not winning now because it would add firmware complexity and trust burden before the simpler control path is well grounded.",
+      "what_supports_it": [
+        "Could broaden future interaction possibilities once the core runtime is stable."
+      ],
+      "what_weakens_it": [
+        "Keep firmware simple, robust, and aligned with touch-first input and lightweight display behavior.",
+        "Tie confidence display, memory reinforcement, and boundary choices to explicit wearer-visible trust rules and consent handling."
+      ],
+      "truth_posture": "exploratory",
+      "budget_tier_hint": "cost_risky_for_target_tier",
+      "revisable": true
+    }
+  ],
+  "why_current_direction_is_winning": [
+    "Hardware simplicity is the strongest grounded lane, so boundary-first packaging beats heavier integrated hardware assumptions.",
+    "Phone-first runtime currently fits cost, thermal, battery, and discreetness pressure better than autonomous glasses compute.",
+    "Touch-first and lightweight display behavior fit the current firmware and trust posture better than richer interaction assumptions.",
+    "Subtitle-first assistive value is more grounded than broader product ambition, so it stays central while confidence and placement details remain bounded review fronts.",
+    "Current cost posture is harsh enough that prototype-learning direction survives while product-shaped narration does not."
+  ],
+  "what_is_still_provisional": [
+    "Wireless quality-upgrade posture is still limited-evidence, not a locked direction.",
+    "Firmware quality-upgrade posture is still limited-evidence, not a locked direction.",
+    "Default confidence-display format remains review-bound.",
+    "Default subtitle-position behavior remains review-bound.",
+    "Memory/Cache Policy"
+  ],
+  "what_is_blocking_stronger_direction_lock": [
+    "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+    "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+    "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
+    "Parts posture is still package-only, so component-level direction is not yet strong enough to lock.",
+    "Do not assume this becomes a real product just because the prototype direction is interesting. Current cost posture is weak enough that commercial ambition should pause, stop, or reframe unless cost-sensitive assumptions improve."
+  ],
+  "what_could_change_direction_next": [
+    "Measured link-latency or reconnect evidence on the phone-first path.",
+    "Explicit grounded firmware evidence for touch-input and display-control behavior.",
+    "A grounded component shortlist, interface map, or schematic direction that changes build pressure materially.",
+    "Operator tightening or changing the target tier away from the current discreet consumer assumption.",
+    "Clear resolution of the live V1 confidence-display and subtitle-position review fronts."
+  ],
+  "prototype_vs_product_interpretation": "The current winning direction is prototype-learning and buildability only. It does not justify a `discreet_consumer_assistive_wearable` product story while realism remains `serious_prototype_path` and cost posture remains `stop_if_cost_target_matters`.",
+  "budget_pressure_note": "Budget pressure currently favors the simpler prototype-scoped hardware/runtime path and keeps consumer-tier, wireless-upgrade, and firmware-upgrade directions provisional or deferred until evidence and cost posture improve.",
+  "trust_posture": {
+    "surface_role": "current_truth_steering_context",
+    "use_state": "current_truth",
+    "authority_scope": "current favored hardware runtime interaction and product-shaping direction",
+    "trust_reason": "This surface synthesizes the current direction of travel from milestone, realism, cost, subsystem, parts, pricing, and live review truth without turning favored direction into locked decisions."
+  },
+  "source_authority": {
+    "subsystem_truth": "project_scorecard",
+    "milestone_focus_truth": "execution_boundaries",
+    "realism_truth": "product_realism_review",
+    "cost_truth": "cost_viability_review",
+    "parts_truth": "parts_readiness_review",
+    "pricing_truth": "pricing_alternatives_review",
+    "review_truth": "v1_decision_review"
+  },
+  "source_generated_at": {
+    "project_scorecard": "2026-04-13T11:30:17",
+    "execution_boundaries": "2026-04-13T11:31:29",
+    "product_realism_review": "2026-04-13T11:31:29",
+    "cost_viability_review": "2026-04-13T11:31:29",
+    "component_package_review": "2026-04-13T11:31:29",
+    "parts_readiness_review": "2026-04-13T11:31:29",
+    "pricing_alternatives_review": "2026-04-13T11:31:29",
+    "v1_decision_review": "2026-04-13T11:29:44",
+    "reflect_state": "2026-04-13T11:29:44"
+  },
+  "revisable": true,
+  "updated_at": "2026-04-13T11:31:29"
+}

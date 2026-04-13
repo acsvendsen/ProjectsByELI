@@ -214,6 +214,13 @@ PARTS_READINESS_BANDS = (
     'bounded_shortlist_emerging',
     'shortlist_ready_for_review',
 )
+PROJECT_DIRECTION_CHOICE_STATUSES = (
+    'favored',
+    'provisional',
+    'deferred',
+    'blocked',
+    'exploratory',
+)
 PARTS_SHORTLIST_POSTURES = (
     'not_yet_warranted',
     'package_only_waiting_for_component_signals',
@@ -672,6 +679,7 @@ PARTS_READINESS_REVIEW_PATH = PROJECT_STATE_DIR / "parts_readiness_review.json"
 COST_VIABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "cost_viability_review.json"
 PRICING_ALTERNATIVES_REVIEW_PATH = PROJECT_STATE_DIR / "pricing_alternatives_review.json"
 EXECUTION_BOUNDARIES_PATH = PROJECT_STATE_DIR / "execution_boundaries.json"
+PROJECT_DIRECTION_REVIEW_PATH = PROJECT_STATE_DIR / "project_direction_review.json"
 PROJECT_TOPOLOGY_VIEW_PATH = PROJECT_STATE_DIR / "project_topology_view.json"
 EXTENSIONS_CAPABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "extensions_capability_review.json"
 HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH = PROJECT_STATE_DIR / "hardware_aware_rendering_brief_review.json"
@@ -1037,6 +1045,14 @@ DEFAULT_COGNITION_SCHEMA = {
             'max_stop_conditions': 3,
             'max_operator_review_required_when': 4,
         },
+        'project_direction_review': {
+            'enabled': True,
+            'include_in_execution_resume': True,
+            'max_favored_choices': 5,
+            'max_deferred_choices': 5,
+            'max_reason_rows': 5,
+            'max_change_rows': 5,
+        },
         'project_topology_view': {
             'enabled': True,
             'max_nodes': 10,
@@ -1067,10 +1083,10 @@ DEFAULT_COGNITION_SCHEMA = {
         'ui_surface_plan': {
             'enabled': True,
             'max_pages': 7,
-            'max_sections_per_page': 6,
+            'max_sections_per_page': 7,
             'max_operator_goals': 5,
             'max_representation_risks': 5,
-            'max_source_surfaces': 10,
+            'max_source_surfaces': 12,
             'page_types': [
                 'project_creation',
                 'project_overview',
@@ -1431,6 +1447,13 @@ control:
     max_pause_conditions: 4
     max_stop_conditions: 3
     max_operator_review_required_when: 4
+  project_direction_review:
+    enabled: true
+    include_in_execution_resume: true
+    max_favored_choices: 5
+    max_deferred_choices: 5
+    max_reason_rows: 5
+    max_change_rows: 5
   project_topology_view:
     enabled: true
     max_nodes: 10
@@ -1457,10 +1480,10 @@ control:
   ui_surface_plan:
     enabled: true
     max_pages: 7
-    max_sections_per_page: 6
+    max_sections_per_page: 7
     max_operator_goals: 5
     max_representation_risks: 5
-    max_source_surfaces: 10
+    max_source_surfaces: 12
     page_types:
       - project_creation
       - project_overview
@@ -7532,6 +7555,20 @@ def execution_boundaries_config(schema=None):
     }
 
 
+def project_direction_review_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('project_direction_review', {}) if isinstance(control.get('project_direction_review', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'include_in_execution_resume': bool(cfg.get('include_in_execution_resume', True)),
+        'max_favored_choices': max(1, safe_int(cfg.get('max_favored_choices', 5), 5)),
+        'max_deferred_choices': max(1, safe_int(cfg.get('max_deferred_choices', 5), 5)),
+        'max_reason_rows': max(1, safe_int(cfg.get('max_reason_rows', 5), 5)),
+        'max_change_rows': max(1, safe_int(cfg.get('max_change_rows', 5), 5)),
+    }
+
+
 def project_topology_view_config(schema=None):
     schema = schema or load_cognition_schema()
     control = schema.get('control', {}) if isinstance(schema, dict) else {}
@@ -7619,6 +7656,7 @@ def default_execution_resume_state():
         'product_realism': {},
         'component_package': {},
         'cost_viability': {},
+        'project_direction': {},
         'current_truth_summary': [],
         'active_review_front': [],
         'held_lanes': [],
@@ -7656,6 +7694,8 @@ def load_execution_resume_state():
         data['component_package'] = {}
     if not isinstance(data.get('cost_viability'), dict):
         data['cost_viability'] = {}
+    if not isinstance(data.get('project_direction'), dict):
+        data['project_direction'] = {}
     if not isinstance(data.get('source_generated_at'), dict):
         data['source_generated_at'] = {}
     if not isinstance(data.get('counts'), dict):
@@ -10594,6 +10634,489 @@ def render_execution_boundaries_context(boundary_state=None):
     return '\n'.join(lines) + '\n'
 
 
+def default_project_direction_review_state():
+    return {
+        'generated_at': '',
+        'current_direction_summary': '',
+        'hardware_direction': '',
+        'software_direction': '',
+        'interaction_direction': '',
+        'product_shaping_direction': '',
+        'favored_choices': [],
+        'deferred_or_weaker_choices': [],
+        'why_current_direction_is_winning': [],
+        'what_is_still_provisional': [],
+        'what_is_blocking_stronger_direction_lock': [],
+        'what_could_change_direction_next': [],
+        'prototype_vs_product_interpretation': '',
+        'budget_pressure_note': '',
+        'trust_posture': {},
+        'source_authority': {},
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_project_direction_review_state():
+    data = load_json_file(PROJECT_DIRECTION_REVIEW_PATH, default_project_direction_review_state())
+    if not isinstance(data, dict):
+        data = default_project_direction_review_state()
+    for key in (
+        'favored_choices',
+        'deferred_or_weaker_choices',
+        'why_current_direction_is_winning',
+        'what_is_still_provisional',
+        'what_is_blocking_stronger_direction_lock',
+        'what_could_change_direction_next',
+    ):
+        if not isinstance(data.get(key), list):
+            data[key] = []
+    for key in (
+        'current_direction_summary',
+        'hardware_direction',
+        'software_direction',
+        'interaction_direction',
+        'product_shaping_direction',
+        'prototype_vs_product_interpretation',
+        'budget_pressure_note',
+    ):
+        if not isinstance(data.get(key), str):
+            data[key] = ''
+    for key in ('trust_posture', 'source_authority', 'source_generated_at'):
+        if not isinstance(data.get(key), dict):
+            data[key] = {}
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_project_direction_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_project_direction_review_state()
+    payload['updated_at'] = now_iso()
+    PROJECT_DIRECTION_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def build_project_direction_review_state(schema=None, review_snapshot=None, realism_state=None, cost_state=None, component_state=None, parts_state=None, pricing_state=None, boundary_state=None):
+    schema = schema or load_cognition_schema()
+    cfg = project_direction_review_config(schema)
+    if not cfg.get('enabled', True):
+        return default_project_direction_review_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    expectations = load_project_expectations_state()
+    realism_state = realism_state if isinstance(realism_state, dict) else build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
+    component_state = component_state if isinstance(component_state, dict) else build_component_package_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+    )
+    parts_state = parts_state if isinstance(parts_state, dict) else build_parts_readiness_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        component_state=component_state,
+    )
+    cost_state = cost_state if isinstance(cost_state, dict) else build_cost_viability_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        product_realism_state=realism_state,
+        component_package_state=component_state,
+    )
+    pricing_state = pricing_state if isinstance(pricing_state, dict) else build_pricing_alternatives_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        parts_state=parts_state,
+        component_state=component_state,
+        cost_state=cost_state,
+    )
+    boundary_state = boundary_state if isinstance(boundary_state, dict) else build_execution_boundaries_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+    )
+
+    reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
+    scorecard_state = load_scorecard_state()
+    exec_cfg = execution_resume_config(schema)
+    scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
+    scorecard_dimensions = scorecard_state.get('dimensions', []) if scorecard_use == 'current_truth' and isinstance(scorecard_state.get('dimensions', []), list) else []
+
+    dimension_index = {}
+    for row in scorecard_dimensions:
+        if not isinstance(row, dict):
+            continue
+        for key in (
+            normalize_signal_key(row.get('id', '')),
+            normalize_signal_key(row.get('label', '')),
+        ):
+            if key:
+                dimension_index[key] = row
+
+    hardware_row = dimension_index.get('hardware_stack', {})
+    software_row = dimension_index.get('software_stack', {})
+    wireless_row = dimension_index.get('wireless_interface', {})
+    firmware_row = dimension_index.get('firmware', {})
+    subtitle_row = dimension_index.get('subtitle_system', {})
+    memory_row = dimension_index.get('memory_system', {})
+    trust_row = dimension_index.get('privacy_and_trust', {}) or dimension_index.get('privacy_trust', {})
+
+    reflect_visibility = reflect_state.get('evidence_analysis', {}).get('operational_visibility', {}) if isinstance(reflect_state.get('evidence_analysis', {}), dict) else {}
+    held_rows = reflect_visibility.get('held_items', []) if isinstance(reflect_visibility.get('held_items', []), list) else []
+    held_titles = [row.get('title', '') for row in held_rows[:4] if isinstance(row, dict) and row.get('title')]
+
+    review_surfaces = review_snapshot.get('surfaces', {}) if isinstance(review_snapshot.get('surfaces', {}), dict) else {}
+    v1_surface = review_surfaces.get('v1_decision_review', {})
+    v1_payload = v1_surface.get('payload', {}) if isinstance(v1_surface.get('payload', {}), dict) else {}
+    pending_rows = v1_payload.get('pending_v1_decisions', []) if v1_surface.get('consumption_state') in ('current_truth', 'provisional_context') and isinstance(v1_payload.get('pending_v1_decisions', []), list) else []
+    pending_labels = [row.get('label', '') for row in pending_rows[:3] if isinstance(row, dict) and row.get('label')]
+
+    cost_signal = str(cost_state.get('kill_pause_reframe_signal', 'proceed_with_caution') or 'proceed_with_caution')
+    parts_band = str(parts_state.get('parts_readiness_band', 'not_ready_for_suggestions') or 'not_ready_for_suggestions')
+    pricing_fit = str(pricing_state.get('fit_for_target_tier', 'unknown') or 'unknown')
+    pricing_fail_reasons = pricing_state.get('why_current_choice_may_fail', []) if isinstance(pricing_state.get('why_current_choice_may_fail', []), list) else []
+    current_target = str(boundary_state.get('current_milestone_target_title', boundary_state.get('target_milestone_title', 'Implementation Package Review')) or 'Implementation Package Review')
+    target_tier = str(expectations.get('target_product_tier', 'discreet_consumer_assistive_wearable') or 'discreet_consumer_assistive_wearable')
+
+    def make_choice(choice_id, label, domain, status, why, supports, weakens, truth_posture, budget_tier_hint):
+        return {
+            'choice_id': choice_id,
+            'label': label,
+            'domain': domain,
+            'status': status if status in PROJECT_DIRECTION_CHOICE_STATUSES else 'provisional',
+            'why_it_is_in_this_position': compact_text_excerpt(why, 240),
+            'what_supports_it': [compact_text_excerpt(str(item), 180) for item in supports if item][:3],
+            'what_weakens_it': [compact_text_excerpt(str(item), 180) for item in weakens if item][:3],
+            'truth_posture': truth_posture,
+            'budget_tier_hint': budget_tier_hint,
+            'revisable': True,
+        }
+
+    favored_choices = [
+        make_choice(
+            'hardware_boundary_first',
+            'Boundary-first hardware stack with minimal on-glasses compute',
+            'hardware',
+            'favored',
+            'Hardware direction is strongest when it stays simple, discreet, and package-boundary-first instead of implying tightly integrated consumer-tier hardware.',
+            [
+                f"Hardware Stack is `{hardware_row.get('status', 'on_track')}` / `{hardware_row.get('grounding_status', 'grounded')}`." if hardware_row else '',
+                f"Required package posture is `{(component_state.get('required_now', []) or ['Hardware Stack subsystem boundary package'])[0]}`.",
+                'Current cost posture rewards simpler prototype-scoped hardware over heavier integrated product hardware.',
+            ],
+            [
+                hardware_row.get('next_focus', '') if isinstance(hardware_row, dict) else '',
+                wireless_row.get('next_focus', '') if isinstance(wireless_row, dict) else '',
+            ],
+            'current_truth',
+            'prototype_foundation_only',
+        ),
+        make_choice(
+            'phone_first_runtime',
+            'Phone-first runtime over heavier autonomous on-glasses compute',
+            'software_runtime',
+            'favored',
+            'Software direction is currently winning when heavy compute stays off-glasses and the phone-first path is treated as the working runtime assumption.',
+            [
+                software_row.get('progress_summary', '') if isinstance(software_row, dict) else '',
+                wireless_row.get('next_focus', '') if isinstance(wireless_row, dict) else '',
+                'Battery, thermal, and cost posture still punish heavier self-contained glasses compute.',
+            ],
+            [
+                'Link-latency and reconnect evidence are still missing on the current phone-first path.',
+                'The phone/cloud boundary is still resisted enough that boundary changes should not be narrated as settled.',
+            ],
+            'bounded',
+            'cheaper_simpler_direction',
+        ),
+        make_choice(
+            'touch_first_lightweight_behavior',
+            'Touch-first, lightweight display-control behavior',
+            'interaction',
+            'favored',
+            'Interaction direction is currently strongest when it stays simple, touch-first, and aligned with lightweight subtitle behavior.',
+            [
+                firmware_row.get('goal', '') if isinstance(firmware_row, dict) else '',
+                subtitle_row.get('progress_summary', '') if isinstance(subtitle_row, dict) else '',
+                'Trust posture is stronger when wearer-visible behavior stays simple enough to explain clearly.',
+            ],
+            [
+                firmware_row.get('next_focus', '') if isinstance(firmware_row, dict) else '',
+                pending_labels[0] if pending_labels else '',
+            ],
+            'provisional',
+            'prototype_foundation_only',
+        ),
+        make_choice(
+            'subtitle_first_trust_visible_experience',
+            'Subtitle-first assistive experience with conservative visible trust cues',
+            'product_shaping',
+            'favored',
+            'The strongest user-facing direction is still subtitle-first assistance with visible trust cues rather than broader speculative feature breadth.',
+            [
+                f"Subtitle System is `{subtitle_row.get('status', 'on_track')}` / `{subtitle_row.get('grounding_status', 'grounded')}`." if subtitle_row else '',
+                trust_row.get('next_focus', '') if isinstance(trust_row, dict) else '',
+                project_expectations_summary(expectations),
+            ],
+            [
+                memory_row.get('next_focus', '') if isinstance(memory_row, dict) else '',
+                pending_labels[0] if pending_labels else '',
+                pending_labels[1] if len(pending_labels) > 1 else '',
+            ],
+            'bounded',
+            'assistive_prototype_learning',
+        ),
+        make_choice(
+            'prototype_buildability_over_product_claim',
+            'Prototype buildability over discreet consumer product narration',
+            'project_posture',
+            'favored',
+            'The current winner is a buildable prototype-learning path that can be reviewed honestly without pretending it has become a discreet consumer product direction.',
+            [
+                f"Current working target is `{current_target}`.",
+                f"Realism remains `{realism_state.get('current_realism_band', 'serious_prototype_path')}`.",
+                f"Cost posture is `{cost_state.get('cost_realism_band', 'product_tier_mismatch_risk')}` / `{cost_signal}`.",
+            ],
+            [
+                f"No current package direction is credible for `{target_tier}`." if pricing_fit == 'no_candidate_currently_credible_for_target_tier' else '',
+                'Package-only parts posture is still too weak for consumer-tier interpretation.' if parts_band == 'package_direction_only' else '',
+            ],
+            'current_truth',
+            'product_tier_mismatch_risk',
+        ),
+    ]
+
+    deferred_choices = [
+        make_choice(
+            'discreet_consumer_product_path',
+            'Discreet consumer product path on the current tier',
+            'product_shaping',
+            'blocked',
+            'This remains weaker than the current favored path because the current tier story outruns both the economics and the grounded implementation evidence.',
+            [
+                f"Target tier is still `{target_tier}`.",
+                'A normal-looking discreet wearable remains a meaningful product-shaping desire.',
+            ],
+            [
+                cost_state.get('operator_cost_warning', ''),
+                realism_state.get('why_this_band', ''),
+                pricing_state.get('operator_warning', ''),
+            ],
+            'current_truth',
+            'consumer_tier_mismatch_risk',
+        ),
+        make_choice(
+            'heavier_on_glasses_compute',
+            'Heavier on-glasses compute / more autonomous glasses runtime',
+            'software_runtime',
+            'deferred',
+            'This alternative is still interesting in principle, but it is weaker now because it increases battery, thermal, packaging, and cost pressure before the simpler path is even grounded well enough.',
+            [
+                'Could reduce dependence on the phone path later if wireless evidence stays weak.',
+            ],
+            [
+                hardware_row.get('goal', '') if isinstance(hardware_row, dict) else '',
+                cost_state.get('why_this_posture', ''),
+            ],
+            'exploratory',
+            'cost_risky_for_target_tier',
+        ),
+        make_choice(
+            'wireless_quality_upgrade_as_current_commitment',
+            'Wireless quality-upgrade package as a current commitment',
+            'wireless',
+            'blocked',
+            'Wireless upgrades remain structurally relevant, but they are not winning as the current direction because the evidence is still thin and the cost posture is already harsh.',
+            [
+                'Phone-first runtime still depends on a reliable glasses-phone link.',
+                (component_state.get('recommended_for_quality', []) or ['Wireless Interface quality-upgrade package'])[0],
+            ],
+            [
+                wireless_row.get('next_focus', '') if isinstance(wireless_row, dict) else '',
+                pricing_fail_reasons[0] if pricing_fail_reasons else '',
+            ],
+            'provisional',
+            'cost_risky_for_target_tier',
+        ),
+        make_choice(
+            'firmware_quality_upgrade_as_current_commitment',
+            'Firmware quality-upgrade package as a current commitment',
+            'firmware',
+            'blocked',
+            'Firmware upgrades are important, but they are not winning as the current direction because the interaction behavior is still under-grounded and the package remains cost-risky.',
+            [
+                'Touch-first interaction still depends on robust firmware behavior.',
+                (component_state.get('recommended_for_quality', []) or ['', 'Firmware quality-upgrade package'])[-1],
+            ],
+            [
+                firmware_row.get('next_focus', '') if isinstance(firmware_row, dict) else '',
+                pricing_fail_reasons[1] if len(pricing_fail_reasons) > 1 else '',
+            ],
+            'provisional',
+            'cost_risky_for_target_tier',
+        ),
+        make_choice(
+            'richer_input_model',
+            'Richer input model beyond touch-first control',
+            'interaction',
+            'deferred',
+            'A richer input stack is not winning now because it would add firmware complexity and trust burden before the simpler control path is well grounded.',
+            [
+                'Could broaden future interaction possibilities once the core runtime is stable.',
+            ],
+            [
+                firmware_row.get('goal', '') if isinstance(firmware_row, dict) else '',
+                trust_row.get('next_focus', '') if isinstance(trust_row, dict) else '',
+            ],
+            'exploratory',
+            'cost_risky_for_target_tier',
+        ),
+    ]
+
+    why_current_direction_is_winning = [
+        'Hardware simplicity is the strongest grounded lane, so boundary-first packaging beats heavier integrated hardware assumptions.',
+        'Phone-first runtime currently fits cost, thermal, battery, and discreetness pressure better than autonomous glasses compute.',
+        'Touch-first and lightweight display behavior fit the current firmware and trust posture better than richer interaction assumptions.',
+        'Subtitle-first assistive value is more grounded than broader product ambition, so it stays central while confidence and placement details remain bounded review fronts.',
+        'Current cost posture is harsh enough that prototype-learning direction survives while product-shaped narration does not.',
+    ]
+
+    what_is_still_provisional = [
+        'Wireless quality-upgrade posture is still limited-evidence, not a locked direction.',
+        'Firmware quality-upgrade posture is still limited-evidence, not a locked direction.',
+        'Default confidence-display format remains review-bound.',
+        'Default subtitle-position behavior remains review-bound.',
+        held_titles[0] if held_titles else 'Memory/trust expansion remains held until new grounding appears.',
+    ]
+
+    what_is_blocking_stronger_direction_lock = [
+        wireless_row.get('next_focus', '') if isinstance(wireless_row, dict) else '',
+        firmware_row.get('next_focus', '') if isinstance(firmware_row, dict) else '',
+        memory_row.get('next_focus', '') if isinstance(memory_row, dict) else '',
+        'Parts posture is still package-only, so component-level direction is not yet strong enough to lock.',
+        cost_state.get('operator_cost_warning', ''),
+    ]
+
+    what_could_change_direction_next = [
+        'Measured link-latency or reconnect evidence on the phone-first path.',
+        'Explicit grounded firmware evidence for touch-input and display-control behavior.',
+        'A grounded component shortlist, interface map, or schematic direction that changes build pressure materially.',
+        'Operator tightening or changing the target tier away from the current discreet consumer assumption.',
+        'Clear resolution of the live V1 confidence-display and subtitle-position review fronts.',
+    ]
+
+    hardware_direction = compact_text_excerpt(
+        'Favor a boundary-first hardware stack with minimal on-glasses compute, explicit weight/bulk discipline, and later-stage hardware packages kept deferred.',
+        220,
+    )
+    software_direction = compact_text_excerpt(
+        'Favor phone-first runtime and lightweight on-glasses logic over heavier autonomous glasses compute. Do not reopen boundary changes until stronger link evidence appears.',
+        220,
+    )
+    interaction_direction = compact_text_excerpt(
+        'Favor touch-first control, lightweight display behavior, and conservative visible trust cues over richer interaction assumptions.',
+        220,
+    )
+    product_shaping_direction = compact_text_excerpt(
+        'Favor a subtitle-first assistive prototype path that can be reviewed for prototype buildability without implying a discreet consumer product path.',
+        220,
+    )
+    current_direction_summary = compact_text_excerpt(
+        'ELI is currently steering SmartGlasses toward a boundary-first, phone-first, touch-first, subtitle-first functional prototype that can be reviewed for prototype buildability while consumer-tier product narration remains capped by cost and grounding gaps.',
+        280,
+    )
+    prototype_vs_product_interpretation = compact_text_excerpt(
+        f'The current winning direction is prototype-learning and buildability only. It does not justify a `{target_tier}` product story while realism remains `{realism_state.get("current_realism_band", "serious_prototype_path")}` and cost posture remains `{cost_signal}`.',
+        260,
+    )
+    budget_pressure_note = compact_text_excerpt(
+        'Budget pressure currently favors the simpler prototype-scoped hardware/runtime path and keeps consumer-tier, wireless-upgrade, and firmware-upgrade directions provisional or deferred until evidence and cost posture improve.',
+        240,
+    )
+
+    return {
+        'generated_at': now_iso(),
+        'current_direction_summary': current_direction_summary,
+        'hardware_direction': hardware_direction,
+        'software_direction': software_direction,
+        'interaction_direction': interaction_direction,
+        'product_shaping_direction': product_shaping_direction,
+        'favored_choices': favored_choices[:cfg.get('max_favored_choices', 5)],
+        'deferred_or_weaker_choices': deferred_choices[:cfg.get('max_deferred_choices', 5)],
+        'why_current_direction_is_winning': list(dict.fromkeys(item for item in why_current_direction_is_winning if item))[:cfg.get('max_reason_rows', 5)],
+        'what_is_still_provisional': list(dict.fromkeys(item for item in what_is_still_provisional if item))[:cfg.get('max_reason_rows', 5)],
+        'what_is_blocking_stronger_direction_lock': list(dict.fromkeys(item for item in what_is_blocking_stronger_direction_lock if item))[:cfg.get('max_reason_rows', 5)],
+        'what_could_change_direction_next': list(dict.fromkeys(item for item in what_could_change_direction_next if item))[:cfg.get('max_change_rows', 5)],
+        'prototype_vs_product_interpretation': prototype_vs_product_interpretation,
+        'budget_pressure_note': budget_pressure_note,
+        'trust_posture': {
+            'surface_role': 'current_truth_steering_context',
+            'use_state': 'current_truth',
+            'authority_scope': 'current favored hardware runtime interaction and product-shaping direction',
+            'trust_reason': 'This surface synthesizes the current direction of travel from milestone, realism, cost, subsystem, parts, pricing, and live review truth without turning favored direction into locked decisions.',
+        },
+        'source_authority': {
+            'subsystem_truth': 'project_scorecard',
+            'milestone_focus_truth': 'execution_boundaries',
+            'realism_truth': 'product_realism_review',
+            'cost_truth': 'cost_viability_review',
+            'parts_truth': 'parts_readiness_review',
+            'pricing_truth': 'pricing_alternatives_review',
+            'review_truth': 'v1_decision_review',
+        },
+        'source_generated_at': {
+            'project_scorecard': state_surface_generated_at(scorecard_state),
+            'execution_boundaries': state_surface_generated_at(boundary_state),
+            'product_realism_review': state_surface_generated_at(realism_state),
+            'cost_viability_review': state_surface_generated_at(cost_state),
+            'component_package_review': state_surface_generated_at(component_state),
+            'parts_readiness_review': state_surface_generated_at(parts_state),
+            'pricing_alternatives_review': state_surface_generated_at(pricing_state),
+            'v1_decision_review': state_surface_generated_at(v1_payload),
+            'reflect_state': state_surface_generated_at(reflect_state),
+        },
+        'revisable': True,
+    }
+
+
+def render_project_direction_review_context(direction_state=None):
+    direction_state = direction_state if isinstance(direction_state, dict) else load_project_direction_review_state()
+    lines = ['# Project Direction Review']
+    if direction_state.get('current_direction_summary'):
+        lines.append(f"- current_direction_summary: {direction_state.get('current_direction_summary', '')}")
+    for key in ('hardware_direction', 'software_direction', 'interaction_direction', 'product_shaping_direction'):
+        if direction_state.get(key):
+            lines.append(f"- {key}: {direction_state.get(key, '')}")
+    trust_posture = direction_state.get('trust_posture', {}) if isinstance(direction_state.get('trust_posture', {}), dict) else {}
+    if trust_posture:
+        lines.append(
+            f"- trust_posture: `{trust_posture.get('use_state', 'current_truth')}` as `{trust_posture.get('surface_role', 'current_truth_steering_context')}` | {trust_posture.get('trust_reason', '')}"
+        )
+    favored = direction_state.get('favored_choices', []) if isinstance(direction_state.get('favored_choices', []), list) else []
+    if favored:
+        lines.append("- favored_choices:")
+        for row in favored[:4]:
+            if not isinstance(row, dict):
+                continue
+            lines.append(
+                f"  - {row.get('label', 'choice')} ({row.get('domain', 'direction')}, `{row.get('status', 'favored')}`, `{row.get('truth_posture', 'bounded')}`): {row.get('why_it_is_in_this_position', '')}"
+            )
+    deferred = direction_state.get('deferred_or_weaker_choices', []) if isinstance(direction_state.get('deferred_or_weaker_choices', []), list) else []
+    if deferred:
+        lines.append("- deferred_or_weaker_choices:")
+        for row in deferred[:4]:
+            if not isinstance(row, dict):
+                continue
+            lines.append(
+                f"  - {row.get('label', 'choice')} ({row.get('domain', 'direction')}, `{row.get('status', 'deferred')}`, `{row.get('truth_posture', 'provisional')}`): {row.get('why_it_is_in_this_position', '')}"
+            )
+    if direction_state.get('prototype_vs_product_interpretation'):
+        lines.append(f"- prototype_vs_product_interpretation: {direction_state.get('prototype_vs_product_interpretation', '')}")
+    if direction_state.get('budget_pressure_note'):
+        lines.append(f"- budget_pressure_note: {direction_state.get('budget_pressure_note', '')}")
+    return '\n'.join(lines) + '\n'
+
+
 def default_project_topology_view_state():
     return {
         'generated_at': '',
@@ -10657,7 +11180,7 @@ def build_project_topology_view_state(schema=None, review_snapshot=None, resume_
     milestone_state = milestone_state if isinstance(milestone_state, dict) else build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
     realism_state = realism_state if isinstance(realism_state, dict) else build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
     cost_state = cost_state if isinstance(cost_state, dict) else build_cost_viability_review_state(schema=schema, review_snapshot=review_snapshot, product_realism_state=realism_state)
-    component_state = component_state if isinstance(component_state, dict) else build_component_package_review_state(schema=schema, review_snapshot=review_snapshot, product_realism_state=realism_state)
+    component_state = component_state if isinstance(component_state, dict) else build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
     parts_state = parts_state if isinstance(parts_state, dict) else build_parts_readiness_review_state(schema=schema, review_snapshot=review_snapshot, component_state=component_state)
     pricing_state = pricing_state if isinstance(pricing_state, dict) else build_pricing_alternatives_review_state(
         schema=schema,
@@ -11875,7 +12398,7 @@ def ui_page_priority_rank(priority):
     return order.get(str(priority or '').strip(), 4)
 
 
-def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None, boundary_state=None, topology_state=None):
+def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None, boundary_state=None, topology_state=None, direction_state=None):
     schema = schema or load_cognition_schema()
     cfg = ui_surface_plan_config(schema)
     if not cfg.get('enabled', True):
@@ -11931,6 +12454,16 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         pricing_state=pricing_state,
         component_state=component_state,
         rendering_state=rendering_state,
+    )
+    direction_state = direction_state if isinstance(direction_state, dict) else build_project_direction_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        realism_state=realism_state,
+        cost_state=cost_state,
+        component_state=component_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+        boundary_state=boundary_state,
     )
     extensions_state = build_extensions_capability_review_state(
         schema=schema,
@@ -12045,6 +12578,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         or verification_state.get('recent_transitions', [])
         or verification_state.get('representation_risks', [])
     )
+    direction_meaningful = bool(direction_state.get('favored_choices') or direction_state.get('deferred_or_weaker_choices'))
     extensions_meaningful = bool(available_extensions or missing_extensions)
 
     if tentative_expectations:
@@ -12114,7 +12648,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         'status': 'active',
         'priority': 'primary',
         'why_this_page_exists': 'Every project needs one compact surface for current truth, blockers, realism posture, and what should not be over-read.',
-        'driven_by_sources': ['execution_resume', 'execution_boundaries', 'project_topology_view', 'product_realism_review', 'project_expectations', 'cost_viability_review', 'verification_summary'],
+        'driven_by_sources': ['execution_resume', 'execution_boundaries', 'project_direction_review', 'project_topology_view', 'product_realism_review', 'project_expectations', 'cost_viability_review', 'verification_summary'],
         'sections': [
             make_section(
                 'current_truth_summary',
@@ -12131,6 +12665,14 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
                 ['product_realism_review', 'project_expectations'],
                 'Realism review is meaningful enough to guide operator posture.',
                 'Hide only if realism review does not exist yet.',
+            ),
+            make_section(
+                'direction_of_travel',
+                'Direction Of Travel',
+                'Show which hardware, runtime, interaction, and product-shaping directions are currently winning, which alternatives are weaker, and what could still change the path.',
+                ['project_direction_review', 'execution_boundaries', 'product_realism_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+                'The project has enough differentiated pressure that the current favored path should be explicit rather than inferred from scattered cards.',
+                'Hide only if there is not yet enough steering truth to distinguish favored direction from deferred alternatives.',
             ),
             make_section(
                 'trust_and_source_authority',
@@ -12549,6 +13091,9 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     push_goal('Use verification surfaces to check which source currently owns the truth when views differ in emphasis or freshness.')
     if cost_signal in ('reframe_needed', 'stop_if_cost_target_matters'):
         push_goal('See early whether the project still makes economic sense or should be reframed before more effort is spent.')
+    if direction_meaningful:
+        push_goal('See which hardware, runtime, interaction, and product-shaping directions are currently winning without mistaking them for locked decisions.')
+        push_risk('Direction of travel must stay visibly revisable so current favored choices are not over-read as final commitments.')
     if blocked_lanes or held_lanes:
         push_risk('Held, blocked, and review-oriented lanes must remain visually distinct so waiting is not misread as progress.')
     if extensions_meaningful:
@@ -12617,6 +13162,13 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         boundary_state.get('trust_posture', {}).get('use_state', 'current_truth') if isinstance(boundary_state.get('trust_posture', {}), dict) else 'current_truth',
         boundary_state.get('current_boundary_summary', ''),
         state_surface_generated_at(boundary_state),
+    )
+    push_source(
+        'project_direction_review',
+        'direction_of_travel',
+        direction_state.get('trust_posture', {}).get('use_state', 'current_truth') if isinstance(direction_state.get('trust_posture', {}), dict) else 'current_truth',
+        direction_state.get('current_direction_summary', ''),
+        state_surface_generated_at(direction_state),
     )
     push_source(
         'project_topology_view',
@@ -12735,6 +13287,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         'source_generated_at': {
             'project_expectations': state_surface_generated_at(expectations),
             'execution_resume': state_surface_generated_at(resume_state),
+            'project_direction_review': state_surface_generated_at(direction_state),
             'project_topology_view': state_surface_generated_at(topology_state),
             'project_milestones': state_surface_generated_at(milestone_state),
             'product_realism_review': state_surface_generated_at(realism_state),
@@ -12877,7 +13430,7 @@ def build_verification_transition_rows(v1_review_state, artifact_review_state, l
     return rows[:max(1, limit)]
 
 
-def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None, boundary_state=None, topology_state=None):
+def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None, boundary_state=None, topology_state=None, direction_state=None):
     schema = schema or load_cognition_schema()
     review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
     resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
@@ -12897,6 +13450,12 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         resume_state=resume_state,
         boundary_state=boundary_state,
         cost_state=cost_state,
+    )
+    direction_state = direction_state if isinstance(direction_state, dict) else build_project_direction_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        cost_state=cost_state,
+        boundary_state=boundary_state,
     )
 
     exec_cfg = execution_resume_config(schema)
@@ -13043,6 +13602,15 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             supporting_surfaces=['execution_boundaries', 'project_milestones', 'product_realism_review', 'cost_viability_review', 'parts_readiness_review'],
             sample_titles=[row.get('label', '') for row in topology_state.get('nodes', [])[:3] if isinstance(row, dict)],
         ))
+    current_truth_sources.append(build_verification_source_entry(
+        'Direction of travel and favored vs deferred path',
+        'project_direction_review',
+        direction_state.get('trust_posture', {}).get('use_state', 'current_truth'),
+        direction_state.get('trust_posture', {}).get('trust_reason', direction_state.get('current_direction_summary', '')),
+        state_surface_generated_at(direction_state),
+        supporting_surfaces=['execution_boundaries', 'product_realism_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+        sample_titles=[row.get('label', '') for row in direction_state.get('favored_choices', [])[:3] if isinstance(row, dict)],
+    ))
 
     current_truth_sources.append(build_verification_source_entry(
         'Cost viability and economic posture',
@@ -13128,6 +13696,15 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             ),
         })
     recent_source_wins.append({
+        'question': 'Direction of travel',
+        'winning_surface': 'project_direction_review',
+        'supporting_surfaces': ['execution_boundaries', 'product_realism_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+        'why': compact_text_excerpt(
+            'This surface owns the current bounded answer to which hardware, runtime, interaction, and product-shaping directions are winning now, without treating favored direction as a locked decision.',
+            220,
+        ),
+    })
+    recent_source_wins.append({
         'question': 'Cost viability and project economics',
         'winning_surface': 'cost_viability_review',
         'supporting_surfaces': ['project_expectations', 'project_scorecard', 'product_realism_review', 'component_package_review'],
@@ -13154,6 +13731,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         representation_risks.append('Hardware-aware rendering briefs are exploratory visual framing only; do not treat them as accepted design direction or settled implementation truth.')
     if topology_state.get('nodes'):
         representation_risks.append('The project topology view is a derived overview for legibility; verify each node truth posture and source surfaces before treating the map itself as the authority.')
+    if direction_state.get('favored_choices'):
+        representation_risks.append('Favored direction is still revisable; do not read the current path as a locked decision while wireless, firmware, trust, or cost posture can still force a change.')
     if cost_warning:
         representation_risks.append('Prototype-feasible and product-viable are not the same thing; read the cost posture before treating build progress as commercial sense.')
     representation_risks.append('Do not confuse cognition modes like dream or sleep with execution pause or stop boundaries; execution control is a separate steering layer.')
@@ -13168,6 +13747,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         operator_checks.append('For rendering briefs, verify the current-truth subsystem and build-posture sources before reading a visual comparison as settled design intent.')
     if topology_state.get('nodes'):
         operator_checks.append('For topology nodes, use the node truth posture and detail source surfaces before treating a derived map summary as current truth.')
+    if direction_state.get('favored_choices'):
+        operator_checks.append('For direction of travel, check both the favored rows and the deferred rows; current winners can still change if cost posture, operator intent, or subsystem grounding moves materially.')
     if cost_warning:
         operator_checks.append('For product ambition, verify the cost viability signal before assuming a technically interesting prototype makes business sense.')
     operator_checks.append('Before assuming another cycle is justified, verify the execution boundary surface for continue, pause, stop, and operator-review conditions.')
@@ -13210,22 +13791,23 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             'artifact_emission_readiness': state_surface_generated_at(emission_state),
             'draft_artifact_review': state_surface_generated_at(draft_state),
             'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
+            'project_direction_review': state_surface_generated_at(direction_state),
             'project_topology_view': state_surface_generated_at(topology_state),
             'cost_viability_review': state_surface_generated_at(cost_state),
             'execution_boundaries': state_surface_generated_at(boundary_state),
         },
         'summary': summary,
         'subsystem_card_source': subsystem_card_source,
-        'current_truth_sources': current_truth_sources[:7],
+        'current_truth_sources': current_truth_sources[:8],
         'supporting_context_sources': supporting_context_sources[:5],
         'recent_transitions': recent_transitions,
         'lane_explanations': lane_explanations,
-        'recent_source_wins': recent_source_wins[:5],
+        'recent_source_wins': recent_source_wins[:6],
         'surfaces_with_caution': surfaces_with_caution[:5],
         'representation_risks': list(dict.fromkeys(item for item in representation_risks if item))[:4],
         'operator_checks': list(dict.fromkeys(item for item in operator_checks if item))[:5],
         'counts': {
-            'current_truth_sources': len(current_truth_sources[:7]),
+            'current_truth_sources': len(current_truth_sources[:8]),
             'supporting_context_sources': len(supporting_context_sources[:5]),
             'recent_transitions': len(recent_transitions),
             'surfaces_with_caution': len(surfaces_with_caution[:5]),
@@ -13259,7 +13841,7 @@ def supporting_artifact_review_posture(artifact_review_state, reflect_state):
     return 'provisional_context', 'Implementation artifact review is usable as supporting context, but it is not an authoritative current-truth surface.'
 
 
-def build_execution_resume_state(schema=None, review_snapshot=None, boundary_state=None):
+def build_execution_resume_state(schema=None, review_snapshot=None, boundary_state=None, direction_state=None):
     schema = schema or load_cognition_schema()
     cfg = execution_resume_config(schema)
     if not cfg.get('enabled', True):
@@ -13295,6 +13877,16 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             parts_state=parts_readiness_state,
             pricing_state=pricing_alternatives_state,
         )
+    direction_state = direction_state if isinstance(direction_state, dict) else build_project_direction_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        realism_state=product_realism_state,
+        cost_state=cost_viability_state,
+        component_state=component_package_state,
+        parts_state=parts_readiness_state,
+        pricing_state=pricing_alternatives_state,
+        boundary_state=boundary_state,
+    )
     reflect_payload = reflect_state.get('reflect', {}) if isinstance(reflect_state.get('reflect', {}), dict) else {}
     evidence = reflect_state.get('evidence_analysis', {}) if isinstance(reflect_state.get('evidence_analysis', {}), dict) else {}
     operational_visibility = evidence.get('operational_visibility', {}) if isinstance(evidence.get('operational_visibility', {}), dict) else {}
@@ -13563,6 +14155,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             'component_package_review': state_surface_generated_at(component_package_state),
             'cost_viability_review': state_surface_generated_at(cost_viability_state),
             'execution_boundaries': state_surface_generated_at(boundary_state),
+            'project_direction_review': state_surface_generated_at(direction_state),
             'v1_decision_review': state_surface_generated_at(v1_payload),
             'artifact_emission_readiness': state_surface_generated_at(emission_payload),
             'draft_artifact_review': state_surface_generated_at(draft_payload),
@@ -13633,6 +14226,18 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             'summary': cost_viability_state.get('why_this_posture', ''),
             'operator_cost_warning': cost_viability_state.get('operator_cost_warning', ''),
         } if cost_viability_review_config(schema).get('include_in_execution_resume', True) else {},
+        'project_direction': {
+            'current_direction_summary': direction_state.get('current_direction_summary', ''),
+            'hardware_direction': direction_state.get('hardware_direction', ''),
+            'software_direction': direction_state.get('software_direction', ''),
+            'interaction_direction': direction_state.get('interaction_direction', ''),
+            'product_shaping_direction': direction_state.get('product_shaping_direction', ''),
+            'top_favored_choice': (direction_state.get('favored_choices', []) or [{}])[0].get('label', '') if isinstance(direction_state.get('favored_choices', []), list) and direction_state.get('favored_choices') else '',
+            'top_deferred_choice': (direction_state.get('deferred_or_weaker_choices', []) or [{}])[0].get('label', '') if isinstance(direction_state.get('deferred_or_weaker_choices', []), list) and direction_state.get('deferred_or_weaker_choices') else '',
+            'what_could_change_direction_next': direction_state.get('what_could_change_direction_next', []),
+            'prototype_vs_product_interpretation': direction_state.get('prototype_vs_product_interpretation', ''),
+            'budget_pressure_note': direction_state.get('budget_pressure_note', ''),
+        } if project_direction_review_config(schema).get('include_in_execution_resume', True) else {},
         'current_truth_summary': current_truth_summary[:cfg.get('max_current_truth_summary', 5)],
         'active_review_front': active_review_front[:cfg.get('max_active_review_front', 4)],
         'held_lanes': held_lanes[:cfg.get('max_held_lanes', 4)],
@@ -13658,6 +14263,7 @@ def render_execution_resume_section(resume_state=None, include_header=True):
     product_realism = resume_state.get('product_realism', {}) if isinstance(resume_state.get('product_realism', {}), dict) else {}
     component_package = resume_state.get('component_package', {}) if isinstance(resume_state.get('component_package', {}), dict) else {}
     cost_viability = resume_state.get('cost_viability', {}) if isinstance(resume_state.get('cost_viability', {}), dict) else {}
+    project_direction = resume_state.get('project_direction', {}) if isinstance(resume_state.get('project_direction', {}), dict) else {}
     if trust:
         lines.append(
             f"- trust_posture: sync `{trust.get('overall_sync_status', 'provisional')}` | trust `{trust.get('overall_trust_status', 'provisional')}`"
@@ -13714,6 +14320,20 @@ def render_execution_resume_section(resume_state=None, include_header=True):
             f"- cost_viability: `{cost_viability.get('cost_realism_band', 'too_early_for_exact_cost')}`"
             + f" | signal `{cost_viability.get('kill_pause_reframe_signal', 'proceed_with_caution')}`"
             + f" | {cost_viability.get('summary', '')}"
+        )
+    if project_direction:
+        lines.append(
+            f"- project_direction: {project_direction.get('current_direction_summary', '')}"
+            + (
+                f" | favored `{project_direction.get('top_favored_choice', '')}`"
+                if project_direction.get('top_favored_choice')
+                else ''
+            )
+            + (
+                f" | deferred `{project_direction.get('top_deferred_choice', '')}`"
+                if project_direction.get('top_deferred_choice')
+                else ''
+            )
         )
     for item in resume_state.get('current_truth_summary', [])[:3]:
         lines.append(f"- current_truth: {item}")
@@ -13967,7 +14587,23 @@ def refresh_review_state_sync_metadata(schema=None):
         pricing_state=pricing_state,
     )
     save_execution_boundaries_state(boundary_state)
-    resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot, boundary_state=boundary_state)
+    direction_state = build_project_direction_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        realism_state=product_realism_state,
+        cost_state=cost_state,
+        component_state=component_package_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+        boundary_state=boundary_state,
+    )
+    save_project_direction_review_state(direction_state)
+    resume_state = build_execution_resume_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        boundary_state=boundary_state,
+        direction_state=direction_state,
+    )
     save_execution_resume_state(resume_state)
     verification_state = build_verification_summary_state(
         schema=schema,
@@ -13975,6 +14611,7 @@ def refresh_review_state_sync_metadata(schema=None):
         resume_state=resume_state,
         cost_state=cost_state,
         boundary_state=boundary_state,
+        direction_state=direction_state,
     )
     save_verification_summary_state(verification_state)
     extensions_state = build_extensions_capability_review_state(
@@ -14014,6 +14651,7 @@ def refresh_review_state_sync_metadata(schema=None):
         rendering_state=rendering_state,
         cost_state=cost_state,
         boundary_state=boundary_state,
+        direction_state=direction_state,
         topology_state=topology_state,
     )
     save_verification_summary_state(verification_state)
@@ -14027,6 +14665,7 @@ def refresh_review_state_sync_metadata(schema=None):
         parts_state=parts_state,
         pricing_state=pricing_state,
         boundary_state=boundary_state,
+        direction_state=direction_state,
         topology_state=topology_state,
     ))
     return summary
@@ -16397,7 +17036,23 @@ def generate_scorecard_cycle(changes, prior_reports):
         pricing_state=pricing_state,
     )
     save_execution_boundaries_state(boundary_state)
-    resume_state = build_execution_resume_state(schema=schema, review_snapshot=review_snapshot, boundary_state=boundary_state)
+    direction_state = build_project_direction_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        realism_state=product_realism_state,
+        cost_state=cost_state,
+        component_state=component_package_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+        boundary_state=boundary_state,
+    )
+    save_project_direction_review_state(direction_state)
+    resume_state = build_execution_resume_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        boundary_state=boundary_state,
+        direction_state=direction_state,
+    )
     save_execution_resume_state(resume_state)
     verification_state = build_verification_summary_state(
         schema=schema,
@@ -16405,6 +17060,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         resume_state=resume_state,
         cost_state=cost_state,
         boundary_state=boundary_state,
+        direction_state=direction_state,
     )
     save_verification_summary_state(verification_state)
     extensions_state = build_extensions_capability_review_state(
@@ -16444,6 +17100,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         rendering_state=rendering_state,
         cost_state=cost_state,
         boundary_state=boundary_state,
+        direction_state=direction_state,
         topology_state=topology_state,
     )
     save_verification_summary_state(verification_state)
@@ -16457,6 +17114,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         parts_state=parts_state,
         pricing_state=pricing_state,
         boundary_state=boundary_state,
+        direction_state=direction_state,
         topology_state=topology_state,
     ))
     return render_scorecard_markdown(scorecard), effort_selection
@@ -17936,6 +18594,16 @@ def context_with_inputs(changes):
         parts_state=parts_readiness_state,
         pricing_state=pricing_alternatives_state,
     )
+    project_direction_state = build_project_direction_review_state(
+        schema=schema,
+        review_snapshot=review_state_consumption,
+        realism_state=product_realism_state,
+        cost_state=cost_viability_state,
+        component_state=component_package_state,
+        parts_state=parts_readiness_state,
+        pricing_state=pricing_alternatives_state,
+        boundary_state=execution_boundaries_state,
+    )
     rendering_brief_state = build_hardware_aware_rendering_brief_review_state(
         schema=schema,
         review_snapshot=review_state_consumption,
@@ -17951,6 +18619,7 @@ def context_with_inputs(changes):
         parts_state=parts_readiness_state,
         pricing_state=pricing_alternatives_state,
         boundary_state=execution_boundaries_state,
+        direction_state=project_direction_state,
         rendering_state=rendering_brief_state,
     )
     pieces = ['# Core Field\n', core_text(), '\n']
@@ -17982,6 +18651,8 @@ def context_with_inputs(changes):
     pieces.append(render_project_milestones_context(milestone_state))
     pieces.append('\n')
     pieces.append(render_product_realism_review_context(product_realism_state))
+    pieces.append('\n')
+    pieces.append(render_project_direction_review_context(project_direction_state))
     pieces.append('\n')
     pieces.append(render_extensions_capability_review_context(extensions_capability_state))
     pieces.append('\n')

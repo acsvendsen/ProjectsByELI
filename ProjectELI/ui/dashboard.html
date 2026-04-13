@@ -1450,6 +1450,7 @@
           <article class="steering-card" id="steeringBoundary"></article>
           <article class="steering-card" id="steeringReviewable"></article>
           <article class="steering-card" id="steeringBlockers"></article>
+          <article class="steering-card wide" id="steeringDirection"></article>
           <article class="steering-card wide" id="steeringMilestones"></article>
         </div>
         <div class="topology-panel" id="projectTopologyPanel" style="display:none">
@@ -2891,6 +2892,7 @@
       const realism = status.product_realism_review || {};
       const resume = status.execution_resume || {};
       const boundaries = status.execution_boundaries || resume.execution_boundaries || {};
+      const direction = status.project_direction_review || {};
       const cost = status.cost_viability_review || {};
       const verification = status.verification_summary || {};
       const reviewable = milestones.filter(row => row.approval_state === "ready_for_review");
@@ -2904,7 +2906,11 @@
       const boundaryTruthOwner = (verification.current_truth_sources || []).find(row =>
         row.question === "Execution continuation, pause, stop, and escalation posture"
       );
+      const directionTruthOwner = (verification.current_truth_sources || []).find(row =>
+        row.question === "Direction of travel and favored vs deferred path"
+      );
       const boundarySection = sections.find(section => section.section_id === "execution_boundaries") || {};
+      const directionSection = sections.find(section => section.section_id === "direction_of_travel") || {};
       const targetTitle = boundaries.current_milestone_target_title || boundaries.target_milestone_title || "";
       const targetWhy = boundaries.why_this_target_now || boundaries.current_boundary_summary || "";
       const targetUnlocks = (boundaries.what_unlocks_if_reviewed || []).slice(0, 2);
@@ -2912,6 +2918,32 @@
       const targetEscalate = boundaries.when_to_escalate_to_operator || boundaries.current_reason_to_escalate || "";
       const targetStop = boundaries.when_to_stop_working_this_front || boundaries.current_reason_to_stop || "";
       const targetPrototypeNote = boundaries.prototype_vs_product_interpretation || boundaries.prototype_vs_product_boundary_note || "";
+      const favoredChoices = (direction.favored_choices || []).slice(0, 3);
+      const deferredChoices = (direction.deferred_or_weaker_choices || []).slice(0, 3);
+      const directionChoiceForDomains = domains =>
+        favoredChoices.find(row => domains.includes(row.domain)) || {};
+      const directionRows = [
+        {
+          label: "Hardware",
+          summary: direction.hardware_direction || "",
+          choice: directionChoiceForDomains(["hardware"])
+        },
+        {
+          label: "Software / Runtime",
+          summary: direction.software_direction || "",
+          choice: directionChoiceForDomains(["software_runtime"])
+        },
+        {
+          label: "Interaction",
+          summary: direction.interaction_direction || "",
+          choice: directionChoiceForDomains(["interaction"])
+        },
+        {
+          label: "Product shaping",
+          summary: direction.product_shaping_direction || "",
+          choice: directionChoiceForDomains(["product_shaping", "project_posture"])
+        }
+      ].filter(row => row.summary);
 
       document.getElementById("steeringIntent").innerHTML = `
         <div class="verification-heading">Intent</div>
@@ -2997,6 +3029,42 @@
             : `<div class="steering-empty">No strong blocker summary is available yet.</div>`
         }
         ${(realism.what_would_materially_improve_realism || []).length ? `<div class="footer"><strong>Would materially improve:</strong> ${truncateText(realism.what_would_materially_improve_realism[0], 220)}</div>` : ""}
+      `;
+
+      document.getElementById("steeringDirection").innerHTML = `
+        <div class="verification-heading">${directionSection.title || "Direction Of Travel"}</div>
+        <div class="mini-pills">
+          ${direction.trust_posture?.use_state ? `<span class="mini-pill ${direction.trust_posture.use_state}">${humanizeToken(direction.trust_posture.use_state)}</span>` : ``}
+          ${realism.current_realism_band ? `<span class="mini-pill ${realism.current_realism_band}">${humanizeToken(realism.current_realism_band)}</span>` : ``}
+          ${cost.cost_realism_band ? `<span class="mini-pill ${cost.cost_realism_band}">${humanizeToken(cost.cost_realism_band)}</span>` : ``}
+        </div>
+        <div class="steering-copy">${direction.current_direction_summary || "No direction-of-travel synthesis is available yet."}</div>
+        ${
+          directionRows.length
+            ? `<div class="steering-list">
+                ${directionRows.map(row => `
+                  <div class="steering-row">
+                    <div class="steering-row-head">
+                      <strong>${row.label}</strong>
+                      <div class="steering-row-meta">
+                        ${row.choice.status ? `<span class="mini-pill ${row.choice.status}">${humanizeToken(row.choice.status)}</span>` : ``}
+                        ${row.choice.truth_posture ? `<span class="mini-pill ${row.choice.truth_posture}">${humanizeToken(row.choice.truth_posture)}</span>` : ``}
+                      </div>
+                    </div>
+                    <div>${truncateText(row.summary, 220)}</div>
+                  </div>
+                `).join("")}
+              </div>`
+            : `<div class="steering-empty">Direction-of-travel detail is not available yet.</div>`
+        }
+        ${favoredChoices.length ? `<div class="footer"><strong>Favored now:</strong> ${truncateText(favoredChoices.map(row => row.label).join("; "), 240)}</div>` : ""}
+        ${deferredChoices.length ? `<div class="footer"><strong>Deferred / weaker:</strong> ${truncateText(deferredChoices.map(row => `${row.label} (${humanizeToken(row.status || "deferred")})`).join("; "), 240)}</div>` : ""}
+        ${(direction.why_current_direction_is_winning || []).length ? `<div class="footer"><strong>Why this path is winning:</strong> ${truncateText(direction.why_current_direction_is_winning[0], 240)}</div>` : ""}
+        ${(direction.what_could_change_direction_next || []).length ? `<div class="footer"><strong>Could change next:</strong> ${truncateText(direction.what_could_change_direction_next.slice(0, 2).join(" "), 240)}</div>` : ""}
+        ${direction.prototype_vs_product_interpretation ? `<div class="footer"><strong>Prototype vs product:</strong> ${truncateText(direction.prototype_vs_product_interpretation, 240)}</div>` : ""}
+        ${direction.budget_pressure_note ? `<div class="footer"><strong>Budget pressure:</strong> ${truncateText(direction.budget_pressure_note, 240)}</div>` : ""}
+        ${directionTruthOwner ? `<div class="footer"><strong>Current truth owner:</strong> ${directionTruthOwner.source_surface}</div>` : ""}
+        ${directionSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(directionSection.purpose, 220)}</div>` : ""}
       `;
 
       document.getElementById("steeringMilestones").innerHTML = `

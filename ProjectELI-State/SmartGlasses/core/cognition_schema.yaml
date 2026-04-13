@@ -258,6 +258,13 @@ control:
     max_pause_conditions: 4
     max_stop_conditions: 3
     max_operator_review_required_when: 4
+  project_direction_review:
+    enabled: true
+    include_in_execution_resume: true
+    max_favored_choices: 5
+    max_deferred_choices: 5
+    max_reason_rows: 5
+    max_change_rows: 5
   project_topology_view:
     enabled: true
     max_nodes: 10
@@ -284,10 +291,10 @@ control:
   ui_surface_plan:
     enabled: true
     max_pages: 7
-    max_sections_per_page: 6
+    max_sections_per_page: 7
     max_operator_goals: 5
     max_representation_risks: 5
-    max_source_surfaces: 10
+    max_source_surfaces: 12
     page_types:
       - project_creation
       - project_overview
