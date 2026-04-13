@@ -484,6 +484,262 @@
       background: rgba(255,255,255,0.5);
     }
 
+    .topology-panel {
+      margin-top: 18px;
+      border-top: 1px solid rgba(31,38,36,0.08);
+      padding-top: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .topology-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .topology-summary {
+      margin-top: 6px;
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: 72ch;
+    }
+
+    .topology-layout {
+      display: grid;
+      grid-template-columns: 1.5fr 0.95fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .topology-map-shell {
+      position: relative;
+      border: 1px solid rgba(31,38,36,0.08);
+      border-radius: 20px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.78), rgba(247,243,235,0.92));
+      padding: 14px;
+      min-height: 420px;
+      overflow: hidden;
+    }
+
+    .topology-edges {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .topology-columns {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      min-height: 390px;
+    }
+
+    .topology-column {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .topology-column-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 2px;
+    }
+
+    button.topology-node {
+      width: 100%;
+      border-radius: 18px;
+      border: 1px solid rgba(31,38,36,0.1);
+      background: rgba(255,255,255,0.9);
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+      text-align: left;
+      box-shadow: none;
+      position: relative;
+    }
+
+    button.topology-node::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      border-radius: 18px 0 0 18px;
+      background: rgba(92,104,95,0.2);
+    }
+
+    button.topology-node.is-current-focus {
+      border-color: rgba(13,124,102,0.32);
+      box-shadow: 0 0 0 2px rgba(13,124,102,0.1);
+    }
+
+    button.topology-node.is-current-focus::before,
+    button.topology-node.emphasis-current_focus::before {
+      background: var(--accent);
+    }
+
+    button.topology-node.is-blocked::before,
+    button.topology-node.emphasis-blocked_front::before {
+      background: var(--danger);
+    }
+
+    button.topology-node.is-held::before,
+    button.topology-node.emphasis-held_constraint::before {
+      background: var(--warm);
+    }
+
+    button.topology-node.is-reviewable::before,
+    button.topology-node.emphasis-review_front::before {
+      background: var(--good);
+    }
+
+    button.topology-node.is-operator-input {
+      border-color: rgba(181,106,45,0.22);
+      background: rgba(255,250,242,0.94);
+    }
+
+    button.topology-node.emphasis-constraint::before,
+    button.topology-node.emphasis-operator_gate::before {
+      background: var(--late);
+    }
+
+    button.topology-node.emphasis-supporting::before {
+      background: rgba(92,104,95,0.42);
+    }
+
+    button.topology-node.truth-supporting_context_only {
+      background: rgba(249,246,239,0.82);
+      border-style: dashed;
+    }
+
+    button.topology-node.selected {
+      transform: translateY(-1px);
+    }
+
+    .topology-node-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .topology-node-title {
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .topology-node-summary {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .topology-node-flags {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .topology-flag {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(92,104,95,0.22);
+      border: 1px solid rgba(31,38,36,0.08);
+    }
+
+    .topology-flag.active { background: var(--accent); }
+    .topology-flag.blocked { background: var(--danger); }
+    .topology-flag.held { background: var(--warm); }
+    .topology-flag.reviewable { background: var(--good); }
+    .topology-flag.operator { background: var(--late); }
+
+    .topology-detail {
+      border: 1px solid rgba(31,38,36,0.08);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.82);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      min-height: 420px;
+      align-content: start;
+    }
+
+    .topology-detail-section {
+      display: grid;
+      gap: 7px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(31,38,36,0.08);
+    }
+
+    .topology-detail-section:first-of-type {
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .topology-link-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .topology-link-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(31,38,36,0.08);
+      background: rgba(247,243,235,0.95);
+      color: var(--ink);
+      font-size: 0.76rem;
+    }
+
+    .topology-empty {
+      border-radius: 16px;
+      border: 1px dashed rgba(31,38,36,0.12);
+      background: rgba(255,255,255,0.54);
+      padding: 14px;
+      color: var(--muted);
+    }
+
+    .topology-edge {
+      stroke: rgba(92,104,95,0.32);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .topology-edge.relationship-caps,
+    .topology-edge.relationship-blocks {
+      stroke: rgba(179,58,58,0.42);
+      stroke-dasharray: 5 5;
+    }
+
+    .topology-edge.relationship-gates {
+      stroke: rgba(13,124,102,0.42);
+    }
+
+    .topology-edge.relationship-supports {
+      stroke: rgba(92,104,95,0.26);
+      stroke-dasharray: 2 6;
+    }
+
+    .topology-edge.is-related {
+      stroke-width: 2.6;
+      stroke-opacity: 1;
+    }
+
     .intake-banner {
       display: grid;
       gap: 10px;
@@ -806,6 +1062,31 @@
       background: rgba(62,74,87,0.08);
     }
 
+    .mini-pill.derived_from_current_truth,
+    .mini-pill.grounded_enough_to_inspect,
+    .mini-pill.directional_only {
+      color: var(--accent);
+      background: rgba(13,124,102,0.08);
+    }
+
+    .mini-pill.supporting_context,
+    .mini-pill.supporting_context_only {
+      color: var(--muted);
+      background: rgba(92,104,95,0.08);
+    }
+
+    .mini-pill.reviewable,
+    .mini-pill.reviewable_now {
+      color: var(--good);
+      background: rgba(23,100,58,0.08);
+    }
+
+    .mini-pill.product_capped,
+    .mini-pill.operator_input_needed {
+      color: var(--danger);
+      background: rgba(179,58,58,0.1);
+    }
+
     .mono { font-family: var(--font-mono); }
 
     @media (max-width: 980px) {
@@ -814,6 +1095,10 @@
       .steering-card.wide { grid-column: auto; }
       .intake-grid { grid-template-columns: 1fr; }
       .realization-grid { grid-template-columns: 1fr; }
+      .topology-layout { grid-template-columns: 1fr; }
+      .topology-columns { grid-template-columns: 1fr; min-height: 0; }
+      .topology-map-shell,
+      .topology-detail { min-height: 0; }
     }
   </style>
 </head>
@@ -903,6 +1188,22 @@
           <article class="steering-card" id="steeringBlockers"></article>
           <article class="steering-card wide" id="steeringMilestones"></article>
         </div>
+        <div class="topology-panel" id="projectTopologyPanel" style="display:none">
+          <div class="topology-header">
+            <div>
+              <div class="verification-heading" id="projectTopologyHeading">Project Topology</div>
+              <div class="topology-summary" id="projectTopologySummary"></div>
+            </div>
+            <div class="mini-pills" id="projectTopologyMeta"></div>
+          </div>
+          <div class="topology-layout">
+            <div class="topology-map-shell" id="projectTopologyShell">
+              <svg class="topology-edges" id="projectTopologyEdges" aria-hidden="true"></svg>
+              <div class="topology-columns" id="projectTopologyMap"></div>
+            </div>
+            <article class="topology-detail" id="projectTopologyDetail"></article>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -987,6 +1288,7 @@
     ];
 
     let currentStatus = null;
+    let selectedTopologyNodeId = "";
 
     function badgeClass(state) {
       return ["healthy", "running", "stale", "late", "error"].includes(state) ? state : "unknown";
@@ -1446,6 +1748,258 @@
           ${row.replacement_priority ? `<div class="footer"><strong>Replacement priority:</strong> ${truncateText(humanizeToken(row.replacement_priority), 140)}</div>` : ``}
         </div>
       `).join("")}</div>`;
+    }
+
+    function topologyNodeLabelMap(nodes) {
+      const map = {};
+      (nodes || []).forEach(node => {
+        if (!node || !node.node_id) return;
+        map[node.node_id] = node.label || humanizeToken(node.node_id);
+      });
+      return map;
+    }
+
+    function renderTopologyLinkPills(values, labelMap, emptyText) {
+      const rows = (values || []).filter(Boolean).slice(0, 4);
+      if (!rows.length) return `<div class="topology-empty">${emptyText}</div>`;
+      return `
+        <div class="topology-link-list">
+          ${rows.map(value => `
+            <span class="topology-link-pill">${truncateText(labelMap[value] || humanizeToken(value), 90)}</span>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderProjectTopologyDetail(topology, selectedId) {
+      const detail = document.getElementById("projectTopologyDetail");
+      const nodes = (topology.nodes || []).filter(row => row && row.node_id);
+      const node = nodes.find(row => row.node_id === selectedId) || nodes[0];
+      if (!node) {
+        detail.innerHTML = `<div class="topology-empty">No topology detail is available yet.</div>`;
+        return;
+      }
+
+      const labelMap = topologyNodeLabelMap(nodes);
+      const isCurrentFocus = node.node_id === topology.current_focus_node_id;
+      const isActive = (topology.active_node_ids || []).includes(node.node_id);
+      const isBlocked = (topology.blocked_node_ids || []).includes(node.node_id);
+      const isHeld = (topology.held_node_ids || []).includes(node.node_id);
+      const isReviewable = (topology.reviewable_node_ids || []).includes(node.node_id);
+      const needsOperatorInput = (topology.operator_input_needed_node_ids || []).includes(node.node_id) || !!node.operator_input_needed;
+
+      const pills = [
+        `<span class="mini-pill ${node.status || ""}">${humanizeToken(node.status || "unknown")}</span>`,
+        `<span class="mini-pill ${node.readiness_band || ""}">${humanizeToken(node.readiness_band || "emerging")}</span>`,
+        `<span class="mini-pill ${node.truth_posture || ""}">${humanizeToken(node.truth_posture || "supporting_context_only")}</span>`,
+        isCurrentFocus ? `<span class="mini-pill current_truth">Current focus</span>` : "",
+        needsOperatorInput ? `<span class="mini-pill operator_input_needed">Operator input needed</span>` : "",
+      ].filter(Boolean).join("");
+
+      detail.innerHTML = `
+        <div class="verification-heading">${truncateText(node.label || "Project Front", 120)}</div>
+        <div class="mini-pills">${pills}</div>
+        <div class="steering-copy">${truncateText(node.summary || "No topology summary is available for this front.", 260)}</div>
+
+        <section class="topology-detail-section">
+          <div class="verification-heading">Why It Exists</div>
+          <div>${truncateText(node.why_it_exists || "No explicit purpose is recorded for this front.", 260)}</div>
+        </section>
+
+        <section class="topology-detail-section">
+          <div class="verification-heading">Depends On</div>
+          ${renderTopologyLinkPills(node.depends_on, labelMap, "This front is not explicitly shown as depending on another topology node.")}
+        </section>
+
+        <section class="topology-detail-section">
+          <div class="verification-heading">Blocks</div>
+          ${renderTopologyLinkPills(node.blocks, labelMap, "This front is not currently marked as blocking another topology node.")}
+        </section>
+
+        <section class="topology-detail-section">
+          <div class="verification-heading">Prototype Vs Product</div>
+          <div>${truncateText(node.prototype_vs_product_posture || "No prototype-vs-product interpretation is recorded for this front.", 260)}</div>
+          ${needsOperatorInput ? `<div class="footer"><strong>Operator input:</strong> This front is explicitly waiting on operator review, intent tightening, or a bounded decision.</div>` : ``}
+          ${isActive ? `<div class="footer"><strong>Active now:</strong> This front is part of the current active project posture.</div>` : ``}
+          ${isBlocked ? `<div class="footer"><strong>Blocked:</strong> This front is currently blocked rather than quietly progressing.</div>` : ``}
+          ${isHeld ? `<div class="footer"><strong>Held:</strong> This front is intentionally held instead of being treated as active.</div>` : ``}
+          ${isReviewable ? `<div class="footer"><strong>Reviewable:</strong> This front is mature enough for bounded review, not automatic acceptance.</div>` : ``}
+        </section>
+
+        <section class="topology-detail-section">
+          <div class="verification-heading">Backed By</div>
+          ${renderTopologyLinkPills(node.detail_source_surfaces, {}, "No source surface references are recorded for this front.")}
+          <div class="footer"><strong>Truth posture:</strong> ${node.truth_posture === "current_truth"
+            ? "This node is sourced from current-truth steering surfaces."
+            : node.truth_posture === "supporting_context_only"
+              ? "This node is supporting context only and must not be over-read as source authority."
+              : "This node is derived from current-truth surfaces for operator legibility."
+          }</div>
+        </section>
+      `;
+    }
+
+    function drawProjectTopologyEdges(topology, selectedId) {
+      const shell = document.getElementById("projectTopologyShell");
+      const svg = document.getElementById("projectTopologyEdges");
+      if (!shell || !svg) return;
+
+      const edges = (topology.edges || []).filter(edge => edge && edge.from_node_id && edge.to_node_id);
+      const nodeElements = Array.from(document.querySelectorAll("#projectTopologyMap .topology-node[data-node-id]"));
+      if (!nodeElements.length || !edges.length) {
+        svg.innerHTML = "";
+        return;
+      }
+
+      const shellRect = shell.getBoundingClientRect();
+      const width = Math.max(Math.round(shellRect.width), 1);
+      const height = Math.max(Math.round(shellRect.height), 1);
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+      const positions = {};
+      nodeElements.forEach(node => {
+        const rect = node.getBoundingClientRect();
+        positions[node.dataset.nodeId] = {
+          x: rect.left - shellRect.left + rect.width / 2,
+          y: rect.top - shellRect.top + rect.height / 2,
+        };
+      });
+
+      svg.innerHTML = edges.map(edge => {
+        const from = positions[edge.from_node_id];
+        const to = positions[edge.to_node_id];
+        if (!from || !to) return "";
+
+        const dx = to.x - from.x;
+        let controlDelta = Math.max(36, Math.abs(dx) * 0.34);
+        let c1x = from.x + controlDelta * (dx >= 0 ? 1 : -1);
+        let c2x = to.x - controlDelta * (dx >= 0 ? 1 : -1);
+        if (Math.abs(dx) < 40) {
+          c1x = from.x + 44;
+          c2x = to.x + 44;
+        }
+
+        const d = [
+          "M", from.x.toFixed(1), from.y.toFixed(1),
+          "C", c1x.toFixed(1), from.y.toFixed(1),
+          c2x.toFixed(1), to.y.toFixed(1),
+          to.x.toFixed(1), to.y.toFixed(1),
+        ].join(" ");
+        const isRelated = selectedId && (edge.from_node_id === selectedId || edge.to_node_id === selectedId);
+        const title = truncateText(edge.summary || `${humanizeToken(edge.relationship || "supports")} ${edge.to_node_id}`, 180);
+        return `<path class="topology-edge relationship-${edge.relationship || "supports"}${isRelated ? " is-related" : ""}" d="${d}"><title>${title}</title></path>`;
+      }).join("");
+    }
+
+    function renderProjectTopology(status) {
+      const panel = document.getElementById("projectTopologyPanel");
+      const pageMap = collectPageMap(status);
+      const page = pageMap.project_overview || {};
+      const topologySection = (page.sections || []).find(section => section.section_id === "project_topology") || {};
+      const topology = status.project_topology_view || {};
+      const nodes = (topology.nodes || []).filter(row => row && row.node_id);
+
+      if (!topologySection.section_id || !nodes.length) {
+        panel.style.display = "none";
+        selectedTopologyNodeId = "";
+        return;
+      }
+
+      panel.style.display = "";
+      const focusId = nodes.some(row => row.node_id === topology.current_focus_node_id)
+        ? topology.current_focus_node_id
+        : nodes[0].node_id;
+      if (!nodes.some(row => row.node_id === selectedTopologyNodeId)) {
+        selectedTopologyNodeId = focusId;
+      }
+
+      document.getElementById("projectTopologyHeading").textContent = topologySection.title || "Project Topology";
+      document.getElementById("projectTopologySummary").textContent =
+        topology.overview_summary || topologySection.purpose || "No topology summary is available yet.";
+
+      const metaPills = [
+        topology.trust_posture?.use_state
+          ? `<span class="mini-pill ${topology.trust_posture.use_state}">${humanizeToken(topology.trust_posture.use_state)}</span>`
+          : `<span class="mini-pill supporting_context">Supporting context</span>`,
+        `<span class="mini-pill current_truth">Focus: ${truncateText((nodes.find(row => row.node_id === focusId) || {}).label || "Current Front", 42)}</span>`,
+        `<span class="mini-pill">${(topology.active_node_ids || []).length} active</span>`,
+        `<span class="mini-pill">${(topology.blocked_node_ids || []).length} blocked</span>`,
+        `<span class="mini-pill">${(topology.reviewable_node_ids || []).length} reviewable</span>`,
+        (topology.operator_input_needed_node_ids || []).length
+          ? `<span class="mini-pill operator_input_needed">${(topology.operator_input_needed_node_ids || []).length} operator input</span>`
+          : "",
+      ].filter(Boolean);
+      document.getElementById("projectTopologyMeta").innerHTML = metaPills.join("");
+
+      const lanes = [
+        ["shaping", "Shaping"],
+        ["execution", "Execution"],
+        ["realization", "Realization"],
+      ];
+
+      document.getElementById("projectTopologyMap").innerHTML = lanes.map(([laneId, laneLabel]) => {
+        const laneNodes = nodes.filter(node => String(node.topology_lane || "execution") === laneId);
+        return `
+          <div class="topology-column">
+            <div class="topology-column-label">${laneLabel}</div>
+            ${laneNodes.length ? laneNodes.map(node => {
+              const isCurrentFocus = node.node_id === focusId;
+              const isSelected = node.node_id === selectedTopologyNodeId;
+              const isActive = (topology.active_node_ids || []).includes(node.node_id);
+              const isBlocked = (topology.blocked_node_ids || []).includes(node.node_id);
+              const isHeld = (topology.held_node_ids || []).includes(node.node_id);
+              const isReviewable = (topology.reviewable_node_ids || []).includes(node.node_id);
+              const needsOperatorInput = (topology.operator_input_needed_node_ids || []).includes(node.node_id) || !!node.operator_input_needed;
+              const nodeClasses = [
+                "topology-node",
+                isCurrentFocus ? "is-current-focus" : "",
+                isSelected ? "selected" : "",
+                isBlocked ? "is-blocked" : "",
+                isHeld ? "is-held" : "",
+                isReviewable ? "is-reviewable" : "",
+                needsOperatorInput ? "is-operator-input" : "",
+                node.truth_posture ? `truth-${node.truth_posture}` : "",
+                node.visual_emphasis ? `emphasis-${node.visual_emphasis}` : "",
+              ].filter(Boolean).join(" ");
+              const flags = [
+                isActive ? `<span class="topology-flag active" title="Active"></span>` : "",
+                isBlocked ? `<span class="topology-flag blocked" title="Blocked"></span>` : "",
+                isHeld ? `<span class="topology-flag held" title="Held"></span>` : "",
+                isReviewable ? `<span class="topology-flag reviewable" title="Reviewable"></span>` : "",
+                needsOperatorInput ? `<span class="topology-flag operator" title="Operator input needed"></span>` : "",
+              ].filter(Boolean).join("");
+              const pills = [
+                `<span class="mini-pill ${node.status || ""}">${humanizeToken(node.status || "unknown")}</span>`,
+                `<span class="mini-pill ${node.readiness_band || ""}">${humanizeToken(node.readiness_band || "emerging")}</span>`,
+                node.truth_posture !== "current_truth"
+                  ? `<span class="mini-pill ${node.truth_posture || ""}">${humanizeToken(node.truth_posture || "supporting_context_only")}</span>`
+                  : "",
+              ].filter(Boolean).join("");
+              return `
+                <button class="${nodeClasses}" data-node-id="${node.node_id}" type="button">
+                  <div class="topology-node-head">
+                    <div class="topology-node-title">${truncateText(node.label || humanizeToken(node.node_id), 86)}</div>
+                    <div class="topology-node-flags">${flags}</div>
+                  </div>
+                  <div class="mini-pills">${pills}</div>
+                  <div class="topology-node-summary">${truncateText(node.summary || "No summary is available for this front.", 150)}</div>
+                </button>
+              `;
+            }).join("") : `<div class="topology-empty">No ${laneLabel.toLowerCase()} node is currently surfaced.</div>`}
+          </div>
+        `;
+      }).join("");
+
+      document.querySelectorAll("#projectTopologyMap .topology-node").forEach(button => {
+        button.onclick = () => {
+          selectedTopologyNodeId = button.dataset.nodeId || "";
+          renderProjectTopologyDetail(topology, selectedTopologyNodeId);
+          requestAnimationFrame(() => drawProjectTopologyEdges(topology, selectedTopologyNodeId));
+        };
+      });
+
+      renderProjectTopologyDetail(topology, selectedTopologyNodeId);
+      requestAnimationFrame(() => drawProjectTopologyEdges(topology, selectedTopologyNodeId));
     }
 
     function renderProjectCreation(status) {
@@ -2017,6 +2571,8 @@
           `).join("") || `<div class="steering-empty">No milestone state is available yet.</div>`}
         </div>
       `;
+
+      renderProjectTopology(status);
     }
 
     function renderGuidance(status) {
@@ -2272,6 +2828,16 @@
       await fetch("/api/guidance", {method: "DELETE"});
       await refresh();
     };
+
+    window.addEventListener("resize", () => {
+      if (!currentStatus) return;
+      const topology = currentStatus.project_topology_view || {};
+      if (!Array.isArray(topology.nodes) || !topology.nodes.length) return;
+      requestAnimationFrame(() => drawProjectTopologyEdges(
+        topology,
+        selectedTopologyNodeId || topology.current_focus_node_id || ""
+      ));
+    });
 
     refresh();
     setInterval(refresh, 15000);

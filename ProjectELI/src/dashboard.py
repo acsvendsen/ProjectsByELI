@@ -27,6 +27,7 @@ from orchestrator import (
     PROJECT_DIR,
     PROJECT_EXPECTATIONS_PATH,
     PROJECT_MILESTONES_PATH,
+    PROJECT_TOPOLOGY_VIEW_PATH,
     PRODUCT_REALISM_REVIEW_PATH,
     REPORTS_DIR,
     RUNTIME_STATE_PATH,
@@ -402,6 +403,19 @@ def load_dashboard_data():
         "prototype_vs_product_boundary_note": "",
         "trust_posture": {},
     })
+    project_topology_view = read_json(PROJECT_TOPOLOGY_VIEW_PATH, {
+        "generated_at": "",
+        "overview_summary": "",
+        "nodes": [],
+        "edges": [],
+        "active_node_ids": [],
+        "blocked_node_ids": [],
+        "held_node_ids": [],
+        "reviewable_node_ids": [],
+        "operator_input_needed_node_ids": [],
+        "current_focus_node_id": "",
+        "trust_posture": {},
+    })
     component_package_review = read_json(COMPONENT_PACKAGE_REVIEW_PATH, {
         "generated_at": "",
         "bom_readiness_band": "not_warranted",
@@ -617,6 +631,7 @@ def load_dashboard_data():
         "product_realism_review": product_realism_review,
         "execution_resume": execution_resume,
         "execution_boundaries": execution_boundaries,
+        "project_topology_view": project_topology_view,
         "component_package_review": component_package_review,
         "parts_readiness_review": parts_readiness_review,
         "pricing_alternatives_review": pricing_alternatives_review,

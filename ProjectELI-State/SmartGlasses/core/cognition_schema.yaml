@@ -258,6 +258,12 @@ control:
     max_pause_conditions: 4
     max_stop_conditions: 3
     max_operator_review_required_when: 4
+  project_topology_view:
+    enabled: true
+    max_nodes: 10
+    max_edges: 16
+    max_detail_source_surfaces: 4
+    max_related_node_refs: 4
   cost_viability_review:
     enabled: true
     include_in_execution_resume: true

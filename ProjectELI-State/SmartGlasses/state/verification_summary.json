@@ -1,23 +1,24 @@
 {
-  "generated_at": "2026-04-12T09:46:18",
+  "generated_at": "2026-04-13T10:01:05",
   "source_generated_at": {
     "review_state_consumption": "2026-04-09T23:02:49",
-    "execution_resume": "2026-04-12T09:46:18",
-    "reflect_state": "2026-04-12T09:44:43",
-    "project_scorecard": "2026-04-12T09:45:18",
-    "v1_decision_review": "2026-04-12T09:44:43",
+    "execution_resume": "2026-04-13T10:01:05",
+    "reflect_state": "2026-04-13T10:00:55",
+    "project_scorecard": "2026-04-13T09:58:19",
+    "v1_decision_review": "2026-04-13T10:00:55",
     "implementation_artifact_review": "2026-04-09T23:02:49",
     "artifact_emission_readiness": "2026-04-09T23:02:49",
     "draft_artifact_review": "2026-04-09T23:02:49",
     "hardware_aware_rendering_brief_review": "2026-04-11T19:39:47",
-    "cost_viability_review": "2026-04-12T09:46:18",
-    "execution_boundaries": "2026-04-12T09:46:18"
+    "project_topology_view": "2026-04-13T10:01:05",
+    "cost_viability_review": "2026-04-13T10:01:05",
+    "execution_boundaries": "2026-04-13T10:01:05"
   },
   "summary": "The current review-state files are close enough in time and linkage to compare operationally.",
   "subsystem_card_source": {
     "source_surface": "project_scorecard",
     "use_state": "current_truth",
-    "generated_at": "2026-04-12T09:45:18",
+    "generated_at": "2026-04-13T09:58:19",
     "why": "The scorecard is fresh enough to use as current subsystem-readiness context."
   },
   "current_truth_sources": [
@@ -25,19 +26,19 @@
       "question": "Held lanes and action judgment",
       "source_surface": "reflect_state",
       "use_state": "current_truth",
-      "generated_at": "2026-04-12T09:44:43",
+      "generated_at": "2026-04-13T10:00:55",
       "why": "Reflect-owned action judgment remains the authoritative source for whether a lane is active, held, killed, or still unresolved.",
       "supporting_surfaces": [],
       "sample_titles": [
         "Memory/Cache Policy",
-        "Confidence Display"
+        "Visual Hierarchy"
       ]
     },
     {
       "question": "Subsystem cards and readiness",
       "source_surface": "project_scorecard",
       "use_state": "current_truth",
-      "generated_at": "2026-04-12T09:45:18",
+      "generated_at": "2026-04-13T09:58:19",
       "why": "The scorecard is fresh enough to use as current subsystem-readiness context.",
       "supporting_surfaces": [],
       "sample_titles": [
@@ -50,10 +51,11 @@
       "question": "Pending V1 decisions and active review front",
       "source_surface": "v1_decision_review",
       "use_state": "current_truth",
-      "generated_at": "2026-04-12T09:44:43",
+      "generated_at": "2026-04-13T10:00:55",
       "why": "This file is close enough to its linked review surfaces to compare operationally.",
       "supporting_surfaces": [],
       "sample_titles": [
+        "V1 Confidence Display Format",
         "V1 Default Subtitle Position"
       ]
     },
@@ -87,7 +89,7 @@
       "question": "Cost viability and economic posture",
       "source_surface": "cost_viability_review",
       "use_state": "current_truth",
-      "generated_at": "2026-04-12T09:46:18",
+      "generated_at": "2026-04-13T10:01:05",
       "why": "Use this surface to judge whether the current project direction still makes economic sense as more than a prototype path. It is directional and conservative, not a fake BOM calculator.",
       "supporting_surfaces": [
         "project_expectations",
@@ -104,7 +106,7 @@
       "question": "Execution continuation, pause, stop, and escalation posture",
       "source_surface": "execution_boundaries",
       "use_state": "current_truth",
-      "generated_at": "2026-04-12T09:46:18",
+      "generated_at": "2026-04-13T10:01:05",
       "why": "This surface is derived from current milestone, cost, parts, pricing, and review truth to stop ELI from treating open-ended refinement or multi-front drift as the default.",
       "supporting_surfaces": [
         "project_milestones",
@@ -149,6 +151,25 @@
         "Implementation-Facing Component-Zone Layout Sketch",
         "Subtitle Region and Confidence Overlay Comparison"
       ]
+    },
+    {
+      "question": "Interconnected project topology overview",
+      "source_surface": "project_topology_view",
+      "use_state": "supporting_context",
+      "generated_at": "2026-04-13T10:01:05",
+      "why": "This surface is a derived project map for operator legibility. It summarizes current-truth and supporting-context surfaces, but it does not replace source authority.",
+      "supporting_surfaces": [
+        "execution_boundaries",
+        "project_milestones",
+        "product_realism_review",
+        "cost_viability_review",
+        "parts_readiness_review"
+      ],
+      "sample_titles": [
+        "Project Intent",
+        "Cost Viability",
+        "Product Realism"
+      ]
     }
   ],
   "recent_transitions": [
@@ -192,6 +213,11 @@
   "lane_explanations": {
     "active": [
       {
+        "title": "V1 Confidence Display Format",
+        "source_surface": "v1_decision_review",
+        "why": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit..."
+      },
+      {
         "title": "V1 Default Subtitle Position",
         "source_surface": "v1_decision_review",
         "why": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit..."
@@ -201,17 +227,7 @@
       {
         "title": "Memory/Cache Policy",
         "source_surface": "reflect_state",
-        "why": "aligns with Trustworthy memory support; also addresses under-attended pressure in Latency vs richness; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs use...",
-        "release_on": [
-          "real repo change or stronger repo grounding",
-          "a new source type such as runtime truth or code-config evidence",
-          "meaningfully stronger architectural pull"
-        ]
-      },
-      {
-        "title": "Confidence Display",
-        "source_surface": "reflect_state",
-        "why": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Latency vs richness; meets resistance from Discreet UX vs visual clarity, Latency vs richness; needs counte...",
+        "why": "aligns with Trustworthy memory support; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs usefulness, Latency vs richness; still meaningful, but not newly a...",
         "release_on": [
           "real repo change or stronger repo grounding",
           "a new source type such as runtime truth or code-config evidence",
@@ -320,9 +336,9 @@
   ],
   "counts": {
     "current_truth_sources": 7,
-    "supporting_context_sources": 2,
+    "supporting_context_sources": 3,
     "recent_transitions": 4,
     "surfaces_with_caution": 1
   },
-  "updated_at": "2026-04-12T09:46:18"
+  "updated_at": "2026-04-13T10:01:05"
 }

@@ -672,6 +672,7 @@ PARTS_READINESS_REVIEW_PATH = PROJECT_STATE_DIR / "parts_readiness_review.json"
 COST_VIABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "cost_viability_review.json"
 PRICING_ALTERNATIVES_REVIEW_PATH = PROJECT_STATE_DIR / "pricing_alternatives_review.json"
 EXECUTION_BOUNDARIES_PATH = PROJECT_STATE_DIR / "execution_boundaries.json"
+PROJECT_TOPOLOGY_VIEW_PATH = PROJECT_STATE_DIR / "project_topology_view.json"
 EXTENSIONS_CAPABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "extensions_capability_review.json"
 HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH = PROJECT_STATE_DIR / "hardware_aware_rendering_brief_review.json"
 UI_SURFACE_PLAN_PATH = PROJECT_STATE_DIR / "ui_surface_plan.json"
@@ -1035,6 +1036,13 @@ DEFAULT_COGNITION_SCHEMA = {
             'max_pause_conditions': 4,
             'max_stop_conditions': 3,
             'max_operator_review_required_when': 4,
+        },
+        'project_topology_view': {
+            'enabled': True,
+            'max_nodes': 10,
+            'max_edges': 16,
+            'max_detail_source_surfaces': 4,
+            'max_related_node_refs': 4,
         },
         'cost_viability_review': {
             'enabled': True,
@@ -1423,6 +1431,12 @@ control:
     max_pause_conditions: 4
     max_stop_conditions: 3
     max_operator_review_required_when: 4
+  project_topology_view:
+    enabled: true
+    max_nodes: 10
+    max_edges: 16
+    max_detail_source_surfaces: 4
+    max_related_node_refs: 4
   cost_viability_review:
     enabled: true
     include_in_execution_resume: true
@@ -7518,6 +7532,19 @@ def execution_boundaries_config(schema=None):
     }
 
 
+def project_topology_view_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('project_topology_view', {}) if isinstance(control.get('project_topology_view', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'max_nodes': max(4, safe_int(cfg.get('max_nodes', 10), 10)),
+        'max_edges': max(4, safe_int(cfg.get('max_edges', 16), 16)),
+        'max_detail_source_surfaces': max(1, safe_int(cfg.get('max_detail_source_surfaces', 4), 4)),
+        'max_related_node_refs': max(1, safe_int(cfg.get('max_related_node_refs', 4), 4)),
+    }
+
+
 def cost_viability_review_config(schema=None):
     schema = schema or load_cognition_schema()
     control = schema.get('control', {}) if isinstance(schema, dict) else {}
@@ -10567,6 +10594,388 @@ def render_execution_boundaries_context(boundary_state=None):
     return '\n'.join(lines) + '\n'
 
 
+def default_project_topology_view_state():
+    return {
+        'generated_at': '',
+        'overview_summary': '',
+        'nodes': [],
+        'edges': [],
+        'active_node_ids': [],
+        'blocked_node_ids': [],
+        'held_node_ids': [],
+        'reviewable_node_ids': [],
+        'operator_input_needed_node_ids': [],
+        'current_focus_node_id': '',
+        'trust_posture': {},
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_project_topology_view_state():
+    data = load_json_file(PROJECT_TOPOLOGY_VIEW_PATH, default_project_topology_view_state())
+    if not isinstance(data, dict):
+        data = default_project_topology_view_state()
+    for key in (
+        'nodes',
+        'edges',
+        'active_node_ids',
+        'blocked_node_ids',
+        'held_node_ids',
+        'reviewable_node_ids',
+        'operator_input_needed_node_ids',
+    ):
+        if not isinstance(data.get(key), list):
+            data[key] = []
+    for key in ('trust_posture', 'source_generated_at'):
+        if not isinstance(data.get(key), dict):
+            data[key] = {}
+    for key in ('overview_summary', 'current_focus_node_id'):
+        if not isinstance(data.get(key), str):
+            data[key] = ''
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_project_topology_view_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_project_topology_view_state()
+    payload['updated_at'] = now_iso()
+    PROJECT_TOPOLOGY_VIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def build_project_topology_view_state(schema=None, review_snapshot=None, resume_state=None, boundary_state=None, milestone_state=None, realism_state=None, cost_state=None, parts_state=None, pricing_state=None, component_state=None, rendering_state=None):
+    schema = schema or load_cognition_schema()
+    cfg = project_topology_view_config(schema)
+    if not cfg.get('enabled', True):
+        return default_project_topology_view_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
+    boundary_state = boundary_state if isinstance(boundary_state, dict) else build_execution_boundaries_state(schema=schema, review_snapshot=review_snapshot)
+    milestone_state = milestone_state if isinstance(milestone_state, dict) else build_project_milestones_state(schema=schema, review_snapshot=review_snapshot, resume_state=resume_state)
+    realism_state = realism_state if isinstance(realism_state, dict) else build_product_realism_review_state(schema=schema, review_snapshot=review_snapshot)
+    cost_state = cost_state if isinstance(cost_state, dict) else build_cost_viability_review_state(schema=schema, review_snapshot=review_snapshot, product_realism_state=realism_state)
+    component_state = component_state if isinstance(component_state, dict) else build_component_package_review_state(schema=schema, review_snapshot=review_snapshot, product_realism_state=realism_state)
+    parts_state = parts_state if isinstance(parts_state, dict) else build_parts_readiness_review_state(schema=schema, review_snapshot=review_snapshot, component_state=component_state)
+    pricing_state = pricing_state if isinstance(pricing_state, dict) else build_pricing_alternatives_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        parts_state=parts_state,
+        component_state=component_state,
+        cost_state=cost_state,
+    )
+    rendering_state = rendering_state if isinstance(rendering_state, dict) else load_hardware_aware_rendering_brief_review_state()
+
+    expectations = load_project_expectations_state()
+    active_review_front = resume_state.get('active_review_front', []) if isinstance(resume_state.get('active_review_front', []), list) else []
+    blocked_lanes = resume_state.get('blocked_lanes', []) if isinstance(resume_state.get('blocked_lanes', []), list) else []
+    needs_human_review = resume_state.get('needs_human_review', []) if isinstance(resume_state.get('needs_human_review', []), list) else []
+    milestone_rows = milestone_state.get('milestones', []) if isinstance(milestone_state.get('milestones', []), list) else []
+    milestone_by_id = {
+        normalize_signal_key(row.get('milestone_id', '')): row
+        for row in milestone_rows
+        if isinstance(row, dict) and row.get('milestone_id')
+    }
+    implementation_row = milestone_by_id.get('implementation_package_review', {})
+    rendering_briefs = rendering_state.get('rendering_briefs', []) if isinstance(rendering_state.get('rendering_briefs', []), list) else []
+    cost_signal = str(cost_state.get('kill_pause_reframe_signal', 'proceed_with_caution') or 'proceed_with_caution')
+    target_tier = str(expectations.get('target_product_tier', 'discreet_consumer_assistive_wearable') or 'discreet_consumer_assistive_wearable')
+    focus_node_id = 'current_working_target'
+
+    blocked_titles = [row.get('title', '') for row in blocked_lanes[:4] if row.get('title')]
+    review_titles = [row.get('title', '') for row in active_review_front[:2] if row.get('title')]
+    operator_review_title = str(needs_human_review[0].get('title', '') or '') if needs_human_review else ''
+
+    def make_node(node_id, label, node_type, status, truth_posture, readiness_band, why_it_exists, depends_on, blocks, operator_input_needed, prototype_vs_product_posture, summary, detail_source_surfaces, visual_emphasis, topology_lane):
+        return {
+            'node_id': node_id,
+            'label': label,
+            'node_type': node_type,
+            'status': status,
+            'truth_posture': truth_posture,
+            'readiness_band': readiness_band,
+            'why_it_exists': compact_text_excerpt(why_it_exists, 220),
+            'depends_on': [item for item in depends_on if item][:cfg.get('max_related_node_refs', 4)],
+            'blocks': [item for item in blocks if item][:cfg.get('max_related_node_refs', 4)],
+            'operator_input_needed': bool(operator_input_needed),
+            'prototype_vs_product_posture': compact_text_excerpt(prototype_vs_product_posture, 220),
+            'summary': compact_text_excerpt(summary, 220),
+            'detail_source_surfaces': [str(item) for item in detail_source_surfaces if item][:cfg.get('max_detail_source_surfaces', 4)],
+            'visual_emphasis': visual_emphasis,
+            'topology_lane': topology_lane,
+            'revisable': True,
+        }
+
+    nodes = [
+        make_node(
+            'project_intent',
+            'Project Intent',
+            'intent',
+            'tentative' if bool(expectations.get('defaults_are_tentative', True)) or not bool(expectations.get('reviewed_by_operator', False)) else 'operator_reviewed',
+            'current_truth',
+            'tentative' if bool(expectations.get('defaults_are_tentative', True)) or not bool(expectations.get('reviewed_by_operator', False)) else 'grounded_enough_to_inspect',
+            'This front keeps project ambition, seriousness, target tier, and acceptable compromise posture explicit before stronger product language hardens.',
+            [],
+            ['cost_viability', 'product_realism', 'review_fronts'],
+            bool(expectations.get('defaults_are_tentative', True)) or not bool(expectations.get('reviewed_by_operator', False)),
+            'Still explicitly prototype-oriented and exploratory; this is not a confirmed product-ambition declaration.',
+            project_expectations_summary(expectations),
+            ['project_expectations'],
+            'operator_gate',
+            'shaping',
+        ),
+        make_node(
+            'cost_viability',
+            'Cost Viability',
+            'cost_posture',
+            'product_capped' if cost_signal in ('reframe_needed', 'stop_if_cost_target_matters') else 'caution',
+            'current_truth',
+            'product_capped' if cost_signal in ('reframe_needed', 'stop_if_cost_target_matters') else 'prototype_only',
+            'This front exists to stop technically interesting prototype motion from silently becoming an economically weak product story.',
+            ['project_intent'],
+            ['product_realism', 'build_realization'],
+            cost_signal in ('reframe_needed', 'stop_if_cost_target_matters'),
+            'Prototype-learning may continue, but product-path narration is capped while economics are mismatched.',
+            cost_state.get('operator_cost_warning', '') or cost_state.get('why_this_posture', ''),
+            ['cost_viability_review', 'project_expectations'],
+            'constraint',
+            'shaping',
+        ),
+        make_node(
+            'product_realism',
+            'Product Realism',
+            'realism_posture',
+            'held' if str(milestone_by_id.get('product_realism_check', {}).get('approval_state', '') or '') == 'held' else 'prototype_only',
+            'current_truth',
+            str(realism_state.get('current_realism_band', 'serious_prototype_path') or 'serious_prototype_path'),
+            'This front keeps product claims subordinate to current grounding, trust, cost, and operator-declared seriousness.',
+            ['project_intent', 'cost_viability'],
+            ['build_realization'],
+            False,
+            'Serious prototype path only; stronger product-candidate or real-product language remains blocked.',
+            realism_state.get('why_this_band', ''),
+            ['product_realism_review', 'project_milestones'],
+            'held_constraint',
+            'shaping',
+        ),
+        make_node(
+            'review_fronts',
+            'Review Fronts',
+            'review_front',
+            'reviewable' if active_review_front or needs_human_review else 'emerging',
+            'derived_from_current_truth',
+            'reviewable' if active_review_front or needs_human_review else 'emerging',
+            'This front keeps live bounded decisions and human-review questions visible instead of letting them dissolve into background context.',
+            ['project_intent'],
+            ['current_working_target'],
+            bool(needs_human_review),
+            'These are bounded review fronts only, not approved product commitments.',
+            (
+                f"{review_titles[0] if review_titles else operator_review_title or 'No live review front'} is the active review front."
+                + (f" Operator review is needed on {operator_review_title}." if operator_review_title else '')
+            ),
+            ['execution_resume', 'v1_decision_review'],
+            'review_front',
+            'execution',
+        ),
+        make_node(
+            focus_node_id,
+            boundary_state.get('current_milestone_target_title', boundary_state.get('target_milestone_title', 'Current Working Target')) or 'Current Working Target',
+            'milestone_focus',
+            str(boundary_state.get('current_target_posture', 'reviewable_now') or 'reviewable_now'),
+            'current_truth',
+            'reviewable',
+            'This front keeps one milestone operationally current so ELI does not drift across multiple meaningful fronts at once.',
+            ['review_fronts', 'subsystem_fronts'],
+            ['build_realization'],
+            True,
+            boundary_state.get('prototype_vs_product_interpretation', ''),
+            boundary_state.get('why_this_target_now', '') or boundary_state.get('current_boundary_summary', ''),
+            ['execution_boundaries', 'project_milestones'],
+            'current_focus',
+            'execution',
+        ),
+        make_node(
+            'subsystem_fronts',
+            'Subsystem Fronts',
+            'subsystem_front',
+            'blocked' if blocked_titles else 'emerging',
+            'current_truth',
+            'blocked' if blocked_titles else 'grounded_enough_to_inspect',
+            'This front keeps the main subsystem pressures legible so downstream realization and review do not over-read thin grounding.',
+            [],
+            ['current_working_target', 'parts_readiness'],
+            False,
+            'Subsystem gaps are still prototype-limiting and product-capping, especially around wireless, firmware, and memory trust.',
+            (
+                f"{', '.join(blocked_titles[:3])} currently block stronger downstream confidence."
+                if blocked_titles else
+                'Subsystem evidence is still mixed and should not be read as settled implementation maturity.'
+            ),
+            ['project_scorecard', 'execution_resume'],
+            'blocked_front',
+            'execution',
+        ),
+        make_node(
+            'parts_readiness',
+            'Parts Readiness',
+            'parts_readiness',
+            'blocked' if str(parts_state.get('parts_readiness_band', 'not_ready_for_suggestions')) != 'shortlist_ready_for_review' else 'reviewable',
+            'current_truth',
+            str(parts_state.get('parts_readiness_band', 'package_direction_only') or 'package_direction_only'),
+            'This front answers whether ELI can honestly suggest package placeholders, provisional parts, or a stronger shortlist yet.',
+            ['subsystem_fronts'],
+            ['pricing_alternatives', 'build_realization'],
+            False,
+            'Package-level posture is valid for prototype planning; it is not a component-shortlist or procurement claim.',
+            parts_state.get('why_not_stronger_yet', '') or parts_state.get('current_shortlist_posture', ''),
+            ['parts_readiness_review', 'component_package_review'],
+            'blocked_front',
+            'realization',
+        ),
+        make_node(
+            'pricing_alternatives',
+            'Pricing & Alternatives',
+            'pricing_alternatives',
+            'blocked' if str(pricing_state.get('fit_for_target_tier', 'unknown') or 'unknown') == 'no_candidate_currently_credible_for_target_tier' else 'emerging',
+            'current_truth',
+            'directional_only',
+            'This front compares current package directions against cheaper or simpler alternatives without pretending there is vendor-grade pricing certainty.',
+            ['parts_readiness'],
+            ['build_realization'],
+            False,
+            'Pricing direction is still prototype-oriented and does not rescue the current target tier story.',
+            pricing_state.get('operator_warning', '') or pricing_state.get('cost_direction_view', ''),
+            ['pricing_alternatives_review', 'cost_viability_review'],
+            'constraint',
+            'realization',
+        ),
+        make_node(
+            'build_realization',
+            'Build & Realization',
+            'build_realization',
+            'prototype_only',
+            'derived_from_current_truth',
+            str(component_state.get('bom_readiness_band', 'early_subsystem_bom_only') or 'early_subsystem_bom_only'),
+            'This front keeps build-oriented structure honest without implying a final implementation package or final BOM.',
+            ['current_working_target', 'parts_readiness', 'pricing_alternatives', 'cost_viability', 'product_realism'],
+            ['exploratory_rendering'] if rendering_briefs else [],
+            False,
+            'Build posture is prototype-only, early-subsystem-BOM-only, and explicitly not a consumer-tier implementation package.',
+            component_state.get('why_bom_is_or_is_not_warranted', '') or implementation_row.get('missing_evidence', [''])[0],
+            ['component_package_review', 'project_milestones', 'parts_readiness_review', 'pricing_alternatives_review'],
+            'prototype_only',
+            'realization',
+        ),
+    ]
+
+    if rendering_briefs:
+        nodes.append(make_node(
+            'exploratory_rendering',
+            'Exploratory Rendering',
+            'supporting_review',
+            'supporting_context_only',
+            'supporting_context_only',
+            'exploratory',
+            'This front exists only for bounded visual drafting support around packaging, placement, and comparison; it is not design truth.',
+            ['build_realization', 'product_realism'],
+            [],
+            False,
+            'Exploratory rendering is subordinate review context only and must not be read as accepted design or solved productness.',
+            rendering_state.get('summary', '') or f"{len(rendering_briefs)} bounded rendering brief(s) are available for exploratory comparison.",
+            ['hardware_aware_rendering_brief_review'],
+            'supporting',
+            'realization',
+        ))
+
+    nodes = nodes[:cfg.get('max_nodes', 10)]
+    node_ids = {row.get('node_id') for row in nodes if isinstance(row, dict)}
+
+    def edge(edge_id, from_node_id, to_node_id, relationship, summary):
+        if from_node_id not in node_ids or to_node_id not in node_ids:
+            return None
+        return {
+            'edge_id': edge_id,
+            'from_node_id': from_node_id,
+            'to_node_id': to_node_id,
+            'relationship': relationship,
+            'summary': compact_text_excerpt(summary, 200),
+            'revisable': True,
+        }
+
+    edges = [
+        edge('intent_to_cost', 'project_intent', 'cost_viability', 'shapes', 'Declared tier, seriousness, and acceptable compromises shape whether the project still makes economic sense.'),
+        edge('intent_to_review', 'project_intent', 'review_fronts', 'shapes', 'Current bounded review fronts still inherit prototype-oriented intent and guardrails.'),
+        edge('intent_to_realism', 'project_intent', 'product_realism', 'shapes', 'Realism cannot outrun the current declared prototype-oriented project posture.'),
+        edge('cost_to_realism', 'cost_viability', 'product_realism', 'caps', 'Economic mismatch currently caps stronger product-realism language.'),
+        edge('review_to_focus', 'review_fronts', 'current_working_target', 'gates', 'Live review questions still shape what the current milestone focus can honestly mean.'),
+        edge('subsystems_to_focus', 'subsystem_fronts', 'current_working_target', 'blocks', 'Subsystem grounding gaps constrain what the current milestone focus can meaningfully unlock.'),
+        edge('subsystems_to_parts', 'subsystem_fronts', 'parts_readiness', 'blocks', 'Weak wireless, firmware, and memory signals still block stronger shortlist confidence.'),
+        edge('focus_to_build', 'current_working_target', 'build_realization', 'gates', 'Implementation-package review is the current gateway for bounded prototype buildability interpretation.'),
+        edge('parts_to_pricing', 'parts_readiness', 'pricing_alternatives', 'feeds', 'Pricing comparison stays downstream of what parts or packages are honestly suggestable now.'),
+        edge('parts_to_build', 'parts_readiness', 'build_realization', 'gates', 'Package-only parts posture keeps build realization from reading like a settled implementation package.'),
+        edge('pricing_to_build', 'pricing_alternatives', 'build_realization', 'caps', 'Pricing direction still constrains what build posture can honestly imply for the current target tier.'),
+        edge('cost_to_build', 'cost_viability', 'build_realization', 'caps', 'Cost mismatch keeps build posture prototype-only rather than product-facing.'),
+        edge('realism_to_build', 'product_realism', 'build_realization', 'caps', 'Realism posture still caps stronger build interpretation.'),
+        edge('build_to_rendering', 'build_realization', 'exploratory_rendering', 'supports', 'Exploratory rendering is only warranted because prototype build posture is meaningful enough for bounded visual comparison.'),
+        edge('realism_to_rendering', 'product_realism', 'exploratory_rendering', 'caps', 'Rendering briefs must stay visibly prototype-oriented and non-final.'),
+    ]
+    edges = [row for row in edges if isinstance(row, dict)][:cfg.get('max_edges', 16)]
+
+    active_node_ids = [node_id for node_id in ('current_working_target', 'review_fronts') if node_id in node_ids]
+    blocked_node_ids = [node_id for node_id in ('subsystem_fronts', 'parts_readiness', 'pricing_alternatives') if node_id in node_ids]
+    held_node_ids = [node_id for node_id in ('product_realism',) if node_id in node_ids and str(milestone_by_id.get('product_realism_check', {}).get('approval_state', '') or '') == 'held']
+    reviewable_node_ids = [node_id for node_id in ('current_working_target', 'review_fronts') if node_id in node_ids]
+    operator_input_needed_node_ids = [
+        node_id for node_id in ('project_intent', 'cost_viability', 'review_fronts', 'current_working_target')
+        if node_id in node_ids
+    ]
+
+    overview_summary = compact_text_excerpt(
+        (
+            f"Current focus is {boundary_state.get('current_milestone_target_title', 'the current milestone')}."
+            f" Review and operator input are live on {operator_review_title or 'the current front'}."
+            f" {', '.join(blocked_titles[:3]) or 'Key subsystem gaps'} still constrain stronger realization."
+            f" Product posture remains `{realism_state.get('current_realism_band', 'serious_prototype_path')}` and cost posture remains `{cost_state.get('cost_realism_band', 'product_tier_mismatch_risk')}`."
+            f" {('Exploratory rendering remains supporting context only.' if rendering_briefs else 'No exploratory rendering front is active.')}"
+        ),
+        280,
+    )
+
+    return {
+        'generated_at': now_iso(),
+        'overview_summary': overview_summary,
+        'nodes': nodes,
+        'edges': edges,
+        'active_node_ids': active_node_ids,
+        'blocked_node_ids': blocked_node_ids,
+        'held_node_ids': held_node_ids,
+        'reviewable_node_ids': reviewable_node_ids,
+        'operator_input_needed_node_ids': operator_input_needed_node_ids,
+        'current_focus_node_id': focus_node_id if focus_node_id in node_ids else '',
+        'trust_posture': {
+            'surface_role': 'derived_operator_topology_overview',
+            'use_state': 'supporting_context',
+            'trust_reason': 'This surface is a derived project map for operator legibility. It summarizes current-truth and supporting-context surfaces, but it does not replace source authority.',
+        },
+        'source_generated_at': {
+            'execution_resume': state_surface_generated_at(resume_state),
+            'execution_boundaries': state_surface_generated_at(boundary_state),
+            'project_milestones': state_surface_generated_at(milestone_state),
+            'product_realism_review': state_surface_generated_at(realism_state),
+            'cost_viability_review': state_surface_generated_at(cost_state),
+            'parts_readiness_review': state_surface_generated_at(parts_state),
+            'pricing_alternatives_review': state_surface_generated_at(pricing_state),
+            'component_package_review': state_surface_generated_at(component_state),
+            'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
+            'project_expectations': state_surface_generated_at(expectations),
+        },
+        'revisable': True,
+    }
+
+
 def default_extensions_capability_review_state():
     return {
         'generated_at': '',
@@ -11466,7 +11875,7 @@ def ui_page_priority_rank(priority):
     return order.get(str(priority or '').strip(), 4)
 
 
-def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None, boundary_state=None):
+def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None, boundary_state=None, topology_state=None):
     schema = schema or load_cognition_schema()
     cfg = ui_surface_plan_config(schema)
     if not cfg.get('enabled', True):
@@ -11509,6 +11918,19 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         cost_state=cost_state,
         parts_state=parts_state,
         pricing_state=pricing_state,
+    )
+    topology_state = topology_state if isinstance(topology_state, dict) else build_project_topology_view_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        boundary_state=boundary_state,
+        milestone_state=milestone_state,
+        realism_state=realism_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+        component_state=component_state,
+        rendering_state=rendering_state,
     )
     extensions_state = build_extensions_capability_review_state(
         schema=schema,
@@ -11692,7 +12114,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         'status': 'active',
         'priority': 'primary',
         'why_this_page_exists': 'Every project needs one compact surface for current truth, blockers, realism posture, and what should not be over-read.',
-        'driven_by_sources': ['execution_resume', 'execution_boundaries', 'product_realism_review', 'project_expectations', 'cost_viability_review', 'verification_summary'],
+        'driven_by_sources': ['execution_resume', 'execution_boundaries', 'project_topology_view', 'product_realism_review', 'project_expectations', 'cost_viability_review', 'verification_summary'],
         'sections': [
             make_section(
                 'current_truth_summary',
@@ -11719,6 +12141,14 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
                 'Hide only if there is no meaningful current-vs-supporting distinction to explain.',
             ),
             make_section(
+                'project_topology',
+                'Project Topology',
+                'Show the broad project map, current focus, blockers, held fronts, reviewable fronts, and operator-input-needed nodes as one interconnected structure rather than disconnected cards.',
+                ['project_topology_view', 'execution_boundaries', 'project_milestones', 'product_realism_review', 'cost_viability_review', 'parts_readiness_review'],
+                'The project now has enough differentiated fronts that an interconnected overview is more honest than a disconnected card-only view.',
+                'Hide only if the project is too small or too flat for a topology layer to add legibility.',
+            ),
+            make_section(
                 'execution_boundaries',
                 'Current Working Target',
                 'Show the one current milestone target, why it is active now, what it could unlock, what blocks it, and when ELI should escalate instead of continuing.',
@@ -11740,10 +12170,12 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         'representation_risks': [
             'Do not flatten current truth and supporting context into one neat progress story.',
             'Do not let prototype progress visually imply that the economics are becoming sensible by default.',
+            'Do not let the topology view replace source authority; it is a derived overview and must keep truth posture visible per node.',
             'Do not confuse cognition modes with execution pause or stop semantics; the execution boundary surface is the control layer.',
         ],
         'operator_actions_supported': [
             'inspect current truth',
+            'see how the main project fronts connect',
             'see what makes ELI continue, pause, stop, or escalate',
             'see what is blocked',
             'understand what is actually next',
@@ -12103,6 +12535,9 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     if boundary_state.get('current_boundary_summary'):
         push_risk('Execution boundaries must stay separate from cognition modes so pause or stop posture is not hidden behind continuous internal cycling.')
         push_goal('See explicitly when ELI should continue, pause, stop product-shaped continuation, or escalate instead of assuming another cycle is useful.')
+    if topology_state.get('nodes'):
+        push_risk('The topology view must remain a derived overview; it should not replace the underlying current-truth and supporting-context surfaces it summarizes.')
+        push_goal('See the main project fronts, dependencies, blockers, held lanes, and operator-input-needed fronts at a glance without turning the dashboard into a PM board.')
     if rendering_briefs:
         push_risk('Hardware-aware rendering briefs are exploratory supporting context only; they must not be read as current-truth design acceptance.')
         push_goal('Use hardware-aware rendering briefs for bounded packaging and comparison review without over-reading them as final design.')
@@ -12182,6 +12617,13 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         boundary_state.get('trust_posture', {}).get('use_state', 'current_truth') if isinstance(boundary_state.get('trust_posture', {}), dict) else 'current_truth',
         boundary_state.get('current_boundary_summary', ''),
         state_surface_generated_at(boundary_state),
+    )
+    push_source(
+        'project_topology_view',
+        'derived_operator_overview',
+        topology_state.get('trust_posture', {}).get('use_state', 'supporting_context') if isinstance(topology_state.get('trust_posture', {}), dict) else 'supporting_context',
+        topology_state.get('trust_posture', {}).get('trust_reason', topology_state.get('overview_summary', '')) if isinstance(topology_state.get('trust_posture', {}), dict) else topology_state.get('overview_summary', ''),
+        state_surface_generated_at(topology_state),
     )
     push_source(
         'pricing_alternatives_review',
@@ -12293,6 +12735,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         'source_generated_at': {
             'project_expectations': state_surface_generated_at(expectations),
             'execution_resume': state_surface_generated_at(resume_state),
+            'project_topology_view': state_surface_generated_at(topology_state),
             'project_milestones': state_surface_generated_at(milestone_state),
             'product_realism_review': state_surface_generated_at(realism_state),
             'cost_viability_review': state_surface_generated_at(cost_state),
@@ -12434,7 +12877,7 @@ def build_verification_transition_rows(v1_review_state, artifact_review_state, l
     return rows[:max(1, limit)]
 
 
-def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None, boundary_state=None):
+def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None, boundary_state=None, topology_state=None):
     schema = schema or load_cognition_schema()
     review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
     resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
@@ -12448,6 +12891,13 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
     rendering_state = rendering_state if isinstance(rendering_state, dict) else load_hardware_aware_rendering_brief_review_state()
     cost_state = cost_state if isinstance(cost_state, dict) else build_cost_viability_review_state(schema=schema, review_snapshot=review_snapshot)
     boundary_state = boundary_state if isinstance(boundary_state, dict) else build_execution_boundaries_state(schema=schema, review_snapshot=review_snapshot)
+    topology_state = topology_state if isinstance(topology_state, dict) else build_project_topology_view_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        boundary_state=boundary_state,
+        cost_state=cost_state,
+    )
 
     exec_cfg = execution_resume_config(schema)
     scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
@@ -12582,6 +13032,17 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             supporting_surfaces=['project_scorecard', 'v1_decision_review', 'component_package_review', 'product_realism_review'],
             sample_titles=[row.get('title', '') for row in rendering_briefs[:3]],
         ))
+    if topology_state.get('nodes'):
+        topology_trust = topology_state.get('trust_posture', {}) if isinstance(topology_state.get('trust_posture', {}), dict) else {}
+        supporting_context_sources.append(build_verification_source_entry(
+            'Interconnected project topology overview',
+            'project_topology_view',
+            topology_trust.get('use_state', 'supporting_context'),
+            topology_trust.get('trust_reason', topology_state.get('overview_summary', '')),
+            state_surface_generated_at(topology_state),
+            supporting_surfaces=['execution_boundaries', 'project_milestones', 'product_realism_review', 'cost_viability_review', 'parts_readiness_review'],
+            sample_titles=[row.get('label', '') for row in topology_state.get('nodes', [])[:3] if isinstance(row, dict)],
+        ))
 
     current_truth_sources.append(build_verification_source_entry(
         'Cost viability and economic posture',
@@ -12691,6 +13152,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         representation_risks.append('Cautionary or provisional surfaces stay visible for continuity, but they should not override current-truth sources.')
     if rendering_briefs:
         representation_risks.append('Hardware-aware rendering briefs are exploratory visual framing only; do not treat them as accepted design direction or settled implementation truth.')
+    if topology_state.get('nodes'):
+        representation_risks.append('The project topology view is a derived overview for legibility; verify each node truth posture and source surfaces before treating the map itself as the authority.')
     if cost_warning:
         representation_risks.append('Prototype-feasible and product-viable are not the same thing; read the cost posture before treating build progress as commercial sense.')
     representation_risks.append('Do not confuse cognition modes like dream or sleep with execution pause or stop boundaries; execution control is a separate steering layer.')
@@ -12703,6 +13166,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         operator_checks.append('For held lanes, verify the release signals before trying to reopen the lane as active work.')
     if rendering_briefs:
         operator_checks.append('For rendering briefs, verify the current-truth subsystem and build-posture sources before reading a visual comparison as settled design intent.')
+    if topology_state.get('nodes'):
+        operator_checks.append('For topology nodes, use the node truth posture and detail source surfaces before treating a derived map summary as current truth.')
     if cost_warning:
         operator_checks.append('For product ambition, verify the cost viability signal before assuming a technically interesting prototype makes business sense.')
     operator_checks.append('Before assuming another cycle is justified, verify the execution boundary surface for continue, pause, stop, and operator-review conditions.')
@@ -12745,6 +13210,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             'artifact_emission_readiness': state_surface_generated_at(emission_state),
             'draft_artifact_review': state_surface_generated_at(draft_state),
             'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
+            'project_topology_view': state_surface_generated_at(topology_state),
             'cost_viability_review': state_surface_generated_at(cost_state),
             'execution_boundaries': state_surface_generated_at(boundary_state),
         },
@@ -13527,6 +13993,20 @@ def refresh_review_state_sync_metadata(schema=None):
         extensions_state=extensions_state,
     )
     save_hardware_aware_rendering_brief_review_state(rendering_state)
+    topology_state = build_project_topology_view_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        boundary_state=boundary_state,
+        milestone_state=milestone_state,
+        realism_state=product_realism_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+        component_state=component_package_state,
+        rendering_state=rendering_state,
+    )
+    save_project_topology_view_state(topology_state)
     verification_state = build_verification_summary_state(
         schema=schema,
         review_snapshot=review_snapshot,
@@ -13534,6 +14014,7 @@ def refresh_review_state_sync_metadata(schema=None):
         rendering_state=rendering_state,
         cost_state=cost_state,
         boundary_state=boundary_state,
+        topology_state=topology_state,
     )
     save_verification_summary_state(verification_state)
     save_ui_surface_plan_state(build_ui_surface_plan_state(
@@ -13546,6 +14027,7 @@ def refresh_review_state_sync_metadata(schema=None):
         parts_state=parts_state,
         pricing_state=pricing_state,
         boundary_state=boundary_state,
+        topology_state=topology_state,
     ))
     return summary
 
@@ -15941,6 +16423,20 @@ def generate_scorecard_cycle(changes, prior_reports):
         extensions_state=extensions_state,
     )
     save_hardware_aware_rendering_brief_review_state(rendering_state)
+    topology_state = build_project_topology_view_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        boundary_state=boundary_state,
+        milestone_state=milestone_state,
+        realism_state=product_realism_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+        component_state=component_package_state,
+        rendering_state=rendering_state,
+    )
+    save_project_topology_view_state(topology_state)
     verification_state = build_verification_summary_state(
         schema=schema,
         review_snapshot=review_snapshot,
@@ -15948,6 +16444,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         rendering_state=rendering_state,
         cost_state=cost_state,
         boundary_state=boundary_state,
+        topology_state=topology_state,
     )
     save_verification_summary_state(verification_state)
     save_ui_surface_plan_state(build_ui_surface_plan_state(
@@ -15960,6 +16457,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         parts_state=parts_state,
         pricing_state=pricing_state,
         boundary_state=boundary_state,
+        topology_state=topology_state,
     ))
     return render_scorecard_markdown(scorecard), effort_selection
 

@@ -1,0 +1,425 @@
+{
+  "generated_at": "2026-04-13T10:01:05",
+  "overview_summary": "Current focus is Implementation Package Review. Review and operator input are live on V1 Confidence Display Format. Wireless Interface, Firmware, Memory System still constrain stronger realization. Product posture remains `serious_prototype_path` and cost posture remains `prod...",
+  "nodes": [
+    {
+      "node_id": "project_intent",
+      "label": "Project Intent",
+      "node_type": "intent",
+      "status": "tentative",
+      "truth_posture": "current_truth",
+      "readiness_band": "tentative",
+      "why_it_exists": "This front keeps project ambition, seriousness, target tier, and acceptable compromise posture explicit before stronger product language hardens.",
+      "depends_on": [],
+      "blocks": [
+        "cost_viability",
+        "product_realism",
+        "review_fronts"
+      ],
+      "operator_input_needed": true,
+      "prototype_vs_product_posture": "Still explicitly prototype-oriented and exploratory; this is not a confirmed product-ambition declaration.",
+      "summary": "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable` and acceptable cost posture is `prototype_only_until_cost...",
+      "detail_source_surfaces": [
+        "project_expectations"
+      ],
+      "visual_emphasis": "operator_gate",
+      "topology_lane": "shaping",
+      "revisable": true
+    },
+    {
+      "node_id": "cost_viability",
+      "label": "Cost Viability",
+      "node_type": "cost_posture",
+      "status": "product_capped",
+      "truth_posture": "current_truth",
+      "readiness_band": "product_capped",
+      "why_it_exists": "This front exists to stop technically interesting prototype motion from silently becoming an economically weak product story.",
+      "depends_on": [
+        "project_intent"
+      ],
+      "blocks": [
+        "product_realism",
+        "build_realization"
+      ],
+      "operator_input_needed": true,
+      "prototype_vs_product_posture": "Prototype-learning may continue, but product-path narration is capped while economics are mismatched.",
+      "summary": "Do not assume this becomes a real product just because the prototype direction is interesting. Current cost posture is weak enough that commercial ambition should pause, stop, or reframe unless cost-sensitive assumpti...",
+      "detail_source_surfaces": [
+        "cost_viability_review",
+        "project_expectations"
+      ],
+      "visual_emphasis": "constraint",
+      "topology_lane": "shaping",
+      "revisable": true
+    },
+    {
+      "node_id": "product_realism",
+      "label": "Product Realism",
+      "node_type": "realism_posture",
+      "status": "held",
+      "truth_posture": "current_truth",
+      "readiness_band": "serious_prototype_path",
+      "why_it_exists": "This front keeps product claims subordinate to current grounding, trust, cost, and operator-declared seriousness.",
+      "depends_on": [
+        "project_intent",
+        "cost_viability"
+      ],
+      "blocks": [
+        "build_realization"
+      ],
+      "operator_input_needed": false,
+      "prototype_vs_product_posture": "Serious prototype path only; stronger product-candidate or real-product language remains blocked.",
+      "summary": "The project is acting like a serious prototype path, but important subsystem and trust gaps still block product-candidate claims. 4 subsystem lane(s) still need attention. Declared intent remains `functional_prototype...",
+      "detail_source_surfaces": [
+        "product_realism_review",
+        "project_milestones"
+      ],
+      "visual_emphasis": "held_constraint",
+      "topology_lane": "shaping",
+      "revisable": true
+    },
+    {
+      "node_id": "review_fronts",
+      "label": "Review Fronts",
+      "node_type": "review_front",
+      "status": "reviewable",
+      "truth_posture": "derived_from_current_truth",
+      "readiness_band": "reviewable",
+      "why_it_exists": "This front keeps live bounded decisions and human-review questions visible instead of letting them dissolve into background context.",
+      "depends_on": [
+        "project_intent"
+      ],
+      "blocks": [
+        "current_working_target"
+      ],
+      "operator_input_needed": true,
+      "prototype_vs_product_posture": "These are bounded review fronts only, not approved product commitments.",
+      "summary": "V1 Confidence Display Format is the active review front. Operator review is needed on V1 Confidence Display Format.",
+      "detail_source_surfaces": [
+        "execution_resume",
+        "v1_decision_review"
+      ],
+      "visual_emphasis": "review_front",
+      "topology_lane": "execution",
+      "revisable": true
+    },
+    {
+      "node_id": "current_working_target",
+      "label": "Implementation Package Review",
+      "node_type": "milestone_focus",
+      "status": "reviewable_now",
+      "truth_posture": "current_truth",
+      "readiness_band": "reviewable",
+      "why_it_exists": "This front keeps one milestone operationally current so ELI does not drift across multiple meaningful fronts at once.",
+      "depends_on": [
+        "review_fronts",
+        "subsystem_fronts"
+      ],
+      "blocks": [
+        "build_realization"
+      ],
+      "operator_input_needed": true,
+      "prototype_vs_product_posture": "Treat Implementation Package Review only as a prototype-learning and buildability gate. It does not justify discreet consumer product narration while cost posture still says `stop_if_cost_target_matters`.",
+      "summary": "Implementation Package Review is the nearest honest review boundary because it is already `ready_for_review`. It is the strongest current gate for prototype buildability interpretation, while Product Realism Check, Pr...",
+      "detail_source_surfaces": [
+        "execution_boundaries",
+        "project_milestones"
+      ],
+      "visual_emphasis": "current_focus",
+      "topology_lane": "execution",
+      "revisable": true
+    },
+    {
+      "node_id": "subsystem_fronts",
+      "label": "Subsystem Fronts",
+      "node_type": "subsystem_front",
+      "status": "blocked",
+      "truth_posture": "current_truth",
+      "readiness_band": "blocked",
+      "why_it_exists": "This front keeps the main subsystem pressures legible so downstream realization and review do not over-read thin grounding.",
+      "depends_on": [],
+      "blocks": [
+        "current_working_target",
+        "parts_readiness"
+      ],
+      "operator_input_needed": false,
+      "prototype_vs_product_posture": "Subsystem gaps are still prototype-limiting and product-capping, especially around wireless, firmware, and memory trust.",
+      "summary": "Wireless Interface, Firmware, Memory System currently block stronger downstream confidence.",
+      "detail_source_surfaces": [
+        "project_scorecard",
+        "execution_resume"
+      ],
+      "visual_emphasis": "blocked_front",
+      "topology_lane": "execution",
+      "revisable": true
+    },
+    {
+      "node_id": "parts_readiness",
+      "label": "Parts Readiness",
+      "node_type": "parts_readiness",
+      "status": "blocked",
+      "truth_posture": "current_truth",
+      "readiness_band": "package_direction_only",
+      "why_it_exists": "This front answers whether ELI can honestly suggest package placeholders, provisional parts, or a stronger shortlist yet.",
+      "depends_on": [
+        "subsystem_fronts"
+      ],
+      "blocks": [
+        "pricing_alternatives",
+        "build_realization"
+      ],
+      "operator_input_needed": false,
+      "prototype_vs_product_posture": "Package-level posture is valid for prototype planning; it is not a component-shortlist or procurement claim.",
+      "summary": "Package-level suggestions are warranted now, but no grounded component-shortlist or equivalent implementation artifact justifies stronger part claims yet.",
+      "detail_source_surfaces": [
+        "parts_readiness_review",
+        "component_package_review"
+      ],
+      "visual_emphasis": "blocked_front",
+      "topology_lane": "realization",
+      "revisable": true
+    },
+    {
+      "node_id": "pricing_alternatives",
+      "label": "Pricing & Alternatives",
+      "node_type": "pricing_alternatives",
+      "status": "blocked",
+      "truth_posture": "current_truth",
+      "readiness_band": "directional_only",
+      "why_it_exists": "This front compares current package directions against cheaper or simpler alternatives without pretending there is vendor-grade pricing certainty.",
+      "depends_on": [
+        "parts_readiness"
+      ],
+      "blocks": [
+        "build_realization"
+      ],
+      "operator_input_needed": false,
+      "prototype_vs_product_posture": "Pricing direction is still prototype-oriented and does not rescue the current target tier story.",
+      "summary": "Current suggestions are still useful mainly for prototype learning. No current or cheaper/simpler alternative is good enough yet for the declared target tier, so stay prototype-only unless cost posture improves.",
+      "detail_source_surfaces": [
+        "pricing_alternatives_review",
+        "cost_viability_review"
+      ],
+      "visual_emphasis": "constraint",
+      "topology_lane": "realization",
+      "revisable": true
+    },
+    {
+      "node_id": "build_realization",
+      "label": "Build & Realization",
+      "node_type": "build_realization",
+      "status": "prototype_only",
+      "truth_posture": "derived_from_current_truth",
+      "readiness_band": "early_subsystem_bom_only",
+      "why_it_exists": "This front keeps build-oriented structure honest without implying a final implementation package or final BOM.",
+      "depends_on": [
+        "current_working_target",
+        "parts_readiness",
+        "pricing_alternatives",
+        "cost_viability"
+      ],
+      "blocks": [
+        "exploratory_rendering"
+      ],
+      "operator_input_needed": false,
+      "prototype_vs_product_posture": "Build posture is prototype-only, early-subsystem-BOM-only, and explicitly not a consumer-tier implementation package.",
+      "summary": "A concrete part list is still premature, but a bounded subsystem-level BOM frame is now warranted to improve buildability and package thinking without pretending the parts are settled.",
+      "detail_source_surfaces": [
+        "component_package_review",
+        "project_milestones",
+        "parts_readiness_review",
+        "pricing_alternatives_review"
+      ],
+      "visual_emphasis": "prototype_only",
+      "topology_lane": "realization",
+      "revisable": true
+    },
+    {
+      "node_id": "exploratory_rendering",
+      "label": "Exploratory Rendering",
+      "node_type": "supporting_review",
+      "status": "supporting_context_only",
+      "truth_posture": "supporting_context_only",
+      "readiness_band": "exploratory",
+      "why_it_exists": "This front exists only for bounded visual drafting support around packaging, placement, and comparison; it is not design truth.",
+      "depends_on": [
+        "build_realization",
+        "product_realism"
+      ],
+      "blocks": [],
+      "operator_input_needed": false,
+      "prototype_vs_product_posture": "Exploratory rendering is subordinate review context only and must not be read as accepted design or solved productness.",
+      "summary": "3 exploratory hardware-aware rendering brief(s) are warranted now because visualization support is recommended, implementation-package review is materially live, and build-oriented prototype surfaces are honest enough...",
+      "detail_source_surfaces": [
+        "hardware_aware_rendering_brief_review"
+      ],
+      "visual_emphasis": "supporting",
+      "topology_lane": "realization",
+      "revisable": true
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "intent_to_cost",
+      "from_node_id": "project_intent",
+      "to_node_id": "cost_viability",
+      "relationship": "shapes",
+      "summary": "Declared tier, seriousness, and acceptable compromises shape whether the project still makes economic sense.",
+      "revisable": true
+    },
+    {
+      "edge_id": "intent_to_review",
+      "from_node_id": "project_intent",
+      "to_node_id": "review_fronts",
+      "relationship": "shapes",
+      "summary": "Current bounded review fronts still inherit prototype-oriented intent and guardrails.",
+      "revisable": true
+    },
+    {
+      "edge_id": "intent_to_realism",
+      "from_node_id": "project_intent",
+      "to_node_id": "product_realism",
+      "relationship": "shapes",
+      "summary": "Realism cannot outrun the current declared prototype-oriented project posture.",
+      "revisable": true
+    },
+    {
+      "edge_id": "cost_to_realism",
+      "from_node_id": "cost_viability",
+      "to_node_id": "product_realism",
+      "relationship": "caps",
+      "summary": "Economic mismatch currently caps stronger product-realism language.",
+      "revisable": true
+    },
+    {
+      "edge_id": "review_to_focus",
+      "from_node_id": "review_fronts",
+      "to_node_id": "current_working_target",
+      "relationship": "gates",
+      "summary": "Live review questions still shape what the current milestone focus can honestly mean.",
+      "revisable": true
+    },
+    {
+      "edge_id": "subsystems_to_focus",
+      "from_node_id": "subsystem_fronts",
+      "to_node_id": "current_working_target",
+      "relationship": "blocks",
+      "summary": "Subsystem grounding gaps constrain what the current milestone focus can meaningfully unlock.",
+      "revisable": true
+    },
+    {
+      "edge_id": "subsystems_to_parts",
+      "from_node_id": "subsystem_fronts",
+      "to_node_id": "parts_readiness",
+      "relationship": "blocks",
+      "summary": "Weak wireless, firmware, and memory signals still block stronger shortlist confidence.",
+      "revisable": true
+    },
+    {
+      "edge_id": "focus_to_build",
+      "from_node_id": "current_working_target",
+      "to_node_id": "build_realization",
+      "relationship": "gates",
+      "summary": "Implementation-package review is the current gateway for bounded prototype buildability interpretation.",
+      "revisable": true
+    },
+    {
+      "edge_id": "parts_to_pricing",
+      "from_node_id": "parts_readiness",
+      "to_node_id": "pricing_alternatives",
+      "relationship": "feeds",
+      "summary": "Pricing comparison stays downstream of what parts or packages are honestly suggestable now.",
+      "revisable": true
+    },
+    {
+      "edge_id": "parts_to_build",
+      "from_node_id": "parts_readiness",
+      "to_node_id": "build_realization",
+      "relationship": "gates",
+      "summary": "Package-only parts posture keeps build realization from reading like a settled implementation package.",
+      "revisable": true
+    },
+    {
+      "edge_id": "pricing_to_build",
+      "from_node_id": "pricing_alternatives",
+      "to_node_id": "build_realization",
+      "relationship": "caps",
+      "summary": "Pricing direction still constrains what build posture can honestly imply for the current target tier.",
+      "revisable": true
+    },
+    {
+      "edge_id": "cost_to_build",
+      "from_node_id": "cost_viability",
+      "to_node_id": "build_realization",
+      "relationship": "caps",
+      "summary": "Cost mismatch keeps build posture prototype-only rather than product-facing.",
+      "revisable": true
+    },
+    {
+      "edge_id": "realism_to_build",
+      "from_node_id": "product_realism",
+      "to_node_id": "build_realization",
+      "relationship": "caps",
+      "summary": "Realism posture still caps stronger build interpretation.",
+      "revisable": true
+    },
+    {
+      "edge_id": "build_to_rendering",
+      "from_node_id": "build_realization",
+      "to_node_id": "exploratory_rendering",
+      "relationship": "supports",
+      "summary": "Exploratory rendering is only warranted because prototype build posture is meaningful enough for bounded visual comparison.",
+      "revisable": true
+    },
+    {
+      "edge_id": "realism_to_rendering",
+      "from_node_id": "product_realism",
+      "to_node_id": "exploratory_rendering",
+      "relationship": "caps",
+      "summary": "Rendering briefs must stay visibly prototype-oriented and non-final.",
+      "revisable": true
+    }
+  ],
+  "active_node_ids": [
+    "current_working_target",
+    "review_fronts"
+  ],
+  "blocked_node_ids": [
+    "subsystem_fronts",
+    "parts_readiness",
+    "pricing_alternatives"
+  ],
+  "held_node_ids": [
+    "product_realism"
+  ],
+  "reviewable_node_ids": [
+    "current_working_target",
+    "review_fronts"
+  ],
+  "operator_input_needed_node_ids": [
+    "project_intent",
+    "cost_viability",
+    "review_fronts",
+    "current_working_target"
+  ],
+  "current_focus_node_id": "current_working_target",
+  "trust_posture": {
+    "surface_role": "derived_operator_topology_overview",
+    "use_state": "supporting_context",
+    "trust_reason": "This surface is a derived project map for operator legibility. It summarizes current-truth and supporting-context surfaces, but it does not replace source authority."
+  },
+  "source_generated_at": {
+    "execution_resume": "2026-04-13T10:01:05",
+    "execution_boundaries": "2026-04-13T10:01:05",
+    "project_milestones": "2026-04-13T10:01:05",
+    "product_realism_review": "2026-04-13T10:01:05",
+    "cost_viability_review": "2026-04-13T10:01:05",
+    "parts_readiness_review": "2026-04-13T10:01:05",
+    "pricing_alternatives_review": "2026-04-13T10:01:05",
+    "component_package_review": "2026-04-13T10:01:05",
+    "hardware_aware_rendering_brief_review": "2026-04-11T19:39:47",
+    "project_expectations": "2026-04-10T09:16:32"
+  },
+  "revisable": true,
+  "updated_at": "2026-04-13T10:01:05"
+}
