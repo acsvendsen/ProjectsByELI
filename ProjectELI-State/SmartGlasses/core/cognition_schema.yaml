@@ -288,6 +288,12 @@ control:
     max_recommended: 4
     max_missing: 4
     max_risks: 4
+  extension_deployment_review:
+    enabled: true
+    include_in_execution_resume: true
+    max_actions: 4
+    max_rows: 6
+    max_summary_rows: 5
   hardware_aware_rendering_briefs:
     enabled: true
     max_visible: 4

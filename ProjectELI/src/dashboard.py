@@ -20,6 +20,7 @@ from orchestrator import (
     EXECUTION_RESUME_PATH,
     EXECUTION_BOUNDARIES_PATH,
     EXPLORATORY_IDEAS_REVIEW_PATH,
+    EXTENSION_DEPLOYMENT_REVIEW_PATH,
     EXTENSIONS_CAPABILITY_REVIEW_PATH,
     HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH,
     OPERATOR_GUIDANCE_PATH,
@@ -526,6 +527,21 @@ def load_dashboard_data():
         "missing_but_useful_capabilities": [],
         "representation_risks": [],
     })
+    extension_deployment_review = read_json(EXTENSION_DEPLOYMENT_REVIEW_PATH, {
+        "generated_at": "",
+        "extensions_summary": "",
+        "eli_authority_note": "",
+        "deployment_execution_posture": "state_model_only",
+        "trust_posture": {},
+        "source_authority": {},
+        "top_level_operator_actions_needed": [],
+        "active_extensions": [],
+        "recommended_waiting_for_opt_in": [],
+        "available_but_not_requested": [],
+        "deferred_or_not_yet_justified": [],
+        "why_this_state_is_current": [],
+        "what_operator_can_do_now": [],
+    })
     ui_surface_plan = read_json(UI_SURFACE_PLAN_PATH, {
         "generated_at": "",
         "summary": "",
@@ -674,6 +690,7 @@ def load_dashboard_data():
         "cost_viability_review": cost_viability_review,
         "hardware_aware_rendering_brief_review": hardware_aware_rendering_brief_review,
         "extensions_capability_review": extensions_capability_review,
+        "extension_deployment_review": extension_deployment_review,
         "ui_surface_plan": ui_surface_plan,
         "scorecard": scorecard,
         "verification_summary": verification_summary,

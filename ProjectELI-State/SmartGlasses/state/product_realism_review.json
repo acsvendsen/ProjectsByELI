@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-13T11:31:29",
+  "generated_at": "2026-04-14T20:06:18",
   "realism_bands": [
     "concept_only",
     "credible_concept",
@@ -13,9 +13,9 @@
   "why_this_band": "The project is acting like a serious prototype path, but important subsystem and trust gaps still block product-candidate claims. 4 subsystem lane(s) still need attention. Declared intent remains `functional_prototype` / `exploratory`, so stronger product language would be premature. Current cost posture is `product...",
   "anti_gimmick_strengths": [
     "Fresh subsystem grounding exists across 3 areas, so realism is not being judged from narrative alone.",
-    "The active review front is bounded to 1 grounded V1 decision candidate(s) rather than broad speculative scope.",
-    "Implementation artifacts remain provisional review drafts instead of being treated as final design truth.",
-    "Meaningful unresolved lanes are explicitly held until new grounding appears, which resists fake progress theater."
+    "Meaningful unresolved lanes are explicitly held until new grounding appears, which resists fake progress theater.",
+    "Privacy and trust are not background concerns in this run; they are active shaping forces on memory, boundary, and confidence decisions. That means trust needs explicit behavior...",
+    "Prototype-learning value is being kept distinct from product viability, so cost mismatch is not being hidden behind technical novelty."
   ],
   "gimmick_risks": [
     "Cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch` with signal `stop_if_cost_target_matters`, so a discreet consumer-product story would currently outrun the economics the project is actually pointing toward.",
@@ -27,9 +27,9 @@
   "missing_for_product_candidate": [
     "Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.",
     "Current cost posture `product_tier_mismatch_risk` blocks a credible `discreet_consumer_assistive_wearable` product-candidate claim even if prototype progress continues.",
-    "Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototype-scoped rather than reading as a `discreet_consumer_assistive_wearable` pro...",
+    "no bounded current product-definition review front is active; more grounded decision framing is needed before product-definition review; Current cost posture is `product_tier_mismatch_risk` / `targ...",
     "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.; Ground firmware readiness in explicit touch-input and display-control behavior inst...",
-    "Implementation-package review can stay live for prototype buildability, but current cost posture `product_tier_mismatch_risk` blocks reading it as a `discreet_consumer_assistive_wearable` implement..."
+    "no provisional implementation package draft is currently emitted; Implementation-package review can stay live for prototype buildability, but current cost posture `product_tier_mismatch_risk` block..."
   ],
   "missing_for_real_product_path": [
     "Real-product-path language is explicitly blocked by current economic mismatch; prototype-learning value does not rescue a weak consumer-tier cost story.",
@@ -46,7 +46,7 @@
     "status": "mixed",
     "summary": "Hardware Stack is grounded and on track; Wireless Interface, Firmware is still only limited-evidence",
     "key_strengths": [
-      "The project is on track to meet its hardware stack goals by focusing on frame-touch interactions and lightweight glasses hardware."
+      "The hardware stack is aligned with the goal of a simple, frame-touch-first design that respects V1 constraints. The focus remains on social acceptability and minimal hardware re..."
     ],
     "key_gaps": [
       "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
@@ -83,12 +83,12 @@
     "summary": "Produce something materially useful enough to justify continued build effort before broader product claims.; Current evidence supports a serious prototype path more than a product claim.; Operator intent is still prototype-oriented rather than commercial.;...",
     "key_strengths": [
       "Fresh subsystem grounding exists across 3 areas, so realism is not being judged from narrative alone.",
-      "The active review front is bounded to 1 grounded V1 decision candidate(s) rather than broad speculative scope."
+      "Meaningful unresolved lanes are explicitly held until new grounding appears, which resists fake progress theater."
     ],
     "key_gaps": [
       "Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.",
       "Current cost posture `product_tier_mismatch_risk` blocks a credible `discreet_consumer_assistive_wearable` product-candidate claim even if prototype progress continues.",
-      "Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototype-scoped rather than reading as a `discreet_consumer_ass..."
+      "no bounded current product-definition review front is active; more grounded decision framing is needed before product-definition review; Current cost posture is `product_tier_mi..."
     ]
   },
   "what_would_materially_improve_realism": [
@@ -100,13 +100,13 @@
   ],
   "source_generated_at": {
     "project_expectations": "2026-04-10T09:16:32",
-    "project_scorecard": "2026-04-13T11:30:17",
-    "reflect_state": "2026-04-13T11:29:44",
-    "v1_decision_review": "2026-04-13T11:29:44",
-    "draft_artifact_review": "2026-04-13T11:30:08",
-    "project_milestones": "2026-04-13T11:31:29",
-    "cost_viability_review": "2026-04-13T11:31:29"
+    "project_scorecard": "2026-04-14T20:05:29",
+    "reflect_state": "2026-04-14T20:04:57",
+    "v1_decision_review": "2026-04-14T20:04:57",
+    "draft_artifact_review": "2026-04-14T20:06:18",
+    "project_milestones": "2026-04-14T20:06:18",
+    "cost_viability_review": "2026-04-14T20:06:18"
   },
   "revisable": true,
-  "updated_at": "2026-04-13T11:31:29"
+  "updated_at": "2026-04-14T20:06:18"
 }

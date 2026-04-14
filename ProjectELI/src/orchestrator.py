@@ -696,6 +696,7 @@ PROJECT_DIRECTION_REVIEW_PATH = PROJECT_STATE_DIR / "project_direction_review.js
 EXPLORATORY_IDEAS_REVIEW_PATH = PROJECT_STATE_DIR / "exploratory_ideas_review.json"
 PROJECT_TOPOLOGY_VIEW_PATH = PROJECT_STATE_DIR / "project_topology_view.json"
 EXTENSIONS_CAPABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "extensions_capability_review.json"
+EXTENSION_DEPLOYMENT_REVIEW_PATH = PROJECT_STATE_DIR / "extension_deployment_review.json"
 HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH = PROJECT_STATE_DIR / "hardware_aware_rendering_brief_review.json"
 UI_SURFACE_PLAN_PATH = PROJECT_STATE_DIR / "ui_surface_plan.json"
 PROJECT_ELI_CONTEXT_PATHS = cfg_path_list('persistent_eli_context_paths', [
@@ -1093,6 +1094,13 @@ DEFAULT_COGNITION_SCHEMA = {
             'max_recommended': 4,
             'max_missing': 4,
             'max_risks': 4,
+        },
+        'extension_deployment_review': {
+            'enabled': True,
+            'include_in_execution_resume': True,
+            'max_actions': 4,
+            'max_rows': 6,
+            'max_summary_rows': 5,
         },
         'hardware_aware_rendering_briefs': {
             'enabled': True,
@@ -1492,6 +1500,12 @@ control:
     max_recommended: 4
     max_missing: 4
     max_risks: 4
+  extension_deployment_review:
+    enabled: true
+    include_in_execution_resume: true
+    max_actions: 4
+    max_rows: 6
+    max_summary_rows: 5
   hardware_aware_rendering_briefs:
     enabled: true
     max_visible: 4
@@ -7640,6 +7654,19 @@ def extensions_capability_review_config(schema=None):
     }
 
 
+def extension_deployment_review_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('extension_deployment_review', {}) if isinstance(control.get('extension_deployment_review', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'include_in_execution_resume': bool(cfg.get('include_in_execution_resume', True)),
+        'max_actions': max(1, safe_int(cfg.get('max_actions', 4), 4)),
+        'max_rows': max(1, safe_int(cfg.get('max_rows', 6), 6)),
+        'max_summary_rows': max(1, safe_int(cfg.get('max_summary_rows', 5), 5)),
+    }
+
+
 def hardware_aware_rendering_brief_config(schema=None):
     schema = schema or load_cognition_schema()
     control = schema.get('control', {}) if isinstance(schema, dict) else {}
@@ -12481,6 +12508,346 @@ def render_extensions_capability_review_context(extensions_state=None):
     return '\n'.join(lines) + '\n'
 
 
+def default_extension_deployment_review_state():
+    return {
+        'generated_at': '',
+        'extensions_summary': '',
+        'eli_authority_note': '',
+        'deployment_execution_posture': 'state_model_only',
+        'trust_posture': {},
+        'source_authority': {},
+        'top_level_operator_actions_needed': [],
+        'active_extensions': [],
+        'recommended_waiting_for_opt_in': [],
+        'available_but_not_requested': [],
+        'deferred_or_not_yet_justified': [],
+        'why_this_state_is_current': [],
+        'what_operator_can_do_now': [],
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_extension_deployment_review_state():
+    data = load_json_file(EXTENSION_DEPLOYMENT_REVIEW_PATH, default_extension_deployment_review_state())
+    if not isinstance(data, dict):
+        data = default_extension_deployment_review_state()
+    for key in (
+        'top_level_operator_actions_needed',
+        'active_extensions',
+        'recommended_waiting_for_opt_in',
+        'available_but_not_requested',
+        'deferred_or_not_yet_justified',
+        'why_this_state_is_current',
+        'what_operator_can_do_now',
+    ):
+        if not isinstance(data.get(key), list):
+            data[key] = []
+    for key in ('trust_posture', 'source_authority', 'source_generated_at'):
+        if not isinstance(data.get(key), dict):
+            data[key] = {}
+    if not isinstance(data.get('extensions_summary'), str):
+        data['extensions_summary'] = ''
+    if not isinstance(data.get('eli_authority_note'), str):
+        data['eli_authority_note'] = ''
+    if not isinstance(data.get('deployment_execution_posture'), str):
+        data['deployment_execution_posture'] = 'state_model_only'
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_extension_deployment_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_extension_deployment_review_state()
+    payload['updated_at'] = now_iso()
+    EXTENSION_DEPLOYMENT_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def build_extension_deployment_review_state(schema=None, review_snapshot=None, extensions_state=None):
+    schema = schema or load_cognition_schema()
+    cfg = extension_deployment_review_config(schema)
+    if not cfg.get('enabled', True):
+        return default_extension_deployment_review_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    previous_state = load_extension_deployment_review_state()
+    extensions_state = extensions_state if isinstance(extensions_state, dict) else build_extensions_capability_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state={'generated_at': ''},
+        verification_state={},
+    )
+
+    active_capability_ids = set()
+    for key in ('active_extensions', 'recommended_waiting_for_opt_in', 'available_but_not_requested', 'deferred_or_not_yet_justified'):
+        rows = previous_state.get(key, []) if isinstance(previous_state.get(key, []), list) else []
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            if row.get('state') == 'active_for_this_project' and row.get('capability_id'):
+                active_capability_ids.add(str(row.get('capability_id')))
+
+    available_rows = extensions_state.get('available_capabilities', []) if isinstance(extensions_state.get('available_capabilities', []), list) else []
+    missing_rows = extensions_state.get('missing_but_useful_capabilities', []) if isinstance(extensions_state.get('missing_but_useful_capabilities', []), list) else []
+
+    def deployment_row(row, state):
+        capability_id = str(row.get('capability_id', '') or '').strip()
+        label = str(row.get('label', capability_id or 'Extension')).strip() or 'Extension'
+        expected_gain = str(row.get('expected_gain', 'low') or 'low')
+        help_text = compact_text_excerpt(row.get('why_it_would_help', ''), 220)
+        not_needed = compact_text_excerpt(row.get('why_not_needed_yet', ''), 220)
+        capability_family = str(row.get('capability_family', '') or '').strip()
+        enablement_status = str(row.get('enablement_status', 'available') or 'available')
+        project_status = str(row.get('project_status', 'optional') or 'optional')
+
+        if capability_id == 'coding_implementation_help':
+            operator_action_required = (
+                'Confirm whether coding and implementation help should be active now for the current implementation-package review.'
+                if state == 'recommended_waiting_for_opt_in'
+                else 'No operator action needed until implementation-package pressure changes.'
+            )
+            what_would_activate_it = 'Explicit operator opt-in while implementation-package review remains a live project bottleneck.'
+            what_would_deactivate_it = 'Deactivate it if operator opt-in is withdrawn or implementation-package pressure stops being a live bottleneck.'
+        elif capability_id == 'visualization_rendering_help':
+            operator_action_required = (
+                'Opt in to visualization and rendering help if you want subordinate visual drafting support on the current review fronts.'
+                if state == 'recommended_waiting_for_opt_in'
+                else 'No operator action needed until visual review pressure materially increases.'
+            )
+            what_would_activate_it = 'Explicit operator opt-in while visual or layout-shaped review pressure remains live.'
+            what_would_deactivate_it = 'Deactivate it if the operator withdraws opt-in or the project no longer has a live visual drafting pressure.'
+        elif capability_id == 'embedded_device_integration_help':
+            operator_action_required = (
+                'Opt in to embedded-device integration help if you want subordinate hardware and runtime critique on the current hardware, wireless, and firmware pressure.'
+                if state == 'recommended_waiting_for_opt_in'
+                else 'No operator action needed until hardware-adjacent pressure strengthens further.'
+            )
+            what_would_activate_it = 'Explicit operator opt-in while hardware, wireless, or firmware pressure remains active.'
+            what_would_deactivate_it = 'Deactivate it if operator opt-in is withdrawn or the project returns to a non-hardware-facing posture.'
+        else:
+            operator_action_required = (
+                'No operator action needed now.'
+                if state in ('available_but_not_requested', 'deferred', 'not_yet_justified')
+                else 'Explicit operator opt-in would be required before this capability could be treated as active for the project.'
+            )
+            what_would_activate_it = 'Explicit operator opt-in plus a real project bottleneck that this capability would materially help.'
+            what_would_deactivate_it = 'Deactivate it if the operator withdraws opt-in or the project pressure no longer justifies it.'
+
+        if state == 'active_for_this_project':
+            operator_action_required = 'No operator action needed; this capability is already marked active for the project.'
+            current_help = compact_text_excerpt(
+                row.get('why_it_would_help', '') or 'This capability is currently marked active and should be helping on the live project front it was activated for.',
+                220,
+            )
+        elif state == 'recommended_waiting_for_opt_in':
+            current_help = compact_text_excerpt(
+                f"Not active yet. If opted in, it would help with {row.get('why_it_would_help', '') or 'the current project bottleneck'}.",
+                220,
+            )
+        elif state == 'available_but_not_requested':
+            current_help = 'Not currently helping. Keep it inactive unless the operator asks for it or project pressure shifts.'
+        else:
+            current_help = compact_text_excerpt(
+                not_needed or 'Not currently helping. This capability should remain inactive until project pressure materially changes.',
+                220,
+            )
+
+        why_state = help_text if state in ('active_for_this_project', 'recommended_waiting_for_opt_in') else not_needed or help_text
+        if state == 'available_but_not_requested' and not why_state:
+            why_state = 'This capability exists and is available, but current project pressure does not justify requesting it now.'
+        if state == 'deferred' and not why_state:
+            why_state = 'This capability is being deferred because it is either missing, future-ready, or not worth operator attention yet.'
+        if state == 'not_yet_justified' and not why_state:
+            why_state = 'This capability is not currently justified by a grounded project bottleneck.'
+
+        return {
+            'capability_id': capability_id,
+            'label': label,
+            'state': state,
+            'expected_gain': expected_gain,
+            'operator_action_required': compact_text_excerpt(operator_action_required, 220),
+            'why_it_is_in_this_state': compact_text_excerpt(why_state, 220),
+            'what_it_is_currently_helping_with': current_help,
+            'what_would_activate_it': compact_text_excerpt(what_would_activate_it, 220),
+            'what_would_deactivate_it': compact_text_excerpt(what_would_deactivate_it, 220),
+            'authority_posture': 'eli_authoritative_subordinate_instrument',
+            'capability_family': capability_family,
+            'enablement_status': enablement_status,
+            'project_status': project_status,
+            'revisable': True,
+        }
+
+    active_extensions = []
+    recommended_waiting = []
+    available_not_requested = []
+    deferred_or_not_yet = []
+
+    for row in available_rows:
+        if not isinstance(row, dict):
+            continue
+        capability_id = str(row.get('capability_id', '') or '').strip()
+        project_status = str(row.get('project_status', 'optional') or 'optional')
+        state = 'available_but_not_requested'
+        if capability_id in active_capability_ids:
+            state = 'active_for_this_project'
+        elif project_status == 'recommended_for_this_project':
+            state = 'recommended_waiting_for_opt_in'
+        elif project_status == 'optional':
+            state = 'available_but_not_requested'
+        elif project_status == 'not_yet_justified':
+            state = 'not_yet_justified'
+        elif project_status in ('future_ready', 'missing_but_useful'):
+            state = 'deferred'
+        deployment = deployment_row(row, state)
+        if state == 'active_for_this_project':
+            active_extensions.append(deployment)
+        elif state == 'recommended_waiting_for_opt_in':
+            recommended_waiting.append(deployment)
+        elif state == 'available_but_not_requested':
+            available_not_requested.append(deployment)
+        else:
+            deferred_or_not_yet.append(deployment)
+
+    for row in missing_rows:
+        if not isinstance(row, dict):
+            continue
+        project_status = str(row.get('project_status', 'future_ready') or 'future_ready')
+        state = 'not_yet_justified' if project_status == 'not_yet_justified' else 'deferred'
+        deferred_or_not_yet.append(deployment_row(row, state))
+
+    def state_rank(row):
+        order = {
+            'active_for_this_project': 0,
+            'recommended_waiting_for_opt_in': 1,
+            'available_but_not_requested': 2,
+            'deferred': 3,
+            'not_yet_justified': 4,
+        }
+        return (
+            order.get(str(row.get('state', 'not_yet_justified') or 'not_yet_justified'), 9),
+            extension_gain_rank(row.get('expected_gain', 'low')),
+            str(row.get('label', '') or ''),
+        )
+
+    active_extensions.sort(key=state_rank)
+    recommended_waiting.sort(key=state_rank)
+    available_not_requested.sort(key=state_rank)
+    deferred_or_not_yet.sort(key=state_rank)
+
+    action_rows = []
+    for row in recommended_waiting[:cfg.get('max_actions', 4)]:
+        action_rows.append({
+            'capability_id': row.get('capability_id', ''),
+            'label': row.get('label', ''),
+            'state': row.get('state', 'recommended_waiting_for_opt_in'),
+            'action': row.get('operator_action_required', ''),
+            'why_now': row.get('why_it_is_in_this_state', ''),
+            'expected_gain': row.get('expected_gain', 'low'),
+        })
+
+    why_current = []
+    for row in (recommended_waiting + available_not_requested + deferred_or_not_yet)[:cfg.get('max_summary_rows', 5)]:
+        note = row.get('why_it_is_in_this_state', '')
+        if note:
+            why_current.append(note)
+    why_current = list(dict.fromkeys(item for item in why_current if item))[:cfg.get('max_summary_rows', 5)]
+
+    operator_now = []
+    if action_rows:
+        operator_now.extend(row.get('action', '') for row in action_rows if row.get('action'))
+    else:
+        operator_now.append('No extension operator action is currently needed; keep ELI-only execution unless project pressure changes.')
+    operator_now.append('Recommended and active are different. Do not assume a recommended capability is deployed until the operator explicitly opts in.')
+    operator_now = list(dict.fromkeys(item for item in operator_now if item))[:cfg.get('max_summary_rows', 5)]
+
+    summary = compact_text_excerpt(
+        f"{len(active_extensions)} extension capability row(s) are currently active for this project. "
+        f"{len(recommended_waiting)} are recommended but still waiting for explicit operator opt-in. "
+        f"{len(available_not_requested)} are merely available, and {len(deferred_or_not_yet)} are deferred or not yet justified. "
+        'This surface models operator control posture only; it does not imply backend enablement or hidden execution.',
+        300,
+    )
+
+    return {
+        'generated_at': now_iso(),
+        'extensions_summary': summary,
+        'eli_authority_note': compact_text_excerpt(
+            'ELI remains authoritative. Extension rows only describe whether subordinate help is active, waiting for opt-in, merely available, or deferred; they do not make extensions equal authorities or hidden autonomous workers.',
+            240,
+        ),
+        'deployment_execution_posture': 'state_model_only',
+        'trust_posture': {
+            'surface_role': 'extension_operator_control_surface',
+            'use_state': 'current_truth',
+            'trust_reason': compact_text_excerpt(
+                'This surface is the canonical operator-control answer to which extension capabilities are active, waiting for opt-in, merely available, or deferred. It still does not imply backend execution exists beyond the state model.',
+                260,
+            ),
+        },
+        'source_authority': {
+            'current_truth_question': 'Extension deployment state and required operator action',
+            'authoritative_surface': 'extension_deployment_review',
+            'supporting_surfaces': ['extensions_capability_review', 'project_milestones', 'product_realism_review', 'component_package_review', 'execution_boundaries'],
+        },
+        'top_level_operator_actions_needed': action_rows,
+        'active_extensions': active_extensions[:cfg.get('max_rows', 6)],
+        'recommended_waiting_for_opt_in': recommended_waiting[:cfg.get('max_rows', 6)],
+        'available_but_not_requested': available_not_requested[:cfg.get('max_rows', 6)],
+        'deferred_or_not_yet_justified': deferred_or_not_yet[:cfg.get('max_rows', 6)],
+        'why_this_state_is_current': why_current,
+        'what_operator_can_do_now': operator_now,
+        'source_generated_at': {
+            'extensions_capability_review': state_surface_generated_at(extensions_state),
+            'specialist_registry': extension_surface_generated_at(SPECIALIST_REGISTRY_PATH),
+            'specialist_routing_policy': extension_surface_generated_at(SPECIALIST_ROUTING_POLICY_PATH),
+            'review_state_consumption': review_snapshot.get('generated_at', ''),
+        },
+        'revisable': True,
+    }
+
+
+def render_extension_deployment_review_context(deployment_state=None):
+    deployment_state = deployment_state if isinstance(deployment_state, dict) else load_extension_deployment_review_state()
+    lines = ['# Extension Deployment Review']
+    if deployment_state.get('extensions_summary'):
+        lines.append(f"- extensions_summary: {deployment_state.get('extensions_summary', '')}")
+    if deployment_state.get('eli_authority_note'):
+        lines.append(f"- eli_authority_note: {deployment_state.get('eli_authority_note', '')}")
+    lines.append(f"- deployment_execution_posture: `{deployment_state.get('deployment_execution_posture', 'state_model_only')}`")
+    actions = deployment_state.get('top_level_operator_actions_needed', []) if isinstance(deployment_state.get('top_level_operator_actions_needed', []), list) else []
+    if actions:
+        lines.append(
+            "- top_level_operator_actions_needed: "
+            + '; '.join(
+                f"{item.get('label', 'Extension')}: {item.get('action', '')}"
+                for item in actions[:3]
+                if isinstance(item, dict)
+            )
+        )
+    active_rows = deployment_state.get('active_extensions', []) if isinstance(deployment_state.get('active_extensions', []), list) else []
+    if active_rows:
+        lines.append(
+            "- active_extensions: "
+            + '; '.join(
+                f"{item.get('label', 'Extension')} ({item.get('expected_gain', 'low')} gain)"
+                for item in active_rows[:3]
+                if isinstance(item, dict)
+            )
+        )
+    waiting_rows = deployment_state.get('recommended_waiting_for_opt_in', []) if isinstance(deployment_state.get('recommended_waiting_for_opt_in', []), list) else []
+    if waiting_rows:
+        lines.append(
+            "- recommended_waiting_for_opt_in: "
+            + '; '.join(
+                f"{item.get('label', 'Extension')} ({item.get('expected_gain', 'low')} gain)"
+                for item in waiting_rows[:3]
+                if isinstance(item, dict)
+            )
+        )
+    return '\n'.join(lines) + '\n'
+
+
 def default_hardware_aware_rendering_brief_review_state():
     return {
         'generated_at': '',
@@ -12969,7 +13336,7 @@ def ui_page_priority_rank(priority):
     return order.get(str(priority or '').strip(), 4)
 
 
-def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None, boundary_state=None, topology_state=None, direction_state=None, ideas_state=None):
+def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None, boundary_state=None, topology_state=None, direction_state=None, ideas_state=None, extension_deployment_state=None):
     schema = schema or load_cognition_schema()
     cfg = ui_surface_plan_config(schema)
     if not cfg.get('enabled', True):
@@ -13042,6 +13409,11 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         resume_state=resume_state,
         verification_state=verification_state,
     )
+    extension_deployment_state = extension_deployment_state if isinstance(extension_deployment_state, dict) else build_extension_deployment_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        extensions_state=extensions_state,
+    )
     rendering_state = rendering_state if isinstance(rendering_state, dict) else build_hardware_aware_rendering_brief_review_state(
         schema=schema,
         review_snapshot=review_snapshot,
@@ -13086,6 +13458,11 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     available_extensions = extensions_state.get('available_capabilities', []) if isinstance(extensions_state.get('available_capabilities', []), list) else []
     recommended_extensions = extensions_state.get('project_recommended_extensions', []) if isinstance(extensions_state.get('project_recommended_extensions', []), list) else []
     missing_extensions = extensions_state.get('missing_but_useful_capabilities', []) if isinstance(extensions_state.get('missing_but_useful_capabilities', []), list) else []
+    active_extensions = extension_deployment_state.get('active_extensions', []) if isinstance(extension_deployment_state.get('active_extensions', []), list) else []
+    waiting_extensions = extension_deployment_state.get('recommended_waiting_for_opt_in', []) if isinstance(extension_deployment_state.get('recommended_waiting_for_opt_in', []), list) else []
+    available_not_requested_extensions = extension_deployment_state.get('available_but_not_requested', []) if isinstance(extension_deployment_state.get('available_but_not_requested', []), list) else []
+    deferred_extensions = extension_deployment_state.get('deferred_or_not_yet_justified', []) if isinstance(extension_deployment_state.get('deferred_or_not_yet_justified', []), list) else []
+    extension_actions = extension_deployment_state.get('top_level_operator_actions_needed', []) if isinstance(extension_deployment_state.get('top_level_operator_actions_needed', []), list) else []
     rendering_briefs = rendering_state.get('rendering_briefs', []) if isinstance(rendering_state.get('rendering_briefs', []), list) else []
 
     def make_section(section_id, title, purpose, driven_by_sources, show_when, hide_when):
@@ -13161,7 +13538,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     )
     direction_meaningful = bool(direction_state.get('favored_choices') or direction_state.get('deferred_or_weaker_choices'))
     ideas_meaningful = bool(ideas_state.get('ideas_being_explored'))
-    extensions_meaningful = bool(available_extensions or missing_extensions)
+    extensions_meaningful = bool(available_extensions or missing_extensions or waiting_extensions or active_extensions)
 
     if tentative_expectations:
         append_page({
@@ -13588,65 +13965,86 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         append_page({
             'page_id': 'extensions_and_agents',
             'title': 'Extensions & Agents',
-            'purpose': 'Show which behind-the-scenes extension capabilities ELI currently has, which are useful now versus later, and which remain missing or future-ready without making ELI secondary.',
-            'status': 'supporting',
+            'purpose': 'Show which subordinate extension capabilities are active, which are recommended but still waiting for explicit operator opt-in, and what operator action is actually needed now without pretending hidden execution exists.',
+            'status': 'operator_control',
             'priority': 'supporting',
             'why_this_page_exists': compact_text_excerpt(
-                f"ELI currently has {len(available_extensions)} registry-defined extension capability row(s), with {len(recommended_extensions)} recommended for this project now and {len(missing_extensions)} missing or future-ready row(s) worth making explicit.",
+                extension_deployment_state.get(
+                    'extensions_summary',
+                    f"ELI currently has {len(available_extensions)} registry-defined extension capability row(s), with {len(recommended_extensions)} recommended for this project now and {len(missing_extensions)} missing or future-ready row(s) worth making explicit.",
+                ),
                 220,
             ),
-            'driven_by_sources': ['extensions_capability_review', 'specialist_registry', 'specialist_routing_policy', 'project_milestones', 'product_realism_review'],
+            'driven_by_sources': ['extension_deployment_review', 'extensions_capability_review', 'specialist_registry', 'specialist_routing_policy', 'project_milestones', 'product_realism_review', 'execution_boundaries'],
             'sections': [
                 make_section(
                     'eli_primary_posture',
                     'ELI Primary Posture',
                     'Keep explicit that ELI remains the main interface, synthesizer, and judge while extensions stay subordinate instruments.',
-                    ['extensions_capability_review', 'specialist_routing_policy'],
+                    ['extension_deployment_review', 'extensions_capability_review', 'specialist_routing_policy'],
                     'Specialist architecture exists and the operator needs to understand its authority boundary.',
                     'Hide only if there is no specialist architecture to explain.',
                 ),
                 make_section(
-                    'available_capabilities',
-                    'Available Capabilities',
-                    'Show registry-backed specialist capabilities without implying that every one is active or justified for this project now.',
-                    ['extensions_capability_review', 'specialist_registry'],
-                    'At least one specialist capability is present in the canonical registry.',
-                    'Hide when no specialist capability is currently defined.',
+                    'operator_actions_needed',
+                    'Top-Level Required Actions',
+                    'Show the extension actions that are actually waiting on the operator, before longer capability detail.',
+                    ['extension_deployment_review', 'execution_resume'],
+                    'One or more extension capabilities are recommended now but still waiting for explicit operator opt-in.',
+                    'Hide when no extension action is currently needed from the operator.',
                 ),
                 make_section(
-                    'project_recommended_extensions',
-                    'Project-Recommended Extensions',
-                    'Show only the extension capabilities whose expected gain is materially positive for current project pressure.',
-                    ['extensions_capability_review', 'execution_resume', 'component_package_review', 'product_realism_review'],
-                    'Current build, review, or realism pressure makes at least one extension materially useful.',
-                    'Hide when the project does not currently justify any extension recommendation.',
+                    'active_extensions',
+                    'Active Now',
+                    'Show only extension capabilities explicitly modeled as active for this project.',
+                    ['extension_deployment_review'],
+                    'At least one extension capability is explicitly active for this project.',
+                    'Hide when no extension capability is currently active.',
                 ),
                 make_section(
-                    'missing_or_future_ready',
-                    'Missing Or Future-Ready',
-                    'Make clear which useful capabilities are still missing or premature rather than silently assuming they already exist.',
-                    ['extensions_capability_review', 'specialist_routing_policy', 'component_package_review'],
-                    'Policy references or project pressure make some extension gaps worth surfacing.',
-                    'Hide when no missing or future-ready capability would help explain project posture.',
+                    'recommended_waiting_for_opt_in',
+                    'Recommended Waiting For Opt-In',
+                    'Show which capabilities are materially justified now but are still inactive until the operator explicitly opts in.',
+                    ['extension_deployment_review', 'extensions_capability_review', 'execution_resume', 'component_package_review', 'product_realism_review'],
+                    'Current build, review, or realism pressure makes at least one extension materially useful, but no opt-in is recorded yet.',
+                    'Hide when no extension is currently recommended and waiting for opt-in.',
+                ),
+                make_section(
+                    'available_but_not_requested',
+                    'Available But Not Requested',
+                    'Show capabilities that exist now but are not currently being requested or activated for this project.',
+                    ['extension_deployment_review', 'extensions_capability_review', 'specialist_registry'],
+                    'At least one extension capability is available without being recommended or active.',
+                    'Hide when no available-but-not-requested capability would help explain current control posture.',
+                ),
+                make_section(
+                    'deferred_or_not_yet_justified',
+                    'Deferred Or Not Yet Justified',
+                    'Make clear which capabilities should stay inactive because they are deferred, future-ready, or not yet justified by current project pressure.',
+                    ['extension_deployment_review', 'extensions_capability_review', 'specialist_routing_policy', 'component_package_review'],
+                    'Some capability rows should remain deferred or not yet justified under current project posture.',
+                    'Hide when every visible capability is either active, waiting for opt-in, or merely available.',
                 ),
             ],
-            'show_when': 'Show when specialist capabilities are real enough that the operator benefits from a compact extension posture.',
+            'show_when': 'Show when extension capabilities are real enough that the operator needs a bounded control view for active, waiting, available, and deferred posture.',
             'hide_when': 'Hide when the project has no meaningful specialist architecture or extension fit to explain.',
             'representation_risks': [
                 'Do not present extensions as equal minds or as hidden autonomous execution.',
-                'Do not let available capability labels imply one-click enablement when this surface is informational only.',
+                'Do not let recommended waiting for opt-in read as active deployment.',
+                'Do not let any extension row imply one-click enablement when backend execution is still not wired.',
             ],
             'operator_actions_supported': [
-                'inspect optional extension fit',
-                'see what is available now versus later',
+                'see which operator opt-ins are actually needed now',
+                'see what is active now versus still waiting',
+                'see what is merely available versus deferred',
                 'understand that ELI remains primary',
             ],
         })
         section_emergence_rules.append({
             'page_id': 'extensions_and_agents',
-            'section_id': 'project_recommended_extensions',
-            'emerge_when': 'A current project bottleneck makes one or more extension capabilities materially useful.',
-            'withhold_when': 'Extensions would only be listed as generic possibilities without a grounded fit to current project pressure.',
+            'section_id': 'operator_actions_needed',
+            'emerge_when': 'A current project bottleneck makes one or more extension capabilities materially useful but still inactive until operator opt-in.',
+            'withhold_when': 'No extension capability is currently waiting for explicit operator action.',
         })
 
     for item in verification_state.get('representation_risks', []) if isinstance(verification_state.get('representation_risks', []), list) else []:
@@ -13691,7 +14089,8 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         push_risk('Held, blocked, and review-oriented lanes must remain visually distinct so waiting is not misread as progress.')
     if extensions_meaningful:
         push_risk('Extensions should remain visibly subordinate to ELI so optional specialist help does not read like a second primary interface.')
-        push_goal('See which extension capabilities are actually useful for this project now, and which remain future-ready or missing.')
+        push_risk('Recommended waiting for opt-in should remain visibly different from active deployment so the operator does not mistake suggestion for activation.')
+        push_goal('See which extension capabilities are active, which are waiting for explicit opt-in, and what operator action is actually needed now.')
 
     push_source(
         'project_expectations',
@@ -13771,6 +14170,13 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             ideas_state.get('trust_posture', {}).get('trust_reason', ideas_state.get('ideas_summary', '')) if isinstance(ideas_state.get('trust_posture', {}), dict) else ideas_state.get('ideas_summary', ''),
             state_surface_generated_at(ideas_state),
         )
+    push_source(
+        'extension_deployment_review',
+        'operator_control_surface',
+        extension_deployment_state.get('trust_posture', {}).get('use_state', 'current_truth') if isinstance(extension_deployment_state.get('trust_posture', {}), dict) else 'current_truth',
+        extension_deployment_state.get('trust_posture', {}).get('trust_reason', extension_deployment_state.get('extensions_summary', '')) if isinstance(extension_deployment_state.get('trust_posture', {}), dict) else extension_deployment_state.get('extensions_summary', ''),
+        state_surface_generated_at(extension_deployment_state),
+    )
     push_source(
         'project_topology_view',
         'derived_operator_overview',
@@ -13899,6 +14305,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'execution_boundaries': state_surface_generated_at(boundary_state),
             'pricing_alternatives_review': state_surface_generated_at(pricing_state),
             'extensions_capability_review': state_surface_generated_at(extensions_state),
+            'extension_deployment_review': state_surface_generated_at(extension_deployment_state),
             'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
             'verification_summary': state_surface_generated_at(verification_state),
             'project_scorecard': state_surface_generated_at(scorecard_state),
@@ -14032,7 +14439,7 @@ def build_verification_transition_rows(v1_review_state, artifact_review_state, l
     return rows[:max(1, limit)]
 
 
-def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None, boundary_state=None, topology_state=None, direction_state=None, ideas_state=None):
+def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None, boundary_state=None, topology_state=None, direction_state=None, ideas_state=None, extension_deployment_state=None):
     schema = schema or load_cognition_schema()
     review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
     resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
@@ -14069,6 +14476,17 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         boundary_state=boundary_state,
         rendering_state=rendering_state,
     )
+    extensions_state = build_extensions_capability_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        verification_state={},
+    )
+    extension_deployment_state = extension_deployment_state if isinstance(extension_deployment_state, dict) else build_extension_deployment_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        extensions_state=extensions_state,
+    )
 
     exec_cfg = execution_resume_config(schema)
     scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
@@ -14084,6 +14502,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
     emission_rows = emission_state.get('artifact_emission_readiness', []) if isinstance(emission_state.get('artifact_emission_readiness', []), list) else []
     rendering_briefs = rendering_state.get('rendering_briefs', []) if isinstance(rendering_state.get('rendering_briefs', []), list) else []
     exploratory_ideas = ideas_state.get('ideas_being_explored', []) if isinstance(ideas_state.get('ideas_being_explored', []), list) else []
+    extension_actions = extension_deployment_state.get('top_level_operator_actions_needed', []) if isinstance(extension_deployment_state.get('top_level_operator_actions_needed', []), list) else []
     cost_warning = str(cost_state.get('operator_cost_warning', '') or '').strip()
     scorecard_dimensions = scorecard_state.get('dimensions', []) if isinstance(scorecard_state.get('dimensions', []), list) else []
 
@@ -14235,6 +14654,22 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         supporting_surfaces=['execution_boundaries', 'product_realism_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
         sample_titles=[row.get('label', '') for row in direction_state.get('favored_choices', [])[:3] if isinstance(row, dict)],
     ))
+    current_truth_sources.append(build_verification_source_entry(
+        'Extension deployment state and required operator action',
+        'extension_deployment_review',
+        extension_deployment_state.get('trust_posture', {}).get('use_state', 'current_truth'),
+        extension_deployment_state.get('trust_posture', {}).get('trust_reason', extension_deployment_state.get('extensions_summary', '')),
+        state_surface_generated_at(extension_deployment_state),
+        supporting_surfaces=['extensions_capability_review', 'project_milestones', 'product_realism_review', 'component_package_review', 'execution_boundaries'],
+        sample_titles=[
+            item.get('label', '')
+            for item in (
+                (extension_deployment_state.get('active_extensions', []) if isinstance(extension_deployment_state.get('active_extensions', []), list) else [])
+                + (extension_deployment_state.get('recommended_waiting_for_opt_in', []) if isinstance(extension_deployment_state.get('recommended_waiting_for_opt_in', []), list) else [])
+            )[:3]
+            if isinstance(item, dict)
+        ],
+    ))
 
     current_truth_sources.append(build_verification_source_entry(
         'Cost viability and economic posture',
@@ -14339,6 +14774,15 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         ),
     })
     recent_source_wins.append({
+        'question': 'Extension deployment state and operator opt-in control',
+        'winning_surface': 'extension_deployment_review',
+        'supporting_surfaces': ['extensions_capability_review', 'project_milestones', 'product_realism_review', 'component_package_review', 'execution_boundaries'],
+        'why': compact_text_excerpt(
+            'This surface owns the current answer to which extension capabilities are active, waiting for explicit opt-in, merely available, or deferred for this project. It is operator-control truth, not hidden backend execution.',
+            220,
+        ),
+    })
+    recent_source_wins.append({
         'question': 'Cost viability and project economics',
         'winning_surface': 'cost_viability_review',
         'supporting_surfaces': ['project_expectations', 'project_scorecard', 'product_realism_review', 'component_package_review'],
@@ -14365,6 +14809,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         representation_risks.append('Hardware-aware rendering briefs are exploratory visual framing only; do not treat them as accepted design direction or settled implementation truth.')
     if exploratory_ideas:
         representation_risks.append('Exploratory ideas are supporting incubation context only; do not read a visible idea row as the current winning path, a live review front, or accepted implementation truth.')
+    if extension_actions:
+        representation_risks.append('Recommended_waiting_for_opt_in is not the same as active_for_this_project; do not infer deployed extension help from a recommendation alone.')
     if topology_state.get('nodes'):
         representation_risks.append('The project topology view is a derived overview for legibility; verify each node truth posture and source surfaces before treating the map itself as the authority.')
     if direction_state.get('favored_choices'):
@@ -14383,6 +14829,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         operator_checks.append('For rendering briefs, verify the current-truth subsystem and build-posture sources before reading a visual comparison as settled design intent.')
     if exploratory_ideas:
         operator_checks.append('For exploratory ideas, verify what changed, what still blocks the idea, and what would raise or kill it before spending more cycles on it.')
+    if extension_actions:
+        operator_checks.append('For extensions, read the top-level operator actions first. Recommended waiting for opt-in should not be treated as active help.')
     if topology_state.get('nodes'):
         operator_checks.append('For topology nodes, use the node truth posture and detail source surfaces before treating a derived map summary as current truth.')
     if direction_state.get('favored_choices'):
@@ -14430,6 +14878,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             'draft_artifact_review': state_surface_generated_at(draft_state),
             'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
             'exploratory_ideas_review': state_surface_generated_at(ideas_state),
+            'extension_deployment_review': state_surface_generated_at(extension_deployment_state),
             'project_direction_review': state_surface_generated_at(direction_state),
             'project_topology_view': state_surface_generated_at(topology_state),
             'cost_viability_review': state_surface_generated_at(cost_state),
@@ -14441,7 +14890,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         'supporting_context_sources': supporting_context_sources[:5],
         'recent_transitions': recent_transitions,
         'lane_explanations': lane_explanations,
-        'recent_source_wins': recent_source_wins[:6],
+        'recent_source_wins': recent_source_wins[:8],
         'surfaces_with_caution': surfaces_with_caution[:5],
         'representation_risks': list(dict.fromkeys(item for item in representation_risks if item))[:4],
         'operator_checks': list(dict.fromkeys(item for item in operator_checks if item))[:5],
@@ -14480,7 +14929,7 @@ def supporting_artifact_review_posture(artifact_review_state, reflect_state):
     return 'provisional_context', 'Implementation artifact review is usable as supporting context, but it is not an authoritative current-truth surface.'
 
 
-def build_execution_resume_state(schema=None, review_snapshot=None, boundary_state=None, direction_state=None, ideas_state=None):
+def build_execution_resume_state(schema=None, review_snapshot=None, boundary_state=None, direction_state=None, ideas_state=None, extension_deployment_state=None):
     schema = schema or load_cognition_schema()
     cfg = execution_resume_config(schema)
     if not cfg.get('enabled', True):
@@ -14535,6 +14984,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
         pricing_state=pricing_alternatives_state,
         boundary_state=boundary_state,
     )
+    extension_deployment_state = extension_deployment_state if isinstance(extension_deployment_state, dict) else load_extension_deployment_review_state()
     reflect_payload = reflect_state.get('reflect', {}) if isinstance(reflect_state.get('reflect', {}), dict) else {}
     evidence = reflect_state.get('evidence_analysis', {}) if isinstance(reflect_state.get('evidence_analysis', {}), dict) else {}
     operational_visibility = evidence.get('operational_visibility', {}) if isinstance(evidence.get('operational_visibility', {}), dict) else {}
@@ -14592,6 +15042,14 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             )
     if boundary_state.get('current_boundary_summary'):
         current_truth_summary.append(compact_text_excerpt(boundary_state.get('current_boundary_summary', ''), 220))
+    extension_actions = extension_deployment_state.get('top_level_operator_actions_needed', []) if isinstance(extension_deployment_state.get('top_level_operator_actions_needed', []), list) else []
+    if extension_actions:
+        current_truth_summary.append(
+            compact_text_excerpt(
+                f"{len(extension_actions)} extension action(s) are waiting for explicit operator opt-in; no recommended capability should be treated as active until that opt-in is recorded.",
+                220,
+            )
+        )
 
     if pending_rows:
         labels = ', '.join(row.get('label', '') for row in pending_rows[:3] if row.get('label'))
@@ -14805,6 +15263,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             'execution_boundaries': state_surface_generated_at(boundary_state),
             'project_direction_review': state_surface_generated_at(direction_state),
             'exploratory_ideas_review': state_surface_generated_at(ideas_state),
+            'extension_deployment_review': state_surface_generated_at(extension_deployment_state),
             'v1_decision_review': state_surface_generated_at(v1_payload),
             'artifact_emission_readiness': state_surface_generated_at(emission_payload),
             'draft_artifact_review': state_surface_generated_at(draft_payload),
@@ -14896,6 +15355,15 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             'prototype_vs_product_interpretation': ideas_state.get('prototype_vs_product_interpretation', ''),
             'trust_use': ideas_state.get('trust_posture', {}).get('use_state', 'supporting_context') if isinstance(ideas_state.get('trust_posture', {}), dict) else 'supporting_context',
         } if exploratory_ideas_review_config(schema).get('include_in_execution_resume', True) else {},
+        'extension_actions': {
+            'summary': extension_deployment_state.get('extensions_summary', ''),
+            'operator_action_needed': bool(extension_actions),
+            'top_required_action': extension_actions[0].get('action', '') if extension_actions and isinstance(extension_actions[0], dict) else '',
+            'top_required_extension': extension_actions[0].get('label', '') if extension_actions and isinstance(extension_actions[0], dict) else '',
+            'active_count': len(extension_deployment_state.get('active_extensions', [])) if isinstance(extension_deployment_state.get('active_extensions', []), list) else 0,
+            'recommended_waiting_count': len(extension_deployment_state.get('recommended_waiting_for_opt_in', [])) if isinstance(extension_deployment_state.get('recommended_waiting_for_opt_in', []), list) else 0,
+            'trust_use': extension_deployment_state.get('trust_posture', {}).get('use_state', 'current_truth') if isinstance(extension_deployment_state.get('trust_posture', {}), dict) else 'current_truth',
+        } if extension_deployment_review_config(schema).get('include_in_execution_resume', True) else {},
         'current_truth_summary': current_truth_summary[:cfg.get('max_current_truth_summary', 5)],
         'active_review_front': active_review_front[:cfg.get('max_active_review_front', 4)],
         'held_lanes': held_lanes[:cfg.get('max_held_lanes', 4)],
@@ -14923,6 +15391,7 @@ def render_execution_resume_section(resume_state=None, include_header=True):
     cost_viability = resume_state.get('cost_viability', {}) if isinstance(resume_state.get('cost_viability', {}), dict) else {}
     project_direction = resume_state.get('project_direction', {}) if isinstance(resume_state.get('project_direction', {}), dict) else {}
     exploratory_ideas = resume_state.get('exploratory_ideas', {}) if isinstance(resume_state.get('exploratory_ideas', {}), dict) else {}
+    extension_actions = resume_state.get('extension_actions', {}) if isinstance(resume_state.get('extension_actions', {}), dict) else {}
     if trust:
         lines.append(
             f"- trust_posture: sync `{trust.get('overall_sync_status', 'provisional')}` | trust `{trust.get('overall_trust_status', 'provisional')}`"
@@ -15011,6 +15480,21 @@ def render_execution_resume_section(resume_state=None, include_header=True):
                 f" | blocked `{exploratory_ideas.get('top_blocked_or_fading_idea', '')}`"
                 if exploratory_ideas.get('top_blocked_or_fading_idea')
                 else ''
+            )
+        )
+    if extension_actions:
+        lines.append(
+            f"- extension_actions: `{extension_actions.get('recommended_waiting_count', 0)}` waiting for opt-in"
+            + f" | `{extension_actions.get('active_count', 0)}` active"
+            + (
+                f" | next `{extension_actions.get('top_required_extension', '')}`"
+                if extension_actions.get('top_required_extension')
+                else ''
+            )
+            + (
+                f" | {extension_actions.get('top_required_action', '')}"
+                if extension_actions.get('operator_action_needed') and extension_actions.get('top_required_action')
+                else ' | no extension operator action currently needed'
             )
         )
     for item in resume_state.get('current_truth_summary', [])[:3]:
@@ -15311,6 +15795,32 @@ def refresh_review_state_sync_metadata(schema=None):
         verification_state=verification_state,
     )
     save_extensions_capability_review_state(extensions_state)
+    extension_deployment_state = build_extension_deployment_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        extensions_state=extensions_state,
+    )
+    save_extension_deployment_review_state(extension_deployment_state)
+    resume_state = build_execution_resume_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        boundary_state=boundary_state,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        extension_deployment_state=extension_deployment_state,
+    )
+    save_execution_resume_state(resume_state)
+    verification_state = build_verification_summary_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        cost_state=cost_state,
+        boundary_state=boundary_state,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        extension_deployment_state=extension_deployment_state,
+    )
+    save_verification_summary_state(verification_state)
     rendering_state = build_hardware_aware_rendering_brief_review_state(
         schema=schema,
         review_snapshot=review_snapshot,
@@ -15344,6 +15854,7 @@ def refresh_review_state_sync_metadata(schema=None):
         direction_state=direction_state,
         topology_state=topology_state,
         ideas_state=ideas_state,
+        extension_deployment_state=extension_deployment_state,
     )
     save_verification_summary_state(verification_state)
     save_ui_surface_plan_state(build_ui_surface_plan_state(
@@ -15359,6 +15870,7 @@ def refresh_review_state_sync_metadata(schema=None):
         direction_state=direction_state,
         topology_state=topology_state,
         ideas_state=ideas_state,
+        extension_deployment_state=extension_deployment_state,
     ))
     return summary
 
@@ -17774,6 +18286,32 @@ def generate_scorecard_cycle(changes, prior_reports):
         verification_state=verification_state,
     )
     save_extensions_capability_review_state(extensions_state)
+    extension_deployment_state = build_extension_deployment_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        extensions_state=extensions_state,
+    )
+    save_extension_deployment_review_state(extension_deployment_state)
+    resume_state = build_execution_resume_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        boundary_state=boundary_state,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        extension_deployment_state=extension_deployment_state,
+    )
+    save_execution_resume_state(resume_state)
+    verification_state = build_verification_summary_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        resume_state=resume_state,
+        cost_state=cost_state,
+        boundary_state=boundary_state,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        extension_deployment_state=extension_deployment_state,
+    )
+    save_verification_summary_state(verification_state)
     rendering_state = build_hardware_aware_rendering_brief_review_state(
         schema=schema,
         review_snapshot=review_snapshot,
@@ -17807,6 +18345,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         direction_state=direction_state,
         topology_state=topology_state,
         ideas_state=ideas_state,
+        extension_deployment_state=extension_deployment_state,
     )
     save_verification_summary_state(verification_state)
     save_ui_surface_plan_state(build_ui_surface_plan_state(
@@ -17822,6 +18361,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         direction_state=direction_state,
         topology_state=topology_state,
         ideas_state=ideas_state,
+        extension_deployment_state=extension_deployment_state,
     ))
     return render_scorecard_markdown(scorecard), effort_selection
 
@@ -19274,6 +19814,11 @@ def context_with_inputs(changes):
     milestone_state = build_project_milestones_state(schema=schema, review_snapshot=review_state_consumption)
     product_realism_state = build_product_realism_review_state(schema=schema, review_snapshot=review_state_consumption)
     extensions_capability_state = build_extensions_capability_review_state(schema=schema, review_snapshot=review_state_consumption)
+    extension_deployment_state = build_extension_deployment_review_state(
+        schema=schema,
+        review_snapshot=review_state_consumption,
+        extensions_state=extensions_capability_state,
+    )
     component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_state_consumption)
     parts_readiness_state = build_parts_readiness_review_state(
         schema=schema,
@@ -19338,6 +19883,7 @@ def context_with_inputs(changes):
         direction_state=project_direction_state,
         rendering_state=rendering_brief_state,
         ideas_state=exploratory_ideas_state,
+        extension_deployment_state=extension_deployment_state,
     )
     pieces = ['# Core Field\n', core_text(), '\n']
     pieces.append(render_field_layer_context())
@@ -19374,6 +19920,8 @@ def context_with_inputs(changes):
     pieces.append(render_exploratory_ideas_review_context(exploratory_ideas_state))
     pieces.append('\n')
     pieces.append(render_extensions_capability_review_context(extensions_capability_state))
+    pieces.append('\n')
+    pieces.append(render_extension_deployment_review_context(extension_deployment_state))
     pieces.append('\n')
     pieces.append(render_hardware_aware_rendering_brief_review_context(rendering_brief_state))
     pieces.append('\n')

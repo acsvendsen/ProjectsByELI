@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-13T11:30:08",
+  "generated_at": "2026-04-14T20:06:18",
   "allowed_transition_reasons": [
     "no_longer_qualified",
     "moved_to_hold",
@@ -8,53 +8,33 @@
     "weak_grounding",
     "moved_out_of_review"
   ],
-  "implementation_artifact_candidates": [
+  "implementation_artifact_candidates": [],
+  "recently_changed_implementation_artifact_candidates": [
     {
       "artifact_id": "confidence_object_spec-confidence-display",
       "label": "V1 Confidence Display Format",
       "artifact_type": "confidence_object_spec",
       "artifact_type_label": "Confidence Object Spec",
-      "bounded_framing": "What confidence format should V1 use by default during live subtitle support?",
-      "reason": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is grounded.",
-      "addresses": [
-        "What confidence format should V1 use by default during live subtitle support?",
-        "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Discreet UX vs visual clarity, Latency vs richn..."
-      ],
-      "candidate_directions": [
-        "Label Only",
-        "Label + Reason"
-      ],
-      "open_constraints": [
-        "discreet ux vs visual clarity",
-        "latency vs richness",
-        "core deepening over sprawl"
-      ],
-      "relevant_interfaces": [],
-      "candidate_components": [],
-      "escalation_signals": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
-      ],
-      "source_kind": "pending_v1_decision",
-      "source_domain": "confidence display",
       "source_action_id": "confidence-display",
+      "source_domain": "confidence display",
+      "source_kind": "pending_v1_decision",
+      "previous_review_status": "provisional_review_candidate",
+      "current_review_status": "not_currently_in_review",
+      "transition_reason": "moved_to_hold",
+      "transition_summary": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
+      "current_location": "held_pending_grounding",
+      "linked_decision_id": "",
+      "linked_decision_label": "",
+      "linked_decision_status": "",
+      "replacement_artifact_id": "",
+      "replacement_label": "",
       "grounding_status": "grounded",
-      "repo_surfaces": [],
-      "pressure_score": 0.404,
-      "review_status": "provisional_review_candidate",
-      "provisional": true,
+      "linked_action_judgment": "hold_until_new_grounding",
+      "linked_hold_active": true,
+      "linked_hold_reason": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
       "revisable": true,
-      "rank": 3,
-      "linked_decision_id": "v1_confidence_display_format",
-      "linked_decision_label": "V1 Confidence Display Format",
-      "linked_decision_status": "pending_v1_decision",
-      "linked_hold_active": false,
-      "linked_hold_reason": "",
-      "linked_action_judgment": "kill"
-    }
-  ],
-  "recently_changed_implementation_artifact_candidates": [
+      "transition_at": "2026-04-14T20:06:18"
+    },
     {
       "artifact_id": "visual_layout_rule-subtitle-placement",
       "label": "V1 Default Subtitle Position",
@@ -182,9 +162,9 @@
     }
   ],
   "counts": {
-    "implementation_artifact_candidates": 1,
-    "recently_changed_implementation_artifact_candidates": 5,
-    "linked_to_pending_decision": 1
+    "implementation_artifact_candidates": 0,
+    "recently_changed_implementation_artifact_candidates": 6,
+    "linked_to_pending_decision": 0
   },
-  "updated_at": "2026-04-13T11:30:08"
+  "updated_at": "2026-04-14T20:06:18"
 }

@@ -1178,7 +1178,8 @@
     }
 
     .mini-pill.available,
-    .mini-pill.recommended_for_this_project {
+    .mini-pill.recommended_for_this_project,
+    .mini-pill.active_for_this_project {
       color: var(--good);
       background: rgba(23,100,58,0.08);
     }
@@ -1213,6 +1214,7 @@
     .mini-pill.not_yet_reviewable,
     .mini-pill.held,
     .mini-pill.tentative,
+    .mini-pill.recommended_waiting_for_opt_in,
     .mini-pill.prototype_oriented,
     .mini-pill.serious_prototype_path,
     .mini-pill.functional_prototype_path,
@@ -1238,13 +1240,17 @@
     .mini-pill.aligned,
     .mini-pill.optional,
     .mini-pill.future_ready,
+    .mini-pill.available_but_not_requested,
+    .mini-pill.operator_control,
+    .mini-pill.state_model_only,
     .mini-pill.informational_only {
       color: var(--accent);
       background: rgba(13,124,102,0.08);
     }
 
     .mini-pill.not_yet_justified,
-    .mini-pill.missing_but_useful {
+    .mini-pill.missing_but_useful,
+    .mini-pill.deferred {
       color: var(--late);
       background: rgba(181,106,45,0.1);
     }
@@ -1498,10 +1504,10 @@
         <p class="sub" id="extensionsPurpose"></p>
         <div class="realization-banner" id="extensionsBanner"></div>
         <div class="steering-grid">
-          <article class="steering-card" id="extensionsAuthority"></article>
-          <article class="steering-card" id="extensionsRecommended"></article>
+          <article class="steering-card" id="extensionsActive"></article>
+          <article class="steering-card" id="extensionsWaiting"></article>
           <article class="steering-card" id="extensionsAvailable"></article>
-          <article class="steering-card" id="extensionsMissing"></article>
+          <article class="steering-card" id="extensionsDeferred"></article>
         </div>
       </div>
     </section>
@@ -1926,7 +1932,7 @@
       `).join("")}</div>`;
     }
 
-    function renderExtensionRows(rows, emptyText, limit = 4) {
+    function renderExtensionActionRows(rows, emptyText, limit = 4) {
       const usable = (rows || []).filter(row => row && row.label).slice(0, limit);
       if (!usable.length) return `<div class="steering-empty">${emptyText}</div>`;
       return `<div class="steering-list">${usable.map(row => `
@@ -1934,17 +1940,44 @@
           <div class="steering-row-head">
             <strong>${row.label}</strong>
             <div class="steering-row-meta">
-              <span class="mini-pill ${row.enablement_status || ""}">${humanizeToken(row.enablement_status || "available")}</span>
-              <span class="mini-pill ${row.project_status || ""}">${humanizeToken(row.project_status || "optional")}</span>
-              <span class="mini-pill">${humanizeToken(row.expected_gain || "low")} gain</span>
-              ${row.operator_opt_in_required ? `<span class="mini-pill tentative">Opt-in required</span>` : ``}
+              <span class="mini-pill recommended_waiting_for_opt_in">${humanizeToken(row.state || "recommended_waiting_for_opt_in")}</span>
+              <span class="mini-pill ${row.expected_gain || ""}">${humanizeToken(row.expected_gain || "low")} gain</span>
             </div>
           </div>
-          <div>${truncateText(row.purpose || "No extension purpose recorded.", 220)}</div>
-          ${row.why_it_would_help ? `<div class="footer"><strong>Why it helps:</strong> ${truncateText(row.why_it_would_help, 220)}</div>` : ``}
-          ${row.why_not_needed_yet ? `<div class="footer"><strong>Why not yet:</strong> ${truncateText(row.why_not_needed_yet, 220)}</div>` : ``}
+          <div>${truncateText(row.action || "No operator action is recorded.", 220)}</div>
+          ${row.why_now ? `<div class="footer"><strong>Why now:</strong> ${truncateText(row.why_now, 200)}</div>` : ``}
         </div>
       `).join("")}</div>`;
+    }
+
+    function renderExtensionDeploymentRows(rows, emptyText, limit = 4) {
+      const usable = (rows || []).filter(row => row && row.label).slice(0, limit);
+      if (!usable.length) return `<div class="steering-empty">${emptyText}</div>`;
+      return `<div class="steering-list">${usable.map(row => {
+        const state = row.state || "available_but_not_requested";
+        let footer = "";
+        if (state === "active_for_this_project" && row.what_it_is_currently_helping_with) {
+          footer = `<div class="footer"><strong>Helping with:</strong> ${truncateText(row.what_it_is_currently_helping_with, 200)}</div>`;
+        } else if (state === "recommended_waiting_for_opt_in" && row.operator_action_required) {
+          footer = `<div class="footer"><strong>Operator action:</strong> ${truncateText(row.operator_action_required, 200)}</div>`;
+        } else if (row.what_would_activate_it) {
+          footer = `<div class="footer"><strong>Activate when:</strong> ${truncateText(row.what_would_activate_it, 200)}</div>`;
+        }
+        return `
+          <div class="steering-row">
+            <div class="steering-row-head">
+              <strong>${row.label}</strong>
+              <div class="steering-row-meta">
+                <span class="mini-pill ${state}">${humanizeToken(state)}</span>
+                <span class="mini-pill ${row.expected_gain || ""}">${humanizeToken(row.expected_gain || "low")} gain</span>
+                <span class="mini-pill review_only">Subordinate</span>
+              </div>
+            </div>
+            <div>${truncateText(row.why_it_is_in_this_state || "No extension state explanation is recorded.", 220)}</div>
+            ${footer}
+          </div>
+        `;
+      }).join("")}</div>`;
     }
 
     function renderRenderingBriefRows(rows, emptyText, limit = 3) {
@@ -2813,70 +2846,79 @@
       }
 
       panel.style.display = "";
+      const deployment = status.extension_deployment_review || {};
       const extensions = status.extensions_capability_review || {};
       const sections = page.sections || [];
       const sectionMap = {};
       sections.forEach(section => {
         if (section && section.section_id) sectionMap[section.section_id] = section;
       });
-      const available = extensions.available_capabilities || [];
-      const recommended = extensions.project_recommended_extensions || [];
-      const missing = extensions.missing_but_useful_capabilities || [];
+      const actions = deployment.top_level_operator_actions_needed || [];
+      const active = deployment.active_extensions || [];
+      const waiting = deployment.recommended_waiting_for_opt_in || [];
+      const available = deployment.available_but_not_requested || [];
+      const deferred = deployment.deferred_or_not_yet_justified || [];
       const risks = extensions.representation_risks || [];
+      const actionNeeded = actions.length > 0;
 
       document.getElementById("extensionsTitle").textContent = page.title || "Extensions & Agents";
       document.getElementById("extensionsPurpose").textContent =
-        page.purpose || "Show which behind-the-scenes extension capabilities ELI currently has, which are useful now versus later, and which remain missing or future-ready without making ELI secondary.";
+        page.purpose || "Show which subordinate extension capabilities are active, which are waiting for explicit opt-in, and what operator action is actually needed now.";
 
       document.getElementById("extensionsBanner").innerHTML = `
         <div class="mini-pills">
           <span class="mini-pill operational">ELI primary</span>
-          <span class="mini-pill informational_only">${humanizeToken(extensions.ui_enablement_status || "informational_only")}</span>
-          <span class="mini-pill tentative">Opt-in required</span>
+          <span class="mini-pill ${deployment.trust_posture?.use_state || "current_truth"}">${humanizeToken(deployment.trust_posture?.use_state || "current_truth")}</span>
+          <span class="mini-pill state_model_only">${humanizeToken(deployment.deployment_execution_posture || "state_model_only")}</span>
+          <span class="mini-pill ${actionNeeded ? "operator_input_needed" : "available_but_not_requested"}">${actionNeeded ? `${actions.length} action${actions.length === 1 ? "" : "s"} needed` : "No operator action needed"}</span>
+          <span class="mini-pill active_for_this_project">${active.length} active</span>
           <span class="mini-pill">${available.length} available</span>
         </div>
-        <strong>${page.why_this_page_exists || extensions.summary || "Extensions are worth inspecting only when they materially help the current project without displacing ELI."}</strong>
-        <div class="realization-copy">${extensions.eli_authority_note || "ELI remains the main interface and decision-maker; extensions are subordinate instruments."}</div>
+        <strong>${page.why_this_page_exists || deployment.extensions_summary || "Extensions should only surface here when operator action or project posture makes them materially relevant."}</strong>
+        ${renderExtensionActionRows(
+          actions,
+          "No extension operator action is currently needed. Leave ELI-only execution in place unless project pressure changes.",
+          3
+        )}
+        <div class="footer"><strong>Authority note:</strong> ${truncateText(deployment.eli_authority_note || extensions.eli_authority_note || "ELI remains authoritative. Extensions stay subordinate instruments and this layer does not imply hidden execution.", 220)}</div>
       `;
 
-      document.getElementById("extensionsAuthority").innerHTML = `
-        <div class="verification-heading">${sectionMap.eli_primary_posture?.title || "ELI Primary Posture"}</div>
-        ${sectionMap.eli_primary_posture?.purpose ? `<div class="footer">${sectionMap.eli_primary_posture.purpose}</div>` : ``}
-        <div class="mini-pills">
-          <span class="mini-pill operational">ELI remains primary</span>
-          <span class="mini-pill informational_only">${humanizeToken(extensions.ui_enablement_status || "informational_only")}</span>
-          <span class="mini-pill review_only">No one-click enablement</span>
-        </div>
-        <div class="steering-copy">${extensions.summary || "No extensions capability summary is available yet."}</div>
-        <div class="footer"><strong>Authority note:</strong> ${truncateText(extensions.eli_authority_note || "Extensions are consultable instruments, not authorities.", 220)}</div>
+      document.getElementById("extensionsActive").innerHTML = `
+        <div class="verification-heading">${sectionMap.active_extensions?.title || "Active Now"}</div>
+        ${sectionMap.active_extensions?.purpose ? `<div class="footer">${sectionMap.active_extensions.purpose}</div>` : ``}
+        ${renderExtensionDeploymentRows(
+          active,
+          "No extension capability is currently modeled as active for this project.",
+          4
+        )}
       `;
 
-      document.getElementById("extensionsRecommended").innerHTML = `
-        <div class="verification-heading">${sectionMap.project_recommended_extensions?.title || "Project-Recommended Extensions"}</div>
-        ${sectionMap.project_recommended_extensions?.purpose ? `<div class="footer">${sectionMap.project_recommended_extensions.purpose}</div>` : ``}
-        ${renderExtensionRows(
-          recommended,
-          "No extension is strongly justified right now. ELI alone remains the right front door until project pressure makes specialist help materially useful.",
+      document.getElementById("extensionsWaiting").innerHTML = `
+        <div class="verification-heading">${sectionMap.recommended_waiting_for_opt_in?.title || "Recommended Waiting For Opt-In"}</div>
+        ${sectionMap.recommended_waiting_for_opt_in?.purpose ? `<div class="footer">${sectionMap.recommended_waiting_for_opt_in.purpose}</div>` : ``}
+        ${renderExtensionDeploymentRows(
+          waiting,
+          "No extension is currently recommended and waiting for explicit operator opt-in.",
           4
         )}
       `;
 
       document.getElementById("extensionsAvailable").innerHTML = `
-        <div class="verification-heading">${sectionMap.available_capabilities?.title || "Available Capabilities"}</div>
-        ${sectionMap.available_capabilities?.purpose ? `<div class="footer">${sectionMap.available_capabilities.purpose}</div>` : ``}
-        ${renderExtensionRows(
+        <div class="verification-heading">${sectionMap.available_but_not_requested?.title || "Available But Not Requested"}</div>
+        ${sectionMap.available_but_not_requested?.purpose ? `<div class="footer">${sectionMap.available_but_not_requested.purpose}</div>` : ``}
+        ${renderExtensionDeploymentRows(
           available,
-          "No registry-backed extension capability is available yet.",
+          "No available-but-not-requested extension capability is currently worth surfacing.",
           5
         )}
       `;
 
-      document.getElementById("extensionsMissing").innerHTML = `
-        <div class="verification-heading">${sectionMap.missing_or_future_ready?.title || "Missing Or Future-Ready"}</div>
-        ${sectionMap.missing_or_future_ready?.purpose ? `<div class="footer">${sectionMap.missing_or_future_ready.purpose}</div>` : ``}
-        ${renderExtensionRows(
-          missing,
-          "No missing or future-ready extension gap is currently worth surfacing.",
+      document.getElementById("extensionsDeferred").innerHTML = `
+        <div class="verification-heading">${sectionMap.deferred_or_not_yet_justified?.title || "Deferred Or Not Yet Justified"}</div>
+        ${sectionMap.deferred_or_not_yet_justified?.purpose ? `<div class="footer">${sectionMap.deferred_or_not_yet_justified.purpose}</div>` : ``}
+        ${renderExtensionDeploymentRows(
+          deferred,
+          "No deferred or not-yet-justified extension state is currently worth surfacing.",
           4
         )}
         ${risks.length ? `<div class="footer"><strong>Representation risk:</strong> ${truncateText(risks[0], 220)}</div>` : ``}

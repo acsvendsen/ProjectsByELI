@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-13T11:31:29",
-  "summary": "ELI currently has 6 registry-defined specialist capability row(s). 3 are recommended for this project now, while 0 remain missing or future-ready rather than being silently assumed available.",
+  "generated_at": "2026-04-14T20:06:18",
+  "summary": "ELI currently has 6 registry-defined specialist capability row(s). 2 are recommended for this project now, while 0 remain missing or future-ready rather than being silently assumed available.",
   "eli_authority_note": "ELI remains the main interface, synthesizer, and judge. Extensions are optional subordinate instruments whose outputs must still pass through ELI evaluation before they matter.",
   "ui_enablement_status": "informational_only",
   "available_capabilities": [
@@ -25,25 +25,6 @@
       "why_not_needed_yet": ""
     },
     {
-      "capability_id": "visualization_rendering_help",
-      "label": "Visualization & Rendering Help",
-      "capability_family": "visualization_rendering",
-      "purpose": "Use visual or layout-oriented drafting support to clarify UI, overlays, diagrams, and implementation-facing visual explanations.",
-      "specialist_ids": [
-        "visualization_specialist_v1"
-      ],
-      "enablement_status": "available",
-      "project_status": "recommended_for_this_project",
-      "expected_gain": "high",
-      "operator_opt_in_required": true,
-      "modes_supported": [
-        "delegated_drafting",
-        "instrumental"
-      ],
-      "why_it_would_help": "Current review fronts are heavily visual or layout-shaped, so rendering-oriented support could clarify options without replacing ELI judgment.",
-      "why_not_needed_yet": ""
-    },
-    {
       "capability_id": "embedded_device_integration_help",
       "label": "Embedded Device Integration Help",
       "capability_family": "hardware_integration",
@@ -64,12 +45,12 @@
       "why_not_needed_yet": ""
     },
     {
-      "capability_id": "structured_report_packaging_help",
-      "label": "Structured Report & Packaging Help",
-      "capability_family": "artifact_packaging",
-      "purpose": "Use structured packaging support to assemble reports, diagrams, or review artifacts without treating formatting as project judgment.",
+      "capability_id": "visualization_rendering_help",
+      "label": "Visualization & Rendering Help",
+      "capability_family": "visualization_rendering",
+      "purpose": "Use visual or layout-oriented drafting support to clarify UI, overlays, diagrams, and implementation-facing visual explanations.",
       "specialist_ids": [
-        "report_specialist_v1"
+        "visualization_specialist_v1"
       ],
       "enablement_status": "available",
       "project_status": "optional",
@@ -79,8 +60,8 @@
         "delegated_drafting",
         "instrumental"
       ],
-      "why_it_would_help": "Review drafts and implementation-package review are active, so packaging help could improve clarity later without changing core judgment.",
-      "why_not_needed_yet": ""
+      "why_it_would_help": "",
+      "why_not_needed_yet": "No strong visual review front is currently active enough to justify dedicated visualization help."
     },
     {
       "capability_id": "hardware_implementation_specialist_v1",
@@ -122,6 +103,25 @@
       ],
       "why_it_would_help": "",
       "why_not_needed_yet": "This project does not currently show a grounded control-loop, actuator, or benchmarking problem that would justify controls help."
+    },
+    {
+      "capability_id": "structured_report_packaging_help",
+      "label": "Structured Report & Packaging Help",
+      "capability_family": "artifact_packaging",
+      "purpose": "Use structured packaging support to assemble reports, diagrams, or review artifacts without treating formatting as project judgment.",
+      "specialist_ids": [
+        "report_specialist_v1"
+      ],
+      "enablement_status": "available",
+      "project_status": "not_yet_justified",
+      "expected_gain": "low",
+      "operator_opt_in_required": true,
+      "modes_supported": [
+        "delegated_drafting",
+        "instrumental"
+      ],
+      "why_it_would_help": "",
+      "why_not_needed_yet": "Packaging is not the bottleneck while core review, buildability, and realism questions still need grounding."
     }
   ],
   "project_recommended_extensions": [
@@ -143,25 +143,6 @@
         "competitive"
       ],
       "why_it_would_help": "Implementation-package review is live and current blockers still include architecture, firmware, memory, or boundary-sensitive questions.",
-      "why_not_needed_yet": ""
-    },
-    {
-      "capability_id": "visualization_rendering_help",
-      "label": "Visualization & Rendering Help",
-      "capability_family": "visualization_rendering",
-      "purpose": "Use visual or layout-oriented drafting support to clarify UI, overlays, diagrams, and implementation-facing visual explanations.",
-      "specialist_ids": [
-        "visualization_specialist_v1"
-      ],
-      "enablement_status": "available",
-      "project_status": "recommended_for_this_project",
-      "expected_gain": "high",
-      "operator_opt_in_required": true,
-      "modes_supported": [
-        "delegated_drafting",
-        "instrumental"
-      ],
-      "why_it_would_help": "Current review fronts are heavily visual or layout-shaped, so rendering-oriented support could clarify options without replacing ELI judgment.",
       "why_not_needed_yet": ""
     },
     {
@@ -196,12 +177,12 @@
     "specialist_registry": "2026-04-07T22:30:55",
     "specialist_routing_policy": "2026-04-07T23:35:37",
     "project_expectations": "2026-04-10T09:16:32",
-    "product_realism_review": "2026-04-13T11:31:29",
-    "project_milestones": "2026-04-13T11:31:29",
-    "component_package_review": "2026-04-13T11:31:29",
-    "execution_resume": "2026-04-13T11:31:29",
-    "verification_summary": "2026-04-13T11:31:29"
+    "product_realism_review": "2026-04-14T20:06:18",
+    "project_milestones": "2026-04-14T20:06:18",
+    "component_package_review": "2026-04-14T20:06:18",
+    "execution_resume": "2026-04-14T20:06:18",
+    "verification_summary": "2026-04-14T20:06:18"
   },
   "revisable": true,
-  "updated_at": "2026-04-13T11:31:29"
+  "updated_at": "2026-04-14T20:06:18"
 }

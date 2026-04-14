@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-13T11:30:08",
+  "generated_at": "2026-04-14T20:06:18",
   "allowed_states": [
     "draft_candidate",
     "not_ready_for_draft"
@@ -12,52 +12,16 @@
     "schematic_direction_draft",
     "kicad_related_scaffold"
   ],
-  "artifact_emission_readiness": [
-    {
-      "artifact_id": "confidence_object_spec-confidence-display",
-      "label": "V1 Confidence Display Format",
-      "artifact_type": "confidence_object_spec",
-      "artifact_type_label": "Confidence Object Spec",
-      "draft_readiness_state": "draft_candidate",
-      "draft_readiness_reason": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.",
-      "grounding_status": "grounded",
-      "option_readiness_band": "almost_ready",
-      "review_status": "provisional_review_candidate",
-      "suggested_draft_form": "structured_design_brief",
-      "missing_evidence": [],
-      "blocking_constraints": [
-        "discreet ux vs visual clarity",
-        "latency vs richness",
-        "core deepening over sprawl"
-      ],
-      "evidence_to_progress": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
-      ],
-      "bounded_framing": "What confidence format should V1 use by default during live subtitle support?",
-      "candidate_directions": [
-        "Label Only",
-        "Label + Reason"
-      ],
-      "relevant_interfaces": [],
-      "candidate_components": [],
-      "provisional": true,
-      "revisable": true,
-      "linked_review_id": "confidence_object_spec-confidence-display",
-      "linked_decision_id": "v1_confidence_display_format",
-      "linked_decision_label": "V1 Confidence Display Format"
-    }
-  ],
+  "artifact_emission_readiness": [],
   "counts": {
-    "draft_candidate": 1,
+    "draft_candidate": 0,
     "not_ready_for_draft": 0
   },
   "sync_metadata": {
     "surface": "artifact_emission_readiness",
-    "cycle_id": "20260413T113008",
-    "generated_from_cycle": "20260413T113008",
-    "generated_at": "2026-04-13T11:30:08",
+    "cycle_id": "20260414T200618",
+    "generated_from_cycle": "20260414T200618",
+    "generated_at": "2026-04-14T20:06:18",
     "depends_on": [
       "v1_decision_review",
       "draft_artifact_review",
@@ -66,17 +30,17 @@
     "checked_against": [
       {
         "surface": "v1_decision_review",
-        "generated_at": "2026-04-13T11:29:44",
+        "generated_at": "2026-04-14T20:04:57",
         "comparison_status": "nearby"
       },
       {
         "surface": "draft_artifact_review",
-        "generated_at": "2026-04-13T11:30:08",
+        "generated_at": "2026-04-14T20:06:18",
         "comparison_status": "nearby"
       },
       {
         "surface": "reflect_state",
-        "generated_at": "2026-04-13T11:29:44",
+        "generated_at": "2026-04-14T20:04:57",
         "comparison_status": "nearby"
       }
     ],
@@ -86,5 +50,5 @@
     "explained_differences": [],
     "trust_reason": "This file is close enough to its linked review surfaces to compare operationally."
   },
-  "updated_at": "2026-04-13T11:30:08"
+  "updated_at": "2026-04-14T20:06:18"
 }
