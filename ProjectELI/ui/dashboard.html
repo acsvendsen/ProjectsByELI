@@ -1451,6 +1451,7 @@
           <article class="steering-card" id="steeringReviewable"></article>
           <article class="steering-card" id="steeringBlockers"></article>
           <article class="steering-card wide" id="steeringDirection"></article>
+          <article class="steering-card wide" id="steeringIdeas"></article>
           <article class="steering-card wide" id="steeringMilestones"></article>
         </div>
         <div class="topology-panel" id="projectTopologyPanel" style="display:none">
@@ -2893,6 +2894,7 @@
       const resume = status.execution_resume || {};
       const boundaries = status.execution_boundaries || resume.execution_boundaries || {};
       const direction = status.project_direction_review || {};
+      const ideas = status.exploratory_ideas_review || {};
       const cost = status.cost_viability_review || {};
       const verification = status.verification_summary || {};
       const reviewable = milestones.filter(row => row.approval_state === "ready_for_review");
@@ -2909,8 +2911,12 @@
       const directionTruthOwner = (verification.current_truth_sources || []).find(row =>
         row.question === "Direction of travel and favored vs deferred path"
       );
+      const ideaTruthOwner = (verification.supporting_context_sources || []).find(row =>
+        row.question === "Exploratory ideas being incubated"
+      );
       const boundarySection = sections.find(section => section.section_id === "execution_boundaries") || {};
       const directionSection = sections.find(section => section.section_id === "direction_of_travel") || {};
+      const ideasSection = sections.find(section => section.section_id === "ideas_im_exploring") || {};
       const targetTitle = boundaries.current_milestone_target_title || boundaries.target_milestone_title || "";
       const targetWhy = boundaries.why_this_target_now || boundaries.current_boundary_summary || "";
       const targetUnlocks = (boundaries.what_unlocks_if_reviewed || []).slice(0, 2);
@@ -2944,6 +2950,7 @@
           choice: directionChoiceForDomains(["product_shaping", "project_posture"])
         }
       ].filter(row => row.summary);
+      const ideaRows = (ideas.ideas_being_explored || []).slice(0, 4);
 
       document.getElementById("steeringIntent").innerHTML = `
         <div class="verification-heading">Intent</div>
@@ -3065,6 +3072,45 @@
         ${direction.budget_pressure_note ? `<div class="footer"><strong>Budget pressure:</strong> ${truncateText(direction.budget_pressure_note, 240)}</div>` : ""}
         ${directionTruthOwner ? `<div class="footer"><strong>Current truth owner:</strong> ${directionTruthOwner.source_surface}</div>` : ""}
         ${directionSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(directionSection.purpose, 220)}</div>` : ""}
+      `;
+
+      document.getElementById("steeringIdeas").innerHTML = `
+        <div class="verification-heading">${ideasSection.title || "Ideas I’m Exploring"}</div>
+        <div class="mini-pills">
+          ${ideas.trust_posture?.use_state ? `<span class="mini-pill ${ideas.trust_posture.use_state}">${humanizeToken(ideas.trust_posture.use_state)}</span>` : ``}
+          <span class="mini-pill exploratory_only">Exploratory</span>
+          <span class="mini-pill supporting_context">Supporting context</span>
+          <span class="mini-pill prototype_only">Non-final</span>
+        </div>
+        <div class="steering-copy">${ideas.ideas_summary || "No bounded exploratory idea is differentiating itself right now."}</div>
+        ${
+          ideaRows.length
+            ? `<div class="steering-list">
+                ${ideaRows.map(row => `
+                  <div class="steering-row">
+                    <div class="steering-row-head">
+                      <strong>${row.title || "Idea"}</strong>
+                      <div class="steering-row-meta">
+                        ${row.status ? `<span class="mini-pill ${row.status}">${humanizeToken(row.status)}</span>` : ``}
+                        ${row.origin ? `<span class="mini-pill ${row.origin}">${humanizeToken(row.origin)}</span>` : ``}
+                        ${row.budget_tier_hint ? `<span class="mini-pill ${row.budget_tier_hint}">${humanizeToken(row.budget_tier_hint)}</span>` : ``}
+                      </div>
+                    </div>
+                    <div>${truncateText(row.why_it_might_be_good || row.summary || "", 220)}</div>
+                    ${row.what_is_different_now ? `<div class="footer"><strong>Different now:</strong> ${truncateText(row.what_is_different_now, 220)}</div>` : ``}
+                    ${(row.main_risks || []).length ? `<div class="footer"><strong>Main risk:</strong> ${truncateText(row.main_risks[0], 220)}</div>` : ``}
+                  </div>
+                `).join("")}
+              </div>`
+            : `<div class="steering-empty">No bounded exploratory idea is live enough to deserve a visible incubation row right now.</div>`
+        }
+        ${(ideas.ideas_gaining_strength || []).length ? `<div class="footer"><strong>Gaining strength:</strong> ${truncateText(ideas.ideas_gaining_strength.join("; "), 240)}</div>` : ""}
+        ${(ideas.ideas_fading_or_blocked || []).length ? `<div class="footer"><strong>Blocked / fading:</strong> ${truncateText(ideas.ideas_fading_or_blocked.join("; "), 240)}</div>` : ""}
+        ${(ideas.what_changed_recently || []).length ? `<div class="footer"><strong>What changed:</strong> ${truncateText(ideas.what_changed_recently[0], 240)}</div>` : ""}
+        ${(ideas.what_would_promote_an_idea || []).length ? `<div class="footer"><strong>Would raise an idea:</strong> ${truncateText(ideas.what_would_promote_an_idea[0], 240)}</div>` : ""}
+        ${ideas.prototype_vs_product_interpretation ? `<div class="footer"><strong>Prototype vs product:</strong> ${truncateText(ideas.prototype_vs_product_interpretation, 240)}</div>` : ""}
+        ${ideaTruthOwner ? `<div class="footer"><strong>Supporting surface:</strong> ${ideaTruthOwner.source_surface}</div>` : ""}
+        ${ideasSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(ideasSection.purpose, 220)}</div>` : ""}
       `;
 
       document.getElementById("steeringMilestones").innerHTML = `

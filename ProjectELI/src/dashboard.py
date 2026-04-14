@@ -19,6 +19,7 @@ from orchestrator import (
     DB_PATH,
     EXECUTION_RESUME_PATH,
     EXECUTION_BOUNDARIES_PATH,
+    EXPLORATORY_IDEAS_REVIEW_PATH,
     EXTENSIONS_CAPABILITY_REVIEW_PATH,
     HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH,
     OPERATOR_GUIDANCE_PATH,
@@ -369,6 +370,7 @@ def load_dashboard_data():
         "component_package": {},
         "cost_viability": {},
         "project_direction": {},
+        "exploratory_ideas": {},
         "unblocked_next": {},
         "needs_human_review": [],
         "resume_notes": [],
@@ -420,6 +422,19 @@ def load_dashboard_data():
         "what_could_change_direction_next": [],
         "prototype_vs_product_interpretation": "",
         "budget_pressure_note": "",
+        "trust_posture": {},
+    })
+    exploratory_ideas_review = read_json(EXPLORATORY_IDEAS_REVIEW_PATH, {
+        "generated_at": "",
+        "ideas_summary": "",
+        "ideas_being_explored": [],
+        "why_these_ideas_are_visible_now": [],
+        "ideas_gaining_strength": [],
+        "ideas_fading_or_blocked": [],
+        "what_changed_recently": [],
+        "what_would_promote_an_idea": [],
+        "what_keeps_ideas_non_authoritative": [],
+        "prototype_vs_product_interpretation": "",
         "trust_posture": {},
     })
     project_topology_view = read_json(PROJECT_TOPOLOGY_VIEW_PATH, {
@@ -651,6 +666,7 @@ def load_dashboard_data():
         "execution_resume": execution_resume,
         "execution_boundaries": execution_boundaries,
         "project_direction_review": project_direction_review,
+        "exploratory_ideas_review": exploratory_ideas_review,
         "project_topology_view": project_topology_view,
         "component_package_review": component_package_review,
         "parts_readiness_review": parts_readiness_review,

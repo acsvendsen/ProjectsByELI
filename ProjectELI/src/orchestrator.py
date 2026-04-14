@@ -214,6 +214,19 @@ PARTS_READINESS_BANDS = (
     'bounded_shortlist_emerging',
     'shortlist_ready_for_review',
 )
+EXPLORATORY_IDEA_STATUSES = (
+    'exploratory',
+    'gaining_strength',
+    'blocked',
+    'fading',
+    'deferred',
+    'becoming_serious',
+)
+EXPLORATORY_IDEA_ORIGINS = (
+    'eli_generated',
+    'operator_injected',
+    'hybrid',
+)
 PROJECT_DIRECTION_CHOICE_STATUSES = (
     'favored',
     'provisional',
@@ -680,6 +693,7 @@ COST_VIABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "cost_viability_review.json"
 PRICING_ALTERNATIVES_REVIEW_PATH = PROJECT_STATE_DIR / "pricing_alternatives_review.json"
 EXECUTION_BOUNDARIES_PATH = PROJECT_STATE_DIR / "execution_boundaries.json"
 PROJECT_DIRECTION_REVIEW_PATH = PROJECT_STATE_DIR / "project_direction_review.json"
+EXPLORATORY_IDEAS_REVIEW_PATH = PROJECT_STATE_DIR / "exploratory_ideas_review.json"
 PROJECT_TOPOLOGY_VIEW_PATH = PROJECT_STATE_DIR / "project_topology_view.json"
 EXTENSIONS_CAPABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "extensions_capability_review.json"
 HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH = PROJECT_STATE_DIR / "hardware_aware_rendering_brief_review.json"
@@ -1053,6 +1067,12 @@ DEFAULT_COGNITION_SCHEMA = {
             'max_reason_rows': 5,
             'max_change_rows': 5,
         },
+        'exploratory_ideas_review': {
+            'enabled': True,
+            'include_in_execution_resume': True,
+            'max_visible': 5,
+            'max_summary_rows': 5,
+        },
         'project_topology_view': {
             'enabled': True,
             'max_nodes': 10,
@@ -1083,10 +1103,10 @@ DEFAULT_COGNITION_SCHEMA = {
         'ui_surface_plan': {
             'enabled': True,
             'max_pages': 7,
-            'max_sections_per_page': 7,
+            'max_sections_per_page': 8,
             'max_operator_goals': 5,
             'max_representation_risks': 5,
-            'max_source_surfaces': 12,
+            'max_source_surfaces': 13,
             'page_types': [
                 'project_creation',
                 'project_overview',
@@ -7569,6 +7589,18 @@ def project_direction_review_config(schema=None):
     }
 
 
+def exploratory_ideas_review_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('exploratory_ideas_review', {}) if isinstance(control.get('exploratory_ideas_review', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'include_in_execution_resume': bool(cfg.get('include_in_execution_resume', True)),
+        'max_visible': max(1, safe_int(cfg.get('max_visible', 5), 5)),
+        'max_summary_rows': max(1, safe_int(cfg.get('max_summary_rows', 5), 5)),
+    }
+
+
 def project_topology_view_config(schema=None):
     schema = schema or load_cognition_schema()
     control = schema.get('control', {}) if isinstance(schema, dict) else {}
@@ -7657,6 +7689,7 @@ def default_execution_resume_state():
         'component_package': {},
         'cost_viability': {},
         'project_direction': {},
+        'exploratory_ideas': {},
         'current_truth_summary': [],
         'active_review_front': [],
         'held_lanes': [],
@@ -7696,6 +7729,8 @@ def load_execution_resume_state():
         data['cost_viability'] = {}
     if not isinstance(data.get('project_direction'), dict):
         data['project_direction'] = {}
+    if not isinstance(data.get('exploratory_ideas'), dict):
+        data['exploratory_ideas'] = {}
     if not isinstance(data.get('source_generated_at'), dict):
         data['source_generated_at'] = {}
     if not isinstance(data.get('counts'), dict):
@@ -11117,6 +11152,542 @@ def render_project_direction_review_context(direction_state=None):
     return '\n'.join(lines) + '\n'
 
 
+def default_exploratory_ideas_review_state():
+    return {
+        'generated_at': '',
+        'ideas_summary': '',
+        'ideas_being_explored': [],
+        'why_these_ideas_are_visible_now': [],
+        'ideas_gaining_strength': [],
+        'ideas_fading_or_blocked': [],
+        'what_changed_recently': [],
+        'what_would_promote_an_idea': [],
+        'what_keeps_ideas_non_authoritative': [],
+        'prototype_vs_product_interpretation': '',
+        'trust_posture': {},
+        'source_authority': {},
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_exploratory_ideas_review_state():
+    data = load_json_file(EXPLORATORY_IDEAS_REVIEW_PATH, default_exploratory_ideas_review_state())
+    if not isinstance(data, dict):
+        data = default_exploratory_ideas_review_state()
+    for key in (
+        'ideas_being_explored',
+        'why_these_ideas_are_visible_now',
+        'ideas_gaining_strength',
+        'ideas_fading_or_blocked',
+        'what_changed_recently',
+        'what_would_promote_an_idea',
+        'what_keeps_ideas_non_authoritative',
+    ):
+        if not isinstance(data.get(key), list):
+            data[key] = []
+    for key in ('ideas_summary', 'prototype_vs_product_interpretation'):
+        if not isinstance(data.get(key), str):
+            data[key] = ''
+    for key in ('trust_posture', 'source_authority', 'source_generated_at'):
+        if not isinstance(data.get(key), dict):
+            data[key] = {}
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_exploratory_ideas_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_exploratory_ideas_review_state()
+    payload['updated_at'] = now_iso()
+    EXPLORATORY_IDEAS_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def build_exploratory_ideas_review_state(
+    schema=None,
+    review_snapshot=None,
+    direction_state=None,
+    cost_state=None,
+    parts_state=None,
+    pricing_state=None,
+    boundary_state=None,
+    rendering_state=None,
+):
+    schema = schema or load_cognition_schema()
+    cfg = exploratory_ideas_review_config(schema)
+    if not cfg.get('enabled', True):
+        return default_exploratory_ideas_review_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    expectations = load_project_expectations_state()
+    cost_state = cost_state if isinstance(cost_state, dict) else build_cost_viability_review_state(schema=schema, review_snapshot=review_snapshot)
+    parts_state = parts_state if isinstance(parts_state, dict) else build_parts_readiness_review_state(schema=schema, review_snapshot=review_snapshot)
+    pricing_state = pricing_state if isinstance(pricing_state, dict) else build_pricing_alternatives_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        parts_state=parts_state,
+        cost_state=cost_state,
+    )
+    boundary_state = boundary_state if isinstance(boundary_state, dict) else build_execution_boundaries_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+    )
+    direction_state = direction_state if isinstance(direction_state, dict) else build_project_direction_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+        boundary_state=boundary_state,
+    )
+    rendering_state = rendering_state if isinstance(rendering_state, dict) else load_hardware_aware_rendering_brief_review_state()
+    reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'reflect': {}, 'evidence_analysis': {}})
+    scorecard_state = load_scorecard_state()
+    exec_cfg = execution_resume_config(schema)
+    scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
+    scorecard_dimensions = scorecard_state.get('dimensions', []) if scorecard_use == 'current_truth' and isinstance(scorecard_state.get('dimensions', []), list) else []
+
+    dimension_index = {}
+    for row in scorecard_dimensions:
+        if not isinstance(row, dict):
+            continue
+        for key in (
+            normalize_signal_key(row.get('id', '')),
+            normalize_signal_key(row.get('label', '')),
+        ):
+            if key:
+                dimension_index[key] = row
+
+    reflect_payload = reflect_state.get('reflect', {}) if isinstance(reflect_state.get('reflect', {}), dict) else {}
+    action_rows = reflect_payload.get('action_direction_judgments', []) if isinstance(reflect_payload.get('action_direction_judgments', []), list) else []
+    action_by_domain = {}
+    for row in action_rows:
+        if not isinstance(row, dict):
+            continue
+        key = normalize_signal_key(row.get('domain', row.get('action_domain', row.get('title', ''))))
+        if key:
+            action_by_domain[key] = row
+
+    review_surfaces = review_snapshot.get('surfaces', {}) if isinstance(review_snapshot.get('surfaces', {}), dict) else {}
+    v1_surface = review_surfaces.get('v1_decision_review', {})
+    v1_payload = v1_surface.get('payload', {}) if isinstance(v1_surface.get('payload', {}), dict) else {}
+    pending_rows = v1_payload.get('pending_v1_decisions', []) if v1_surface.get('consumption_state') in ('current_truth', 'provisional_context') and isinstance(v1_payload.get('pending_v1_decisions', []), list) else []
+    pending_domains = {
+        normalize_signal_key(row.get('action_domain', ''))
+        for row in pending_rows
+        if isinstance(row, dict) and row.get('action_domain')
+    }
+
+    deferred_choices = direction_state.get('deferred_or_weaker_choices', []) if isinstance(direction_state.get('deferred_or_weaker_choices', []), list) else []
+    deferred_by_id = {
+        normalize_signal_key(row.get('choice_id', '')): row
+        for row in deferred_choices
+        if isinstance(row, dict) and row.get('choice_id')
+    }
+    current_rows = pricing_state.get('current_candidate_rows', []) if isinstance(pricing_state.get('current_candidate_rows', []), list) else []
+    alternative_rows = pricing_state.get('alternative_rows', []) if isinstance(pricing_state.get('alternative_rows', []), list) else []
+    rendering_briefs = rendering_state.get('rendering_briefs', []) if isinstance(rendering_state.get('rendering_briefs', []), list) else []
+
+    cost_signal = str(cost_state.get('kill_pause_reframe_signal', 'proceed_with_caution') or 'proceed_with_caution')
+    parts_band = str(parts_state.get('parts_readiness_band', 'not_ready_for_suggestions') or 'not_ready_for_suggestions')
+    target_tier = str(expectations.get('target_product_tier', 'discreet_consumer_assistive_wearable') or 'discreet_consumer_assistive_wearable')
+
+    def unique_lines(items, limit, width=220):
+        seen = set()
+        rows = []
+        for item in items:
+            text = compact_text_excerpt(item, width)
+            if not text:
+                continue
+            key = text.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append(text)
+            if len(rows) >= limit:
+                break
+        return rows
+
+    def matching_row(rows, token):
+        norm = normalize_signal_key(token)
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            if norm in normalize_signal_key(row.get('label', '')):
+                return row
+        return {}
+
+    def scorecard_focus(label):
+        row = dimension_index.get(normalize_signal_key(label), {})
+        if not isinstance(row, dict):
+            return ''
+        return row.get('next_focus', '') or row.get('progress_summary', '')
+
+    def make_idea(
+        idea_id,
+        title,
+        idea_type,
+        origin,
+        status,
+        summary,
+        why_good,
+        what_changed,
+        budget_hint,
+        main_risks,
+        supports,
+        blocks,
+        raise_signals,
+        kill_signals,
+        truth_posture,
+        related_fronts,
+    ):
+        return {
+            'idea_id': idea_id,
+            'title': title,
+            'idea_type': idea_type,
+            'origin': origin if origin in EXPLORATORY_IDEA_ORIGINS else 'eli_generated',
+            'status': status if status in EXPLORATORY_IDEA_STATUSES else 'exploratory',
+            'summary': compact_text_excerpt(summary, 220),
+            'why_it_might_be_good': compact_text_excerpt(why_good, 220),
+            'what_is_different_now': compact_text_excerpt(what_changed, 220),
+            'budget_tier_hint': budget_hint if budget_hint in ('low', 'medium', 'ambitious', 'mixed', 'unknown') else 'unknown',
+            'main_risks': unique_lines(main_risks, 3, width=180),
+            'what_supports_it': unique_lines(supports, 3, width=180),
+            'what_blocks_it': unique_lines(blocks, 3, width=180),
+            'what_would_raise_it': unique_lines(raise_signals, 3, width=180),
+            'what_would_kill_it': unique_lines(kill_signals, 3, width=180),
+            'truth_posture': truth_posture if truth_posture in ('exploratory_only', 'bounded_exploration', 'prototype_only') else 'exploratory_only',
+            'related_project_fronts': [normalize_signal_key(item) for item in related_fronts if normalize_signal_key(item)][:5],
+            'revisable': True,
+        }
+
+    ideas = []
+
+    hardware_boundary_alt = matching_row(alternative_rows, 'hardware stack boundary-only prototype package')
+    wireless_defer_alt = matching_row(alternative_rows, 'defer wireless interface quality package')
+    firmware_defer_alt = matching_row(alternative_rows, 'defer firmware quality package')
+    if parts_band == 'package_direction_only' and (hardware_boundary_alt or wireless_defer_alt or firmware_defer_alt):
+        ideas.append(make_idea(
+            'stripped_prototype_package',
+            'Stripped prototype package before subsystem quality upgrades',
+            'budget_sensitive_package_compromise',
+            'eli_generated',
+            'gaining_strength',
+            'Keep the boundary-first hardware package as the active prototype package and defer wireless and firmware quality upgrades until those subsystems produce stronger grounding.',
+            'This is the cleanest cost-sensitive compromise now because it protects prototype-learning value without pretending the project is closer to a consumer-tier implementation package than it is.',
+            'Pricing alternatives now expose the cheaper hardware-boundary package and explicit defer options for wireless and firmware, so the cost-sensitive prototype path is no longer just an implicit compromise.',
+            'low',
+            [
+                'Deferring quality-upgrade packages may underbuild wireless or firmware trust margin.',
+                scorecard_focus('Wireless Interface'),
+                scorecard_focus('Firmware'),
+            ],
+            [
+                hardware_boundary_alt.get('why_it_is_current_or_alternative', ''),
+                wireless_defer_alt.get('why_it_is_current_or_alternative', ''),
+                firmware_defer_alt.get('why_it_is_current_or_alternative', ''),
+                cost_state.get('why_this_posture', ''),
+            ],
+            [
+                scorecard_focus('Wireless Interface'),
+                scorecard_focus('Firmware'),
+                pricing_state.get('operator_warning', ''),
+            ],
+            [
+                'Measured prototype evidence that the hardware boundary package can carry build learning without immediate wireless or firmware quality upgrades.',
+                'A bounded implementation review that separates must-have prototype scaffolding from later quality upgrades.',
+            ],
+            [
+                'Wireless evidence shows the deferred package is already required for baseline link trust.',
+                'Firmware evidence shows touch-input or display-control simplicity cannot survive without the deferred package.',
+            ],
+            'bounded_exploration',
+            ['parts_readiness_review', 'pricing_alternatives_review', 'cost_viability_review', 'execution_boundaries'],
+        ))
+
+    memory_action = action_by_domain.get('memory_cache_policy', {})
+    if memory_action and 'memory_cache_policy' not in pending_domains:
+        ideas.append(make_idea(
+            'recency_first_memory_reinforcement',
+            'Recency-first local memory reinforcement',
+            'memory_policy',
+            'hybrid',
+            'blocked',
+            'Keep a small recency-first local cache for names and faces on the phone, instead of jumping to richer memory behavior.',
+            'This could improve recall usefulness and confidence without reopening broad memory ambition or heavy cloud dependence.',
+            'The idea stays visible because memory trust remains central, phone-first runtime still makes a bounded local cache attractive, and the selected recency-first policy is still the clearest small memory move even while the lane is held.',
+            'low',
+            [
+                'Can increase false certainty if reinforcement and trust cues are weak.',
+                scorecard_focus('Memory System'),
+                scorecard_focus('Privacy And Trust'),
+            ],
+            [
+                memory_action.get('summary', ''),
+                memory_action.get('judgment_reason', ''),
+                direction_state.get('interaction_direction', ''),
+            ],
+            [
+                memory_action.get('grounding_hold_reason', ''),
+                memory_action.get('v1_decision_candidate_reason', ''),
+                cost_state.get('operator_cost_warning', ''),
+            ],
+            list(memory_action.get('grounding_release_signals', [])),
+            [
+                'New trust evidence shows recency-first reinforcement still creates unsafe or misleading recall.',
+                'Operator or runtime evidence pushes memory back toward no bounded local reinforcement at all.',
+            ],
+            'prototype_only',
+            ['memory_system', 'privacy_and_trust', 'project_direction_review', 'execution_boundaries'],
+        ))
+
+    phone_cloud_action = action_by_domain.get('phone_cloud_boundary', {})
+    if phone_cloud_action and 'phone_cloud_boundary' not in pending_domains:
+        ideas.append(make_idea(
+            'balanced_fallback_memory_boundary',
+            'Balanced fallback for slower memory lookups',
+            'runtime_boundary',
+            'hybrid',
+            'blocked',
+            'Keep live subtitles phone-first while allowing bounded cloud assist only for slower or richer memory recall cases.',
+            'This hybrid path stays interesting because it could preserve the lighter phone-first runtime while avoiding an all-local or all-cloud overcommitment.',
+            'Phone-first remains the winning runtime, but wireless evidence is still thin enough that a bounded fallback compromise stays visible instead of disappearing as a dead idea.',
+            'mixed',
+            [
+                'Adds privacy and latency risk if the fallback boundary is not made explicit.',
+                scorecard_focus('Wireless Interface'),
+                scorecard_focus('Memory System'),
+            ],
+            [
+                phone_cloud_action.get('summary', ''),
+                phone_cloud_action.get('judgment_reason', ''),
+                direction_state.get('software_direction', ''),
+            ],
+            [
+                phone_cloud_action.get('grounding_hold_reason', ''),
+                scorecard_focus('Wireless Interface'),
+                pricing_state.get('operator_warning', ''),
+            ],
+            list(phone_cloud_action.get('grounding_release_signals', [])),
+            [
+                'Runtime truth shows strict phone-first is reliable enough that richer fallback buys little.',
+                'Privacy or operator posture rules out this boundary compromise as too complex for V1 trust.',
+            ],
+            'bounded_exploration',
+            ['wireless_interface', 'memory_system', 'pricing_alternatives_review', 'cost_viability_review'],
+        ))
+
+    hierarchy_action = action_by_domain.get('visual_hierarchy', {})
+    if hierarchy_action and 'visual_hierarchy' not in pending_domains:
+        ideas.append(make_idea(
+            'subtitle_dominant_hierarchy',
+            'Subtitle-dominant hierarchy with conservative secondary cues',
+            'visual_hierarchy',
+            'hybrid',
+            'exploratory',
+            'Keep subtitles dominant while one-line prompts and trust cues stay visibly secondary during live use.',
+            'This could protect readability and trust in motion or noise without opening a richer overlay system too early.',
+            'The idea is more inspectable now because subtitle grounding is strong and hardware-aware rendering briefs make hierarchy and display-region comparison concrete enough to review without calling it solved.',
+            'low',
+            [
+                'Can still become visually noisy or socially awkward if hierarchy is too assertive.',
+                'Can be over-read as solved UI direction when subtitle position is still a live review boundary.',
+                scorecard_focus('Privacy And Trust'),
+            ],
+            [
+                hierarchy_action.get('summary', ''),
+                hierarchy_action.get('judgment_reason', ''),
+                rendering_state.get('summary', ''),
+            ],
+            [
+                hierarchy_action.get('grounding_hold_reason', ''),
+                'A nearby subtitle-position choice is already review-bound, so hierarchy should not harden silently beside it.',
+                scorecard_focus('Firmware'),
+            ],
+            [
+                'Visual comparison or runtime truth that shows the hierarchy is readable without blowing up discreetness.',
+                'A tighter subtitle-position decision that stops the hierarchy question from drifting with no frame anchor.',
+            ],
+            [
+                'User or runtime evidence shows dominant subtitles create distraction or social awkwardness beyond the current tolerance.',
+                'Display-region constraints show the hierarchy needs more UI complexity than current firmware and trust posture can support.',
+            ],
+            'bounded_exploration',
+            ['subtitle_system', 'hardware_aware_rendering_brief_review', 'privacy_and_trust', 'v1_decision_review'],
+        ))
+
+    compute_hedge = deferred_by_id.get('heavier_on_glasses_compute', {})
+    if compute_hedge:
+        ideas.append(make_idea(
+            'autonomous_on_glasses_compute_hedge',
+            'Heavier on-glasses compute as a fallback hedge',
+            'runtime_alternative',
+            'eli_generated',
+            'fading',
+            'Keep a more autonomous glasses-runtime idea visible only as a hedge if the phone-first link proves materially weaker than expected.',
+            'It remains interesting only because it could reduce dependence on a fragile phone link later if runtime evidence goes badly.',
+            'The idea is visible now mainly because phone dependence and wireless weakness are real, but current cost, thermal, and packaging pressure are pushing this path downward rather than upward.',
+            'ambitious',
+            [
+                'Strong battery, thermal, packaging, and cost pressure.',
+                cost_state.get('operator_cost_warning', ''),
+                pricing_state.get('operator_warning', ''),
+            ],
+            [
+                compute_hedge.get('why_it_is_in_this_position', ''),
+                (compute_hedge.get('what_supports_it', []) or [''])[0],
+            ],
+            [
+                cost_state.get('why_this_posture', ''),
+                scorecard_focus('Hardware Stack'),
+                scorecard_focus('Wireless Interface'),
+            ],
+            [
+                'Runtime truth that the phone-first path cannot recover from real link weakness without heavier local autonomy.',
+                'Stronger power, thermal, and component evidence that narrows the cost penalty of more local compute.',
+            ],
+            [
+                'Wireless evidence improves enough that phone-first remains simpler and adequate.',
+                'The cost target still matters, making this hedge too expensive or bulky to justify even as an exploratory path.',
+            ],
+            'exploratory_only',
+            ['project_direction_review', 'cost_viability_review', 'hardware_stack', 'wireless_interface'],
+        ))
+
+    ideas = ideas[:cfg.get('max_visible', 5)]
+    idea_titles = [row.get('title', '') for row in ideas if isinstance(row, dict) and row.get('title')]
+
+    why_visible = unique_lines([
+        'Pricing and cost surfaces now make cheaper or simpler prototype-scoped compromises explicit instead of leaving them buried inside package posture.',
+        'Reflect still marks memory/cache, phone/cloud boundary, and visual hierarchy as meaningful held fronts rather than dead ideas.',
+        'Rendering briefs and grounded subtitle evidence make some display and hierarchy questions more inspectable without promoting them into design truth.',
+        'Wireless, firmware, and cost pressure keep heavier or more integrated alternatives visible as hedges or warning cases rather than current direction.',
+    ], cfg.get('max_summary_rows', 5))
+
+    changed_recently = unique_lines([
+        'Pricing alternatives now expose a stripped prototype package path and explicit defer-quality moves for wireless and firmware.',
+        f"Execution boundaries now cap work at `{boundary_state.get('current_milestone_target_title', boundary_state.get('target_milestone_title', 'Implementation Package Review'))}` and keep product-shaped continuation constrained by `{cost_signal}`.",
+        f"{len(rendering_briefs)} bounded rendering brief(s) now make hierarchy and display-region tradeoffs easier to inspect without treating them as accepted design.",
+        'Direction of travel now makes phone-first, touch-first, and prototype-buildability the winning path, which changes how nearby compromise and hedge ideas should be interpreted.',
+        f"Pending review fronts now include {', '.join(row.get('label', '') for row in pending_rows[:2] if isinstance(row, dict) and row.get('label')) or 'no live V1 decision titles'}, so nearby ideas should stay non-authoritative.",
+    ], cfg.get('max_summary_rows', 5))
+
+    what_promotes = unique_lines([
+        'Real repo changes or stronger repo grounding on the held front.',
+        'A new source type such as runtime truth or code-config evidence.',
+        'Measured link-latency, reconnect, or touch-input evidence that removes guesswork from the current blocked front.',
+        'A grounded component shortlist, interface map, or schematic direction that changes build pressure materially.',
+        'Operator tightening of target tier or compromise posture, especially if prototype-only learning remains acceptable.',
+    ], cfg.get('max_summary_rows', 5))
+
+    non_authoritative = unique_lines([
+        'Direction of travel still owns the current leading path; this ideas surface only shows non-leading incubation or hedge paths.',
+        'Milestones and pending V1 decisions still own what is reviewable now; visible ideas do not become live review fronts automatically.',
+        'Cost viability, realism pressure, and parts readiness can still block or kill an idea even if it stays interesting.',
+        'No idea in this surface can mutate project identity, product ambition, build posture, or execution target by itself.',
+    ], cfg.get('max_summary_rows', 5))
+
+    ideas_gaining_strength = [
+        row.get('title', '')
+        for row in ideas
+        if isinstance(row, dict) and row.get('status') in ('gaining_strength', 'becoming_serious')
+    ][:cfg.get('max_summary_rows', 5)]
+    ideas_fading_or_blocked = [
+        row.get('title', '')
+        for row in ideas
+        if isinstance(row, dict) and row.get('status') in ('blocked', 'fading', 'deferred')
+    ][:cfg.get('max_summary_rows', 5)]
+
+    if ideas:
+        ideas_summary = compact_text_excerpt(
+            f"{len(ideas)} bounded exploratory idea(s) are currently worth watching. They stay visible because cost, parts, review, and runtime pressure create real compromise or hedge paths, but they remain below current direction and below reviewable decisions.",
+            300,
+        )
+    else:
+        ideas_summary = compact_text_excerpt(
+            'No exploratory ideas are visible now beyond the current favored direction, review fronts, and held lanes. Do not force incubation theater when no bounded idea is materially differentiating itself.',
+            300,
+        )
+
+    return {
+        'generated_at': now_iso(),
+        'ideas_summary': ideas_summary,
+        'ideas_being_explored': ideas,
+        'why_these_ideas_are_visible_now': why_visible,
+        'ideas_gaining_strength': ideas_gaining_strength,
+        'ideas_fading_or_blocked': ideas_fading_or_blocked,
+        'what_changed_recently': changed_recently,
+        'what_would_promote_an_idea': what_promotes,
+        'what_keeps_ideas_non_authoritative': non_authoritative,
+        'prototype_vs_product_interpretation': compact_text_excerpt(
+            f"These ideas are bounded incubation only. They can still help prototype learning, cost-sensitive compromise, or hedge planning, but none currently justify a `{target_tier}` product story while realism remains `serious_prototype_path` and cost posture remains `{cost_signal}`.",
+            260,
+        ),
+        'trust_posture': {
+            'surface_role': 'bounded_exploratory_review_surface',
+            'use_state': 'supporting_context',
+            'authority_scope': 'non-leading exploratory ideas and compromise paths only',
+            'trust_reason': compact_text_excerpt(
+                'Use this surface to inspect ideas ELI is incubating below current direction, milestones, and accepted implementation posture. It is supporting exploratory context only and cannot silently change project truth.',
+                240,
+            ),
+        },
+        'source_authority': {
+            'incubation_judgment': 'reflect_state',
+            'leading_path_boundary': 'project_direction_review',
+            'cost_pressure': 'cost_viability_review',
+            'parts_readiness': 'parts_readiness_review',
+            'pricing_alternatives': 'pricing_alternatives_review',
+            'rendering_support': 'hardware_aware_rendering_brief_review',
+        },
+        'source_generated_at': {
+            'reflect_state': state_surface_generated_at(reflect_state),
+            'project_direction_review': state_surface_generated_at(direction_state),
+            'cost_viability_review': state_surface_generated_at(cost_state),
+            'parts_readiness_review': state_surface_generated_at(parts_state),
+            'pricing_alternatives_review': state_surface_generated_at(pricing_state),
+            'execution_boundaries': state_surface_generated_at(boundary_state),
+            'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
+            'v1_decision_review': state_surface_generated_at(v1_payload),
+            'project_scorecard': state_surface_generated_at(scorecard_state),
+            'project_expectations': state_surface_generated_at(expectations),
+        },
+        'revisable': True,
+    }
+
+
+def render_exploratory_ideas_review_context(ideas_state=None):
+    ideas_state = ideas_state if isinstance(ideas_state, dict) else load_exploratory_ideas_review_state()
+    lines = ['# Exploratory Ideas Review']
+    if ideas_state.get('ideas_summary'):
+        lines.append(f"- ideas_summary: {ideas_state.get('ideas_summary', '')}")
+    trust_posture = ideas_state.get('trust_posture', {}) if isinstance(ideas_state.get('trust_posture', {}), dict) else {}
+    if trust_posture:
+        lines.append(
+            f"- trust_posture: `{trust_posture.get('use_state', 'supporting_context')}` as `{trust_posture.get('surface_role', 'bounded_exploratory_review_surface')}` | {trust_posture.get('trust_reason', '')}"
+        )
+    ideas = ideas_state.get('ideas_being_explored', []) if isinstance(ideas_state.get('ideas_being_explored', []), list) else []
+    if ideas:
+        lines.append("- ideas_being_explored:")
+        for row in ideas[:4]:
+            if not isinstance(row, dict):
+                continue
+            lines.append(
+                f"  - {row.get('title', 'idea')} (`{row.get('status', 'exploratory')}`, `{row.get('origin', 'eli_generated')}`, `{row.get('truth_posture', 'exploratory_only')}`): {row.get('what_is_different_now', row.get('summary', ''))}"
+            )
+    if ideas_state.get('ideas_gaining_strength'):
+        lines.append("- ideas_gaining_strength: " + '; '.join(ideas_state.get('ideas_gaining_strength', [])[:3]))
+    if ideas_state.get('ideas_fading_or_blocked'):
+        lines.append("- ideas_fading_or_blocked: " + '; '.join(ideas_state.get('ideas_fading_or_blocked', [])[:4]))
+    if ideas_state.get('prototype_vs_product_interpretation'):
+        lines.append(f"- prototype_vs_product_interpretation: {ideas_state.get('prototype_vs_product_interpretation', '')}")
+    return '\n'.join(lines) + '\n'
+
+
 def default_project_topology_view_state():
     return {
         'generated_at': '',
@@ -12398,7 +12969,7 @@ def ui_page_priority_rank(priority):
     return order.get(str(priority or '').strip(), 4)
 
 
-def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None, boundary_state=None, topology_state=None, direction_state=None):
+def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None, boundary_state=None, topology_state=None, direction_state=None, ideas_state=None):
     schema = schema or load_cognition_schema()
     cfg = ui_surface_plan_config(schema)
     if not cfg.get('enabled', True):
@@ -12478,6 +13049,16 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         realism_state=realism_state,
         component_state=component_state,
         extensions_state=extensions_state,
+    )
+    ideas_state = ideas_state if isinstance(ideas_state, dict) else build_exploratory_ideas_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        direction_state=direction_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+        boundary_state=boundary_state,
+        rendering_state=rendering_state,
     )
     reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
     scorecard_state = load_scorecard_state()
@@ -12579,6 +13160,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         or verification_state.get('representation_risks', [])
     )
     direction_meaningful = bool(direction_state.get('favored_choices') or direction_state.get('deferred_or_weaker_choices'))
+    ideas_meaningful = bool(ideas_state.get('ideas_being_explored'))
     extensions_meaningful = bool(available_extensions or missing_extensions)
 
     if tentative_expectations:
@@ -12648,7 +13230,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         'status': 'active',
         'priority': 'primary',
         'why_this_page_exists': 'Every project needs one compact surface for current truth, blockers, realism posture, and what should not be over-read.',
-        'driven_by_sources': ['execution_resume', 'execution_boundaries', 'project_direction_review', 'project_topology_view', 'product_realism_review', 'project_expectations', 'cost_viability_review', 'verification_summary'],
+        'driven_by_sources': ['execution_resume', 'execution_boundaries', 'project_direction_review', 'exploratory_ideas_review', 'project_topology_view', 'product_realism_review', 'project_expectations', 'cost_viability_review', 'verification_summary'],
         'sections': [
             make_section(
                 'current_truth_summary',
@@ -12666,18 +13248,26 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
                 'Realism review is meaningful enough to guide operator posture.',
                 'Hide only if realism review does not exist yet.',
             ),
-            make_section(
-                'direction_of_travel',
-                'Direction Of Travel',
-                'Show which hardware, runtime, interaction, and product-shaping directions are currently winning, which alternatives are weaker, and what could still change the path.',
-                ['project_direction_review', 'execution_boundaries', 'product_realism_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
-                'The project has enough differentiated pressure that the current favored path should be explicit rather than inferred from scattered cards.',
-                'Hide only if there is not yet enough steering truth to distinguish favored direction from deferred alternatives.',
-            ),
-            make_section(
-                'trust_and_source_authority',
-                'Trust & Source Authority',
-                'Show which source currently owns the truth for this page and what remains supporting context.',
+                make_section(
+                    'direction_of_travel',
+                    'Direction Of Travel',
+                    'Show which hardware, runtime, interaction, and product-shaping directions are currently winning, which alternatives are weaker, and what could still change the path.',
+                    ['project_direction_review', 'execution_boundaries', 'product_realism_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+                    'The project has enough differentiated pressure that the current favored path should be explicit rather than inferred from scattered cards.',
+                    'Hide only if there is not yet enough steering truth to distinguish favored direction from deferred alternatives.',
+                ),
+                make_section(
+                    'ideas_im_exploring',
+                    'Ideas I’m Exploring',
+                    'Show bounded non-leading ideas ELI is incubating, why they are visible now, what budget tier they fit, and what could raise or kill them.',
+                    ['exploratory_ideas_review', 'project_direction_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review', 'reflect_state'],
+                    'There are live exploratory ideas worth inspecting without confusing them for current direction or reviewable decisions.',
+                    'Hide when no bounded exploratory idea is materially differentiating itself from current direction, held lanes, or review fronts.',
+                ),
+                make_section(
+                    'trust_and_source_authority',
+                    'Trust & Source Authority',
+                    'Show which source currently owns the truth for this page and what remains supporting context.',
                 ['verification_summary', 'state_sync_summary'],
                 'More than one truth-bearing surface exists or authority needs explanation.',
                 'Hide only if there is no meaningful current-vs-supporting distinction to explain.',
@@ -13094,6 +13684,9 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     if direction_meaningful:
         push_goal('See which hardware, runtime, interaction, and product-shaping directions are currently winning without mistaking them for locked decisions.')
         push_risk('Direction of travel must stay visibly revisable so current favored choices are not over-read as final commitments.')
+    if ideas_meaningful:
+        push_goal('See which non-leading ideas are gaining strength, blocked, or fading without mistaking them for current direction or live decisions.')
+        push_risk('Exploratory ideas must stay visibly below favored direction, milestone truth, and accepted implementation posture; visibility does not equal acceptance.')
     if blocked_lanes or held_lanes:
         push_risk('Held, blocked, and review-oriented lanes must remain visually distinct so waiting is not misread as progress.')
     if extensions_meaningful:
@@ -13170,6 +13763,14 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         direction_state.get('current_direction_summary', ''),
         state_surface_generated_at(direction_state),
     )
+    if ideas_meaningful:
+        push_source(
+            'exploratory_ideas_review',
+            'bounded_exploration',
+            ideas_state.get('trust_posture', {}).get('use_state', 'supporting_context') if isinstance(ideas_state.get('trust_posture', {}), dict) else 'supporting_context',
+            ideas_state.get('trust_posture', {}).get('trust_reason', ideas_state.get('ideas_summary', '')) if isinstance(ideas_state.get('trust_posture', {}), dict) else ideas_state.get('ideas_summary', ''),
+            state_surface_generated_at(ideas_state),
+        )
     push_source(
         'project_topology_view',
         'derived_operator_overview',
@@ -13288,6 +13889,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'project_expectations': state_surface_generated_at(expectations),
             'execution_resume': state_surface_generated_at(resume_state),
             'project_direction_review': state_surface_generated_at(direction_state),
+            'exploratory_ideas_review': state_surface_generated_at(ideas_state),
             'project_topology_view': state_surface_generated_at(topology_state),
             'project_milestones': state_surface_generated_at(milestone_state),
             'product_realism_review': state_surface_generated_at(realism_state),
@@ -13430,7 +14032,7 @@ def build_verification_transition_rows(v1_review_state, artifact_review_state, l
     return rows[:max(1, limit)]
 
 
-def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None, boundary_state=None, topology_state=None, direction_state=None):
+def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None, boundary_state=None, topology_state=None, direction_state=None, ideas_state=None):
     schema = schema or load_cognition_schema()
     review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
     resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
@@ -13457,6 +14059,16 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         cost_state=cost_state,
         boundary_state=boundary_state,
     )
+    ideas_state = ideas_state if isinstance(ideas_state, dict) else build_exploratory_ideas_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        direction_state=direction_state,
+        cost_state=cost_state,
+        parts_state=load_parts_readiness_review_state(),
+        pricing_state=load_pricing_alternatives_review_state(),
+        boundary_state=boundary_state,
+        rendering_state=rendering_state,
+    )
 
     exec_cfg = execution_resume_config(schema)
     scorecard_use, scorecard_reason = scorecard_resume_posture(scorecard_state, reflect_state, exec_cfg)
@@ -13471,6 +14083,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
     draft_rows = draft_state.get('emitted_drafts', []) if isinstance(draft_state.get('emitted_drafts', []), list) else []
     emission_rows = emission_state.get('artifact_emission_readiness', []) if isinstance(emission_state.get('artifact_emission_readiness', []), list) else []
     rendering_briefs = rendering_state.get('rendering_briefs', []) if isinstance(rendering_state.get('rendering_briefs', []), list) else []
+    exploratory_ideas = ideas_state.get('ideas_being_explored', []) if isinstance(ideas_state.get('ideas_being_explored', []), list) else []
     cost_warning = str(cost_state.get('operator_cost_warning', '') or '').strip()
     scorecard_dimensions = scorecard_state.get('dimensions', []) if isinstance(scorecard_state.get('dimensions', []), list) else []
 
@@ -13591,6 +14204,17 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             supporting_surfaces=['project_scorecard', 'v1_decision_review', 'component_package_review', 'product_realism_review'],
             sample_titles=[row.get('title', '') for row in rendering_briefs[:3]],
         ))
+    if exploratory_ideas:
+        idea_trust = ideas_state.get('trust_posture', {}) if isinstance(ideas_state.get('trust_posture', {}), dict) else {}
+        supporting_context_sources.append(build_verification_source_entry(
+            'Exploratory ideas being incubated',
+            'exploratory_ideas_review',
+            idea_trust.get('use_state', 'supporting_context'),
+            idea_trust.get('trust_reason', ideas_state.get('ideas_summary', '')),
+            state_surface_generated_at(ideas_state),
+            supporting_surfaces=['reflect_state', 'project_direction_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+            sample_titles=[row.get('title', '') for row in exploratory_ideas[:3]],
+        ))
     if topology_state.get('nodes'):
         topology_trust = topology_state.get('trust_posture', {}) if isinstance(topology_state.get('trust_posture', {}), dict) else {}
         supporting_context_sources.append(build_verification_source_entry(
@@ -13695,6 +14319,16 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
                 220,
             ),
         })
+    if exploratory_ideas:
+        recent_source_wins.append({
+            'question': 'Exploratory ideas being incubated',
+            'winning_surface': 'exploratory_ideas_review',
+            'supporting_surfaces': ['reflect_state', 'project_direction_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+            'why': compact_text_excerpt(
+                'This surface owns bounded incubation of non-leading ideas only. It can explain why an idea is visible, rising, blocked, or fading, but it does not override favored direction, milestone truth, or current build posture.',
+                220,
+            ),
+        })
     recent_source_wins.append({
         'question': 'Direction of travel',
         'winning_surface': 'project_direction_review',
@@ -13729,6 +14363,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         representation_risks.append('Cautionary or provisional surfaces stay visible for continuity, but they should not override current-truth sources.')
     if rendering_briefs:
         representation_risks.append('Hardware-aware rendering briefs are exploratory visual framing only; do not treat them as accepted design direction or settled implementation truth.')
+    if exploratory_ideas:
+        representation_risks.append('Exploratory ideas are supporting incubation context only; do not read a visible idea row as the current winning path, a live review front, or accepted implementation truth.')
     if topology_state.get('nodes'):
         representation_risks.append('The project topology view is a derived overview for legibility; verify each node truth posture and source surfaces before treating the map itself as the authority.')
     if direction_state.get('favored_choices'):
@@ -13745,6 +14381,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         operator_checks.append('For held lanes, verify the release signals before trying to reopen the lane as active work.')
     if rendering_briefs:
         operator_checks.append('For rendering briefs, verify the current-truth subsystem and build-posture sources before reading a visual comparison as settled design intent.')
+    if exploratory_ideas:
+        operator_checks.append('For exploratory ideas, verify what changed, what still blocks the idea, and what would raise or kill it before spending more cycles on it.')
     if topology_state.get('nodes'):
         operator_checks.append('For topology nodes, use the node truth posture and detail source surfaces before treating a derived map summary as current truth.')
     if direction_state.get('favored_choices'):
@@ -13791,6 +14429,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             'artifact_emission_readiness': state_surface_generated_at(emission_state),
             'draft_artifact_review': state_surface_generated_at(draft_state),
             'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
+            'exploratory_ideas_review': state_surface_generated_at(ideas_state),
             'project_direction_review': state_surface_generated_at(direction_state),
             'project_topology_view': state_surface_generated_at(topology_state),
             'cost_viability_review': state_surface_generated_at(cost_state),
@@ -13841,7 +14480,7 @@ def supporting_artifact_review_posture(artifact_review_state, reflect_state):
     return 'provisional_context', 'Implementation artifact review is usable as supporting context, but it is not an authoritative current-truth surface.'
 
 
-def build_execution_resume_state(schema=None, review_snapshot=None, boundary_state=None, direction_state=None):
+def build_execution_resume_state(schema=None, review_snapshot=None, boundary_state=None, direction_state=None, ideas_state=None):
     schema = schema or load_cognition_schema()
     cfg = execution_resume_config(schema)
     if not cfg.get('enabled', True):
@@ -13883,6 +14522,15 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
         realism_state=product_realism_state,
         cost_state=cost_viability_state,
         component_state=component_package_state,
+        parts_state=parts_readiness_state,
+        pricing_state=pricing_alternatives_state,
+        boundary_state=boundary_state,
+    )
+    ideas_state = ideas_state if isinstance(ideas_state, dict) else build_exploratory_ideas_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        direction_state=direction_state,
+        cost_state=cost_viability_state,
         parts_state=parts_readiness_state,
         pricing_state=pricing_alternatives_state,
         boundary_state=boundary_state,
@@ -14156,6 +14804,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             'cost_viability_review': state_surface_generated_at(cost_viability_state),
             'execution_boundaries': state_surface_generated_at(boundary_state),
             'project_direction_review': state_surface_generated_at(direction_state),
+            'exploratory_ideas_review': state_surface_generated_at(ideas_state),
             'v1_decision_review': state_surface_generated_at(v1_payload),
             'artifact_emission_readiness': state_surface_generated_at(emission_payload),
             'draft_artifact_review': state_surface_generated_at(draft_payload),
@@ -14238,6 +14887,15 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             'prototype_vs_product_interpretation': direction_state.get('prototype_vs_product_interpretation', ''),
             'budget_pressure_note': direction_state.get('budget_pressure_note', ''),
         } if project_direction_review_config(schema).get('include_in_execution_resume', True) else {},
+        'exploratory_ideas': {
+            'ideas_summary': ideas_state.get('ideas_summary', ''),
+            'live_count': len(ideas_state.get('ideas_being_explored', [])) if isinstance(ideas_state.get('ideas_being_explored', []), list) else 0,
+            'top_gaining_strength_idea': (ideas_state.get('ideas_gaining_strength', []) or [''])[0] if isinstance(ideas_state.get('ideas_gaining_strength', []), list) else '',
+            'top_blocked_or_fading_idea': (ideas_state.get('ideas_fading_or_blocked', []) or [''])[0] if isinstance(ideas_state.get('ideas_fading_or_blocked', []), list) else '',
+            'what_changed_recently': ideas_state.get('what_changed_recently', []),
+            'prototype_vs_product_interpretation': ideas_state.get('prototype_vs_product_interpretation', ''),
+            'trust_use': ideas_state.get('trust_posture', {}).get('use_state', 'supporting_context') if isinstance(ideas_state.get('trust_posture', {}), dict) else 'supporting_context',
+        } if exploratory_ideas_review_config(schema).get('include_in_execution_resume', True) else {},
         'current_truth_summary': current_truth_summary[:cfg.get('max_current_truth_summary', 5)],
         'active_review_front': active_review_front[:cfg.get('max_active_review_front', 4)],
         'held_lanes': held_lanes[:cfg.get('max_held_lanes', 4)],
@@ -14264,6 +14922,7 @@ def render_execution_resume_section(resume_state=None, include_header=True):
     component_package = resume_state.get('component_package', {}) if isinstance(resume_state.get('component_package', {}), dict) else {}
     cost_viability = resume_state.get('cost_viability', {}) if isinstance(resume_state.get('cost_viability', {}), dict) else {}
     project_direction = resume_state.get('project_direction', {}) if isinstance(resume_state.get('project_direction', {}), dict) else {}
+    exploratory_ideas = resume_state.get('exploratory_ideas', {}) if isinstance(resume_state.get('exploratory_ideas', {}), dict) else {}
     if trust:
         lines.append(
             f"- trust_posture: sync `{trust.get('overall_sync_status', 'provisional')}` | trust `{trust.get('overall_trust_status', 'provisional')}`"
@@ -14332,6 +14991,25 @@ def render_execution_resume_section(resume_state=None, include_header=True):
             + (
                 f" | deferred `{project_direction.get('top_deferred_choice', '')}`"
                 if project_direction.get('top_deferred_choice')
+                else ''
+            )
+        )
+    if exploratory_ideas:
+        lines.append(
+            f"- exploratory_ideas: {exploratory_ideas.get('ideas_summary', '')}"
+            + (
+                f" | live `{exploratory_ideas.get('live_count', 0)}`"
+                if exploratory_ideas.get('live_count') is not None
+                else ''
+            )
+            + (
+                f" | gaining `{exploratory_ideas.get('top_gaining_strength_idea', '')}`"
+                if exploratory_ideas.get('top_gaining_strength_idea')
+                else ''
+            )
+            + (
+                f" | blocked `{exploratory_ideas.get('top_blocked_or_fading_idea', '')}`"
+                if exploratory_ideas.get('top_blocked_or_fading_idea')
                 else ''
             )
         )
@@ -14598,11 +15276,22 @@ def refresh_review_state_sync_metadata(schema=None):
         boundary_state=boundary_state,
     )
     save_project_direction_review_state(direction_state)
+    ideas_state = build_exploratory_ideas_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        direction_state=direction_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+        boundary_state=boundary_state,
+    )
+    save_exploratory_ideas_review_state(ideas_state)
     resume_state = build_execution_resume_state(
         schema=schema,
         review_snapshot=review_snapshot,
         boundary_state=boundary_state,
         direction_state=direction_state,
+        ideas_state=ideas_state,
     )
     save_execution_resume_state(resume_state)
     verification_state = build_verification_summary_state(
@@ -14612,6 +15301,7 @@ def refresh_review_state_sync_metadata(schema=None):
         cost_state=cost_state,
         boundary_state=boundary_state,
         direction_state=direction_state,
+        ideas_state=ideas_state,
     )
     save_verification_summary_state(verification_state)
     extensions_state = build_extensions_capability_review_state(
@@ -14653,6 +15343,7 @@ def refresh_review_state_sync_metadata(schema=None):
         boundary_state=boundary_state,
         direction_state=direction_state,
         topology_state=topology_state,
+        ideas_state=ideas_state,
     )
     save_verification_summary_state(verification_state)
     save_ui_surface_plan_state(build_ui_surface_plan_state(
@@ -14667,6 +15358,7 @@ def refresh_review_state_sync_metadata(schema=None):
         boundary_state=boundary_state,
         direction_state=direction_state,
         topology_state=topology_state,
+        ideas_state=ideas_state,
     ))
     return summary
 
@@ -17047,11 +17739,22 @@ def generate_scorecard_cycle(changes, prior_reports):
         boundary_state=boundary_state,
     )
     save_project_direction_review_state(direction_state)
+    ideas_state = build_exploratory_ideas_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        direction_state=direction_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+        boundary_state=boundary_state,
+    )
+    save_exploratory_ideas_review_state(ideas_state)
     resume_state = build_execution_resume_state(
         schema=schema,
         review_snapshot=review_snapshot,
         boundary_state=boundary_state,
         direction_state=direction_state,
+        ideas_state=ideas_state,
     )
     save_execution_resume_state(resume_state)
     verification_state = build_verification_summary_state(
@@ -17061,6 +17764,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         cost_state=cost_state,
         boundary_state=boundary_state,
         direction_state=direction_state,
+        ideas_state=ideas_state,
     )
     save_verification_summary_state(verification_state)
     extensions_state = build_extensions_capability_review_state(
@@ -17102,6 +17806,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         boundary_state=boundary_state,
         direction_state=direction_state,
         topology_state=topology_state,
+        ideas_state=ideas_state,
     )
     save_verification_summary_state(verification_state)
     save_ui_surface_plan_state(build_ui_surface_plan_state(
@@ -17116,6 +17821,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         boundary_state=boundary_state,
         direction_state=direction_state,
         topology_state=topology_state,
+        ideas_state=ideas_state,
     ))
     return render_scorecard_markdown(scorecard), effort_selection
 
@@ -18612,6 +19318,16 @@ def context_with_inputs(changes):
         component_state=component_package_state,
         extensions_state=extensions_capability_state,
     )
+    exploratory_ideas_state = build_exploratory_ideas_review_state(
+        schema=schema,
+        review_snapshot=review_state_consumption,
+        direction_state=project_direction_state,
+        cost_state=cost_viability_state,
+        parts_state=parts_readiness_state,
+        pricing_state=pricing_alternatives_state,
+        boundary_state=execution_boundaries_state,
+        rendering_state=rendering_brief_state,
+    )
     ui_surface_plan_state = build_ui_surface_plan_state(
         schema=schema,
         review_snapshot=review_state_consumption,
@@ -18621,6 +19337,7 @@ def context_with_inputs(changes):
         boundary_state=execution_boundaries_state,
         direction_state=project_direction_state,
         rendering_state=rendering_brief_state,
+        ideas_state=exploratory_ideas_state,
     )
     pieces = ['# Core Field\n', core_text(), '\n']
     pieces.append(render_field_layer_context())
@@ -18653,6 +19370,8 @@ def context_with_inputs(changes):
     pieces.append(render_product_realism_review_context(product_realism_state))
     pieces.append('\n')
     pieces.append(render_project_direction_review_context(project_direction_state))
+    pieces.append('\n')
+    pieces.append(render_exploratory_ideas_review_context(exploratory_ideas_state))
     pieces.append('\n')
     pieces.append(render_extensions_capability_review_context(extensions_capability_state))
     pieces.append('\n')

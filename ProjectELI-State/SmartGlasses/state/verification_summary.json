@@ -1,15 +1,16 @@
 {
-  "generated_at": "2026-04-13T11:31:29",
+  "generated_at": "2026-04-14T19:23:52",
   "source_generated_at": {
     "review_state_consumption": "2026-04-13T11:31:29",
-    "execution_resume": "2026-04-13T11:31:29",
-    "reflect_state": "2026-04-13T11:29:44",
-    "project_scorecard": "2026-04-13T11:30:17",
-    "v1_decision_review": "2026-04-13T11:29:44",
+    "execution_resume": "2026-04-14T19:23:52",
+    "reflect_state": "2026-04-14T19:22:13",
+    "project_scorecard": "2026-04-14T19:22:49",
+    "v1_decision_review": "2026-04-14T19:22:13",
     "implementation_artifact_review": "2026-04-13T11:30:08",
     "artifact_emission_readiness": "2026-04-13T11:30:08",
     "draft_artifact_review": "2026-04-13T11:30:08",
     "hardware_aware_rendering_brief_review": "2026-04-13T11:31:29",
+    "exploratory_ideas_review": "2026-04-14T19:23:52",
     "project_direction_review": "2026-04-13T11:31:29",
     "project_topology_view": "2026-04-13T11:31:29",
     "cost_viability_review": "2026-04-13T11:31:29",
@@ -19,7 +20,7 @@
   "subsystem_card_source": {
     "source_surface": "project_scorecard",
     "use_state": "current_truth",
-    "generated_at": "2026-04-13T11:30:17",
+    "generated_at": "2026-04-14T19:22:49",
     "why": "The scorecard is fresh enough to use as current subsystem-readiness context."
   },
   "current_truth_sources": [
@@ -27,18 +28,19 @@
       "question": "Held lanes and action judgment",
       "source_surface": "reflect_state",
       "use_state": "current_truth",
-      "generated_at": "2026-04-13T11:29:44",
+      "generated_at": "2026-04-14T19:22:13",
       "why": "Reflect-owned action judgment remains the authoritative source for whether a lane is active, held, killed, or still unresolved.",
       "supporting_surfaces": [],
       "sample_titles": [
-        "Memory/Cache Policy"
+        "Memory/Cache Policy",
+        "Confidence Display"
       ]
     },
     {
       "question": "Subsystem cards and readiness",
       "source_surface": "project_scorecard",
       "use_state": "current_truth",
-      "generated_at": "2026-04-13T11:30:17",
+      "generated_at": "2026-04-14T19:22:49",
       "why": "The scorecard is fresh enough to use as current subsystem-readiness context.",
       "supporting_surfaces": [],
       "sample_titles": [
@@ -51,11 +53,11 @@
       "question": "Pending V1 decisions and active review front",
       "source_surface": "v1_decision_review",
       "use_state": "current_truth",
-      "generated_at": "2026-04-13T11:29:44",
+      "generated_at": "2026-04-14T19:22:13",
       "why": "This file is close enough to its linked review surfaces to compare operationally.",
       "supporting_surfaces": [],
       "sample_titles": [
-        "V1 Confidence Display Format"
+        "V1 Default Subtitle Position"
       ]
     },
     {
@@ -141,9 +143,9 @@
     {
       "question": "Implementation-artifact review candidates",
       "source_surface": "implementation_artifact_review",
-      "use_state": "provisional_context",
+      "use_state": "stale_context",
       "generated_at": "2026-04-13T11:30:08",
-      "why": "Implementation artifact review is close enough to current reflect state to use as bounded supporting context.",
+      "why": "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history.",
       "supporting_surfaces": [],
       "sample_titles": [
         "V1 Confidence Display Format"
@@ -165,6 +167,25 @@
         "Subtitle-First Frame Variant Comparison",
         "Implementation-Facing Component-Zone Layout Sketch",
         "Subtitle Region and Confidence Overlay Comparison"
+      ]
+    },
+    {
+      "question": "Exploratory ideas being incubated",
+      "source_surface": "exploratory_ideas_review",
+      "use_state": "supporting_context",
+      "generated_at": "2026-04-14T19:23:52",
+      "why": "Use this surface to inspect ideas ELI is incubating below current direction, milestones, and accepted implementation posture. It is supporting exploratory context only and cannot silently change project truth.",
+      "supporting_surfaces": [
+        "reflect_state",
+        "project_direction_review",
+        "cost_viability_review",
+        "parts_readiness_review",
+        "pricing_alternatives_review"
+      ],
+      "sample_titles": [
+        "Stripped prototype package before subsystem quality upgrades",
+        "Recency-first local memory reinforcement",
+        "Balanced fallback for slower memory lookups"
       ]
     },
     {
@@ -237,7 +258,7 @@
   "lane_explanations": {
     "active": [
       {
-        "title": "V1 Confidence Display Format",
+        "title": "V1 Default Subtitle Position",
         "source_surface": "v1_decision_review",
         "why": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit..."
       }
@@ -246,7 +267,27 @@
       {
         "title": "Memory/Cache Policy",
         "source_surface": "reflect_state",
-        "why": "aligns with Trustworthy memory support; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs usefulness, Latency vs richness; still meaningful, but not newly a...",
+        "why": "aligns with Trustworthy memory support; also addresses under-attended pressure in Privacy vs usefulness, Latency vs richness; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight disci...",
+        "release_on": [
+          "real repo change or stronger repo grounding",
+          "a new source type such as runtime truth or code-config evidence",
+          "meaningfully stronger architectural pull"
+        ]
+      },
+      {
+        "title": "Confidence Display",
+        "source_surface": "reflect_state",
+        "why": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Discreet UX vs visual clarity, Latency vs richness; meets resistance from Discreet UX vs visual clarity, La...",
+        "release_on": [
+          "real repo change or stronger repo grounding",
+          "a new source type such as runtime truth or code-config evidence",
+          "meaningfully stronger architectural pull"
+        ]
+      },
+      {
+        "title": "Phone/Cloud Boundary",
+        "source_surface": "reflect_state",
+        "why": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Latency vs richness, Privacy vs usefulness; meets resistance from Latency vs richness, Privacy vs usefulnes...",
         "release_on": [
           "real repo change or stronger repo grounding",
           "a new source type such as runtime truth or code-config evidence",
@@ -311,6 +352,18 @@
       "why": "This surface owns only exploratory rendering-brief framing. It does not override current truth about subsystem readiness, realism, or build posture."
     },
     {
+      "question": "Exploratory ideas being incubated",
+      "winning_surface": "exploratory_ideas_review",
+      "supporting_surfaces": [
+        "reflect_state",
+        "project_direction_review",
+        "cost_viability_review",
+        "parts_readiness_review",
+        "pricing_alternatives_review"
+      ],
+      "why": "This surface owns bounded incubation of non-leading ideas only. It can explain why an idea is visible, rising, blocked, or fading, but it does not override favored direction, milestone truth, or current build posture."
+    },
+    {
       "question": "Direction of travel",
       "winning_surface": "project_direction_review",
       "supporting_surfaces": [
@@ -321,25 +374,14 @@
         "pricing_alternatives_review"
       ],
       "why": "This surface owns the current bounded answer to which hardware, runtime, interaction, and product-shaping directions are winning now, without treating favored direction as a locked decision."
-    },
-    {
-      "question": "Cost viability and project economics",
-      "winning_surface": "cost_viability_review",
-      "supporting_surfaces": [
-        "project_expectations",
-        "project_scorecard",
-        "product_realism_review",
-        "component_package_review"
-      ],
-      "why": "This surface owns the current directional judgment about whether the project still makes economic sense as more than a prototype path."
     }
   ],
   "surfaces_with_caution": [
     {
       "surface": "implementation_artifact_review",
-      "use_state": "provisional_context",
+      "use_state": "stale_context",
       "generated_at": "2026-04-13T11:30:08",
-      "reason": "Implementation artifact review is close enough to current reflect state to use as bounded supporting context."
+      "reason": "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history."
     }
   ],
   "representation_risks": [
@@ -357,9 +399,9 @@
   ],
   "counts": {
     "current_truth_sources": 8,
-    "supporting_context_sources": 3,
+    "supporting_context_sources": 4,
     "recent_transitions": 5,
     "surfaces_with_caution": 1
   },
-  "updated_at": "2026-04-13T11:31:29"
+  "updated_at": "2026-04-14T19:23:52"
 }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-13T11:32:06",
+  "generated_at": "2026-04-14T19:23:52",
   "summary": "Current UI planning warrants Project Creation, Project Overview, Review & Decisions, Build & Realization, Subsystems & Workstreams, Extensions & Agents, Verification & Audit. Keep project creation visible while intent remains tentative, keep review surfaces bounded and non-final, let build-oriented pages emerge only...",
   "project_pages": [
     {
@@ -70,6 +70,7 @@
         "execution_resume",
         "execution_boundaries",
         "project_direction_review",
+        "exploratory_ideas_review",
         "project_topology_view",
         "product_realism_review",
         "project_expectations",
@@ -110,6 +111,19 @@
           ],
           "show_when": "The project has enough differentiated pressure that the current favored path should be explicit rather than inferred from scattered cards.",
           "hide_when": "Hide only if there is not yet enough steering truth to distinguish favored direction from deferred alternatives."
+        },
+        {
+          "section_id": "ideas_im_exploring",
+          "title": "Ideas I\u2019m Exploring",
+          "purpose": "Show bounded non-leading ideas ELI is incubating, why they are visible now, what budget tier they fit, and what could raise or kill them.",
+          "driven_by_sources": [
+            "exploratory_ideas_review",
+            "project_direction_review",
+            "cost_viability_review",
+            "parts_readiness_review"
+          ],
+          "show_when": "There are live exploratory ideas worth inspecting without confusing them for current direction or reviewable decisions.",
+          "hide_when": "Hide when no bounded exploratory idea is materially differentiating itself from current direction, held lanes, or review fronts."
         },
         {
           "section_id": "trust_and_source_authority",
@@ -584,35 +598,35 @@
       "surface_id": "execution_resume",
       "role": "operational_resume",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-13T11:32:06",
+      "generated_at": "2026-04-14T19:23:52",
       "why_it_matters": "Carries the operator-facing current-truth summary, active review front, held lanes, blockers, and next step."
     },
     {
       "surface_id": "project_milestones",
       "role": "milestone_gate",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-13T11:32:06",
+      "generated_at": "2026-04-14T19:23:52",
       "why_it_matters": "Keeps reviewability tied to readiness bands, blockers, and approval state rather than vague progress."
     },
     {
       "surface_id": "product_realism_review",
       "role": "realism_gate",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-13T11:32:06",
+      "generated_at": "2026-04-14T19:23:52",
       "why_it_matters": "Constrains product-language and anti-gimmick posture using grounded realism judgment."
     },
     {
       "surface_id": "cost_viability_review",
       "role": "economic_viability",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-13T11:32:06",
+      "generated_at": "2026-04-13T11:31:29",
       "why_it_matters": "Current hardware, packaging, and subsystem pressure already look mismatched to a discreet consumer-tier wearable cost story. Wireless and firmware gaps still add likely hidden cost pressure. Declared intent remains `f..."
     },
     {
       "surface_id": "project_scorecard",
       "role": "subsystem_truth",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-13T11:30:17",
+      "generated_at": "2026-04-14T19:22:49",
       "why_it_matters": "The scorecard is fresh enough to use as current subsystem-readiness context."
     },
     {
@@ -626,35 +640,42 @@
       "surface_id": "parts_readiness_review",
       "role": "parts_readiness",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-13T11:32:06",
+      "generated_at": "2026-04-13T11:31:29",
       "why_it_matters": "Package-level suggestions are warranted now, but no grounded component-shortlist or equivalent implementation artifact justifies stronger part claims yet."
     },
     {
       "surface_id": "execution_boundaries",
       "role": "execution_control",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-13T11:32:06",
+      "generated_at": "2026-04-13T11:31:29",
       "why_it_matters": "Work only until the next operator-review boundary around Implementation Package Review. Pause when no new grounding appears. Stop product-shaped continuation if the current cost target still matters."
     },
     {
       "surface_id": "project_direction_review",
       "role": "direction_of_travel",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-13T11:32:06",
+      "generated_at": "2026-04-13T11:31:29",
       "why_it_matters": "ELI is currently steering SmartGlasses toward a boundary-first, phone-first, touch-first, subtitle-first functional prototype that can be reviewed for prototype buildability while consumer-tier product narration remai..."
+    },
+    {
+      "surface_id": "exploratory_ideas_review",
+      "role": "bounded_exploration",
+      "trust_use": "supporting_context",
+      "generated_at": "2026-04-14T19:23:52",
+      "why_it_matters": "Use this surface to inspect ideas ELI is incubating below current direction, milestones, and accepted implementation posture. It is supporting exploratory context only and cannot silently change project truth."
     },
     {
       "surface_id": "project_topology_view",
       "role": "derived_operator_overview",
       "trust_use": "supporting_context",
-      "generated_at": "2026-04-13T11:32:06",
+      "generated_at": "2026-04-13T11:31:29",
       "why_it_matters": "This surface is a derived project map for operator legibility. It summarizes current-truth and supporting-context surfaces, but it does not replace source authority."
     },
     {
       "surface_id": "pricing_alternatives_review",
       "role": "pricing_direction_comparison",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-13T11:32:06",
+      "generated_at": "2026-04-13T11:31:29",
       "why_it_matters": "Current package suggestions may still help prototype learning, but the cost direction is still mismatched to the declared discreet consumer target. Cheaper or simpler alternatives mainly help by reducing overbuild, no..."
     }
   ],
@@ -751,27 +772,28 @@
     "overall_trust_status": "operational",
     "review_state_summary": "The current review-state files are close enough in time and linkage to compare operationally.",
     "scorecard_use": "current_truth",
-    "artifact_review_use": "provisional_context"
+    "artifact_review_use": "stale_context"
   },
   "source_generated_at": {
     "project_expectations": "2026-04-10T09:16:32",
-    "execution_resume": "2026-04-13T11:32:06",
-    "project_direction_review": "2026-04-13T11:32:06",
-    "project_topology_view": "2026-04-13T11:32:06",
-    "project_milestones": "2026-04-13T11:32:06",
-    "product_realism_review": "2026-04-13T11:32:06",
-    "cost_viability_review": "2026-04-13T11:32:06",
+    "execution_resume": "2026-04-14T19:23:52",
+    "project_direction_review": "2026-04-13T11:31:29",
+    "exploratory_ideas_review": "2026-04-14T19:23:52",
+    "project_topology_view": "2026-04-13T11:31:29",
+    "project_milestones": "2026-04-14T19:23:52",
+    "product_realism_review": "2026-04-14T19:23:52",
+    "cost_viability_review": "2026-04-13T11:31:29",
     "component_package_review": "2026-04-13T11:31:29",
-    "parts_readiness_review": "2026-04-13T11:32:06",
-    "execution_boundaries": "2026-04-13T11:32:06",
-    "pricing_alternatives_review": "2026-04-13T11:32:06",
-    "extensions_capability_review": "2026-04-13T11:32:06",
-    "hardware_aware_rendering_brief_review": "2026-04-13T11:32:06",
-    "verification_summary": "2026-04-13T11:32:06",
-    "project_scorecard": "2026-04-13T11:30:17",
-    "v1_decision_review": "2026-04-13T11:29:44",
+    "parts_readiness_review": "2026-04-13T11:31:29",
+    "execution_boundaries": "2026-04-13T11:31:29",
+    "pricing_alternatives_review": "2026-04-13T11:31:29",
+    "extensions_capability_review": "2026-04-14T19:23:52",
+    "hardware_aware_rendering_brief_review": "2026-04-13T11:31:29",
+    "verification_summary": "2026-04-14T19:23:52",
+    "project_scorecard": "2026-04-14T19:22:49",
+    "v1_decision_review": "2026-04-14T19:22:13",
     "draft_artifact_review": "2026-04-13T11:30:08"
   },
   "revisable": true,
-  "updated_at": "2026-04-13T11:32:06"
+  "updated_at": "2026-04-14T19:23:52"
 }

@@ -1,15 +1,16 @@
 {
-  "generated_at": "2026-04-13T11:31:29",
+  "generated_at": "2026-04-14T19:23:52",
   "source_generated_at": {
     "review_state_consumption": "2026-04-13T11:31:29",
-    "reflect_state": "2026-04-13T11:29:44",
-    "project_scorecard": "2026-04-13T11:30:17",
+    "reflect_state": "2026-04-14T19:22:13",
+    "project_scorecard": "2026-04-14T19:22:49",
     "implementation_artifact_review": "2026-04-13T11:30:08",
-    "component_package_review": "2026-04-13T11:31:29",
-    "cost_viability_review": "2026-04-13T11:31:29",
+    "component_package_review": "2026-04-14T19:23:52",
+    "cost_viability_review": "2026-04-14T19:23:52",
     "execution_boundaries": "2026-04-13T11:31:29",
     "project_direction_review": "2026-04-13T11:31:29",
-    "v1_decision_review": "2026-04-13T11:29:44",
+    "exploratory_ideas_review": "2026-04-14T19:23:52",
+    "v1_decision_review": "2026-04-14T19:22:13",
     "artifact_emission_readiness": "2026-04-13T11:30:08",
     "draft_artifact_review": "2026-04-13T11:30:08"
   },
@@ -26,8 +27,8 @@
     "cautionary_surfaces": [],
     "scorecard_use": "current_truth",
     "scorecard_reason": "The scorecard is fresh enough to use as current subsystem-readiness context.",
-    "implementation_artifact_review_use": "provisional_context",
-    "implementation_artifact_review_reason": "Implementation artifact review is close enough to current reflect state to use as bounded supporting context."
+    "implementation_artifact_review_use": "stale_context",
+    "implementation_artifact_review_reason": "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history."
   },
   "project_intent": {
     "summary": "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable` and acceptable cost posture is `prototype_only_until_cost...",
@@ -100,7 +101,7 @@
     "bom_readiness_band": "early_subsystem_bom_only",
     "component_package_kind": "subsystem_bom",
     "summary": "A concrete part list is still premature, but a bounded subsystem-level BOM frame is now warranted to improve buildability and package thinking without pretending the parts are settled.",
-    "top_blocker": "Implementation artifact review is close enough to current reflect state to use as bounded supporting context.",
+    "top_blocker": "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history.",
     "trust_posture": "operational"
   },
   "cost_viability": {
@@ -129,6 +130,21 @@
     "prototype_vs_product_interpretation": "The current winning direction is prototype-learning and buildability only. It does not justify a `discreet_consumer_assistive_wearable` product story while realism remains `serious_prototype_path` and cost posture remains `stop_if_cost_target_matters`.",
     "budget_pressure_note": "Budget pressure currently favors the simpler prototype-scoped hardware/runtime path and keeps consumer-tier, wireless-upgrade, and firmware-upgrade directions provisional or deferred until evidence and cost posture improve."
   },
+  "exploratory_ideas": {
+    "ideas_summary": "5 bounded exploratory idea(s) are currently worth watching. They stay visible because cost, parts, review, and runtime pressure create real compromise or hedge paths, but they remain below current direction and below reviewable decisions.",
+    "live_count": 5,
+    "top_gaining_strength_idea": "Stripped prototype package before subsystem quality upgrades",
+    "top_blocked_or_fading_idea": "Recency-first local memory reinforcement",
+    "what_changed_recently": [
+      "Pricing alternatives now expose a stripped prototype package path and explicit defer-quality moves for wireless and firmware.",
+      "Execution boundaries now cap work at `Implementation Package Review` and keep product-shaped continuation constrained by `stop_if_cost_target_matters`.",
+      "3 bounded rendering brief(s) now make hierarchy and display-region tradeoffs easier to inspect without treating them as accepted design.",
+      "Direction of travel now makes phone-first, touch-first, and prototype-buildability the winning path, which changes how nearby compromise and hedge ideas should be interpreted.",
+      "Pending review fronts now include V1 Default Subtitle Position, so nearby ideas should stay non-authoritative."
+    ],
+    "prototype_vs_product_interpretation": "These ideas are bounded incubation only. They can still help prototype learning, cost-sensitive compromise, or hedge planning, but none currently justify a `discreet_consumer_assistive_wearable` product story while realism remains `serious_prototype_path` a...",
+    "trust_use": "supporting_context"
+  },
   "current_truth_summary": [
     "The current review-state files are close enough in time and linkage to compare operationally.",
     "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable` and acceptable cost posture is `prototype_only_until_cost...",
@@ -139,14 +155,14 @@
   "active_review_front": [
     {
       "lane": "pending_v1_decision",
-      "title": "V1 Confidence Display Format",
+      "title": "V1 Default Subtitle Position",
       "source_surface": "v1_decision_review",
       "trust_use": "current_truth",
       "why_active_now": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit...",
-      "current_direction": "Label + Reason",
+      "current_direction": "More Prominent",
       "bounded_options": [
-        "Label Only",
-        "Label + Reason"
+        "Stable Default",
+        "More Prominent"
       ],
       "revisable": true
     }
@@ -156,7 +172,43 @@
       "title": "Memory/Cache Policy",
       "source_surface": "reflect_state",
       "judgment": "hold_until_new_grounding",
-      "why_held": "aligns with Trustworthy memory support; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs usefulness, Latency vs richness; still meaningful, but not newly a...",
+      "why_held": "aligns with Trustworthy memory support; also addresses under-attended pressure in Privacy vs usefulness, Latency vs richness; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight disci...",
+      "release_on": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ]
+    },
+    {
+      "title": "Confidence Display",
+      "source_surface": "reflect_state",
+      "judgment": "hold_until_new_grounding",
+      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Discreet UX vs visual clarity, Latency vs richness; meets resistance from Discreet UX vs visual clarity, La...",
+      "release_on": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ]
+    },
+    {
+      "title": "Phone/Cloud Boundary",
+      "source_surface": "reflect_state",
+      "judgment": "hold_until_new_grounding",
+      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Latency vs richness, Privacy vs usefulness; meets resistance from Latency vs richness, Privacy vs usefulnes...",
+      "release_on": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ]
+    },
+    {
+      "title": "Visual Hierarchy",
+      "source_surface": "reflect_state",
+      "judgment": "hold_until_new_grounding",
+      "why_held": "aligns with Real-time subtitle clarity, Low-friction assistance; also addresses under-attended pressure in Discreet UX vs visual clarity; meets resistance from Discreet UX vs visual clarity; needs counterweight discip...",
       "release_on": [
         "real repo change or stronger repo grounding",
         "a new source type such as runtime truth or code-config evidence",
@@ -201,29 +253,29 @@
   ],
   "unblocked_next": {
     "kind": "pending_v1_decision",
-    "title": "V1 Confidence Display Format",
+    "title": "V1 Default Subtitle Position",
     "source_surface": "v1_decision_review",
-    "why_now": "What confidence format should V1 use by default during live subtitle support?",
+    "why_now": "What should the default subtitle position behavior be for V1 live use?",
     "revisable": true
   },
   "needs_human_review": [
     {
       "kind": "pending_v1_decision",
-      "title": "V1 Confidence Display Format",
+      "title": "V1 Default Subtitle Position",
       "source_surface": "v1_decision_review",
-      "review_question": "What confidence format should V1 use by default during live subtitle support?",
+      "review_question": "What should the default subtitle position behavior be for V1 live use?",
       "revisable": true
     }
   ],
   "resume_notes": [
     "Do not assume this becomes a real product just because the prototype direction is interesting. Current cost posture is weak enough that commercial ambition should pause, stop, or reframe unless cost-sensitive assumptions improve.",
-    "Implementation artifact review is close enough to current reflect state to use as bounded supporting context."
+    "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history."
   ],
   "counts": {
     "active_review_front": 1,
-    "held_lanes": 1,
+    "held_lanes": 4,
     "blocked_lanes": 4,
     "needs_human_review": 1
   },
-  "updated_at": "2026-04-13T11:31:29"
+  "updated_at": "2026-04-14T19:23:52"
 }

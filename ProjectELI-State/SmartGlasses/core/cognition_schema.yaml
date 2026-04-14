@@ -265,6 +265,11 @@ control:
     max_deferred_choices: 5
     max_reason_rows: 5
     max_change_rows: 5
+  exploratory_ideas_review:
+    enabled: true
+    include_in_execution_resume: true
+    max_visible: 5
+    max_summary_rows: 5
   project_topology_view:
     enabled: true
     max_nodes: 10
@@ -291,10 +296,10 @@ control:
   ui_surface_plan:
     enabled: true
     max_pages: 7
-    max_sections_per_page: 7
+    max_sections_per_page: 8
     max_operator_goals: 5
     max_representation_risks: 5
-    max_source_surfaces: 12
+    max_source_surfaces: 13
     page_types:
       - project_creation
       - project_overview
