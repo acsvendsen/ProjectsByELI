@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T20:06:18",
+  "generated_at": "2026-04-14T20:45:59",
   "current_direction_summary": "ELI is currently steering SmartGlasses toward a boundary-first, phone-first, touch-first, subtitle-first functional prototype that can be reviewed for prototype buildability while consumer-tier product narration remains capped by cost and grounding gaps.",
   "hardware_direction": "Favor a boundary-first hardware stack with minimal on-glasses compute, explicit weight/bulk discipline, and later-stage hardware packages kept deferred.",
   "software_direction": "Favor phone-first runtime and lightweight on-glasses logic over heavier autonomous glasses compute. Do not reopen boundary changes until stronger link evidence appears.",
@@ -18,7 +18,7 @@
         "Current cost posture rewards simpler prototype-scoped hardware over heavier integrated product hardware."
       ],
       "what_weakens_it": [
-        "Define clear subtitle placement rules to ensure readability without distraction",
+        "Continue defining minimal hardware components and ensuring the glasses do not exceed social acceptability limits.",
         "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
       ],
       "truth_posture": "current_truth",
@@ -56,7 +56,8 @@
         "Trust posture is stronger when wearer-visible behavior stays simple enough to explain clearly."
       ],
       "what_weakens_it": [
-        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent."
+        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+        "V1 Default Subtitle Position"
       ],
       "truth_posture": "provisional",
       "budget_tier_hint": "prototype_foundation_only",
@@ -71,10 +72,11 @@
       "what_supports_it": [
         "Subtitle System is `on_track` / `grounded`.",
         "Tie confidence display, memory reinforcement, and boundary choices to explicit wearer-visible trust rules and consent handling.",
-        "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable` and acceptable co..."
+        "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable`, intended budget..."
       ],
       "what_weakens_it": [
-        "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope."
+        "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
+        "V1 Default Subtitle Position"
       ],
       "truth_posture": "bounded",
       "budget_tier_hint": "assistive_prototype_learning",
@@ -237,16 +239,16 @@
     "review_truth": "v1_decision_review"
   },
   "source_generated_at": {
-    "project_scorecard": "2026-04-14T20:05:29",
-    "execution_boundaries": "2026-04-14T20:06:18",
-    "product_realism_review": "2026-04-14T20:06:18",
-    "cost_viability_review": "2026-04-14T20:06:18",
-    "component_package_review": "2026-04-14T20:06:18",
-    "parts_readiness_review": "2026-04-14T20:06:18",
-    "pricing_alternatives_review": "2026-04-14T20:06:18",
-    "v1_decision_review": "2026-04-14T20:04:57",
-    "reflect_state": "2026-04-14T20:04:57"
+    "project_scorecard": "2026-04-14T20:43:09",
+    "execution_boundaries": "2026-04-14T20:45:59",
+    "product_realism_review": "2026-04-14T20:45:59",
+    "cost_viability_review": "2026-04-14T20:45:59",
+    "component_package_review": "2026-04-14T20:45:59",
+    "parts_readiness_review": "2026-04-14T20:45:59",
+    "pricing_alternatives_review": "2026-04-14T20:45:59",
+    "v1_decision_review": "2026-04-14T20:45:41",
+    "reflect_state": "2026-04-14T20:45:41"
   },
   "revisable": true,
-  "updated_at": "2026-04-14T20:06:18"
+  "updated_at": "2026-04-14T20:45:59"
 }

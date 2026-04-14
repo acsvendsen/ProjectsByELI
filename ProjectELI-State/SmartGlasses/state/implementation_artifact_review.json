@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T20:06:18",
+  "generated_at": "2026-04-14T20:45:59",
   "allowed_transition_reasons": [
     "no_longer_qualified",
     "moved_to_hold",
@@ -8,7 +8,53 @@
     "weak_grounding",
     "moved_out_of_review"
   ],
-  "implementation_artifact_candidates": [],
+  "implementation_artifact_candidates": [
+    {
+      "artifact_id": "visual_layout_rule-subtitle-placement",
+      "label": "V1 Default Subtitle Position",
+      "artifact_type": "visual_layout_rule",
+      "artifact_type_label": "Visual Layout Rule",
+      "bounded_framing": "What should the default subtitle position behavior be for V1 live use?",
+      "reason": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is grounded.",
+      "addresses": [
+        "What should the default subtitle position behavior be for V1 live use?",
+        "aligns with Real-time subtitle clarity; meets resistance from Latency vs richness, Discreet UX vs visual clarity; needs counterweight dis..."
+      ],
+      "candidate_directions": [
+        "Stable Default",
+        "More Prominent"
+      ],
+      "open_constraints": [
+        "latency vs richness",
+        "discreet ux vs visual clarity",
+        "core deepening over sprawl"
+      ],
+      "relevant_interfaces": [],
+      "candidate_components": [],
+      "escalation_signals": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ],
+      "source_kind": "pending_v1_decision",
+      "source_domain": "subtitle placement",
+      "source_action_id": "subtitle-placement",
+      "grounding_status": "grounded",
+      "repo_surfaces": [],
+      "pressure_score": 0.322,
+      "review_status": "provisional_review_candidate",
+      "provisional": true,
+      "revisable": true,
+      "rank": 5,
+      "linked_decision_id": "v1_default_subtitle_position",
+      "linked_decision_label": "V1 Default Subtitle Position",
+      "linked_decision_status": "pending_v1_decision",
+      "linked_hold_active": false,
+      "linked_hold_reason": "",
+      "linked_action_judgment": "kill"
+    }
+  ],
   "recently_changed_implementation_artifact_candidates": [
     {
       "artifact_id": "confidence_object_spec-confidence-display",
@@ -34,31 +80,6 @@
       "linked_hold_reason": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
       "revisable": true,
       "transition_at": "2026-04-14T20:06:18"
-    },
-    {
-      "artifact_id": "visual_layout_rule-subtitle-placement",
-      "label": "V1 Default Subtitle Position",
-      "artifact_type": "visual_layout_rule",
-      "artifact_type_label": "Visual Layout Rule",
-      "source_action_id": "subtitle-placement",
-      "source_domain": "subtitle placement",
-      "source_kind": "pending_v1_decision",
-      "previous_review_status": "provisional_review_candidate",
-      "current_review_status": "not_currently_in_review",
-      "transition_reason": "moved_out_of_review",
-      "transition_summary": "This artifact candidate is no longer the current review surface under the latest action judgment.",
-      "current_location": "kill",
-      "linked_decision_id": "",
-      "linked_decision_label": "",
-      "linked_decision_status": "",
-      "replacement_artifact_id": "",
-      "replacement_label": "",
-      "grounding_status": "grounded",
-      "linked_action_judgment": "kill",
-      "linked_hold_active": false,
-      "linked_hold_reason": "",
-      "revisable": true,
-      "transition_at": "2026-04-13T11:30:08"
     },
     {
       "artifact_id": "visual_layout_rule-visual-hierarchy",
@@ -162,9 +183,9 @@
     }
   ],
   "counts": {
-    "implementation_artifact_candidates": 0,
-    "recently_changed_implementation_artifact_candidates": 6,
-    "linked_to_pending_decision": 0
+    "implementation_artifact_candidates": 1,
+    "recently_changed_implementation_artifact_candidates": 5,
+    "linked_to_pending_decision": 1
   },
-  "updated_at": "2026-04-14T20:06:18"
+  "updated_at": "2026-04-14T20:45:59"
 }

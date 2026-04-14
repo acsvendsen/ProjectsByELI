@@ -1,19 +1,20 @@
 {
-  "generated_at": "2026-04-14T20:06:18",
+  "generated_at": "2026-04-14T20:45:59",
   "source_generated_at": {
-    "review_state_consumption": "2026-04-14T20:06:18",
-    "reflect_state": "2026-04-14T20:04:57",
-    "project_scorecard": "2026-04-14T20:05:29",
-    "implementation_artifact_review": "2026-04-14T20:06:18",
-    "component_package_review": "2026-04-14T20:06:18",
-    "cost_viability_review": "2026-04-14T20:06:18",
-    "execution_boundaries": "2026-04-14T20:06:18",
-    "project_direction_review": "2026-04-14T20:06:18",
-    "exploratory_ideas_review": "2026-04-14T20:06:18",
-    "extension_deployment_review": "2026-04-14T20:06:18",
-    "v1_decision_review": "2026-04-14T20:04:57",
-    "artifact_emission_readiness": "2026-04-14T20:06:18",
-    "draft_artifact_review": "2026-04-14T20:06:18"
+    "review_state_consumption": "2026-04-14T20:45:59",
+    "reflect_state": "2026-04-14T20:45:41",
+    "project_scorecard": "2026-04-14T20:43:09",
+    "implementation_artifact_review": "2026-04-14T20:45:59",
+    "component_package_review": "2026-04-14T20:45:59",
+    "cost_viability_review": "2026-04-14T20:45:59",
+    "budget_tier_review": "2026-04-14T20:45:59",
+    "execution_boundaries": "2026-04-14T20:45:59",
+    "project_direction_review": "2026-04-14T20:45:59",
+    "exploratory_ideas_review": "2026-04-14T20:45:59",
+    "extension_deployment_review": "2026-04-14T20:45:59",
+    "v1_decision_review": "2026-04-14T20:45:41",
+    "artifact_emission_readiness": "2026-04-14T20:45:59",
+    "draft_artifact_review": "2026-04-14T20:45:59"
   },
   "trust_posture": {
     "overall_sync_status": "in_sync",
@@ -32,12 +33,13 @@
     "implementation_artifact_review_reason": "Implementation artifact review is close enough to current reflect state to use as bounded supporting context."
   },
   "project_intent": {
-    "summary": "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable` and acceptable cost posture is `prototype_only_until_cost...",
+    "summary": "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable`, intended budget posture is `medium`, and acceptable cost...",
     "target_outcome_type": "functional_prototype",
     "quality_bar": "credible",
     "intended_seriousness": "exploratory",
     "intended_value_posture": "assistive_prototype_learning",
     "target_product_tier": "discreet_consumer_assistive_wearable",
+    "intended_budget_posture": "medium",
     "acceptable_cost_posture": "prototype_only_until_costs_grounded",
     "reviewed_by_operator": false,
     "defaults_are_tentative": true
@@ -75,7 +77,7 @@
         "milestone_id": "product_definition",
         "title": "Product Definition Review",
         "approval_state": "not_yet_reviewable",
-        "why_deferred": "no bounded current product-definition review front is active; more grounded decision framing is needed before product-definition review; Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, s..."
+        "why_deferred": "Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototype-scoped rather than reading as a `discreet_consumer_assistive_wearable` product path."
       },
       {
         "milestone_id": "prototype_viability",
@@ -88,7 +90,7 @@
     "current_reason_to_continue": "Continue only prototype-learning work that can materially reduce blockers toward Implementation Package Review by adding new grounding on Wireless Interface, Firmware, Memory System.",
     "current_reason_to_pause": "Pause if another cycle does not add materially new grounding on Wireless Interface, Firmware, Memory System; repeating the same blocker posture is not a valid reason to continue. Package-only parts posture and directional-only pricing are not enough to just...",
     "current_reason_to_stop": "Stop product-shaped continuation if the `discreet_consumer_assistive_wearable` target still matters. Cost signal is `stop_if_cost_target_matters` and pricing fit is `no_candidate_currently_credible_for_target_tier`.",
-    "current_reason_to_escalate": "Escalate now because Implementation Package Review is review-gated and operator review is the current bottleneck. Operator intent tightening is now required before stronger product-shaped continuation is honest under the current cost pos...",
+    "current_reason_to_escalate": "Escalate now because Implementation Package Review is review-gated and operator review is the current bottleneck. Pending V1 decision(s) now gate progress: V1 Default Subtitle Position. Operator intent tightening is now required before s...",
     "prototype_vs_product_boundary_note": "Continue prototype-learning only when new grounding is appearing. Do not let implementation-package work, parts posture, or pricing comparisons silently become product-path narration while cost posture still caps that story."
   },
   "product_realism": {
@@ -131,6 +133,17 @@
     "prototype_vs_product_interpretation": "The current winning direction is prototype-learning and buildability only. It does not justify a `discreet_consumer_assistive_wearable` product story while realism remains `serious_prototype_path` and cost posture remains `stop_if_cost_target_matters`.",
     "budget_pressure_note": "Budget pressure currently favors the simpler prototype-scoped hardware/runtime path and keeps consumer-tier, wireless-upgrade, and firmware-upgrade directions provisional or deferred until evidence and cost posture improve."
   },
+  "budget_tier": {
+    "budget_tier_summary": "Current budget posture is `mixed` against intended posture `medium`. Boundary-first hardware, phone-first runtime, and stripped prototype packaging keep the learning path closer to low or medium tiers, but current wireless/firmware upgrade pressure and discreet-consumer ambition still pull the project upward fast enough that alignment is weak.",
+    "current_project_budget_posture": "mixed",
+    "intended_budget_posture": "medium",
+    "budget_alignment_status": "misaligned_upward",
+    "top_pressure_point": "Intended budget posture is `medium`, but the current project posture reads `mixed` under target tier `discreet_consumer_assistive_wearable`.",
+    "top_cost_down_opportunity": "Hardware simplicity is the strongest grounded lane, so boundary-first packaging beats heavier integrated hardware assumptions.",
+    "top_mixed_tier_compromise": "Stripped prototype package before subsystem quality upgrades",
+    "prototype_vs_product_budget_note": "A lower-tier or mixed-tier prototype-learning path can still be worthwhile, but the same posture does not make the current discreet consumer product ambition credible. Prototype budget fit and product budget fit must stay separate.",
+    "trust_use": "current_truth"
+  },
   "exploratory_ideas": {
     "ideas_summary": "5 bounded exploratory idea(s) are currently worth watching. They stay visible because cost, parts, review, and runtime pressure create real compromise or hedge paths, but they remain below current direction and below reviewable decisions.",
     "live_count": 5,
@@ -139,30 +152,44 @@
     "what_changed_recently": [
       "Pricing alternatives now expose a stripped prototype package path and explicit defer-quality moves for wireless and firmware.",
       "Execution boundaries now cap work at `Implementation Package Review` and keep product-shaped continuation constrained by `stop_if_cost_target_matters`.",
-      "3 bounded rendering brief(s) now make hierarchy and display-region tradeoffs easier to inspect without treating them as accepted design.",
+      "0 bounded rendering brief(s) now make hierarchy and display-region tradeoffs easier to inspect without treating them as accepted design.",
       "Direction of travel now makes phone-first, touch-first, and prototype-buildability the winning path, which changes how nearby compromise and hedge ideas should be interpreted.",
-      "Pending review fronts now include no live V1 decision titles, so nearby ideas should stay non-authoritative."
+      "Pending review fronts now include V1 Default Subtitle Position, so nearby ideas should stay non-authoritative."
     ],
     "prototype_vs_product_interpretation": "These ideas are bounded incubation only. They can still help prototype learning, cost-sensitive compromise, or hedge planning, but none currently justify a `discreet_consumer_assistive_wearable` product story while realism remains `serious_prototype_path` a...",
     "trust_use": "supporting_context"
   },
   "extension_actions": {
-    "summary": "0 extension capability row(s) are currently active for this project. 2 are recommended but still waiting for explicit operator opt-in. 2 are merely available, and 2 are deferred or not yet justified. This surface models operator control posture only; it does not imply backend enablement or hidden...",
+    "summary": "0 extension capability row(s) are currently active for this project. 3 are recommended but still waiting for explicit operator opt-in. 2 are merely available, and 1 are deferred or not yet justified. This surface models operator control posture only; it does not imply backend enablement or hidden...",
     "operator_action_needed": true,
     "top_required_action": "Confirm whether coding and implementation help should be active now for the current implementation-package review.",
     "top_required_extension": "Coding & Implementation Help",
     "active_count": 0,
-    "recommended_waiting_count": 2,
+    "recommended_waiting_count": 3,
     "trust_use": "current_truth"
   },
   "current_truth_summary": [
     "The current review-state files are close enough in time and linkage to compare operationally.",
-    "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable` and acceptable cost posture is `prototype_only_until_cost...",
+    "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable`, intended budget posture is `medium`, and acceptable cost...",
     "Cost posture is `product_tier_mismatch_risk` with signal `stop_if_cost_target_matters`.",
-    "Prototype-learning may still be worthwhile, but the current direction should not be narrated as a credible discreet consumer product path.",
-    "If discreet consumer-tier ambition still matters, reframe or stop before more product-shaped effort is sunk into the current architecture."
+    "Current budget posture is `mixed` against intended posture `medium`. Boundary-first hardware, phone-first runtime, and stripped prototype packaging keep the learning path closer to low or medium tiers, but current wir...",
+    "Prototype-learning may still be worthwhile, but the current direction should not be narrated as a credible discreet consumer product path."
   ],
-  "active_review_front": [],
+  "active_review_front": [
+    {
+      "lane": "pending_v1_decision",
+      "title": "V1 Default Subtitle Position",
+      "source_surface": "v1_decision_review",
+      "trust_use": "current_truth",
+      "why_active_now": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit...",
+      "current_direction": "More Prominent",
+      "bounded_options": [
+        "Stable Default",
+        "More Prominent"
+      ],
+      "revisable": true
+    }
+  ],
   "held_lanes": [
     {
       "title": "Memory/Cache Policy",
@@ -177,10 +204,10 @@
       ]
     },
     {
-      "title": "Confidence Display",
+      "title": "Visual Hierarchy",
       "source_surface": "reflect_state",
       "judgment": "hold_until_new_grounding",
-      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; also addresses under-attended pressure in Discreet UX vs visual clarity; meets resistance from Discreet UX vs visual clarity, Latency vs richness; ne...",
+      "why_held": "aligns with Real-time subtitle clarity, Low-friction assistance; meets resistance from Discreet UX vs visual clarity; needs counterweight discipline on Discreet UX vs visual clarity; still meaningful, but not newly ac...",
       "release_on": [
         "real repo change or stronger repo grounding",
         "a new source type such as runtime truth or code-config evidence",
@@ -189,10 +216,10 @@
       ]
     },
     {
-      "title": "Visual Hierarchy",
+      "title": "Confidence Display",
       "source_surface": "reflect_state",
       "judgment": "hold_until_new_grounding",
-      "why_held": "aligns with Real-time subtitle clarity, Low-friction assistance; also addresses under-attended pressure in Discreet UX vs visual clarity; meets resistance from Discreet UX vs visual clarity; needs counterweight discip...",
+      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Discreet UX vs visual clarity, Latency vs richness; needs counterweight discipline on Latency vs richness, Discreet UX vs visua...",
       "release_on": [
         "real repo change or stronger repo grounding",
         "a new source type such as runtime truth or code-config evidence",
@@ -248,29 +275,30 @@
     }
   ],
   "unblocked_next": {
-    "kind": "gather_new_grounding",
-    "title": "Memory/Cache Policy",
-    "source_surface": "reflect_state",
-    "why_now": "The highest-value next move is to gather one of the explicit release signals rather than re-chewing the same idea abstractly.",
-    "release_on": [
-      "real repo change or stronger repo grounding",
-      "a new source type such as runtime truth or code-config evidence",
-      "meaningfully stronger architectural pull"
-    ],
+    "kind": "pending_v1_decision",
+    "title": "V1 Default Subtitle Position",
+    "source_surface": "v1_decision_review",
+    "why_now": "What should the default subtitle position behavior be for V1 live use?",
     "revisable": true
   },
-  "needs_human_review": [],
+  "needs_human_review": [
+    {
+      "kind": "pending_v1_decision",
+      "title": "V1 Default Subtitle Position",
+      "source_surface": "v1_decision_review",
+      "review_question": "What should the default subtitle position behavior be for V1 live use?",
+      "revisable": true
+    }
+  ],
   "resume_notes": [
     "Do not assume this becomes a real product just because the prototype direction is interesting. Current cost posture is weak enough that commercial ambition should pause, stop, or reframe unless cost-sensitive assumptions improve.",
-    "There is no live pending V1 decision front right now; do not infer missing work from older review surfaces.",
-    "Artifact-emission readiness is currently quiet; no implementation-artifact candidate is mature enough for draft emission.",
     "Implementation artifact review is close enough to current reflect state to use as bounded supporting context."
   ],
   "counts": {
-    "active_review_front": 0,
+    "active_review_front": 1,
     "held_lanes": 4,
     "blocked_lanes": 4,
-    "needs_human_review": 0
+    "needs_human_review": 1
   },
-  "updated_at": "2026-04-14T20:06:18"
+  "updated_at": "2026-04-14T20:45:59"
 }

@@ -251,6 +251,14 @@ control:
     max_alternative_rows: 4
     max_fail_reasons: 4
     max_help_reasons: 4
+  budget_tier_review:
+    enabled: true
+    include_in_execution_resume: true
+    max_direction_rows: 4
+    max_idea_rows: 4
+    max_package_rows: 4
+    max_compromise_rows: 4
+    max_pressure_points: 4
   execution_boundaries:
     enabled: true
     include_in_execution_resume: true
@@ -302,7 +310,7 @@ control:
   ui_surface_plan:
     enabled: true
     max_pages: 7
-    max_sections_per_page: 8
+    max_sections_per_page: 9
     max_operator_goals: 5
     max_representation_risks: 5
     max_source_surfaces: 13

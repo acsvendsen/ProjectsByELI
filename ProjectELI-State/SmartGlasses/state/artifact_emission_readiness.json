@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T20:06:18",
+  "generated_at": "2026-04-14T20:45:59",
   "allowed_states": [
     "draft_candidate",
     "not_ready_for_draft"
@@ -12,16 +12,53 @@
     "schematic_direction_draft",
     "kicad_related_scaffold"
   ],
-  "artifact_emission_readiness": [],
+  "artifact_emission_readiness": [
+    {
+      "artifact_id": "visual_layout_rule-subtitle-placement",
+      "label": "V1 Default Subtitle Position",
+      "artifact_type": "visual_layout_rule",
+      "artifact_type_label": "Visual Layout Rule",
+      "draft_readiness_state": "draft_candidate",
+      "draft_readiness_reason": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.",
+      "grounding_status": "grounded",
+      "option_readiness_band": "almost_ready",
+      "review_status": "provisional_review_candidate",
+      "suggested_draft_form": "structured_design_brief",
+      "missing_evidence": [],
+      "blocking_constraints": [
+        "latency vs richness",
+        "discreet ux vs visual clarity",
+        "core deepening over sprawl"
+      ],
+      "evidence_to_progress": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ],
+      "bounded_framing": "What should the default subtitle position behavior be for V1 live use?",
+      "candidate_directions": [
+        "Stable Default",
+        "More Prominent"
+      ],
+      "relevant_interfaces": [],
+      "candidate_components": [],
+      "provisional": true,
+      "revisable": true,
+      "linked_review_id": "visual_layout_rule-subtitle-placement",
+      "linked_decision_id": "v1_default_subtitle_position",
+      "linked_decision_label": "V1 Default Subtitle Position"
+    }
+  ],
   "counts": {
-    "draft_candidate": 0,
+    "draft_candidate": 1,
     "not_ready_for_draft": 0
   },
   "sync_metadata": {
     "surface": "artifact_emission_readiness",
-    "cycle_id": "20260414T200618",
-    "generated_from_cycle": "20260414T200618",
-    "generated_at": "2026-04-14T20:06:18",
+    "cycle_id": "20260414T204559",
+    "generated_from_cycle": "20260414T204559",
+    "generated_at": "2026-04-14T20:45:59",
     "depends_on": [
       "v1_decision_review",
       "draft_artifact_review",
@@ -30,17 +67,17 @@
     "checked_against": [
       {
         "surface": "v1_decision_review",
-        "generated_at": "2026-04-14T20:04:57",
+        "generated_at": "2026-04-14T20:45:41",
         "comparison_status": "nearby"
       },
       {
         "surface": "draft_artifact_review",
-        "generated_at": "2026-04-14T20:06:18",
+        "generated_at": "2026-04-14T20:45:59",
         "comparison_status": "nearby"
       },
       {
         "surface": "reflect_state",
-        "generated_at": "2026-04-14T20:04:57",
+        "generated_at": "2026-04-14T20:45:41",
         "comparison_status": "nearby"
       }
     ],
@@ -50,5 +87,5 @@
     "explained_differences": [],
     "trust_reason": "This file is close enough to its linked review surfaces to compare operationally."
   },
-  "updated_at": "2026-04-14T20:06:18"
+  "updated_at": "2026-04-14T20:45:59"
 }

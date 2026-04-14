@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-14T20:06:18",
-  "summary": "No hardware-aware rendering brief is warranted now because visualization support is not yet justified strongly enough to become a current rendering brief surface.",
+  "generated_at": "2026-04-14T20:45:59",
+  "summary": "3 exploratory hardware-aware rendering brief(s) are warranted now because visualization support is recommended, implementation-package review is materially live, and build-oriented prototype surfaces are honest enough to benefit from bounded visual drafting.",
   "eli_authority_note": "ELI decides whether hardware-aware rendering help is worth surfacing. Any rendering result is drafting support only, not project truth, and ELI may partially accept, reject, defer, or revise it.",
   "informational_extension_posture": "informational_only",
   "trust_posture": {
@@ -16,16 +16,316 @@
     "realism_truth": "product_realism_review",
     "extension_posture": "extensions_capability_review"
   },
-  "rendering_briefs": [],
+  "rendering_briefs": [
+    {
+      "brief_id": "subtitle_first_frame_variant_comparison",
+      "title": "Subtitle-First Frame Variant Comparison",
+      "purpose": "Compare a discreet normal-looking subtitle-first glasses concept against more technically permissive frame variants without implying solved industrial design.",
+      "object_type": "frame_variant_comparison",
+      "render_goal": "Show 2-3 subtitle-first frame variants that make subtitle region, display-placement tradeoffs, camera or mic candidate zones, and battery posture visible under realistic bulk limits.",
+      "expected_use": "bounded concept comparison for social acceptability, display-placement review, and packaging reasoning.",
+      "output_type": "annotated_variant_sheet",
+      "output_expectation": "Produce an annotated front and three-quarter comparison sheet. Keep subtitle region callouts, candidate display placement, camera or mic zones, likely battery posture, and visible bulk tradeoffs explicit. Avoid polished product render language.",
+      "authority_posture": {
+        "eli_is_authoritative": true,
+        "rendering_is_subordinate": true,
+        "drafting_support_only": true,
+        "no_direct_state_mutation": true,
+        "informational_extension_posture": "informational_only"
+      },
+      "exploratory_only": true,
+      "realism_posture": "serious_prototype_path",
+      "hardware_constraints": [
+        "Keep subtitle or display region assumptions explicit rather than hiding them behind polished lens visuals.",
+        "Show candidate camera and microphone placements only as plausible zones, not solved sensor integration.",
+        "Show likely battery posture and frame-thickness consequences honestly; do not imply invisible battery volume.",
+        "Keep weight, bulk, and thermal pressure visible where temple, brow, or bridge regions thicken.",
+        "Preserve a socially acceptable default variant alongside a technically permissive variant for honest comparison."
+      ],
+      "interaction_constraints": [
+        "V1 interaction is frame-touch-first; do not imply voice-command-first control.",
+        "Phone-first runtime remains the working assumption; do not imply autonomous on-glasses compute.",
+        "Keep firmware and display-control behavior simple enough for a serious prototype path rather than a hidden complex control system.",
+        "Touch affordances should remain minimal and realistic for a prototype frame."
+      ],
+      "trust_constraints": [
+        "Make camera or microphone presence privacy-visible rather than silently hidden in polished imagery.",
+        "Do not flatten unresolved wireless, firmware, memory, or trust issues into clean visuals.",
+        "Keep wearer-visible trust posture plausible around confidence display, memory cues, and capture boundaries.",
+        "Do not imply solved consent, retention, or data-boundary behavior."
+      ],
+      "subsystem_inputs": [
+        {
+          "subsystem": "Subtitle System",
+          "status": "on_track",
+          "grounding_status": "grounded",
+          "why_it_matters": "Current subtitle direction is `More Prominent` and should remain the first readability anchor."
+        },
+        {
+          "subsystem": "Hardware Stack",
+          "status": "on_track",
+          "grounding_status": "grounded",
+          "why_it_matters": "Hardware posture is grounded enough to support frame-zone reasoning, but not a final design package."
+        },
+        {
+          "subsystem": "Wireless Interface",
+          "status": "needs_attention",
+          "grounding_status": "limited_evidence",
+          "why_it_matters": "Wireless dependence still constrains what should be visually implied inside the frame."
+        },
+        {
+          "subsystem": "Firmware",
+          "status": "needs_attention",
+          "grounding_status": "limited_evidence",
+          "why_it_matters": "Display-control and touch-input simplicity still need visible constraint discipline."
+        },
+        {
+          "subsystem": "Privacy And Trust",
+          "status": "needs_attention",
+          "grounding_status": "grounded",
+          "why_it_matters": "Camera, mic, and confidence cues must remain privacy-visible and socially honest."
+        }
+      ],
+      "open_gaps_to_keep_visible": [
+        "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+        "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
+        "Tie confidence display, memory reinforcement, and boundary choices to explicit wearer-visible trust rules and consent handling.",
+        "Implementation artifact review is close enough to current reflect state to use as bounded supporting context."
+      ],
+      "forbidden_implications": [
+        "Do not imply final industrial design, final implementation package, or product-candidate maturity.",
+        "Do not imply resolved optics, resolved display engine, or resolved subsystem closure where grounding is weak.",
+        "Do not imply a final BOM, final component picks, or procurement readiness.",
+        "Do not imply standalone glasses runtime while phone-first and wireless dependency remain active constraints.",
+        "Do not imply operator-confirmed product ambition while project expectations remain explicitly tentative."
+      ],
+      "review_questions": [
+        "Which variant keeps a socially acceptable silhouette without hiding the display-placement tradeoff?",
+        "How much visible bulk is acceptable before the subtitle-first concept stops reading as normal-looking eyewear?",
+        "Does the current visual hierarchy default `Subtitles Dominate` still read plausibly inside the most discreet frame variant?"
+      ],
+      "acceptance_mode": {
+        "mode": "eli_review_only",
+        "eli_may": [
+          "partial_accept",
+          "reject",
+          "defer",
+          "revise"
+        ],
+        "automatic_acceptance": false,
+        "rendering_output_is_not_project_truth": true
+      },
+      "revisable": true
+    },
+    {
+      "brief_id": "implementation_facing_component_zone_layout",
+      "title": "Implementation-Facing Component-Zone Layout Sketch",
+      "purpose": "Frame a packaging-oriented component-zone sketch for build and review use without turning early subsystem BOM posture into a final parts list.",
+      "object_type": "component_zone_layout",
+      "render_goal": "Show candidate zones for display hardware, control electronics, radio dependency, touch input, camera or mic placements, and likely battery posture across the frame.",
+      "expected_use": "implementation-facing packaging reasoning and bounded subsystem comparison.",
+      "output_type": "component_zone_layout_sketch",
+      "output_expectation": "Produce a labeled front and side zone sketch with keep-out regions, likely component areas, and notes on wireless, firmware, and bulk constraints. Keep it obviously pre-CAD and pre-BOM.",
+      "authority_posture": {
+        "eli_is_authoritative": true,
+        "rendering_is_subordinate": true,
+        "drafting_support_only": true,
+        "no_direct_state_mutation": true,
+        "informational_extension_posture": "informational_only"
+      },
+      "exploratory_only": true,
+      "realism_posture": "serious_prototype_path",
+      "hardware_constraints": [
+        "Use Hardware Stack, Wireless Interface, and Firmware as the primary zone-owning subsystems.",
+        "Keep display, battery, control, camera, microphone, and touch-input zones as candidate regions rather than selected parts.",
+        "Make phone-first runtime and wireless dependency visible instead of implying fully self-contained glasses electronics.",
+        "Keep temple, brow, and bridge bulk honest enough that thermal, radio, and battery pressure are legible.",
+        "Do not hide firmware or display-control simplicity constraints behind a clean component collage."
+      ],
+      "interaction_constraints": [
+        "V1 interaction is frame-touch-first; do not imply voice-command-first control.",
+        "Phone-first runtime remains the working assumption; do not imply autonomous on-glasses compute.",
+        "Keep firmware and display-control behavior simple enough for a serious prototype path rather than a hidden complex control system.",
+        "Touch affordances should remain minimal and realistic for a prototype frame."
+      ],
+      "trust_constraints": [
+        "Make camera or microphone presence privacy-visible rather than silently hidden in polished imagery.",
+        "Do not flatten unresolved wireless, firmware, memory, or trust issues into clean visuals.",
+        "Keep wearer-visible trust posture plausible around confidence display, memory cues, and capture boundaries.",
+        "Do not imply solved consent, retention, or data-boundary behavior.",
+        "Do not imply invisible capture hardware or hidden always-on sensing."
+      ],
+      "subsystem_inputs": [
+        {
+          "subsystem": "Hardware Stack",
+          "status": "on_track",
+          "grounding_status": "grounded",
+          "why_it_matters": "Subsystem BOM posture is warranted only at the boundary-package level right now."
+        },
+        {
+          "subsystem": "Wireless Interface",
+          "status": "needs_attention",
+          "grounding_status": "limited_evidence",
+          "why_it_matters": "Current wireless posture is limited-evidence and should remain visibly unresolved."
+        },
+        {
+          "subsystem": "Firmware",
+          "status": "needs_attention",
+          "grounding_status": "limited_evidence",
+          "why_it_matters": "Display control, touch input, and runtime simplicity still constrain packaging choices."
+        },
+        {
+          "subsystem": "Privacy And Trust",
+          "status": "needs_attention",
+          "grounding_status": "grounded",
+          "why_it_matters": "Privacy-visible treatment matters for any camera or microphone zone."
+        }
+      ],
+      "open_gaps_to_keep_visible": [
+        "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+        "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
+        "Tie confidence display, memory reinforcement, and boundary choices to explicit wearer-visible trust rules and consent handling.",
+        "Implementation artifact review is close enough to current reflect state to use as bounded supporting context."
+      ],
+      "forbidden_implications": [
+        "Do not imply final industrial design, final implementation package, or product-candidate maturity.",
+        "Do not imply resolved optics, resolved display engine, or resolved subsystem closure where grounding is weak.",
+        "Do not imply a final BOM, final component picks, or procurement readiness.",
+        "Do not imply standalone glasses runtime while phone-first and wireless dependency remain active constraints.",
+        "Do not imply operator-confirmed product ambition while project expectations remain explicitly tentative."
+      ],
+      "review_questions": [
+        "Which zone arrangement stays plausible without implying a locked BOM or CAD-ready package?",
+        "Which candidate zones should remain visibly provisional because wireless or firmware grounding is still weak?",
+        "Does the packaging sketch make the phone-first dependency and battery or bulk tradeoff obvious enough for build review?"
+      ],
+      "acceptance_mode": {
+        "mode": "eli_review_only",
+        "eli_may": [
+          "partial_accept",
+          "reject",
+          "defer",
+          "revise"
+        ],
+        "automatic_acceptance": false,
+        "rendering_output_is_not_project_truth": true
+      },
+      "revisable": true
+    },
+    {
+      "brief_id": "subtitle_region_and_confidence_overlay_comparison",
+      "title": "Subtitle Region and Confidence Overlay Comparison",
+      "purpose": "Support bounded review of subtitle placement, confidence display, and visual hierarchy choices in a hardware-constrained display region rather than a free-floating HUD abstraction.",
+      "object_type": "overlay_region_comparison",
+      "render_goal": "Show side-by-side overlay-region comparisons for subtitle placement, confidence-object visibility, and hierarchy emphasis within a plausible glasses display area.",
+      "expected_use": "review usefulness for subtitle-region behavior, trust signaling, and bounded visual comparison.",
+      "output_type": "overlay_comparison_strip",
+      "output_expectation": "Produce a restrained comparison strip over a simple wearer-view proxy. Keep subtitle region, confidence object, and hierarchy differences explicit. Avoid implying solved optics, perfect contrast, or final UI polish.",
+      "authority_posture": {
+        "eli_is_authoritative": true,
+        "rendering_is_subordinate": true,
+        "drafting_support_only": true,
+        "no_direct_state_mutation": true,
+        "informational_extension_posture": "informational_only"
+      },
+      "exploratory_only": true,
+      "realism_posture": "serious_prototype_path",
+      "hardware_constraints": [
+        "Anchor comparisons to a constrained subtitle or display region, not a full-screen HUD.",
+        "Current subtitle-position default is `More Prominent` and current confidence format is `Label + Reason`; show alternatives without implying closure.",
+        "Current visual hierarchy default is `Subtitles Dominate`; keep the comparison bounded rather than treating it as settled.",
+        "Keep social acceptability and glanceability visible if subtitles or confidence overlays become more prominent.",
+        "Do not imply solved display posture, solved optical alignment, or perfect readability under all conditions."
+      ],
+      "interaction_constraints": [
+        "V1 interaction is frame-touch-first; do not imply voice-command-first control.",
+        "Phone-first runtime remains the working assumption; do not imply autonomous on-glasses compute.",
+        "Keep firmware and display-control behavior simple enough for a serious prototype path rather than a hidden complex control system.",
+        "Touch affordances should remain minimal and realistic for a prototype frame."
+      ],
+      "trust_constraints": [
+        "Make camera or microphone presence privacy-visible rather than silently hidden in polished imagery.",
+        "Do not flatten unresolved wireless, firmware, memory, or trust issues into clean visuals.",
+        "Keep wearer-visible trust posture plausible around confidence display, memory cues, and capture boundaries.",
+        "Do not imply solved consent, retention, or data-boundary behavior.",
+        "Confidence cues should remain visibly interpretable and should not overclaim certainty when subsystem grounding is weak."
+      ],
+      "subsystem_inputs": [
+        {
+          "subsystem": "Subtitle System",
+          "status": "on_track",
+          "grounding_status": "grounded",
+          "why_it_matters": "Subtitle clarity is the strongest current grounded experience lane and should remain the anchor for comparison."
+        },
+        {
+          "subsystem": "Privacy And Trust",
+          "status": "needs_attention",
+          "grounding_status": "grounded",
+          "why_it_matters": "Confidence display and overlay posture must still signal trust honestly."
+        },
+        {
+          "subsystem": "Firmware",
+          "status": "needs_attention",
+          "grounding_status": "limited_evidence",
+          "why_it_matters": "Display-control simplicity limits how much dynamic overlay behavior should be implied."
+        },
+        {
+          "subsystem": "Wireless Interface",
+          "status": "needs_attention",
+          "grounding_status": "limited_evidence",
+          "why_it_matters": "Do not imply rich live overlays that depend on wireless behavior which is still weakly grounded."
+        },
+        {
+          "subsystem": "Memory System",
+          "status": "needs_attention",
+          "grounding_status": "weakly_grounded",
+          "why_it_matters": "Do not let confidence or recall visuals imply solved memory behavior."
+        }
+      ],
+      "open_gaps_to_keep_visible": [
+        "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+        "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
+        "Tie confidence display, memory reinforcement, and boundary choices to explicit wearer-visible trust rules and consent handling.",
+        "Implementation artifact review is close enough to current reflect state to use as bounded supporting context."
+      ],
+      "forbidden_implications": [
+        "Do not imply final industrial design, final implementation package, or product-candidate maturity.",
+        "Do not imply resolved optics, resolved display engine, or resolved subsystem closure where grounding is weak.",
+        "Do not imply a final BOM, final component picks, or procurement readiness.",
+        "Do not imply standalone glasses runtime while phone-first and wireless dependency remain active constraints.",
+        "Do not imply operator-confirmed product ambition while project expectations remain explicitly tentative."
+      ],
+      "review_questions": [
+        "Which subtitle-region comparison preserves readability without overstating display maturity?",
+        "Does the confidence-object treatment improve trust without visually implying certainty the system does not yet deserve?",
+        "Which overlay comparison honestly shows the tradeoff between discreetness and clarity?"
+      ],
+      "acceptance_mode": {
+        "mode": "eli_review_only",
+        "eli_may": [
+          "partial_accept",
+          "reject",
+          "defer",
+          "revise"
+        ],
+        "automatic_acceptance": false,
+        "rendering_output_is_not_project_truth": true
+      },
+      "revisable": true
+    }
+  ],
   "source_generated_at": {
     "project_expectations": "2026-04-10T09:16:32",
-    "project_milestones": "2026-04-14T20:06:18",
-    "product_realism_review": "2026-04-14T20:06:18",
-    "component_package_review": "2026-04-14T20:06:18",
-    "extensions_capability_review": "2026-04-14T20:06:18",
-    "v1_decision_review": "2026-04-14T20:04:57",
-    "project_scorecard": "2026-04-14T20:05:29"
+    "project_milestones": "2026-04-14T20:45:59",
+    "product_realism_review": "2026-04-14T20:45:59",
+    "component_package_review": "2026-04-14T20:45:59",
+    "extensions_capability_review": "2026-04-14T20:45:59",
+    "v1_decision_review": "2026-04-14T20:45:41",
+    "project_scorecard": "2026-04-14T20:43:09"
   },
   "revisable": true,
-  "updated_at": "2026-04-14T20:06:18"
+  "updated_at": "2026-04-14T20:45:59"
 }

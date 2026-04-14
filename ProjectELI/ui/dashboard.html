@@ -1290,6 +1290,29 @@
       background: rgba(23,100,58,0.08);
     }
 
+    .mini-pill.medium,
+    .mini-pill.mixed_watch_rise {
+      color: var(--late);
+      background: rgba(181,106,45,0.1);
+    }
+
+    .mini-pill.ambitious,
+    .mini-pill.misaligned_upward {
+      color: var(--danger);
+      background: rgba(179,58,58,0.1);
+    }
+
+    .mini-pill.mixed,
+    .mini-pill.partially_aligned {
+      color: var(--accent);
+      background: rgba(13,124,102,0.08);
+    }
+
+    .mini-pill.aligned {
+      color: var(--good);
+      background: rgba(23,100,58,0.08);
+    }
+
     .mini-pill.early_subsystem_bom_only,
     .mini-pill.subsystem_bom,
     .mini-pill.package_direction_only,
@@ -1448,11 +1471,12 @@
     <section>
       <div class="panel">
         <div class="label">Project Steering</div>
-        <h2>Intent, Realism, And Review Gates</h2>
-        <p class="sub">Compact steering view drawn directly from canonical expectations, milestones, realism, execution, and verification surfaces.</p>
+        <h2>Intent, Realism, Budget, And Review Gates</h2>
+        <p class="sub">Compact steering view drawn directly from canonical expectations, realism, budget, milestones, execution, and verification surfaces.</p>
         <div class="steering-grid">
           <article class="steering-card" id="steeringIntent"></article>
           <article class="steering-card" id="steeringRealism"></article>
+          <article class="steering-card" id="steeringBudget"></article>
           <article class="steering-card" id="steeringBoundary"></article>
           <article class="steering-card" id="steeringReviewable"></article>
           <article class="steering-card" id="steeringBlockers"></article>
@@ -2496,6 +2520,7 @@
       const expectations = status.project_expectations || {};
       const realism = status.product_realism_review || {};
       const cost = status.cost_viability_review || {};
+      const budget = status.budget_tier_review || {};
       const sections = page.sections || [];
       const intentSection = sections.find(section => section.section_id === "intent_and_quality_bar") || {};
       const guardrailsSection = sections.find(section => section.section_id === "claim_guardrails") || {};
@@ -2583,6 +2608,8 @@
         <div class="mini-pills">
           <span class="mini-pill ${cost.cost_realism_band || ""}">${humanizeToken(cost.cost_realism_band || "too_early_for_exact_cost")}</span>
           <span class="mini-pill ${cost.likely_cost_risk_level || ""}">${humanizeToken(cost.likely_cost_risk_level || "moderate")} risk</span>
+          <span class="mini-pill ${budget.intended_budget_posture || expectations.intended_budget_posture || ""}">${humanizeToken(budget.intended_budget_posture || expectations.intended_budget_posture || "medium")}</span>
+          <span class="mini-pill ${budget.budget_alignment_status || ""}">${humanizeToken(budget.budget_alignment_status || "unknown")}</span>
           <span class="mini-pill ${cost.kill_pause_reframe_signal || ""}">${humanizeToken(cost.kill_pause_reframe_signal || "proceed_with_caution")}</span>
         </div>
         <div class="intake-copy">${cost.why_this_posture || "No cost viability posture is available yet."}</div>
@@ -2590,6 +2617,14 @@
           <div class="intake-item">
             <div class="intake-item-label">Target product tier</div>
             <div>${humanizeToken(cost.target_product_tier || expectations.target_product_tier || "unknown")}</div>
+          </div>
+          <div class="intake-item">
+            <div class="intake-item-label">Intended budget posture</div>
+            <div>${humanizeToken(expectations.intended_budget_posture || budget.intended_budget_posture || "medium")}</div>
+          </div>
+          <div class="intake-item">
+            <div class="intake-item-label">Current budget posture</div>
+            <div>${humanizeToken(budget.current_project_budget_posture || "unknown")}</div>
           </div>
           <div class="intake-item">
             <div class="intake-item-label">Acceptable cost posture</div>
@@ -2600,6 +2635,7 @@
             <div>${humanizeToken(cost.current_evidence_strength || "thin")}</div>
           </div>
         </div>
+        ${budget.budget_tier_summary ? `<div class="footer"><strong>Budget tier summary:</strong> ${truncateText(budget.budget_tier_summary, 220)}</div>` : ""}
         ${cost.operator_cost_warning ? `<div class="footer"><strong>Operator warning:</strong> ${truncateText(cost.operator_cost_warning, 220)}</div>` : ""}
       `;
     }
@@ -2937,6 +2973,7 @@
       const boundaries = status.execution_boundaries || resume.execution_boundaries || {};
       const direction = status.project_direction_review || {};
       const ideas = status.exploratory_ideas_review || {};
+      const budget = status.budget_tier_review || {};
       const cost = status.cost_viability_review || {};
       const verification = status.verification_summary || {};
       const reviewable = milestones.filter(row => row.approval_state === "ready_for_review");
@@ -2953,10 +2990,14 @@
       const directionTruthOwner = (verification.current_truth_sources || []).find(row =>
         row.question === "Direction of travel and favored vs deferred path"
       );
+      const budgetTruthOwner = (verification.current_truth_sources || []).find(row =>
+        row.question === "Budget tier posture and mixed-tier compromise paths"
+      );
       const ideaTruthOwner = (verification.supporting_context_sources || []).find(row =>
         row.question === "Exploratory ideas being incubated"
       );
       const boundarySection = sections.find(section => section.section_id === "execution_boundaries") || {};
+      const budgetSection = sections.find(section => section.section_id === "budget_tier_posture") || {};
       const directionSection = sections.find(section => section.section_id === "direction_of_travel") || {};
       const ideasSection = sections.find(section => section.section_id === "ideas_im_exploring") || {};
       const targetTitle = boundaries.current_milestone_target_title || boundaries.target_milestone_title || "";
@@ -2966,6 +3007,9 @@
       const targetEscalate = boundaries.when_to_escalate_to_operator || boundaries.current_reason_to_escalate || "";
       const targetStop = boundaries.when_to_stop_working_this_front || boundaries.current_reason_to_stop || "";
       const targetPrototypeNote = boundaries.prototype_vs_product_interpretation || boundaries.prototype_vs_product_boundary_note || "";
+      const budgetPressurePoints = (budget.tier_pressure_points || []).slice(0, 3);
+      const budgetCostDown = (budget.what_is_keeping_cost_down || []).slice(0, 3);
+      const budgetCompromises = (budget.mixed_tier_compromise_paths || []).slice(0, 3);
       const favoredChoices = (direction.favored_choices || []).slice(0, 3);
       const deferredChoices = (direction.deferred_or_weaker_choices || []).slice(0, 3);
       const directionChoiceForDomains = domains =>
@@ -3020,6 +3064,23 @@
         ${topRisk ? `<div class="footer"><strong>Top anti-gimmick risk:</strong> ${truncateText(topRisk, 220)}</div>` : ""}
         ${cost.operator_cost_warning ? `<div class="footer"><strong>Cost warning:</strong> ${truncateText(cost.operator_cost_warning, 220)}</div>` : ""}
         ${(realism.anti_gimmick_strengths || []).length ? `<div class="footer"><strong>Grounded counterweight:</strong> ${truncateText(realism.anti_gimmick_strengths[0], 220)}</div>` : ""}
+      `;
+
+      document.getElementById("steeringBudget").innerHTML = `
+        <div class="verification-heading">${budgetSection.title || "Budget Tier Posture"}</div>
+        <div class="mini-pills">
+          <span class="mini-pill ${budget.intended_budget_posture || expectations.intended_budget_posture || ""}">Intended ${humanizeToken(budget.intended_budget_posture || expectations.intended_budget_posture || "medium")}</span>
+          <span class="mini-pill ${budget.current_project_budget_posture || ""}">Current ${humanizeToken(budget.current_project_budget_posture || "unknown")}</span>
+          <span class="mini-pill ${budget.budget_alignment_status || ""}">${humanizeToken(budget.budget_alignment_status || "unknown")}</span>
+          ${budget.trust_posture?.use_state ? `<span class="mini-pill ${budget.trust_posture.use_state}">${humanizeToken(budget.trust_posture.use_state)}</span>` : ``}
+        </div>
+        <div class="steering-copy">${budget.budget_tier_summary || "No budget-tier posture is available yet."}</div>
+        ${budgetPressurePoints.length ? `<div class="footer"><strong>Cost-up pressure:</strong> ${truncateText(budgetPressurePoints.join(" "), 240)}</div>` : ``}
+        ${budgetCostDown.length ? `<div class="footer"><strong>Cost-down openings:</strong> ${truncateText(budgetCostDown.join(" "), 240)}</div>` : ``}
+        ${budgetCompromises.length ? `<div class="footer"><strong>Mixed-tier compromises:</strong> ${truncateText(budgetCompromises.map(row => `${row.label} (${humanizeToken(row.budget_tier || "mixed")})`).join("; "), 240)}</div>` : ``}
+        ${budget.prototype_vs_product_budget_note ? `<div class="footer"><strong>Prototype vs product:</strong> ${truncateText(budget.prototype_vs_product_budget_note, 240)}</div>` : ``}
+        ${budgetTruthOwner ? `<div class="footer"><strong>Current truth owner:</strong> ${budgetTruthOwner.source_surface}</div>` : ""}
+        ${budgetSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(budgetSection.purpose, 220)}</div>` : ""}
       `;
 
       document.getElementById("steeringBoundary").innerHTML = `

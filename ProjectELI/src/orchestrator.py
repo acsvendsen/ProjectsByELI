@@ -261,6 +261,13 @@ PRICING_CONFIDENCE_POSTURES = (
     'mixed_directional_candidates',
     'bounded_candidate_comparison',
 )
+BUDGET_TIERS = (
+    'low',
+    'medium',
+    'ambitious',
+    'mixed',
+    'unknown',
+)
 HARDWARE_AWARE_RENDERING_OBJECT_TYPES = (
     'frame_variant_comparison',
     'component_zone_layout',
@@ -691,6 +698,7 @@ COMPONENT_PACKAGE_REVIEW_PATH = PROJECT_STATE_DIR / "component_package_review.js
 PARTS_READINESS_REVIEW_PATH = PROJECT_STATE_DIR / "parts_readiness_review.json"
 COST_VIABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "cost_viability_review.json"
 PRICING_ALTERNATIVES_REVIEW_PATH = PROJECT_STATE_DIR / "pricing_alternatives_review.json"
+BUDGET_TIER_REVIEW_PATH = PROJECT_STATE_DIR / "budget_tier_review.json"
 EXECUTION_BOUNDARIES_PATH = PROJECT_STATE_DIR / "execution_boundaries.json"
 PROJECT_DIRECTION_REVIEW_PATH = PROJECT_STATE_DIR / "project_direction_review.json"
 EXPLORATORY_IDEAS_REVIEW_PATH = PROJECT_STATE_DIR / "exploratory_ideas_review.json"
@@ -1052,6 +1060,15 @@ DEFAULT_COGNITION_SCHEMA = {
             'max_fail_reasons': 4,
             'max_help_reasons': 4,
         },
+        'budget_tier_review': {
+            'enabled': True,
+            'include_in_execution_resume': True,
+            'max_direction_rows': 4,
+            'max_idea_rows': 4,
+            'max_package_rows': 4,
+            'max_compromise_rows': 4,
+            'max_pressure_points': 4,
+        },
         'execution_boundaries': {
             'enabled': True,
             'include_in_execution_resume': True,
@@ -1111,7 +1128,7 @@ DEFAULT_COGNITION_SCHEMA = {
         'ui_surface_plan': {
             'enabled': True,
             'max_pages': 7,
-            'max_sections_per_page': 8,
+            'max_sections_per_page': 9,
             'max_operator_goals': 5,
             'max_representation_risks': 5,
             'max_source_surfaces': 13,
@@ -7575,6 +7592,21 @@ def pricing_alternatives_review_config(schema=None):
     }
 
 
+def budget_tier_review_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('budget_tier_review', {}) if isinstance(control.get('budget_tier_review', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'include_in_execution_resume': bool(cfg.get('include_in_execution_resume', True)),
+        'max_direction_rows': max(1, safe_int(cfg.get('max_direction_rows', 4), 4)),
+        'max_idea_rows': max(1, safe_int(cfg.get('max_idea_rows', 4), 4)),
+        'max_package_rows': max(1, safe_int(cfg.get('max_package_rows', 4), 4)),
+        'max_compromise_rows': max(1, safe_int(cfg.get('max_compromise_rows', 4), 4)),
+        'max_pressure_points': max(1, safe_int(cfg.get('max_pressure_points', 4), 4)),
+    }
+
+
 def execution_boundaries_config(schema=None):
     schema = schema or load_cognition_schema()
     control = schema.get('control', {}) if isinstance(schema, dict) else {}
@@ -7716,7 +7748,9 @@ def default_execution_resume_state():
         'component_package': {},
         'cost_viability': {},
         'project_direction': {},
+        'budget_tier': {},
         'exploratory_ideas': {},
+        'extension_actions': {},
         'current_truth_summary': [],
         'active_review_front': [],
         'held_lanes': [],
@@ -7783,6 +7817,7 @@ def default_project_expectations_state():
         'intended_seriousness': 'exploratory',
         'intended_value_posture': 'assistive_prototype_learning',
         'target_product_tier': 'discreet_consumer_assistive_wearable',
+        'intended_budget_posture': 'medium',
         'acceptable_cost_posture': 'prototype_only_until_costs_grounded',
         'acceptable_compromises': [
             'bounded prototype shortcuts are acceptable if they do not hide trust, privacy, or latency weaknesses',
@@ -7818,6 +7853,7 @@ def load_project_expectations_state():
         'intended_seriousness',
         'intended_value_posture',
         'target_product_tier',
+        'intended_budget_posture',
         'acceptable_cost_posture',
         'product_candidate_goal',
         'review_style',
@@ -7850,11 +7886,12 @@ def project_expectations_summary(expectations=None):
     quality_bar = str(expectations.get('quality_bar', 'credible') or 'credible')
     seriousness = str(expectations.get('intended_seriousness', 'exploratory') or 'exploratory')
     target_tier = str(expectations.get('target_product_tier', 'unknown') or 'unknown')
+    budget_posture = str(expectations.get('intended_budget_posture', 'unknown') or 'unknown')
     cost_posture = str(expectations.get('acceptable_cost_posture', 'unknown') or 'unknown')
     reviewed = 'operator-reviewed' if expectations.get('reviewed_by_operator') else 'default-tentative'
     return compact_text_excerpt(
         f"Treat this project as `{outcome}` with a `{quality_bar}` quality bar and `{seriousness}` seriousness. "
-        f"Target tier is `{target_tier}` and acceptable cost posture is `{cost_posture}`. "
+        f"Target tier is `{target_tier}`, intended budget posture is `{budget_posture}`, and acceptable cost posture is `{cost_posture}`. "
         f"Expectation posture is `{reviewed}`.",
         220,
     )
@@ -7869,6 +7906,7 @@ def render_project_expectations_context(expectations=None):
     lines.append(f"- intended_seriousness: `{expectations.get('intended_seriousness', 'exploratory')}`")
     lines.append(f"- intended_value_posture: `{expectations.get('intended_value_posture', 'assistive_prototype_learning')}`")
     lines.append(f"- target_product_tier: `{expectations.get('target_product_tier', 'discreet_consumer_assistive_wearable')}`")
+    lines.append(f"- intended_budget_posture: `{expectations.get('intended_budget_posture', 'medium')}`")
     lines.append(f"- acceptable_cost_posture: `{expectations.get('acceptable_cost_posture', 'prototype_only_until_costs_grounded')}`")
     lines.append(f"- review_style: `{expectations.get('review_style', 'truth_preserving_build_oriented')}`")
     lines.append(f"- reviewed_by_operator: `{bool(expectations.get('reviewed_by_operator', False))}`")
@@ -10173,6 +10211,472 @@ def render_pricing_alternatives_review_context(pricing_state=None):
         )
     if pricing_state.get('operator_warning'):
         lines.append(f"- operator_warning: {pricing_state.get('operator_warning', '')}")
+    return '\n'.join(lines) + '\n'
+
+
+def default_budget_tier_review_state():
+    return {
+        'generated_at': '',
+        'budget_tier_summary': '',
+        'supported_budget_tiers': list(BUDGET_TIERS),
+        'current_project_budget_posture': 'unknown',
+        'intended_budget_posture': 'unknown',
+        'budget_alignment_status': 'unknown',
+        'where_current_direction_sits': [],
+        'where_current_ideas_sit': [],
+        'where_current_packages_sit': [],
+        'mixed_tier_compromise_paths': [],
+        'tier_pressure_points': [],
+        'what_is_pushing_cost_up': [],
+        'what_is_keeping_cost_down': [],
+        'what_would_realign_the_project': [],
+        'prototype_vs_product_budget_note': '',
+        'trust_posture': {},
+        'source_authority': {},
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_budget_tier_review_state():
+    data = load_json_file(BUDGET_TIER_REVIEW_PATH, default_budget_tier_review_state())
+    if not isinstance(data, dict):
+        data = default_budget_tier_review_state()
+    for key in (
+        'where_current_direction_sits',
+        'where_current_ideas_sit',
+        'where_current_packages_sit',
+        'mixed_tier_compromise_paths',
+        'tier_pressure_points',
+        'what_is_pushing_cost_up',
+        'what_is_keeping_cost_down',
+        'what_would_realign_the_project',
+        'supported_budget_tiers',
+    ):
+        if not isinstance(data.get(key), list):
+            data[key] = list(default_budget_tier_review_state().get(key, []))
+    for key in ('trust_posture', 'source_authority', 'source_generated_at'):
+        if not isinstance(data.get(key), dict):
+            data[key] = {}
+    for key in (
+        'budget_tier_summary',
+        'current_project_budget_posture',
+        'intended_budget_posture',
+        'budget_alignment_status',
+        'prototype_vs_product_budget_note',
+    ):
+        if not isinstance(data.get(key), str):
+            data[key] = str(default_budget_tier_review_state().get(key, ''))
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_budget_tier_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_budget_tier_review_state()
+    payload['updated_at'] = now_iso()
+    BUDGET_TIER_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def build_budget_tier_review_state(
+    schema=None,
+    review_snapshot=None,
+    cost_state=None,
+    direction_state=None,
+    ideas_state=None,
+    component_state=None,
+    parts_state=None,
+    pricing_state=None,
+):
+    schema = schema or load_cognition_schema()
+    cfg = budget_tier_review_config(schema)
+    if not cfg.get('enabled', True):
+        return default_budget_tier_review_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    expectations = load_project_expectations_state()
+    component_state = component_state if isinstance(component_state, dict) else build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
+    parts_state = parts_state if isinstance(parts_state, dict) else build_parts_readiness_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        component_state=component_state,
+    )
+    cost_state = cost_state if isinstance(cost_state, dict) else build_cost_viability_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        component_package_state=component_state,
+    )
+    pricing_state = pricing_state if isinstance(pricing_state, dict) else build_pricing_alternatives_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        parts_state=parts_state,
+        component_state=component_state,
+        cost_state=cost_state,
+    )
+    direction_state = direction_state if isinstance(direction_state, dict) else build_project_direction_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        cost_state=cost_state,
+        component_state=component_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+    )
+    ideas_state = ideas_state if isinstance(ideas_state, dict) else build_exploratory_ideas_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        direction_state=direction_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+    )
+
+    intended_budget_posture = normalize_signal_key(expectations.get('intended_budget_posture', 'medium') or 'medium') or 'medium'
+    cost_signal = str(cost_state.get('kill_pause_reframe_signal', 'proceed_with_caution') or 'proceed_with_caution')
+    target_tier = str(expectations.get('target_product_tier', 'discreet_consumer_assistive_wearable') or 'discreet_consumer_assistive_wearable')
+
+    def budget_tier_for_hint(value):
+        token = normalize_signal_key(value)
+        mapping = {
+            'low': 'low',
+            'medium': 'medium',
+            'ambitious': 'ambitious',
+            'mixed': 'mixed',
+            'unknown': 'unknown',
+            'prototype_foundation_only': 'low',
+            'cheaper_simpler_direction': 'low',
+            'assistive_prototype_learning': 'medium',
+            'cost_risky_for_target_tier': 'ambitious',
+            'product_tier_mismatch_risk': 'ambitious',
+            'consumer_tier_mismatch_risk': 'ambitious',
+            'prototype_learning_only': 'low',
+            'weak_for_target_tier': 'ambitious',
+            'still_not_good_enough_for_target_tier': 'mixed',
+        }
+        if token in mapping:
+            return mapping[token]
+        if token.startswith('low'):
+            return 'low'
+        if token.startswith('medium'):
+            return 'medium'
+        if token.startswith('ambitious'):
+            return 'ambitious'
+        if token.startswith('mixed'):
+            return 'mixed'
+        return 'unknown'
+
+    def fit_for_current_project(tier, status=''):
+        status_token = normalize_signal_key(status)
+        if tier == 'low':
+            return 'fits_current_prototype_learning'
+        if tier == 'medium':
+            return 'possible_if_scope_stays_bounded'
+        if tier == 'mixed':
+            return 'candidate_compromise_only'
+        if tier == 'ambitious':
+            return 'mismatched_if_cost_target_matters' if cost_signal == 'stop_if_cost_target_matters' else 'watch_for_upward_drift'
+        if status_token in ('blocked', 'deferred', 'fading'):
+            return 'blocked_until_grounded'
+        return 'not_yet_classifiable'
+
+    def default_pull_down_hint(tier):
+        if tier == 'ambitious':
+            return 'Drop heavier local autonomy or immediate quality-upgrade assumptions before treating this as the working path.'
+        if tier == 'mixed':
+            return 'Keep the main path low-tier and add only one evidence-justified upgrade at a time.'
+        if tier == 'medium':
+            return 'Hold the phone-first, boundary-first path and avoid adding subsystem upgrades until evidence makes them necessary.'
+        if tier == 'low':
+            return 'Keep scope boundary-first, phone-first, and prototype-only instead of reopening consumer-tier integration pressure.'
+        return 'Wait for stronger component or runtime evidence before forcing a tighter budget-tier claim.'
+
+    def make_row(row_id, label, row_type, budget_tier, why_it_sits_here, push_up, pull_down, tradeoff, truth_posture, fit='', revisable=True):
+        return {
+            'row_id': row_id,
+            'label': label,
+            'row_type': row_type,
+            'budget_tier': budget_tier,
+            'fit_for_current_project': fit or fit_for_current_project(budget_tier),
+            'why_it_sits_here': compact_text_excerpt(why_it_sits_here, 220),
+            'what_pushes_it_up': compact_text_excerpt(push_up, 180),
+            'what_could_pull_it_down': compact_text_excerpt(pull_down, 180),
+            'tradeoff_summary': compact_text_excerpt(tradeoff, 220),
+            'truth_posture': truth_posture or 'bounded',
+            'revisable': bool(revisable),
+        }
+
+    direction_rows = []
+    for row in (direction_state.get('favored_choices', []) if isinstance(direction_state.get('favored_choices', []), list) else [])[:cfg.get('max_direction_rows', 4)]:
+        if not isinstance(row, dict):
+            continue
+        budget_tier = budget_tier_for_hint(row.get('budget_tier_hint', 'unknown'))
+        direction_rows.append(make_row(
+            row.get('choice_id', normalize_signal_key(row.get('label', 'direction'))),
+            row.get('label', 'Direction'),
+            'direction',
+            budget_tier,
+            row.get('why_it_is_in_this_position', row.get('label', '')),
+            ((row.get('what_weakens_it', []) or ['']) if isinstance(row.get('what_weakens_it', []), list) else [''])[0] or ((cost_state.get('major_cost_risk_factors', []) or ['']) if isinstance(cost_state.get('major_cost_risk_factors', []), list) else [''])[0],
+            default_pull_down_hint(budget_tier),
+            row.get('label', ''),
+            row.get('truth_posture', 'bounded'),
+            fit_for_current_project(budget_tier, row.get('status', '')),
+            row.get('revisable', True),
+        ))
+
+    idea_rows = []
+    for row in (ideas_state.get('ideas_being_explored', []) if isinstance(ideas_state.get('ideas_being_explored', []), list) else [])[:cfg.get('max_idea_rows', 4)]:
+        if not isinstance(row, dict):
+            continue
+        budget_tier = budget_tier_for_hint(row.get('budget_tier_hint', 'unknown'))
+        idea_rows.append(make_row(
+            row.get('idea_id', normalize_signal_key(row.get('title', 'idea'))),
+            row.get('title', 'Idea'),
+            'idea',
+            budget_tier,
+            row.get('why_it_might_be_good', row.get('summary', '')),
+            ((row.get('main_risks', []) or ['']) if isinstance(row.get('main_risks', []), list) else [''])[0],
+            default_pull_down_hint(budget_tier),
+            row.get('summary', row.get('why_it_might_be_good', '')),
+            row.get('truth_posture', 'exploratory_only'),
+            fit_for_current_project(budget_tier, row.get('status', '')),
+            row.get('revisable', True),
+        ))
+
+    package_source_rows = pricing_state.get('current_candidate_rows', []) if isinstance(pricing_state.get('current_candidate_rows', []), list) else []
+    if not package_source_rows:
+        package_source_rows = parts_state.get('suggested_packages_now', []) if isinstance(parts_state.get('suggested_packages_now', []), list) else []
+    package_rows = []
+    for row in package_source_rows[:cfg.get('max_package_rows', 4)]:
+        if not isinstance(row, dict):
+            continue
+        label = row.get('label', 'Package')
+        budget_tier = budget_tier_for_hint(row.get('cost_posture', row.get('confidence', 'unknown')))
+        package_rows.append(make_row(
+            normalize_signal_key(label),
+            label,
+            'package',
+            budget_tier,
+            row.get('why_it_is_current_or_alternative', row.get('why_suggested_now', label)),
+            ((cost_state.get('major_cost_risk_factors', []) or ['']) if isinstance(cost_state.get('major_cost_risk_factors', []), list) else [''])[0],
+            default_pull_down_hint(budget_tier),
+            row.get('replacement_priority', row.get('scope', '')),
+            row.get('truth_posture', 'bounded'),
+            fit_for_current_project(budget_tier, row.get('replacement_priority', '')),
+            row.get('revisable', True),
+        ))
+
+    compromise_rows = []
+    stripped_idea = next(
+        (
+            row for row in (ideas_state.get('ideas_being_explored', []) if isinstance(ideas_state.get('ideas_being_explored', []), list) else [])
+            if normalize_signal_key(row.get('idea_id', '')) == 'stripped_prototype_package'
+        ),
+        None,
+    )
+    if isinstance(stripped_idea, dict):
+        compromise_rows.append(make_row(
+            'stripped_prototype_package',
+            stripped_idea.get('title', 'Stripped prototype package'),
+            'compromise_path',
+            budget_tier_for_hint(stripped_idea.get('budget_tier_hint', 'low')),
+            stripped_idea.get('why_it_might_be_good', stripped_idea.get('summary', '')),
+            ((stripped_idea.get('main_risks', []) or ['']) if isinstance(stripped_idea.get('main_risks', []), list) else [''])[0],
+            'Keep wireless and firmware upgrades deferred until link or touch/display evidence makes them unavoidable.',
+            stripped_idea.get('summary', ''),
+            stripped_idea.get('truth_posture', 'bounded_exploration'),
+            'fits_current_prototype_learning',
+            stripped_idea.get('revisable', True),
+        ))
+    compromise_rows.append(make_row(
+        'one_quality_upgrade_at_a_time',
+        'Boundary-first main path with one evidence-justified quality upgrade at a time',
+        'compromise_path',
+        'mixed',
+        'Keep the current low-tier boundary package as the base and add at most one subsystem quality-upgrade package only after stronger evidence appears.',
+        'Carrying both wireless and firmware quality-upgrade packages together pulls the project upward before either subsystem is grounded enough.',
+        'Stage subsystem upgrades one at a time after link or firmware evidence removes guesswork.',
+        'This preserves prototype buildability while reducing unnecessary upward drift, but it still does not make the discreet consumer tier credible.',
+        'bounded',
+        'candidate_compromise_only',
+        True,
+    ))
+    fallback_idea = next(
+        (
+            row for row in (ideas_state.get('ideas_being_explored', []) if isinstance(ideas_state.get('ideas_being_explored', []), list) else [])
+            if normalize_signal_key(row.get('idea_id', '')) == 'balanced_fallback_memory_boundary'
+        ),
+        None,
+    )
+    if isinstance(fallback_idea, dict):
+        compromise_rows.append(make_row(
+            fallback_idea.get('idea_id', 'balanced_fallback_memory_boundary'),
+            fallback_idea.get('title', 'Balanced fallback for slower memory lookups'),
+            'compromise_path',
+            budget_tier_for_hint(fallback_idea.get('budget_tier_hint', 'mixed')),
+            fallback_idea.get('why_it_might_be_good', fallback_idea.get('summary', '')),
+            ((fallback_idea.get('main_risks', []) or ['']) if isinstance(fallback_idea.get('main_risks', []), list) else [''])[0],
+            'Keep live subtitles phone-first and bounded, and treat any fallback boundary as slower-path only rather than a broader architecture shift.',
+            fallback_idea.get('summary', ''),
+            fallback_idea.get('truth_posture', 'bounded_exploration'),
+            'candidate_compromise_only',
+            fallback_idea.get('revisable', True),
+        ))
+
+    tiers_in_play = [
+        row.get('budget_tier', 'unknown')
+        for row in direction_rows + package_rows
+        if row.get('budget_tier') in BUDGET_TIERS
+    ]
+    if not tiers_in_play:
+        current_project_budget_posture = 'unknown'
+    elif 'mixed' in tiers_in_play or len(set(tier for tier in tiers_in_play if tier != 'unknown')) > 1 or ('ambitious' in tiers_in_play and 'low' in tiers_in_play):
+        current_project_budget_posture = 'mixed'
+    elif 'ambitious' in tiers_in_play:
+        current_project_budget_posture = 'ambitious'
+    elif 'medium' in tiers_in_play:
+        current_project_budget_posture = 'medium'
+    else:
+        current_project_budget_posture = 'low'
+
+    if cost_signal == 'stop_if_cost_target_matters':
+        budget_alignment_status = 'misaligned_upward'
+    elif current_project_budget_posture == intended_budget_posture:
+        budget_alignment_status = 'aligned'
+    elif current_project_budget_posture == 'mixed':
+        budget_alignment_status = 'mixed_watch_rise'
+    else:
+        budget_alignment_status = 'partially_aligned'
+
+    def dedupe_rows(values, limit):
+        rows = []
+        seen = set()
+        for value in values:
+            cleaned = compact_text_excerpt(value, 200)
+            if not cleaned:
+                continue
+            key = cleaned.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append(cleaned)
+        return rows[:limit]
+
+    push_up_rows = dedupe_rows([
+        *(cost_state.get('major_cost_risk_factors', []) if isinstance(cost_state.get('major_cost_risk_factors', []), list) else []),
+        *((direction_state.get('what_is_blocking_stronger_direction_lock', []) if isinstance(direction_state.get('what_is_blocking_stronger_direction_lock', []), list) else [])[:2]),
+        *((parts_state.get('blocked_for_stronger_shortlist', []) if isinstance(parts_state.get('blocked_for_stronger_shortlist', []), list) else [])[:2]),
+    ], cfg.get('max_pressure_points', 4))
+    keep_down_rows = dedupe_rows([
+        *((direction_state.get('why_current_direction_is_winning', []) if isinstance(direction_state.get('why_current_direction_is_winning', []), list) else [])[:3]),
+        *((pricing_state.get('why_alternative_may_help', []) if isinstance(pricing_state.get('why_alternative_may_help', []), list) else [])[:2]),
+        stripped_idea.get('why_it_might_be_good', '') if isinstance(stripped_idea, dict) else '',
+    ], cfg.get('max_pressure_points', 4))
+    tier_pressure_points = dedupe_rows([
+        f"Intended budget posture is `{intended_budget_posture}`, but the current project posture reads `{current_project_budget_posture}` under target tier `{target_tier}`.",
+        'Wireless and firmware quality-upgrade pressure are the clearest current upward-drift drivers.',
+        'Boundary-first hardware and phone-first runtime are the clearest current cost-down anchors.',
+        cost_state.get('prototype_only_vs_product_viable_view', ''),
+    ], cfg.get('max_pressure_points', 4))
+    realign_rows = dedupe_rows([
+        'Keep the main path prototype-only and stop treating the current architecture as a discreet consumer product path while cost posture stays harsh.',
+        'Use the boundary-first hardware package as the base and add quality-upgrade packages only after evidence justifies them.',
+        'Capture wireless link and firmware behavior evidence before hardening medium or ambitious subsystem commitments.',
+        'If the discreet consumer tier still matters, tighten operator intent or reframe the target tier before more product-shaped work accumulates.',
+    ], cfg.get('max_pressure_points', 4))
+
+    budget_tier_summary = compact_text_excerpt(
+        (
+            f"Current budget posture is `{current_project_budget_posture}` against intended posture `{intended_budget_posture}`. "
+            "Boundary-first hardware, phone-first runtime, and stripped prototype packaging keep the learning path closer to low or medium tiers, "
+            "but current wireless/firmware upgrade pressure and discreet-consumer ambition still pull the project upward fast enough that alignment is weak."
+            if budget_alignment_status == 'misaligned_upward'
+            else f"Current budget posture is `{current_project_budget_posture}` against intended posture `{intended_budget_posture}`. "
+            "The project is still sensitive to upward drift, so tier assumptions should stay coarse and revisable."
+        ),
+        360,
+    )
+    prototype_vs_product_budget_note = compact_text_excerpt(
+        'A lower-tier or mixed-tier prototype-learning path can still be worthwhile, but the same posture does not make the current discreet consumer product ambition credible. Prototype budget fit and product budget fit must stay separate.',
+        280,
+    )
+
+    return {
+        'generated_at': now_iso(),
+        'budget_tier_summary': budget_tier_summary,
+        'supported_budget_tiers': list(BUDGET_TIERS),
+        'current_project_budget_posture': current_project_budget_posture,
+        'intended_budget_posture': intended_budget_posture,
+        'budget_alignment_status': budget_alignment_status,
+        'where_current_direction_sits': direction_rows[:cfg.get('max_direction_rows', 4)],
+        'where_current_ideas_sit': idea_rows[:cfg.get('max_idea_rows', 4)],
+        'where_current_packages_sit': package_rows[:cfg.get('max_package_rows', 4)],
+        'mixed_tier_compromise_paths': compromise_rows[:cfg.get('max_compromise_rows', 4)],
+        'tier_pressure_points': tier_pressure_points,
+        'what_is_pushing_cost_up': push_up_rows,
+        'what_is_keeping_cost_down': keep_down_rows,
+        'what_would_realign_the_project': realign_rows,
+        'prototype_vs_product_budget_note': prototype_vs_product_budget_note,
+        'trust_posture': {
+            'surface_role': 'current_truth_steering_context',
+            'use_state': 'current_truth',
+            'authority_scope': 'budget-tier posture, tier drift, and mixed-compromise classification',
+            'trust_reason': compact_text_excerpt(
+                'Use this surface to classify the current direction, ideas, and package posture by coarse budget tier without pretending the project has exact prices or a final BOM.',
+                240,
+            ),
+        },
+        'source_authority': {
+            'expectation_truth': 'project_expectations',
+            'cost_truth': 'cost_viability_review',
+            'direction_truth': 'project_direction_review',
+            'idea_context': 'exploratory_ideas_review',
+            'parts_truth': 'parts_readiness_review',
+            'pricing_truth': 'pricing_alternatives_review',
+        },
+        'source_generated_at': {
+            'project_expectations': state_surface_generated_at(expectations),
+            'cost_viability_review': state_surface_generated_at(cost_state),
+            'project_direction_review': state_surface_generated_at(direction_state),
+            'exploratory_ideas_review': state_surface_generated_at(ideas_state),
+            'parts_readiness_review': state_surface_generated_at(parts_state),
+            'pricing_alternatives_review': state_surface_generated_at(pricing_state),
+            'component_package_review': state_surface_generated_at(component_state),
+        },
+        'revisable': True,
+    }
+
+
+def render_budget_tier_review_context(budget_state=None):
+    budget_state = budget_state if isinstance(budget_state, dict) else load_budget_tier_review_state()
+    lines = ['# Budget Tier Review']
+    lines.append(f"- current_project_budget_posture: `{budget_state.get('current_project_budget_posture', 'unknown')}`")
+    lines.append(f"- intended_budget_posture: `{budget_state.get('intended_budget_posture', 'unknown')}`")
+    lines.append(f"- budget_alignment_status: `{budget_state.get('budget_alignment_status', 'unknown')}`")
+    if budget_state.get('budget_tier_summary'):
+        lines.append(f"- budget_tier_summary: {budget_state.get('budget_tier_summary', '')}")
+    direction_rows = budget_state.get('where_current_direction_sits', []) if isinstance(budget_state.get('where_current_direction_sits', []), list) else []
+    if direction_rows:
+        lines.append(
+            "- direction_rows: "
+            + '; '.join(
+                f"{row.get('label', 'direction')} ({row.get('budget_tier', 'unknown')}, {row.get('fit_for_current_project', 'unknown')})"
+                for row in direction_rows[:3]
+                if isinstance(row, dict)
+            )
+        )
+    compromise_rows = budget_state.get('mixed_tier_compromise_paths', []) if isinstance(budget_state.get('mixed_tier_compromise_paths', []), list) else []
+    if compromise_rows:
+        lines.append(
+            "- mixed_tier_compromise_paths: "
+            + '; '.join(
+                f"{row.get('label', 'compromise')} ({row.get('budget_tier', 'unknown')})"
+                for row in compromise_rows[:3]
+                if isinstance(row, dict)
+            )
+        )
+    if budget_state.get('prototype_vs_product_budget_note'):
+        lines.append(f"- prototype_vs_product_budget_note: {budget_state.get('prototype_vs_product_budget_note', '')}")
     return '\n'.join(lines) + '\n'
 
 
@@ -13336,7 +13840,7 @@ def ui_page_priority_rank(priority):
     return order.get(str(priority or '').strip(), 4)
 
 
-def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None, boundary_state=None, topology_state=None, direction_state=None, ideas_state=None, extension_deployment_state=None):
+def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None, boundary_state=None, topology_state=None, direction_state=None, ideas_state=None, budget_state=None, extension_deployment_state=None):
     schema = schema or load_cognition_schema()
     cfg = ui_surface_plan_config(schema)
     if not cfg.get('enabled', True):
@@ -13431,6 +13935,16 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         pricing_state=pricing_state,
         boundary_state=boundary_state,
         rendering_state=rendering_state,
+    )
+    budget_state = budget_state if isinstance(budget_state, dict) else build_budget_tier_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        cost_state=cost_state,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        component_state=component_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
     )
     reflect_state = load_json_file(REFLECT_STATE_PATH, {'generated_at': '', 'evidence_analysis': {}})
     scorecard_state = load_scorecard_state()
@@ -13536,6 +14050,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         or verification_state.get('recent_transitions', [])
         or verification_state.get('representation_risks', [])
     )
+    budget_meaningful = bool(budget_state.get('budget_tier_summary'))
     direction_meaningful = bool(direction_state.get('favored_choices') or direction_state.get('deferred_or_weaker_choices'))
     ideas_meaningful = bool(ideas_state.get('ideas_being_explored'))
     extensions_meaningful = bool(available_extensions or missing_extensions or waiting_extensions or active_extensions)
@@ -13548,7 +14063,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'status': 'tentative',
             'priority': 'primary',
             'why_this_page_exists': 'Project expectations remain default-tentative and have not yet been explicitly operator-reviewed.',
-            'driven_by_sources': ['project_expectations', 'cost_viability_review'],
+            'driven_by_sources': ['project_expectations', 'cost_viability_review', 'budget_tier_review'],
             'sections': [
                 make_section(
                     'intent_and_quality_bar',
@@ -13569,8 +14084,8 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
                 make_section(
                     'cost_posture',
                     'Cost Posture',
-                    'Make intended value posture, target product tier, acceptable cost posture, and early economic mismatch visible before stronger product ambition hardens.',
-                    ['project_expectations', 'cost_viability_review'],
+                    'Make intended value posture, target product tier, intended budget posture, acceptable cost posture, and early economic mismatch visible before stronger product ambition hardens.',
+                    ['project_expectations', 'cost_viability_review', 'budget_tier_review'],
                     'Cost posture is still tentative, risky, or mismatched enough to shape early project definition.',
                     'Hide when cost posture is stable enough that intake-level cost realism would only duplicate steering.',
                 ),
@@ -13607,7 +14122,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         'status': 'active',
         'priority': 'primary',
         'why_this_page_exists': 'Every project needs one compact surface for current truth, blockers, realism posture, and what should not be over-read.',
-        'driven_by_sources': ['execution_resume', 'execution_boundaries', 'project_direction_review', 'exploratory_ideas_review', 'project_topology_view', 'product_realism_review', 'project_expectations', 'cost_viability_review', 'verification_summary'],
+        'driven_by_sources': ['execution_resume', 'execution_boundaries', 'project_direction_review', 'exploratory_ideas_review', 'project_topology_view', 'product_realism_review', 'project_expectations', 'cost_viability_review', 'budget_tier_review', 'verification_summary'],
         'sections': [
             make_section(
                 'current_truth_summary',
@@ -13624,6 +14139,14 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
                 ['product_realism_review', 'project_expectations'],
                 'Realism review is meaningful enough to guide operator posture.',
                 'Hide only if realism review does not exist yet.',
+            ),
+            make_section(
+                'budget_tier_posture',
+                'Budget Tier Posture',
+                'Show intended budget posture, current tier posture, upward pressure points, and mixed-tier compromises without pretending the project has exact pricing.',
+                ['budget_tier_review', 'project_expectations', 'cost_viability_review', 'project_direction_review', 'pricing_alternatives_review'],
+                'Budget posture is materially shaping whether the current direction still fits the intended tier or needs a mixed compromise.',
+                'Hide only if no bounded budget-tier review exists yet.',
             ),
                 make_section(
                     'direction_of_travel',
@@ -14062,6 +14585,9 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         push_goal('Compare current package direction against cheaper or simpler alternatives without pretending the project has settled parts or exact cost.')
     if cost_signal in ('reframe_needed', 'stop_if_cost_target_matters'):
         push_risk('Technically interesting prototype progress must not hide the possibility that the project is already economically weak for its implied target tier.')
+    if budget_meaningful:
+        push_risk('Budget tiers must stay coarse and architectural. Low, medium, ambitious, or mixed should not be over-read as exact pricing or settled BOM certainty.')
+        push_goal('See intended budget posture, current tier drift, and honest mixed-tier compromises before more work hardens the wrong cost shape.')
     if boundary_state.get('current_boundary_summary'):
         push_risk('Execution boundaries must stay separate from cognition modes so pause or stop posture is not hidden behind continuous internal cycling.')
         push_goal('See explicitly when ELI should continue, pause, stop product-shaped continuation, or escalate instead of assuming another cycle is useful.')
@@ -14127,6 +14653,14 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         cost_state.get('why_this_posture', ''),
         state_surface_generated_at(cost_state),
     )
+    if budget_meaningful:
+        push_source(
+            'budget_tier_review',
+            'budget_tier_posture',
+            budget_state.get('trust_posture', {}).get('use_state', 'current_truth') if isinstance(budget_state.get('trust_posture', {}), dict) else 'current_truth',
+            budget_state.get('budget_tier_summary', ''),
+            state_surface_generated_at(budget_state),
+        )
     push_source(
         'project_scorecard',
         'subsystem_truth',
@@ -14300,6 +14834,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'project_milestones': state_surface_generated_at(milestone_state),
             'product_realism_review': state_surface_generated_at(realism_state),
             'cost_viability_review': state_surface_generated_at(cost_state),
+            'budget_tier_review': state_surface_generated_at(budget_state),
             'component_package_review': state_surface_generated_at(component_state),
             'parts_readiness_review': state_surface_generated_at(parts_state),
             'execution_boundaries': state_surface_generated_at(boundary_state),
@@ -14439,7 +14974,7 @@ def build_verification_transition_rows(v1_review_state, artifact_review_state, l
     return rows[:max(1, limit)]
 
 
-def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None, boundary_state=None, topology_state=None, direction_state=None, ideas_state=None, extension_deployment_state=None):
+def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None, boundary_state=None, topology_state=None, direction_state=None, ideas_state=None, budget_state=None, extension_deployment_state=None):
     schema = schema or load_cognition_schema()
     review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
     resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
@@ -14475,6 +15010,16 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         pricing_state=load_pricing_alternatives_review_state(),
         boundary_state=boundary_state,
         rendering_state=rendering_state,
+    )
+    budget_state = budget_state if isinstance(budget_state, dict) else build_budget_tier_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        cost_state=cost_state,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        component_state=load_component_package_review_state(),
+        parts_state=load_parts_readiness_review_state(),
+        pricing_state=load_pricing_alternatives_review_state(),
     )
     extensions_state = build_extensions_capability_review_state(
         schema=schema,
@@ -14655,6 +15200,19 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         sample_titles=[row.get('label', '') for row in direction_state.get('favored_choices', [])[:3] if isinstance(row, dict)],
     ))
     current_truth_sources.append(build_verification_source_entry(
+        'Budget tier posture and mixed-tier compromise paths',
+        'budget_tier_review',
+        budget_state.get('trust_posture', {}).get('use_state', 'current_truth'),
+        budget_state.get('trust_posture', {}).get('trust_reason', budget_state.get('budget_tier_summary', '')),
+        state_surface_generated_at(budget_state),
+        supporting_surfaces=['project_expectations', 'cost_viability_review', 'project_direction_review', 'exploratory_ideas_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+        sample_titles=[
+            budget_state.get('current_project_budget_posture', ''),
+            budget_state.get('budget_alignment_status', ''),
+            (budget_state.get('mixed_tier_compromise_paths', []) or [{}])[0].get('label', '') if isinstance(budget_state.get('mixed_tier_compromise_paths', []), list) and budget_state.get('mixed_tier_compromise_paths') else '',
+        ],
+    ))
+    current_truth_sources.append(build_verification_source_entry(
         'Extension deployment state and required operator action',
         'extension_deployment_review',
         extension_deployment_state.get('trust_posture', {}).get('use_state', 'current_truth'),
@@ -14774,6 +15332,15 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         ),
     })
     recent_source_wins.append({
+        'question': 'Budget tier posture and mixed-tier compromise paths',
+        'winning_surface': 'budget_tier_review',
+        'supporting_surfaces': ['project_expectations', 'cost_viability_review', 'project_direction_review', 'exploratory_ideas_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+        'why': compact_text_excerpt(
+            'This surface owns the current coarse classification of the project into low, medium, ambitious, or mixed tier posture and keeps mixed-tier compromises visible without pretending the project has exact prices or a final BOM.',
+            220,
+        ),
+    })
+    recent_source_wins.append({
         'question': 'Extension deployment state and operator opt-in control',
         'winning_surface': 'extension_deployment_review',
         'supporting_surfaces': ['extensions_capability_review', 'project_milestones', 'product_realism_review', 'component_package_review', 'execution_boundaries'],
@@ -14815,6 +15382,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         representation_risks.append('The project topology view is a derived overview for legibility; verify each node truth posture and source surfaces before treating the map itself as the authority.')
     if direction_state.get('favored_choices'):
         representation_risks.append('Favored direction is still revisable; do not read the current path as a locked decision while wireless, firmware, trust, or cost posture can still force a change.')
+    if budget_state.get('budget_tier_summary'):
+        representation_risks.append('Budget tiers are coarse architectural posture only; do not read low, medium, ambitious, or mixed labels as exact pricing, margin, or final BOM certainty.')
     if cost_warning:
         representation_risks.append('Prototype-feasible and product-viable are not the same thing; read the cost posture before treating build progress as commercial sense.')
     representation_risks.append('Do not confuse cognition modes like dream or sleep with execution pause or stop boundaries; execution control is a separate steering layer.')
@@ -14835,6 +15404,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         operator_checks.append('For topology nodes, use the node truth posture and detail source surfaces before treating a derived map summary as current truth.')
     if direction_state.get('favored_choices'):
         operator_checks.append('For direction of travel, check both the favored rows and the deferred rows; current winners can still change if cost posture, operator intent, or subsystem grounding moves materially.')
+    if budget_state.get('budget_tier_summary'):
+        operator_checks.append('For budget posture, compare intended tier, current tier, and mixed-tier compromises before assuming the current path still fits the target tier.')
     if cost_warning:
         operator_checks.append('For product ambition, verify the cost viability signal before assuming a technically interesting prototype makes business sense.')
     operator_checks.append('Before assuming another cycle is justified, verify the execution boundary surface for continue, pause, stop, and operator-review conditions.')
@@ -14878,6 +15449,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             'draft_artifact_review': state_surface_generated_at(draft_state),
             'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
             'exploratory_ideas_review': state_surface_generated_at(ideas_state),
+            'budget_tier_review': state_surface_generated_at(budget_state),
             'extension_deployment_review': state_surface_generated_at(extension_deployment_state),
             'project_direction_review': state_surface_generated_at(direction_state),
             'project_topology_view': state_surface_generated_at(topology_state),
@@ -14886,16 +15458,16 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         },
         'summary': summary,
         'subsystem_card_source': subsystem_card_source,
-        'current_truth_sources': current_truth_sources[:8],
+        'current_truth_sources': current_truth_sources[:10],
         'supporting_context_sources': supporting_context_sources[:5],
         'recent_transitions': recent_transitions,
         'lane_explanations': lane_explanations,
-        'recent_source_wins': recent_source_wins[:8],
+        'recent_source_wins': recent_source_wins[:10],
         'surfaces_with_caution': surfaces_with_caution[:5],
         'representation_risks': list(dict.fromkeys(item for item in representation_risks if item))[:4],
         'operator_checks': list(dict.fromkeys(item for item in operator_checks if item))[:5],
         'counts': {
-            'current_truth_sources': len(current_truth_sources[:8]),
+            'current_truth_sources': len(current_truth_sources[:10]),
             'supporting_context_sources': len(supporting_context_sources[:5]),
             'recent_transitions': len(recent_transitions),
             'surfaces_with_caution': len(surfaces_with_caution[:5]),
@@ -14929,7 +15501,7 @@ def supporting_artifact_review_posture(artifact_review_state, reflect_state):
     return 'provisional_context', 'Implementation artifact review is usable as supporting context, but it is not an authoritative current-truth surface.'
 
 
-def build_execution_resume_state(schema=None, review_snapshot=None, boundary_state=None, direction_state=None, ideas_state=None, extension_deployment_state=None):
+def build_execution_resume_state(schema=None, review_snapshot=None, boundary_state=None, direction_state=None, ideas_state=None, budget_state=None, extension_deployment_state=None):
     schema = schema or load_cognition_schema()
     cfg = execution_resume_config(schema)
     if not cfg.get('enabled', True):
@@ -14984,6 +15556,16 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
         pricing_state=pricing_alternatives_state,
         boundary_state=boundary_state,
     )
+    budget_state = budget_state if isinstance(budget_state, dict) else build_budget_tier_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        cost_state=cost_viability_state,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        component_state=component_package_state,
+        parts_state=parts_readiness_state,
+        pricing_state=pricing_alternatives_state,
+    )
     extension_deployment_state = extension_deployment_state if isinstance(extension_deployment_state, dict) else load_extension_deployment_review_state()
     reflect_payload = reflect_state.get('reflect', {}) if isinstance(reflect_state.get('reflect', {}), dict) else {}
     evidence = reflect_state.get('evidence_analysis', {}) if isinstance(reflect_state.get('evidence_analysis', {}), dict) else {}
@@ -15025,6 +15607,8 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             220,
         )
     )
+    if budget_state.get('budget_tier_summary'):
+        current_truth_summary.append(compact_text_excerpt(budget_state.get('budget_tier_summary', ''), 220))
     cost_signal = str(cost_viability_state.get('kill_pause_reframe_signal', 'proceed_with_caution') or 'proceed_with_caution')
     if cost_signal in ('reframe_needed', 'stop_if_cost_target_matters'):
         current_truth_summary.append(
@@ -15260,6 +15844,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             'implementation_artifact_review': state_surface_generated_at(artifact_review_state),
             'component_package_review': state_surface_generated_at(component_package_state),
             'cost_viability_review': state_surface_generated_at(cost_viability_state),
+            'budget_tier_review': state_surface_generated_at(budget_state),
             'execution_boundaries': state_surface_generated_at(boundary_state),
             'project_direction_review': state_surface_generated_at(direction_state),
             'exploratory_ideas_review': state_surface_generated_at(ideas_state),
@@ -15287,6 +15872,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             'intended_seriousness': project_expectations.get('intended_seriousness', 'exploratory'),
             'intended_value_posture': project_expectations.get('intended_value_posture', 'assistive_prototype_learning'),
             'target_product_tier': project_expectations.get('target_product_tier', 'discreet_consumer_assistive_wearable'),
+            'intended_budget_posture': project_expectations.get('intended_budget_posture', 'medium'),
             'acceptable_cost_posture': project_expectations.get('acceptable_cost_posture', 'prototype_only_until_costs_grounded'),
             'reviewed_by_operator': bool(project_expectations.get('reviewed_by_operator', False)),
             'defaults_are_tentative': bool(project_expectations.get('defaults_are_tentative', True)),
@@ -15346,6 +15932,17 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             'prototype_vs_product_interpretation': direction_state.get('prototype_vs_product_interpretation', ''),
             'budget_pressure_note': direction_state.get('budget_pressure_note', ''),
         } if project_direction_review_config(schema).get('include_in_execution_resume', True) else {},
+        'budget_tier': {
+            'budget_tier_summary': budget_state.get('budget_tier_summary', ''),
+            'current_project_budget_posture': budget_state.get('current_project_budget_posture', 'unknown'),
+            'intended_budget_posture': budget_state.get('intended_budget_posture', 'unknown'),
+            'budget_alignment_status': budget_state.get('budget_alignment_status', 'unknown'),
+            'top_pressure_point': (budget_state.get('tier_pressure_points', []) or [''])[0] if isinstance(budget_state.get('tier_pressure_points', []), list) else '',
+            'top_cost_down_opportunity': (budget_state.get('what_is_keeping_cost_down', []) or [''])[0] if isinstance(budget_state.get('what_is_keeping_cost_down', []), list) else '',
+            'top_mixed_tier_compromise': (budget_state.get('mixed_tier_compromise_paths', []) or [{}])[0].get('label', '') if isinstance(budget_state.get('mixed_tier_compromise_paths', []), list) and budget_state.get('mixed_tier_compromise_paths') else '',
+            'prototype_vs_product_budget_note': budget_state.get('prototype_vs_product_budget_note', ''),
+            'trust_use': budget_state.get('trust_posture', {}).get('use_state', 'current_truth') if isinstance(budget_state.get('trust_posture', {}), dict) else 'current_truth',
+        } if budget_tier_review_config(schema).get('include_in_execution_resume', True) else {},
         'exploratory_ideas': {
             'ideas_summary': ideas_state.get('ideas_summary', ''),
             'live_count': len(ideas_state.get('ideas_being_explored', [])) if isinstance(ideas_state.get('ideas_being_explored', []), list) else 0,
@@ -15390,6 +15987,7 @@ def render_execution_resume_section(resume_state=None, include_header=True):
     component_package = resume_state.get('component_package', {}) if isinstance(resume_state.get('component_package', {}), dict) else {}
     cost_viability = resume_state.get('cost_viability', {}) if isinstance(resume_state.get('cost_viability', {}), dict) else {}
     project_direction = resume_state.get('project_direction', {}) if isinstance(resume_state.get('project_direction', {}), dict) else {}
+    budget_tier = resume_state.get('budget_tier', {}) if isinstance(resume_state.get('budget_tier', {}), dict) else {}
     exploratory_ideas = resume_state.get('exploratory_ideas', {}) if isinstance(resume_state.get('exploratory_ideas', {}), dict) else {}
     extension_actions = resume_state.get('extension_actions', {}) if isinstance(resume_state.get('extension_actions', {}), dict) else {}
     if trust:
@@ -15402,6 +16000,7 @@ def render_execution_resume_section(resume_state=None, include_header=True):
             f"quality `{project_intent.get('quality_bar', 'credible')}` | "
             f"seriousness `{project_intent.get('intended_seriousness', 'exploratory')}` | "
             f"tier `{project_intent.get('target_product_tier', 'unknown')}` | "
+            f"budget `{project_intent.get('intended_budget_posture', 'unknown')}` | "
             f"{'operator-reviewed' if project_intent.get('reviewed_by_operator') else 'default-tentative'}"
         )
     if execution_boundaries:
@@ -15460,6 +16059,17 @@ def render_execution_resume_section(resume_state=None, include_header=True):
             + (
                 f" | deferred `{project_direction.get('top_deferred_choice', '')}`"
                 if project_direction.get('top_deferred_choice')
+                else ''
+            )
+        )
+    if budget_tier:
+        lines.append(
+            f"- budget_tier: current `{budget_tier.get('current_project_budget_posture', 'unknown')}`"
+            + f" | intended `{budget_tier.get('intended_budget_posture', 'unknown')}`"
+            + f" | alignment `{budget_tier.get('budget_alignment_status', 'unknown')}`"
+            + (
+                f" | compromise `{budget_tier.get('top_mixed_tier_compromise', '')}`"
+                if budget_tier.get('top_mixed_tier_compromise')
                 else ''
             )
         )
@@ -15770,12 +16380,24 @@ def refresh_review_state_sync_metadata(schema=None):
         boundary_state=boundary_state,
     )
     save_exploratory_ideas_review_state(ideas_state)
+    budget_state = build_budget_tier_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        cost_state=cost_state,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        component_state=component_package_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+    )
+    save_budget_tier_review_state(budget_state)
     resume_state = build_execution_resume_state(
         schema=schema,
         review_snapshot=review_snapshot,
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        budget_state=budget_state,
     )
     save_execution_resume_state(resume_state)
     verification_state = build_verification_summary_state(
@@ -15786,6 +16408,7 @@ def refresh_review_state_sync_metadata(schema=None):
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        budget_state=budget_state,
     )
     save_verification_summary_state(verification_state)
     extensions_state = build_extensions_capability_review_state(
@@ -15807,6 +16430,7 @@ def refresh_review_state_sync_metadata(schema=None):
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        budget_state=budget_state,
         extension_deployment_state=extension_deployment_state,
     )
     save_execution_resume_state(resume_state)
@@ -15818,6 +16442,7 @@ def refresh_review_state_sync_metadata(schema=None):
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        budget_state=budget_state,
         extension_deployment_state=extension_deployment_state,
     )
     save_verification_summary_state(verification_state)
@@ -15854,6 +16479,7 @@ def refresh_review_state_sync_metadata(schema=None):
         direction_state=direction_state,
         topology_state=topology_state,
         ideas_state=ideas_state,
+        budget_state=budget_state,
         extension_deployment_state=extension_deployment_state,
     )
     save_verification_summary_state(verification_state)
@@ -15870,6 +16496,7 @@ def refresh_review_state_sync_metadata(schema=None):
         direction_state=direction_state,
         topology_state=topology_state,
         ideas_state=ideas_state,
+        budget_state=budget_state,
         extension_deployment_state=extension_deployment_state,
     ))
     return summary
@@ -18261,12 +18888,24 @@ def generate_scorecard_cycle(changes, prior_reports):
         boundary_state=boundary_state,
     )
     save_exploratory_ideas_review_state(ideas_state)
+    budget_state = build_budget_tier_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        cost_state=cost_state,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        component_state=component_package_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+    )
+    save_budget_tier_review_state(budget_state)
     resume_state = build_execution_resume_state(
         schema=schema,
         review_snapshot=review_snapshot,
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        budget_state=budget_state,
     )
     save_execution_resume_state(resume_state)
     verification_state = build_verification_summary_state(
@@ -18277,6 +18916,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        budget_state=budget_state,
     )
     save_verification_summary_state(verification_state)
     extensions_state = build_extensions_capability_review_state(
@@ -18298,6 +18938,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        budget_state=budget_state,
         extension_deployment_state=extension_deployment_state,
     )
     save_execution_resume_state(resume_state)
@@ -18309,6 +18950,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        budget_state=budget_state,
         extension_deployment_state=extension_deployment_state,
     )
     save_verification_summary_state(verification_state)
@@ -18345,6 +18987,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         direction_state=direction_state,
         topology_state=topology_state,
         ideas_state=ideas_state,
+        budget_state=budget_state,
         extension_deployment_state=extension_deployment_state,
     )
     save_verification_summary_state(verification_state)
@@ -18361,6 +19004,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         direction_state=direction_state,
         topology_state=topology_state,
         ideas_state=ideas_state,
+        budget_state=budget_state,
         extension_deployment_state=extension_deployment_state,
     ))
     return render_scorecard_markdown(scorecard), effort_selection
@@ -19873,6 +20517,16 @@ def context_with_inputs(changes):
         boundary_state=execution_boundaries_state,
         rendering_state=rendering_brief_state,
     )
+    budget_tier_state = build_budget_tier_review_state(
+        schema=schema,
+        review_snapshot=review_state_consumption,
+        cost_state=cost_viability_state,
+        direction_state=project_direction_state,
+        ideas_state=exploratory_ideas_state,
+        component_state=component_package_state,
+        parts_state=parts_readiness_state,
+        pricing_state=pricing_alternatives_state,
+    )
     ui_surface_plan_state = build_ui_surface_plan_state(
         schema=schema,
         review_snapshot=review_state_consumption,
@@ -19883,6 +20537,7 @@ def context_with_inputs(changes):
         direction_state=project_direction_state,
         rendering_state=rendering_brief_state,
         ideas_state=exploratory_ideas_state,
+        budget_state=budget_tier_state,
         extension_deployment_state=extension_deployment_state,
     )
     pieces = ['# Core Field\n', core_text(), '\n']
@@ -19918,6 +20573,8 @@ def context_with_inputs(changes):
     pieces.append(render_project_direction_review_context(project_direction_state))
     pieces.append('\n')
     pieces.append(render_exploratory_ideas_review_context(exploratory_ideas_state))
+    pieces.append('\n')
+    pieces.append(render_budget_tier_review_context(budget_tier_state))
     pieces.append('\n')
     pieces.append(render_extensions_capability_review_context(extensions_capability_state))
     pieces.append('\n')

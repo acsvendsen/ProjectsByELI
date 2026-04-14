@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-14T20:06:18",
-  "overview_summary": "Current focus is Implementation Package Review. Review and operator input are live on the current front. Wireless Interface, Firmware, Memory System still constrain stronger realization. Product posture remains `serious_prototype_path` and cost posture remains `product_tier_mi...",
+  "generated_at": "2026-04-14T20:45:59",
+  "overview_summary": "Current focus is Implementation Package Review. Review and operator input are live on V1 Default Subtitle Position. Wireless Interface, Firmware, Memory System still constrain stronger realization. Product posture remains `serious_prototype_path` and cost posture remains `prod...",
   "nodes": [
     {
       "node_id": "project_intent",
@@ -18,7 +18,7 @@
       ],
       "operator_input_needed": true,
       "prototype_vs_product_posture": "Still explicitly prototype-oriented and exploratory; this is not a confirmed product-ambition declaration.",
-      "summary": "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable` and acceptable cost posture is `prototype_only_until_cost...",
+      "summary": "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable`, intended budget posture is `medium`, and acceptable cost...",
       "detail_source_surfaces": [
         "project_expectations"
       ],
@@ -82,9 +82,9 @@
       "node_id": "review_fronts",
       "label": "Review Fronts",
       "node_type": "review_front",
-      "status": "emerging",
+      "status": "reviewable",
       "truth_posture": "derived_from_current_truth",
-      "readiness_band": "emerging",
+      "readiness_band": "reviewable",
       "why_it_exists": "This front keeps live bounded decisions and human-review questions visible instead of letting them dissolve into background context.",
       "depends_on": [
         "project_intent"
@@ -92,9 +92,9 @@
       "blocks": [
         "current_working_target"
       ],
-      "operator_input_needed": false,
+      "operator_input_needed": true,
       "prototype_vs_product_posture": "These are bounded review fronts only, not approved product commitments.",
-      "summary": "No live review front is the active review front.",
+      "summary": "V1 Default Subtitle Position is the active review front. Operator review is needed on V1 Default Subtitle Position.",
       "detail_source_surfaces": [
         "execution_resume",
         "v1_decision_review"
@@ -218,7 +218,9 @@
         "pricing_alternatives",
         "cost_viability"
       ],
-      "blocks": [],
+      "blocks": [
+        "exploratory_rendering"
+      ],
       "operator_input_needed": false,
       "prototype_vs_product_posture": "Build posture is prototype-only, early-subsystem-BOM-only, and explicitly not a consumer-tier implementation package.",
       "summary": "A concrete part list is still premature, but a bounded subsystem-level BOM frame is now warranted to improve buildability and package thinking without pretending the parts are settled.",
@@ -229,6 +231,29 @@
         "pricing_alternatives_review"
       ],
       "visual_emphasis": "prototype_only",
+      "topology_lane": "realization",
+      "revisable": true
+    },
+    {
+      "node_id": "exploratory_rendering",
+      "label": "Exploratory Rendering",
+      "node_type": "supporting_review",
+      "status": "supporting_context_only",
+      "truth_posture": "supporting_context_only",
+      "readiness_band": "exploratory",
+      "why_it_exists": "This front exists only for bounded visual drafting support around packaging, placement, and comparison; it is not design truth.",
+      "depends_on": [
+        "build_realization",
+        "product_realism"
+      ],
+      "blocks": [],
+      "operator_input_needed": false,
+      "prototype_vs_product_posture": "Exploratory rendering is subordinate review context only and must not be read as accepted design or solved productness.",
+      "summary": "3 exploratory hardware-aware rendering brief(s) are warranted now because visualization support is recommended, implementation-package review is materially live, and build-oriented prototype surfaces are honest enough...",
+      "detail_source_surfaces": [
+        "hardware_aware_rendering_brief_review"
+      ],
+      "visual_emphasis": "supporting",
       "topology_lane": "realization",
       "revisable": true
     }
@@ -337,6 +362,22 @@
       "relationship": "caps",
       "summary": "Realism posture still caps stronger build interpretation.",
       "revisable": true
+    },
+    {
+      "edge_id": "build_to_rendering",
+      "from_node_id": "build_realization",
+      "to_node_id": "exploratory_rendering",
+      "relationship": "supports",
+      "summary": "Exploratory rendering is only warranted because prototype build posture is meaningful enough for bounded visual comparison.",
+      "revisable": true
+    },
+    {
+      "edge_id": "realism_to_rendering",
+      "from_node_id": "product_realism",
+      "to_node_id": "exploratory_rendering",
+      "relationship": "caps",
+      "summary": "Rendering briefs must stay visibly prototype-oriented and non-final.",
+      "revisable": true
     }
   ],
   "active_node_ids": [
@@ -368,17 +409,17 @@
     "trust_reason": "This surface is a derived project map for operator legibility. It summarizes current-truth and supporting-context surfaces, but it does not replace source authority."
   },
   "source_generated_at": {
-    "execution_resume": "2026-04-14T20:06:18",
-    "execution_boundaries": "2026-04-14T20:06:18",
-    "project_milestones": "2026-04-14T20:06:18",
-    "product_realism_review": "2026-04-14T20:06:18",
-    "cost_viability_review": "2026-04-14T20:06:18",
-    "parts_readiness_review": "2026-04-14T20:06:18",
-    "pricing_alternatives_review": "2026-04-14T20:06:18",
-    "component_package_review": "2026-04-14T20:06:18",
-    "hardware_aware_rendering_brief_review": "2026-04-14T20:06:18",
+    "execution_resume": "2026-04-14T20:45:59",
+    "execution_boundaries": "2026-04-14T20:45:59",
+    "project_milestones": "2026-04-14T20:45:59",
+    "product_realism_review": "2026-04-14T20:45:59",
+    "cost_viability_review": "2026-04-14T20:45:59",
+    "parts_readiness_review": "2026-04-14T20:45:59",
+    "pricing_alternatives_review": "2026-04-14T20:45:59",
+    "component_package_review": "2026-04-14T20:45:59",
+    "hardware_aware_rendering_brief_review": "2026-04-14T20:45:59",
     "project_expectations": "2026-04-10T09:16:32"
   },
   "revisable": true,
-  "updated_at": "2026-04-14T20:06:18"
+  "updated_at": "2026-04-14T20:45:59"
 }
