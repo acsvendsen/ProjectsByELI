@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T21:40:40",
+  "generated_at": "2026-04-14T22:14:13",
   "current_direction_summary": "ELI is currently steering SmartGlasses toward a boundary-first, phone-first, touch-first, subtitle-first functional prototype that can be reviewed for prototype buildability while consumer-tier product narration remains capped by cost and grounding gaps.",
   "hardware_direction": "Favor a boundary-first hardware stack with minimal on-glasses compute, explicit weight/bulk discipline, and later-stage hardware packages kept deferred.",
   "software_direction": "Favor phone-first runtime and lightweight on-glasses logic over heavier autonomous glasses compute. Do not reopen boundary changes until stronger link evidence appears.",
@@ -18,7 +18,7 @@
         "Current cost posture rewards simpler prototype-scoped hardware over heavier integrated product hardware."
       ],
       "what_weakens_it": [
-        "Ensure that future firmware updates do not introduce unnecessary complexity that could impact battery life or social acceptability.",
+        "Ensure the glasses remain discreet and socially acceptable during V1 development.",
         "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
       ],
       "truth_posture": "current_truth",
@@ -56,7 +56,8 @@
         "Trust posture is stronger when wearer-visible behavior stays simple enough to explain clearly."
       ],
       "what_weakens_it": [
-        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent."
+        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+        "V1 Confidence Display Format"
       ],
       "truth_posture": "provisional",
       "budget_tier_hint": "prototype_foundation_only",
@@ -74,7 +75,9 @@
         "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable`, intended budget..."
       ],
       "what_weakens_it": [
-        "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope."
+        "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
+        "V1 Confidence Display Format",
+        "V1 Default Subtitle Position"
       ],
       "truth_posture": "bounded",
       "budget_tier_hint": "assistive_prototype_learning",
@@ -92,8 +95,7 @@
         "Cost posture is `product_tier_mismatch_risk` / `stop_if_cost_target_matters`."
       ],
       "what_weakens_it": [
-        "No current package direction is credible for `discreet_consumer_assistive_wearable`.",
-        "Package-only parts posture is still too weak for consumer-tier interpretation."
+        "No current package direction is credible for `discreet_consumer_assistive_wearable`."
       ],
       "truth_posture": "current_truth",
       "budget_tier_hint": "product_tier_mismatch_risk",
@@ -203,7 +205,7 @@
     "Firmware quality-upgrade posture is still limited-evidence, not a locked direction.",
     "Default confidence-display format remains review-bound.",
     "Default subtitle-position behavior remains review-bound.",
-    "Memory/Cache Policy"
+    "Visual Hierarchy"
   ],
   "what_is_blocking_stronger_direction_lock": [
     "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
@@ -237,16 +239,16 @@
     "review_truth": "v1_decision_review"
   },
   "source_generated_at": {
-    "project_scorecard": "2026-04-14T21:38:07",
-    "execution_boundaries": "2026-04-14T21:40:40",
-    "product_realism_review": "2026-04-14T21:40:40",
-    "cost_viability_review": "2026-04-14T21:40:40",
-    "component_package_review": "2026-04-14T21:40:40",
-    "parts_readiness_review": "2026-04-14T21:40:40",
-    "pricing_alternatives_review": "2026-04-14T21:40:40",
-    "v1_decision_review": "2026-04-14T21:40:36",
-    "reflect_state": "2026-04-14T21:40:36"
+    "project_scorecard": "2026-04-14T22:13:02",
+    "execution_boundaries": "2026-04-14T22:14:13",
+    "product_realism_review": "2026-04-14T22:14:13",
+    "cost_viability_review": "2026-04-14T22:14:13",
+    "component_package_review": "2026-04-14T22:14:13",
+    "parts_readiness_review": "2026-04-14T22:14:13",
+    "pricing_alternatives_review": "2026-04-14T22:14:13",
+    "v1_decision_review": "2026-04-14T22:12:33",
+    "reflect_state": "2026-04-14T22:12:33"
   },
   "revisable": true,
-  "updated_at": "2026-04-14T21:40:40"
+  "updated_at": "2026-04-14T22:14:13"
 }

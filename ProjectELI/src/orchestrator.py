@@ -234,6 +234,18 @@ PROJECT_DIRECTION_CHOICE_STATUSES = (
     'blocked',
     'exploratory',
 )
+SIMILAR_PRODUCT_ITEM_TYPES = (
+    'direct_similar',
+    'adjacent_solution',
+    'partial_substitute',
+    'solved_subproblem',
+    'inspiration_only',
+)
+SIMILAR_PRODUCT_REFERENCE_FITS = (
+    'strong_reference',
+    'cautionary_reference',
+    'inspiration_only',
+)
 PARTS_SHORTLIST_POSTURES = (
     'not_yet_warranted',
     'package_only_waiting_for_component_signals',
@@ -704,6 +716,7 @@ PROJECT_DIRECTION_REVIEW_PATH = PROJECT_STATE_DIR / "project_direction_review.js
 EXPLORATORY_IDEAS_REVIEW_PATH = PROJECT_STATE_DIR / "exploratory_ideas_review.json"
 OPERATOR_PROPOSAL_INTAKE_PATH = PROJECT_STATE_DIR / "operator_proposal_intake.json"
 OPERATOR_PROPOSAL_REVIEW_PATH = PROJECT_STATE_DIR / "operator_proposal_review.json"
+SIMILAR_PRODUCTS_REVIEW_PATH = PROJECT_STATE_DIR / "similar_products_review.json"
 PROJECT_TOPOLOGY_VIEW_PATH = PROJECT_STATE_DIR / "project_topology_view.json"
 EXTENSIONS_CAPABILITY_REVIEW_PATH = PROJECT_STATE_DIR / "extensions_capability_review.json"
 EXTENSION_DEPLOYMENT_REVIEW_PATH = PROJECT_STATE_DIR / "extension_deployment_review.json"
@@ -1098,6 +1111,14 @@ DEFAULT_COGNITION_SCHEMA = {
             'include_in_execution_resume': True,
             'max_visible': 5,
             'max_summary_rows': 5,
+        },
+        'similar_products_review': {
+            'enabled': True,
+            'include_in_execution_resume': True,
+            'max_rows_per_bucket': 3,
+            'max_summary_rows': 5,
+            'max_do_not_reinvent_signals': 4,
+            'max_differentiation_rows': 4,
         },
         'project_topology_view': {
             'enabled': True,
@@ -1507,6 +1528,13 @@ control:
     max_deferred_choices: 5
     max_reason_rows: 5
     max_change_rows: 5
+  similar_products_review:
+    enabled: true
+    include_in_execution_resume: true
+    max_rows_per_bucket: 3
+    max_summary_rows: 5
+    max_do_not_reinvent_signals: 4
+    max_differentiation_rows: 4
   project_topology_view:
     enabled: true
     max_nodes: 10
@@ -7667,6 +7695,20 @@ def operator_proposal_review_config(schema=None):
     }
 
 
+def similar_products_review_config(schema=None):
+    schema = schema or load_cognition_schema()
+    control = schema.get('control', {}) if isinstance(schema, dict) else {}
+    cfg = control.get('similar_products_review', {}) if isinstance(control.get('similar_products_review', {}), dict) else {}
+    return {
+        'enabled': bool(cfg.get('enabled', True)),
+        'include_in_execution_resume': bool(cfg.get('include_in_execution_resume', True)),
+        'max_rows_per_bucket': max(1, safe_int(cfg.get('max_rows_per_bucket', 3), 3)),
+        'max_summary_rows': max(1, safe_int(cfg.get('max_summary_rows', 5), 5)),
+        'max_do_not_reinvent_signals': max(1, safe_int(cfg.get('max_do_not_reinvent_signals', 4), 4)),
+        'max_differentiation_rows': max(1, safe_int(cfg.get('max_differentiation_rows', 4), 4)),
+    }
+
+
 def project_topology_view_config(schema=None):
     schema = schema or load_cognition_schema()
     control = schema.get('control', {}) if isinstance(schema, dict) else {}
@@ -7771,6 +7813,7 @@ def default_execution_resume_state():
         'budget_tier': {},
         'exploratory_ideas': {},
         'operator_proposals': {},
+        'similar_products': {},
         'extension_actions': {},
         'current_truth_summary': [],
         'active_review_front': [],
@@ -7817,6 +7860,8 @@ def load_execution_resume_state():
         data['exploratory_ideas'] = {}
     if not isinstance(data.get('operator_proposals'), dict):
         data['operator_proposals'] = {}
+    if not isinstance(data.get('similar_products'), dict):
+        data['similar_products'] = {}
     if not isinstance(data.get('extension_actions'), dict):
         data['extension_actions'] = {}
     if not isinstance(data.get('source_generated_at'), dict):
@@ -12352,6 +12397,7 @@ def build_operator_proposal_review_state(
     intake_state=None,
     direction_state=None,
     ideas_state=None,
+    similar_state=None,
     budget_state=None,
     cost_state=None,
     parts_state=None,
@@ -12399,6 +12445,16 @@ def build_operator_proposal_review_state(
         pricing_state=pricing_state,
         boundary_state=boundary_state,
     )
+    similar_state = similar_state if isinstance(similar_state, dict) else build_similar_products_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        budget_state=budget_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+    )
     expectations = load_project_expectations_state()
 
     raw_rows = intake_state.get('operator_proposals', []) if isinstance(intake_state.get('operator_proposals', []), list) else []
@@ -12429,6 +12485,10 @@ def build_operator_proposal_review_state(
         package_rows.extend(parts_state.get('suggested_packages_now', []))
     if isinstance(parts_state.get('suggested_now', []), list):
         package_rows.extend(parts_state.get('suggested_now', []))
+    similar_rows = []
+    for key in ('similar_products', 'adjacent_products', 'already_solved_subproblems', 'inspiration_not_substitute'):
+        if isinstance(similar_state.get(key, []), list):
+            similar_rows.extend(similar_state.get(key, []))
 
     def unique_lines(items, limit, width=220):
         seen = set()
@@ -12488,6 +12548,35 @@ def build_operator_proposal_review_state(
             matches.append({
                 'id': str(row.get(id_key, '') or '').strip(),
                 'label': label,
+                'score': score,
+            })
+        matches.sort(key=lambda item: item.get('score', 0.0), reverse=True)
+        return matches[:limit]
+
+    def strongest_similarity_matches(text, rows, limit=3):
+        matches = []
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            label = str(row.get('label', '') or '').strip()
+            if not label:
+                continue
+            haystack = ' '.join([
+                label,
+                str(row.get('what_it_appears_to_solve', '') or ''),
+                str(row.get('relationship_to_current_project', '') or ''),
+                str(row.get('why_it_is_relevant', '') or ''),
+                str(row.get('why_it_is_not_the_same', '') or ''),
+                str(row.get('why_it_might_reduce_reinvention', '') or ''),
+            ])
+            score = overlap_score(text, haystack)
+            if score < 0.18:
+                continue
+            matches.append({
+                'id': str(row.get('item_id', '') or '').strip(),
+                'label': label,
+                'item_type': str(row.get('item_type', '') or 'adjacent_solution'),
+                'fit_as_reference': str(row.get('fit_as_reference', '') or 'cautionary_reference'),
                 'score': score,
             })
         matches.sort(key=lambda item: item.get('score', 0.0), reverse=True)
@@ -12598,10 +12687,12 @@ def build_operator_proposal_review_state(
         deferred_matches = strongest_matches(combined_text, deferred_rows, 'label', 'choice_id', domain_key='domain')
         package_matches = strongest_matches(combined_text, package_rows, 'label', 'item_id')
         price_matches = strongest_matches(combined_text, price_rows, 'label', 'label')
+        similar_matches = strongest_similarity_matches(combined_text, similar_rows)
 
         strongest_idea_score = idea_matches[0].get('score', 0.0) if idea_matches else 0.0
         strongest_favored_score = favored_matches[0].get('score', 0.0) if favored_matches else 0.0
         strongest_deferred_score = deferred_matches[0].get('score', 0.0) if deferred_matches else 0.0
+        strongest_similarity_score = similar_matches[0].get('score', 0.0) if similar_matches else 0.0
         explicit_already_solved_note = compact_text_excerpt(
             str(raw.get('already_solved_note', raw.get('external_similarity_note', raw.get('differentiation_note', ''))) or '').strip(),
             200,
@@ -12611,6 +12702,17 @@ def build_operator_proposal_review_state(
             phrase in lowered_text
             for phrase in ('already solved', 'already exists', 'reinvent', 'reinventing', 'not differentiated', 'weak novelty')
         )
+        if (
+            similar_matches
+            and strongest_similarity_score >= 0.28
+            and similar_matches[0].get('item_type') in ('direct_similar', 'partial_substitute', 'solved_subproblem')
+        ):
+            appears_already_solved = True
+            if not explicit_already_solved_note:
+                explicit_already_solved_note = compact_text_excerpt(
+                    f"The nearest external match is `{similar_matches[0].get('label', '')}`, which already covers a substantial part of this proposal's novelty claim.",
+                    220,
+                )
         duplicates_current_direction = strongest_favored_score >= 0.56 and fit_direction == 'fits_current_direction'
         duplicates_existing_idea = strongest_idea_score >= 0.56
         direction_challenge = fit_direction == 'challenges_current_direction'
@@ -12676,6 +12778,7 @@ def build_operator_proposal_review_state(
                 *(match.get('label', '') for match in idea_matches),
                 *(match.get('label', '') for match in package_matches),
                 *(match.get('label', '') for match in price_matches),
+                *(match.get('label', '') for match in similar_matches),
             ],
             5,
             width=160,
@@ -12707,6 +12810,7 @@ def build_operator_proposal_review_state(
             related_fronts.extend(['firmware', 'privacy_and_trust', 'project_direction_review'])
         else:
             related_fronts.extend(['parts_readiness_review', 'pricing_alternatives_review', 'budget_tier_review'])
+        related_fronts.append('similar_products_review')
 
         lifecycle_state = 'under_review'
         promotion_reason = ''
@@ -12937,11 +13041,13 @@ def build_operator_proposal_review_state(
             'cost_pressure': 'cost_viability_review',
             'parts_readiness': 'parts_readiness_review',
             'pricing_pressure': 'pricing_alternatives_review',
+            'external_similarity_context': 'similar_products_review',
         },
         'source_generated_at': {
             'operator_proposal_intake': state_surface_generated_at(intake_state),
             'project_direction_review': state_surface_generated_at(direction_state),
             'exploratory_ideas_review': state_surface_generated_at(ideas_state),
+            'similar_products_review': state_surface_generated_at(similar_state),
             'budget_tier_review': state_surface_generated_at(budget_state),
             'cost_viability_review': state_surface_generated_at(cost_state),
             'parts_readiness_review': state_surface_generated_at(parts_state),
@@ -12990,6 +13096,396 @@ def render_operator_proposal_review_context(proposal_state=None):
         lines.append(f"- proposal_lifecycle_note: {proposal_state.get('proposal_lifecycle_note', '')}")
     if proposal_state.get('prototype_vs_product_interpretation'):
         lines.append(f"- prototype_vs_product_interpretation: {proposal_state.get('prototype_vs_product_interpretation', '')}")
+    return '\n'.join(lines) + '\n'
+
+
+def default_similar_products_review_state():
+    return {
+        'generated_at': '',
+        'similarity_review_summary': '',
+        'similar_products': [],
+        'adjacent_products': [],
+        'already_solved_subproblems': [],
+        'inspiration_not_substitute': [],
+        'do_not_reinvent_signals': [],
+        'real_differentiation_opportunities': [],
+        'why_these_products_are_visible_now': [],
+        'how_this_should_change_project_judgment': [],
+        'what_this_does_not_change': [],
+        'trust_posture': {},
+        'source_authority': {},
+        'source_generated_at': {},
+        'revisable': True,
+    }
+
+
+def load_similar_products_review_state():
+    data = load_json_file(SIMILAR_PRODUCTS_REVIEW_PATH, default_similar_products_review_state())
+    if not isinstance(data, dict):
+        data = default_similar_products_review_state()
+    for key in (
+        'similar_products',
+        'adjacent_products',
+        'already_solved_subproblems',
+        'inspiration_not_substitute',
+        'do_not_reinvent_signals',
+        'real_differentiation_opportunities',
+        'why_these_products_are_visible_now',
+        'how_this_should_change_project_judgment',
+        'what_this_does_not_change',
+    ):
+        if not isinstance(data.get(key), list):
+            data[key] = []
+    for key in ('trust_posture', 'source_authority', 'source_generated_at'):
+        if not isinstance(data.get(key), dict):
+            data[key] = {}
+    if not isinstance(data.get('similarity_review_summary'), str):
+        data['similarity_review_summary'] = ''
+    if not isinstance(data.get('revisable'), bool):
+        data['revisable'] = True
+    return data
+
+
+def save_similar_products_review_state(data):
+    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    payload = data if isinstance(data, dict) else default_similar_products_review_state()
+    payload['updated_at'] = now_iso()
+    SIMILAR_PRODUCTS_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+
+
+def build_similar_products_review_state(
+    schema=None,
+    review_snapshot=None,
+    direction_state=None,
+    ideas_state=None,
+    budget_state=None,
+    cost_state=None,
+    parts_state=None,
+    pricing_state=None,
+    proposal_state=None,
+):
+    schema = schema or load_cognition_schema()
+    cfg = similar_products_review_config(schema)
+    if not cfg.get('enabled', True):
+        return default_similar_products_review_state()
+
+    review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
+    expectations = load_project_expectations_state()
+    cost_state = cost_state if isinstance(cost_state, dict) else build_cost_viability_review_state(schema=schema, review_snapshot=review_snapshot)
+    parts_state = parts_state if isinstance(parts_state, dict) else build_parts_readiness_review_state(schema=schema, review_snapshot=review_snapshot)
+    pricing_state = pricing_state if isinstance(pricing_state, dict) else build_pricing_alternatives_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        parts_state=parts_state,
+        cost_state=cost_state,
+    )
+    direction_state = direction_state if isinstance(direction_state, dict) else build_project_direction_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+    )
+    ideas_state = ideas_state if isinstance(ideas_state, dict) else build_exploratory_ideas_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        direction_state=direction_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+    )
+    budget_state = budget_state if isinstance(budget_state, dict) else build_budget_tier_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        cost_state=cost_state,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+    )
+    proposal_state = proposal_state if isinstance(proposal_state, dict) else load_operator_proposal_review_state()
+
+    target_tier = str(expectations.get('target_product_tier', 'discreet_consumer_assistive_wearable') or 'discreet_consumer_assistive_wearable')
+    intended_budget = str(budget_state.get('intended_budget_posture', expectations.get('intended_budget_posture', 'medium')) or 'medium')
+    current_budget = str(budget_state.get('current_project_budget_posture', 'mixed') or 'mixed')
+    cost_signal = str(cost_state.get('kill_pause_reframe_signal', 'proceed_with_caution') or 'proceed_with_caution')
+    parts_band = str(parts_state.get('parts_readiness_band', 'package_direction_only') or 'package_direction_only')
+    favored_labels = [row.get('label', '') for row in direction_state.get('favored_choices', []) if isinstance(row, dict) and row.get('label')]
+    idea_titles = [row.get('title', '') for row in ideas_state.get('ideas_being_explored', []) if isinstance(row, dict) and row.get('title')]
+
+    def unique_lines(items, limit, width=220):
+        seen = set()
+        rows = []
+        for item in items:
+            text = compact_text_excerpt(item, width)
+            if not text:
+                continue
+            key = text.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append(text)
+            if len(rows) >= limit:
+                break
+        return rows
+
+    def make_item(
+        item_id,
+        label,
+        item_type,
+        what_it_appears_to_solve,
+        why_it_is_relevant,
+        relationship_to_current_project,
+        why_it_is_not_the_same,
+        why_it_might_reduce_reinvention,
+        budget_tier_signal,
+        trust_or_usability_signal,
+        fit_as_reference,
+        what_it_strengthens_or_weakens,
+        what_it_should_not_be_overread_as,
+        source_strength,
+        reference_url,
+    ):
+        return {
+            'item_id': normalize_signal_key(item_id or label),
+            'label': compact_text_excerpt(label, 120),
+            'item_type': item_type if item_type in SIMILAR_PRODUCT_ITEM_TYPES else 'adjacent_solution',
+            'what_it_appears_to_solve': compact_text_excerpt(what_it_appears_to_solve, 220),
+            'why_it_is_relevant': compact_text_excerpt(why_it_is_relevant, 220),
+            'relationship_to_current_project': compact_text_excerpt(relationship_to_current_project, 220),
+            'why_it_is_not_the_same': compact_text_excerpt(why_it_is_not_the_same, 220),
+            'why_it_might_reduce_reinvention': compact_text_excerpt(why_it_might_reduce_reinvention, 220),
+            'budget_tier_signal': compact_text_excerpt(budget_tier_signal, 80),
+            'trust_or_usability_signal': compact_text_excerpt(trust_or_usability_signal, 180),
+            'fit_as_reference': fit_as_reference if fit_as_reference in SIMILAR_PRODUCT_REFERENCE_FITS else 'cautionary_reference',
+            'what_it_strengthens_or_weakens': compact_text_excerpt(what_it_strengthens_or_weakens, 220),
+            'what_it_should_not_be_overread_as': compact_text_excerpt(what_it_should_not_be_overread_as, 220),
+            'source_strength': compact_text_excerpt(source_strength, 120),
+            'truth_posture': 'bounded_external_reference',
+            'reference_url': str(reference_url or '').strip(),
+            'revisable': True,
+        }
+
+    similar_products = [
+        make_item(
+            'even_realities_g1',
+            'Even Realities G1',
+            'direct_similar',
+            'Normal-looking display smart glasses with live captions, translation, notes, navigation, and a phone companion.',
+            'This is the strongest direct reference for the claim that discreet everyday display glasses already exist and already support caption-like assistive use.',
+            'Relevant as the closest reference for subtitle-capable everyday eyewear that still depends on a companion app and explicit display hardware.',
+            'It does not settle our trust model, review posture, budget discipline, or prototype-vs-product honesty. It is a product reference, not our project truth.',
+            'It weakens novelty claims around “normal-looking display glasses with captions” and reduces the case for reinventing a full baseline display-glasses concept from zero.',
+            'medium',
+            'Strong discreet everyday-wear signal with explicit display utility, but not proof of our trust or assistive posture.',
+            'strong_reference',
+            'Weakens novelty for the baseline display-glasses idea while strengthening the current subtitle-first, phone-linked direction as a real category rather than a fantasy.',
+            'Do not overread it as proof that our exact assistive, budget, or trust problem is already solved.',
+            'official_product_page',
+            'https://www.evenrealities.com/en-US/g1',
+        ),
+    ]
+
+    adjacent_products = [
+        make_item(
+            'vuzix_z100',
+            'Vuzix Z100',
+            'partial_substitute',
+            'A lightweight monocular smart-glasses display module with touch interaction, Bluetooth linkage, and an SDK path.',
+            'This matters because it is a realistic buy-or-adapt path for lightweight heads-up display experimentation instead of custom optics reinvention.',
+            'Relevant as a partial substitute for early display hardware and line-of-sight caption experiments when the current parts posture is still package-level only.',
+            'It is not a discreet everyday consumer-glasses answer. It is monocular, enterprise-shaped, and only a partial substitute for the current product ambition.',
+            'It reduces reinvention pressure on early display hardware, HUD integration, and prototype visual-output experiments.',
+            'mixed',
+            'Useful for prototype hardware adaptation, but socially and visually different from a discreet consumer-eyewear target.',
+            'strong_reference',
+            'Strengthens “buy or adapt before you custom-build optics” and weakens any claim that custom display hardware must be invented first for prototype learning.',
+            'Do not overread it as a final-product substitute or as evidence that a discreet consumer-tier package is already solved.',
+            'official_product_page',
+            'https://www.vuzix.com/products/z100-smart-glasses',
+        ),
+    ]
+
+    already_solved_subproblems = [
+        make_item(
+            'xrai_glass',
+            'XRAI Glass',
+            'solved_subproblem',
+            'Real-time captioning, translation, speaker labels, and conversation support on phones and smart glasses.',
+            'This is strong evidence that the live-captioning subproblem is already solved well enough elsewhere that “captions on glasses” alone is weak novelty.',
+            'Relevant as a do-not-reinvent signal for subtitle rendering, translation, speaker labeling, and phone-plus-glasses caption workflows.',
+            'It is not the same as a discreet, budget-disciplined, trust-shaped SmartGlasses prototype path. It solves a captioning product surface, not our full architecture or realism problem.',
+            'It reduces reinvention pressure on live captions, translation, and conversation-assist feature framing.',
+            'mixed',
+            'Strong assistive captioning usefulness signal, but with a different trust, deployment, and product posture than the current project.',
+            'strong_reference',
+            'Weakens novelty claims around live subtitles themselves while strengthening the case that the remaining differentiation must sit in trust, budget fit, and disciplined build posture.',
+            'Do not overread it as proof that our intended tier, discreetness target, or prototype/product boundary is already solved.',
+            'official_solution_page',
+            'https://xrai.glass/',
+        ),
+        make_item(
+            'mentra_captions',
+            'Mentra Captions',
+            'solved_subproblem',
+            'Offline-capable live captions, speaker labels, translation, and phone-plus-glasses caption delivery across supported smart glasses.',
+            'This shows that caption delivery on existing display glasses is already productized enough that ELI should treat many captioning ideas as adaptation or integration questions, not raw novelty.',
+            'Relevant because it explicitly runs on Even Realities and Vuzix hardware, which makes “captions on existing display glasses” a concrete already-solved lane.',
+            'It is not a substitute for our full project identity, current trust posture, or current budget-fit problem. It is a captioning layer on third-party hardware.',
+            'It reduces reinvention pressure on caption delivery, offline/on-phone caption use, and cross-device subtitle flows.',
+            'low',
+            'Strong deaf/HoH usability signal and stronger offline story than many generic AI-glasses comparisons, but still not our full product answer.',
+            'strong_reference',
+            'Weakens novelty for glasses-based live captions and strengthens the case for buying, adapting, or integrating before inventing a caption stack from scratch.',
+            'Do not overread it as a substitute for our own trust, budget, or direction-of-travel judgment.',
+            'official_solution_page',
+            'https://mentraglass.com/captions',
+        ),
+    ]
+
+    inspiration_not_substitute = [
+        make_item(
+            'xreal_one_pro',
+            'XREAL One Pro',
+            'inspiration_only',
+            'High-end immersive AR optics, dedicated spatial-computing silicon, large field of view, and entertainment/productivity display ambition.',
+            'This is relevant as a cautionary optics and complexity reference when operator ideas quietly drift toward heavier display ambition or integrated compute.',
+            'Relevant as an upper-end optical and compute reference for what happens when display ambition becomes a primary product goal.',
+            'It is not the same problem. It is immersive AR eyewear, not a discreet subtitle-first assistive prototype constrained by current cost posture.',
+            'It reduces reinvention pressure only in the sense that it shows what already exists at the ambitious end of AR optics and why that direction is not a cheap shortcut.',
+            'ambitious',
+            'High visual ambition and richer hardware stack, but much heavier product and pricing posture than the current target can honestly support.',
+            'inspiration_only',
+            'Weakens proposals that quietly smuggle ambitious optics or on-glasses compute into a medium-tier prototype path.',
+            'Do not overread it as a substitute, cost fit, or validation for the current SmartGlasses direction.',
+            'official_product_page',
+            'https://www.xreal.com/one-pro',
+        ),
+        make_item(
+            'ray_ban_meta',
+            'Ray-Ban Meta',
+            'inspiration_only',
+            'Mainstream smart glasses centered on camera, audio, voice, and consumer AI capture rather than wearer-visible display captions.',
+            'This matters because many people will compare any glasses project to mainstream AI glasses even when the trust and feature problem is materially different.',
+            'Relevant as a cautionary adjacent reference for consumer expectations, industrial design pressure, and the trust shift that comes with camera-first smart glasses.',
+            'It is not a display-glasses captioning solution and not an assistive trust-preserving substitute for the current project.',
+            'It reduces reinvention pressure around generic “smart glasses” branding by making clear that the mainstream camera/audio path already exists and solves a different problem.',
+            'medium',
+            'Strong mainstream wearability signal, but its camera-and-voice posture shifts trust, privacy, and social acceptability in ways the current project is explicitly trying not to inherit.',
+            'cautionary_reference',
+            'Strengthens the case for keeping the current path subtitle-first and trust-visible instead of drifting into undifferentiated consumer AI-glasses imitation.',
+            'Do not overread it as a direct competitor, a substitute, or proof that display-first assistive glasses are already commoditized.',
+            'official_product_page',
+            'https://www.ray-ban.com/usa/electronics/RW4013ray-ban%2520meta%2520headliner%2520-%2520gen%25202-black/8056262721285',
+        ),
+    ]
+
+    do_not_reinvent_signals = unique_lines([
+        'Live captions on smart glasses already exist through XRAI Glass and Mentra Captions, so “subtitles on glasses” by itself is weak novelty.',
+        'Normal-looking display smart glasses already exist through Even Realities G1, so novelty should not be claimed in the mere existence of discreet display eyewear.',
+        'A lightweight display-hardware adaptation path already exists through Vuzix Z100, so early prototype HUD work should bias toward adaptation before custom optics reinvention.',
+        'Mainstream camera/audio AI glasses already exist through Ray-Ban Meta, so copying generic smart-glasses behavior would weaken differentiation instead of strengthening it.',
+    ], cfg.get('max_do_not_reinvent_signals', 4))
+
+    real_differentiation_opportunities = unique_lines([
+        'Keep differentiation in trust-preserving subtitle-first assistance, not in the bare existence of captions or display glasses.',
+        'Keep differentiation in honest prototype-vs-product discipline, cost-aware gating, and explicit refusal to narrate consumer-tier readiness early.',
+        'Keep differentiation in budget-aware compromises across display placement, phone-first runtime, social acceptability, and packaging realism.',
+        'Treat partial substitutes and existing caption stacks as adaptation opportunities so engineering time stays on the genuinely unresolved boundaries.',
+    ], cfg.get('max_differentiation_rows', 4))
+
+    why_visible = unique_lines([
+        'Operator proposals and exploratory ideas can now be rejected, downgraded, or reframed with explicit already-solved and inspiration-only evidence instead of vague novelty language.',
+        'Current cost posture is harsh enough that external examples need to be interpreted against tier and trust fit, not just against feature similarity.',
+        'The current favored path is phone-first, touch-first, and subtitle-first, so external references now matter mainly for do-not-reinvent and cautionary comparison rather than for direction replacement.',
+        f"Parts posture is still `{parts_band}`, so external product references are most useful now as pattern constraints and substitute warnings rather than as final-BOM guidance.",
+    ], cfg.get('max_summary_rows', 5))
+
+    how_change = unique_lines([
+        'Proposal lifecycle can now reject or downgrade proposals whose novelty is weak because the underlying captioning or display pattern already exists elsewhere.',
+        'Exploratory ideas that mainly restate immersive AR optics or generic AI-glasses behavior should be treated as inspiration or caution, not as quietly rising current direction.',
+        'Direction of travel stays justified only if it remains visibly different on trust posture, prototype honesty, and budget discipline rather than pretending captions-on-glasses is itself the differentiator.',
+        f"Budget-tier review should keep reading immersive AR and richer integrated hardware as above the intended `{intended_budget}` posture unless a mixed-tier compromise is explicit.",
+        'Build reasoning should prefer adapting existing display hardware or caption stacks before opening custom optics or full custom platform work.',
+    ], cfg.get('max_summary_rows', 5))
+
+    what_this_does_not_change = unique_lines([
+        'This does not replace direction of travel, milestone truth, cost viability, or the current working target.',
+        f"This does not make the project product-credible; cost posture remains `{cost_signal}` and current budget posture remains `{current_budget}`.",
+        'This does not prove any external product is a substitute for the current trust, discreetness, or assistive posture.',
+        'This does not justify final-BOM thinking while parts readiness is still package-level only.',
+    ], cfg.get('max_summary_rows', 5))
+
+    summary = compact_text_excerpt(
+        'External comparison now gives ELI a bounded way to say what is already solved elsewhere, what is only adjacent inspiration, what should be bought or adapted instead of reinvented, and where genuine differentiation still remains. The strongest signal now is that captions-on-glasses and discreet display eyewear already exist, so the remaining value must come from trust posture, honest prototype discipline, tier fit, and unresolved build boundaries.',
+        340,
+    )
+
+    return {
+        'generated_at': now_iso(),
+        'similarity_review_summary': summary,
+        'similar_products': similar_products[:cfg.get('max_rows_per_bucket', 3)],
+        'adjacent_products': adjacent_products[:cfg.get('max_rows_per_bucket', 3)],
+        'already_solved_subproblems': already_solved_subproblems[:cfg.get('max_rows_per_bucket', 3)],
+        'inspiration_not_substitute': inspiration_not_substitute[:cfg.get('max_rows_per_bucket', 3)],
+        'do_not_reinvent_signals': do_not_reinvent_signals,
+        'real_differentiation_opportunities': real_differentiation_opportunities,
+        'why_these_products_are_visible_now': why_visible,
+        'how_this_should_change_project_judgment': how_change,
+        'what_this_does_not_change': what_this_does_not_change,
+        'trust_posture': {
+            'surface_role': 'bounded_external_similarity_review_surface',
+            'use_state': 'supporting_context',
+            'authority_scope': 'external product and solved-subproblem comparison only',
+            'trust_reason': compact_text_excerpt(
+                'Use this surface as supporting external-comparison context only. It can strengthen do-not-reinvent, proposal, idea, and direction judgment, but it cannot overwrite direction of travel, milestone truth, cost posture, or current execution target.',
+                260,
+            ),
+        },
+        'source_authority': {
+            'current_truth_question': 'Which outside products or solutions should change novelty, substitution, or do-not-reinvent judgment?',
+            'authoritative_surface': 'similar_products_review',
+            'supporting_surfaces': ['project_direction_review', 'exploratory_ideas_review', 'operator_proposal_review', 'budget_tier_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+        },
+        'source_generated_at': {
+            'project_direction_review': state_surface_generated_at(direction_state),
+            'exploratory_ideas_review': state_surface_generated_at(ideas_state),
+            'operator_proposal_review': state_surface_generated_at(proposal_state),
+            'budget_tier_review': state_surface_generated_at(budget_state),
+            'cost_viability_review': state_surface_generated_at(cost_state),
+            'parts_readiness_review': state_surface_generated_at(parts_state),
+            'pricing_alternatives_review': state_surface_generated_at(pricing_state),
+            'project_expectations': state_surface_generated_at(expectations),
+        },
+        'revisable': True,
+    }
+
+
+def render_similar_products_review_context(similarity_state=None):
+    similarity_state = similarity_state if isinstance(similarity_state, dict) else load_similar_products_review_state()
+    lines = ['# Similar Products Review']
+    if similarity_state.get('similarity_review_summary'):
+        lines.append(f"- similarity_review_summary: {similarity_state.get('similarity_review_summary', '')}")
+    trust_posture = similarity_state.get('trust_posture', {}) if isinstance(similarity_state.get('trust_posture', {}), dict) else {}
+    if trust_posture:
+        lines.append(
+            f"- trust_posture: `{trust_posture.get('use_state', 'supporting_context')}` as `{trust_posture.get('surface_role', 'bounded_external_similarity_review_surface')}` | {trust_posture.get('trust_reason', '')}"
+        )
+    for key in ('similar_products', 'adjacent_products', 'already_solved_subproblems', 'inspiration_not_substitute'):
+        rows = similarity_state.get(key, []) if isinstance(similarity_state.get(key, []), list) else []
+        if not rows:
+            continue
+        lines.append(f"- {key}:")
+        for row in rows[:3]:
+            if not isinstance(row, dict):
+                continue
+            lines.append(
+                f"  - {row.get('label', 'reference')} (`{row.get('item_type', 'adjacent_solution')}`, `{row.get('fit_as_reference', 'cautionary_reference')}`, `{row.get('budget_tier_signal', 'unknown')}`): {row.get('why_it_is_relevant', '')}"
+            )
+    if similarity_state.get('do_not_reinvent_signals'):
+        lines.append("- do_not_reinvent_signals: " + '; '.join(similarity_state.get('do_not_reinvent_signals', [])[:3]))
+    if similarity_state.get('real_differentiation_opportunities'):
+        lines.append("- real_differentiation_opportunities: " + '; '.join(similarity_state.get('real_differentiation_opportunities', [])[:3]))
     return '\n'.join(lines) + '\n'
 
 
@@ -14614,7 +15110,7 @@ def ui_page_priority_rank(priority):
     return order.get(str(priority or '').strip(), 4)
 
 
-def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None, boundary_state=None, topology_state=None, direction_state=None, ideas_state=None, budget_state=None, proposal_state=None, extension_deployment_state=None):
+def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=None, verification_state=None, rendering_state=None, cost_state=None, parts_state=None, pricing_state=None, boundary_state=None, topology_state=None, direction_state=None, ideas_state=None, similar_state=None, budget_state=None, proposal_state=None, extension_deployment_state=None):
     schema = schema or load_cognition_schema()
     cfg = ui_surface_plan_config(schema)
     if not cfg.get('enabled', True):
@@ -14709,6 +15205,15 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         pricing_state=pricing_state,
         boundary_state=boundary_state,
         rendering_state=rendering_state,
+    )
+    similar_state = similar_state if isinstance(similar_state, dict) else build_similar_products_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
     )
     budget_state = budget_state if isinstance(budget_state, dict) else build_budget_tier_review_state(
         schema=schema,
@@ -14838,6 +15343,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
     budget_meaningful = bool(budget_state.get('budget_tier_summary'))
     direction_meaningful = bool(direction_state.get('favored_choices') or direction_state.get('deferred_or_weaker_choices'))
     ideas_meaningful = bool(ideas_state.get('ideas_being_explored'))
+    similarity_meaningful = bool(similar_state.get('do_not_reinvent_signals') or similar_state.get('similar_products') or similar_state.get('already_solved_subproblems') or similar_state.get('inspiration_not_substitute'))
     proposals_meaningful = bool(proposal_state.get('operator_proposals')) or bool(load_operator_proposal_intake_state().get('operator_proposals', []))
     extensions_meaningful = bool(available_extensions or missing_extensions or waiting_extensions or active_extensions)
 
@@ -14908,7 +15414,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         'status': 'active',
         'priority': 'primary',
         'why_this_page_exists': 'Every project needs one compact surface for current truth, blockers, realism posture, and what should not be over-read.',
-        'driven_by_sources': ['execution_resume', 'execution_boundaries', 'project_direction_review', 'exploratory_ideas_review', 'operator_proposal_review', 'project_topology_view', 'product_realism_review', 'project_expectations', 'cost_viability_review', 'budget_tier_review', 'verification_summary'],
+        'driven_by_sources': ['execution_resume', 'execution_boundaries', 'project_direction_review', 'exploratory_ideas_review', 'operator_proposal_review', 'similar_products_review', 'project_topology_view', 'product_realism_review', 'project_expectations', 'cost_viability_review', 'budget_tier_review', 'verification_summary'],
         'sections': [
             make_section(
                 'current_truth_summary',
@@ -14959,6 +15465,14 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
                     'Hide only if operator proposal intake has been intentionally disabled and there is no proposal review surface to show.',
                 ),
                 make_section(
+                    'similar_adjacent_products',
+                    'Similar / Adjacent Products',
+                    'Show the strongest direct references, solved subproblems, do-not-reinvent signals, and cautionary comparisons without turning external references into project truth.',
+                    ['similar_products_review', 'project_direction_review', 'operator_proposal_review', 'exploratory_ideas_review', 'budget_tier_review', 'cost_viability_review'],
+                    'External comparison materially improves novelty, substitute, or do-not-reinvent judgment.',
+                    'Hide when no bounded external comparison is strong enough to improve project judgment.',
+                ),
+                make_section(
                     'trust_and_source_authority',
                     'Trust & Source Authority',
                     'Show which source currently owns the truth for this page and what remains supporting context.',
@@ -15007,6 +15521,13 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
             'understand what is actually next',
         ],
     })
+    if similarity_meaningful:
+        section_emergence_rules.append({
+            'page_id': 'project_overview',
+            'section_id': 'similar_adjacent_products',
+            'emerge_when': 'External references materially improve novelty, substitution, do-not-reinvent, or tier-fit judgment.',
+            'withhold_when': 'No bounded external comparison adds judgment value beyond the current internal review surfaces.',
+        })
 
     if review_front_meaningful:
         append_page({
@@ -15779,7 +16300,7 @@ def build_verification_transition_rows(v1_review_state, artifact_review_state, l
     return rows[:max(1, limit)]
 
 
-def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None, boundary_state=None, topology_state=None, direction_state=None, ideas_state=None, budget_state=None, proposal_state=None, extension_deployment_state=None):
+def build_verification_summary_state(schema=None, review_snapshot=None, resume_state=None, rendering_state=None, cost_state=None, boundary_state=None, topology_state=None, direction_state=None, ideas_state=None, similar_state=None, budget_state=None, proposal_state=None, extension_deployment_state=None):
     schema = schema or load_cognition_schema()
     review_snapshot = review_snapshot if isinstance(review_snapshot, dict) else load_review_state_consumption_snapshot()
     resume_state = resume_state if isinstance(resume_state, dict) else build_execution_resume_state(schema=schema, review_snapshot=review_snapshot)
@@ -15815,6 +16336,15 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         pricing_state=load_pricing_alternatives_review_state(),
         boundary_state=boundary_state,
         rendering_state=rendering_state,
+    )
+    similar_state = similar_state if isinstance(similar_state, dict) else build_similar_products_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        cost_state=cost_state,
+        parts_state=load_parts_readiness_review_state(),
+        pricing_state=load_pricing_alternatives_review_state(),
     )
     budget_state = budget_state if isinstance(budget_state, dict) else build_budget_tier_review_state(
         schema=schema,
@@ -15863,6 +16393,10 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
     emission_rows = emission_state.get('artifact_emission_readiness', []) if isinstance(emission_state.get('artifact_emission_readiness', []), list) else []
     rendering_briefs = rendering_state.get('rendering_briefs', []) if isinstance(rendering_state.get('rendering_briefs', []), list) else []
     exploratory_ideas = ideas_state.get('ideas_being_explored', []) if isinstance(ideas_state.get('ideas_being_explored', []), list) else []
+    similar_reference_rows = []
+    for key in ('similar_products', 'adjacent_products', 'already_solved_subproblems', 'inspiration_not_substitute'):
+        if isinstance(similar_state.get(key, []), list):
+            similar_reference_rows.extend(similar_state.get(key, []))
     operator_proposals = proposal_state.get('operator_proposals', []) if isinstance(proposal_state.get('operator_proposals', []), list) else []
     extension_actions = extension_deployment_state.get('top_level_operator_actions_needed', []) if isinstance(extension_deployment_state.get('top_level_operator_actions_needed', []), list) else []
     cost_warning = str(cost_state.get('operator_cost_warning', '') or '').strip()
@@ -15995,6 +16529,17 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             state_surface_generated_at(ideas_state),
             supporting_surfaces=['reflect_state', 'project_direction_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
             sample_titles=[row.get('title', '') for row in exploratory_ideas[:3]],
+        ))
+    if similar_reference_rows:
+        similarity_trust = similar_state.get('trust_posture', {}) if isinstance(similar_state.get('trust_posture', {}), dict) else {}
+        supporting_context_sources.append(build_verification_source_entry(
+            'Similar and adjacent products review',
+            'similar_products_review',
+            similarity_trust.get('use_state', 'supporting_context'),
+            similarity_trust.get('trust_reason', similar_state.get('similarity_review_summary', '')),
+            state_surface_generated_at(similar_state),
+            supporting_surfaces=['project_direction_review', 'operator_proposal_review', 'exploratory_ideas_review', 'budget_tier_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+            sample_titles=[row.get('label', '') for row in similar_reference_rows[:3] if isinstance(row, dict)],
         ))
     if topology_state.get('nodes'):
         topology_trust = topology_state.get('trust_posture', {}) if isinstance(topology_state.get('trust_posture', {}), dict) else {}
@@ -16148,6 +16693,16 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
                 220,
             ),
         })
+    if similar_reference_rows:
+        recent_source_wins.append({
+            'question': 'External similarity and do-not-reinvent review',
+            'winning_surface': 'similar_products_review',
+            'supporting_surfaces': ['project_direction_review', 'operator_proposal_review', 'exploratory_ideas_review', 'budget_tier_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+            'why': compact_text_excerpt(
+                'This surface owns bounded external comparison only. It can strengthen novelty, substitution, and do-not-reinvent judgment, but it cannot replace project truth about direction, milestones, cost, or execution posture.',
+                220,
+            ),
+        })
     recent_source_wins.append({
         'question': 'Operator proposals under lifecycle review',
         'winning_surface': 'operator_proposal_review',
@@ -16211,6 +16766,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         representation_risks.append('Hardware-aware rendering briefs are exploratory visual framing only; do not treat them as accepted design direction or settled implementation truth.')
     if exploratory_ideas:
         representation_risks.append('Exploratory ideas are supporting incubation context only; do not read a visible idea row as the current winning path, a live review front, or accepted implementation truth.')
+    if similar_reference_rows:
+        representation_risks.append('Similar-product review is supporting comparison context only; do not read a similar item as proof of equivalence, substitute fit, or product-credibility for the current project.')
     if operator_proposals:
         representation_risks.append('Operator proposals are current-truth for proposal lifecycle only; do not read promotion, hold, or rejection state as a direction change, milestone change, or accepted implementation posture.')
     if extension_actions:
@@ -16235,6 +16792,8 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         operator_checks.append('For rendering briefs, verify the current-truth subsystem and build-posture sources before reading a visual comparison as settled design intent.')
     if exploratory_ideas:
         operator_checks.append('For exploratory ideas, verify what changed, what still blocks the idea, and what would raise or kill it before spending more cycles on it.')
+    if similar_reference_rows:
+        operator_checks.append('For similar-product review, verify what is actually comparable, what is only inspiration, and what should be adapted instead of reinvented before changing project judgment.')
     if operator_proposals:
         operator_checks.append('For operator proposals, verify lifecycle state, reason, reopen condition, fit with current direction, and fit with budget tier before treating a proposal as more than bounded review truth.')
     if extension_actions:
@@ -16288,6 +16847,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             'draft_artifact_review': state_surface_generated_at(draft_state),
             'hardware_aware_rendering_brief_review': state_surface_generated_at(rendering_state),
             'exploratory_ideas_review': state_surface_generated_at(ideas_state),
+            'similar_products_review': state_surface_generated_at(similar_state),
             'operator_proposal_review': state_surface_generated_at(proposal_state),
             'budget_tier_review': state_surface_generated_at(budget_state),
             'extension_deployment_review': state_surface_generated_at(extension_deployment_state),
@@ -16341,7 +16901,7 @@ def supporting_artifact_review_posture(artifact_review_state, reflect_state):
     return 'provisional_context', 'Implementation artifact review is usable as supporting context, but it is not an authoritative current-truth surface.'
 
 
-def build_execution_resume_state(schema=None, review_snapshot=None, boundary_state=None, direction_state=None, ideas_state=None, budget_state=None, proposal_state=None, extension_deployment_state=None):
+def build_execution_resume_state(schema=None, review_snapshot=None, boundary_state=None, direction_state=None, ideas_state=None, similar_state=None, budget_state=None, proposal_state=None, extension_deployment_state=None):
     schema = schema or load_cognition_schema()
     cfg = execution_resume_config(schema)
     if not cfg.get('enabled', True):
@@ -16417,6 +16977,17 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
         pricing_state=pricing_alternatives_state,
         boundary_state=boundary_state,
     )
+    similar_state = similar_state if isinstance(similar_state, dict) else build_similar_products_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        budget_state=budget_state,
+        cost_state=cost_viability_state,
+        parts_state=parts_readiness_state,
+        pricing_state=pricing_alternatives_state,
+        proposal_state=proposal_state,
+    )
     extension_deployment_state = extension_deployment_state if isinstance(extension_deployment_state, dict) else load_extension_deployment_review_state()
     reflect_payload = reflect_state.get('reflect', {}) if isinstance(reflect_state.get('reflect', {}), dict) else {}
     evidence = reflect_state.get('evidence_analysis', {}) if isinstance(reflect_state.get('evidence_analysis', {}), dict) else {}
@@ -16465,6 +17036,13 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
         current_truth_summary.append(
             compact_text_excerpt(
                 f"{len(proposal_state.get('live_proposals', []))} live, {len(proposal_state.get('promoted_proposals', []))} promoted, {len(proposal_state.get('held_proposals', []))} held, and {len(proposal_state.get('rejected_proposals', []))} rejected operator proposal(s) are currently tracked. They remain bounded proposal truth only and do not change direction, milestone focus, or product posture by themselves.",
+                220,
+            )
+        )
+    if similar_state.get('do_not_reinvent_signals'):
+        current_truth_summary.append(
+            compact_text_excerpt(
+                f"External similarity review currently says: {similar_state.get('do_not_reinvent_signals', [''])[0]}",
                 220,
             )
         )
@@ -16708,6 +17286,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             'project_direction_review': state_surface_generated_at(direction_state),
             'exploratory_ideas_review': state_surface_generated_at(ideas_state),
             'operator_proposal_review': state_surface_generated_at(proposal_state),
+            'similar_products_review': state_surface_generated_at(similar_state),
             'extension_deployment_review': state_surface_generated_at(extension_deployment_state),
             'v1_decision_review': state_surface_generated_at(v1_payload),
             'artifact_emission_readiness': state_surface_generated_at(emission_payload),
@@ -16827,6 +17406,19 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             'prototype_vs_product_interpretation': proposal_state.get('prototype_vs_product_interpretation', ''),
             'trust_use': proposal_state.get('trust_posture', {}).get('use_state', 'current_truth') if isinstance(proposal_state.get('trust_posture', {}), dict) else 'current_truth',
         } if operator_proposal_review_config(schema).get('include_in_execution_resume', True) else {},
+        'similar_products': {
+            'similarity_review_summary': similar_state.get('similarity_review_summary', ''),
+            'top_do_not_reinvent_signal': (similar_state.get('do_not_reinvent_signals', []) or [''])[0] if isinstance(similar_state.get('do_not_reinvent_signals', []), list) else '',
+            'top_differentiation_opportunity': (similar_state.get('real_differentiation_opportunities', []) or [''])[0] if isinstance(similar_state.get('real_differentiation_opportunities', []), list) else '',
+            'top_strong_reference': (
+                (similar_state.get('similar_products', []) or [{}])[0].get('label', '')
+                if isinstance(similar_state.get('similar_products', []), list) and similar_state.get('similar_products')
+                else ((similar_state.get('already_solved_subproblems', []) or [{}])[0].get('label', '') if isinstance(similar_state.get('already_solved_subproblems', []), list) and similar_state.get('already_solved_subproblems') else '')
+            ),
+            'top_cautionary_reference': (similar_state.get('inspiration_not_substitute', []) or [{}])[0].get('label', '') if isinstance(similar_state.get('inspiration_not_substitute', []), list) and similar_state.get('inspiration_not_substitute') else '',
+            'materially_changes_current_judgment': bool(similar_state.get('do_not_reinvent_signals') or similar_state.get('real_differentiation_opportunities')),
+            'trust_use': similar_state.get('trust_posture', {}).get('use_state', 'supporting_context') if isinstance(similar_state.get('trust_posture', {}), dict) else 'supporting_context',
+        } if similar_products_review_config(schema).get('include_in_execution_resume', True) else {},
         'extension_actions': {
             'summary': extension_deployment_state.get('extensions_summary', ''),
             'operator_action_needed': bool(extension_actions),
@@ -17311,6 +17903,17 @@ def refresh_review_state_sync_metadata(schema=None):
         pricing_state=pricing_state,
     )
     save_budget_tier_review_state(budget_state)
+    similar_state = build_similar_products_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        budget_state=budget_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+    )
+    save_similar_products_review_state(similar_state)
     proposal_intake_state = load_operator_proposal_intake_state()
     save_operator_proposal_intake_state(proposal_intake_state)
     proposal_state = build_operator_proposal_review_state(
@@ -17319,6 +17922,7 @@ def refresh_review_state_sync_metadata(schema=None):
         intake_state=proposal_intake_state,
         direction_state=direction_state,
         budget_state=budget_state,
+        similar_state=similar_state,
         cost_state=cost_state,
         parts_state=parts_state,
         pricing_state=pricing_state,
@@ -17331,6 +17935,7 @@ def refresh_review_state_sync_metadata(schema=None):
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        similar_state=similar_state,
         budget_state=budget_state,
         proposal_state=proposal_state,
     )
@@ -17343,6 +17948,7 @@ def refresh_review_state_sync_metadata(schema=None):
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        similar_state=similar_state,
         budget_state=budget_state,
         proposal_state=proposal_state,
     )
@@ -17366,6 +17972,7 @@ def refresh_review_state_sync_metadata(schema=None):
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        similar_state=similar_state,
         budget_state=budget_state,
         proposal_state=proposal_state,
         extension_deployment_state=extension_deployment_state,
@@ -17379,6 +17986,7 @@ def refresh_review_state_sync_metadata(schema=None):
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        similar_state=similar_state,
         budget_state=budget_state,
         proposal_state=proposal_state,
         extension_deployment_state=extension_deployment_state,
@@ -17417,6 +18025,7 @@ def refresh_review_state_sync_metadata(schema=None):
         direction_state=direction_state,
         topology_state=topology_state,
         ideas_state=ideas_state,
+        similar_state=similar_state,
         budget_state=budget_state,
         proposal_state=proposal_state,
         extension_deployment_state=extension_deployment_state,
@@ -17435,6 +18044,7 @@ def refresh_review_state_sync_metadata(schema=None):
         direction_state=direction_state,
         topology_state=topology_state,
         ideas_state=ideas_state,
+        similar_state=similar_state,
         budget_state=budget_state,
         proposal_state=proposal_state,
         extension_deployment_state=extension_deployment_state,
@@ -19839,6 +20449,17 @@ def generate_scorecard_cycle(changes, prior_reports):
         pricing_state=pricing_state,
     )
     save_budget_tier_review_state(budget_state)
+    similar_state = build_similar_products_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        direction_state=direction_state,
+        ideas_state=ideas_state,
+        budget_state=budget_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+    )
+    save_similar_products_review_state(similar_state)
     proposal_intake_state = load_operator_proposal_intake_state()
     save_operator_proposal_intake_state(proposal_intake_state)
     proposal_state = build_operator_proposal_review_state(
@@ -19847,6 +20468,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         intake_state=proposal_intake_state,
         direction_state=direction_state,
         budget_state=budget_state,
+        similar_state=similar_state,
         cost_state=cost_state,
         parts_state=parts_state,
         pricing_state=pricing_state,
@@ -19859,6 +20481,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        similar_state=similar_state,
         budget_state=budget_state,
         proposal_state=proposal_state,
     )
@@ -19871,6 +20494,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        similar_state=similar_state,
         budget_state=budget_state,
         proposal_state=proposal_state,
     )
@@ -19894,6 +20518,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        similar_state=similar_state,
         budget_state=budget_state,
         proposal_state=proposal_state,
         extension_deployment_state=extension_deployment_state,
@@ -19907,6 +20532,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         boundary_state=boundary_state,
         direction_state=direction_state,
         ideas_state=ideas_state,
+        similar_state=similar_state,
         budget_state=budget_state,
         proposal_state=proposal_state,
         extension_deployment_state=extension_deployment_state,
@@ -19945,6 +20571,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         direction_state=direction_state,
         topology_state=topology_state,
         ideas_state=ideas_state,
+        similar_state=similar_state,
         budget_state=budget_state,
         proposal_state=proposal_state,
         extension_deployment_state=extension_deployment_state,
@@ -19963,6 +20590,7 @@ def generate_scorecard_cycle(changes, prior_reports):
         direction_state=direction_state,
         topology_state=topology_state,
         ideas_state=ideas_state,
+        similar_state=similar_state,
         budget_state=budget_state,
         proposal_state=proposal_state,
         extension_deployment_state=extension_deployment_state,
@@ -21487,10 +22115,22 @@ def context_with_inputs(changes):
         parts_state=parts_readiness_state,
         pricing_state=pricing_alternatives_state,
     )
+    similar_products_state = build_similar_products_review_state(
+        schema=schema,
+        review_snapshot=review_state_consumption,
+        direction_state=project_direction_state,
+        ideas_state=exploratory_ideas_state,
+        budget_state=budget_tier_state,
+        cost_state=cost_viability_state,
+        parts_state=parts_readiness_state,
+        pricing_state=pricing_alternatives_state,
+    )
     operator_proposal_state = build_operator_proposal_review_state(
         schema=schema,
         review_snapshot=review_state_consumption,
         direction_state=project_direction_state,
+        ideas_state=exploratory_ideas_state,
+        similar_state=similar_products_state,
         budget_state=budget_tier_state,
         cost_state=cost_viability_state,
         parts_state=parts_readiness_state,
@@ -21507,6 +22147,7 @@ def context_with_inputs(changes):
         direction_state=project_direction_state,
         rendering_state=rendering_brief_state,
         ideas_state=exploratory_ideas_state,
+        similar_state=similar_products_state,
         budget_state=budget_tier_state,
         proposal_state=operator_proposal_state,
         extension_deployment_state=extension_deployment_state,
@@ -21546,6 +22187,8 @@ def context_with_inputs(changes):
     pieces.append(render_exploratory_ideas_review_context(exploratory_ideas_state))
     pieces.append('\n')
     pieces.append(render_operator_proposal_review_context(operator_proposal_state))
+    pieces.append('\n')
+    pieces.append(render_similar_products_review_context(similar_products_state))
     pieces.append('\n')
     pieces.append(render_budget_tier_review_context(budget_tier_state))
     pieces.append('\n')

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-14T21:40:40",
-  "pricing_confidence_posture": "package_level_directional_only",
+  "generated_at": "2026-04-14T22:14:13",
+  "pricing_confidence_posture": "mixed_directional_candidates",
   "current_candidate_rows": [
     {
       "label": "Hardware Stack subsystem boundary package",
@@ -27,6 +27,15 @@
       "confidence": "limited_evidence",
       "fit_for_target": "weak_for_target_tier",
       "why_it_is_current_or_alternative": "Firmware still needs stronger evidence, so only a quality-focused package placeholder is honest now. Firmware posture is still `needs_attention` / `limited_evidence`, so touch-input and display-control simplicity may...",
+      "replacement_priority": "replace_if_cost_target_matters"
+    },
+    {
+      "label": "Smaller Cache",
+      "scope": "V1 Memory/Cache Default",
+      "cost_posture": "prototype_only_cost_shape",
+      "confidence": "emerging",
+      "fit_for_target": "weak_for_target_tier",
+      "why_it_is_current_or_alternative": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is weakly grounded. Current hardware, packaging, and subsystem pressure alr...",
       "replacement_priority": "replace_if_cost_target_matters"
     }
   ],
@@ -75,9 +84,9 @@
   "operator_warning": "Current suggestions are still useful mainly for prototype learning. No current or cheaper/simpler alternative is good enough yet for the declared target tier, so stay prototype-only unless cost posture improves.",
   "trust_posture": {
     "surface_role": "current_truth_review_surface",
-    "use_state": "provisional_context",
+    "use_state": "current_truth",
     "authority_scope": "pricing posture and directional alternatives for current package suggestions",
-    "trust_reason": "Treat this surface as provisional pricing context until parts-readiness and cost posture are operationally fresh."
+    "trust_reason": "Use this surface to compare current package suggestions against cheaper or simpler alternatives without pretending the project has vendor-ready parts."
   },
   "source_authority": {
     "parts_readiness_truth": "parts_readiness_review",
@@ -86,11 +95,11 @@
     "project_expectations": "project_expectations"
   },
   "source_generated_at": {
-    "parts_readiness_review": "2026-04-14T21:40:40",
-    "component_package_review": "2026-04-14T21:40:40",
-    "cost_viability_review": "2026-04-14T21:40:40",
+    "parts_readiness_review": "2026-04-14T22:14:13",
+    "component_package_review": "2026-04-14T22:14:13",
+    "cost_viability_review": "2026-04-14T22:14:13",
     "project_expectations": "2026-04-10T09:16:32"
   },
   "revisable": true,
-  "updated_at": "2026-04-14T21:40:40"
+  "updated_at": "2026-04-14T22:14:13"
 }

@@ -1533,6 +1533,7 @@
           <article class="steering-card wide" id="steeringDirection"></article>
           <article class="steering-card wide" id="steeringIdeas"></article>
           <article class="steering-card wide" id="steeringOperatorProposals"></article>
+          <article class="steering-card wide" id="steeringSimilarity"></article>
           <article class="steering-card wide" id="steeringMilestones"></article>
         </div>
         <div class="topology-panel" id="projectTopologyPanel" style="display:none">
@@ -3025,6 +3026,7 @@
       const direction = status.project_direction_review || {};
       const ideas = status.exploratory_ideas_review || {};
       const proposals = status.operator_proposal_review || {};
+      const similarity = status.similar_products_review || {};
       const budget = status.budget_tier_review || {};
       const cost = status.cost_viability_review || {};
       const verification = status.verification_summary || {};
@@ -3051,11 +3053,15 @@
       const ideaTruthOwner = (verification.supporting_context_sources || []).find(row =>
         row.question === "Exploratory ideas being incubated"
       );
+      const similarityTruthOwner = (verification.supporting_context_sources || []).find(row =>
+        row.question === "Similar and adjacent products review"
+      );
       const boundarySection = sections.find(section => section.section_id === "execution_boundaries") || {};
       const budgetSection = sections.find(section => section.section_id === "budget_tier_posture") || {};
       const directionSection = sections.find(section => section.section_id === "direction_of_travel") || {};
       const ideasSection = sections.find(section => section.section_id === "ideas_im_exploring") || {};
       const proposalsSection = sections.find(section => section.section_id === "operator_proposals") || {};
+      const similaritySection = sections.find(section => section.section_id === "similar_adjacent_products") || {};
       const targetTitle = boundaries.current_milestone_target_title || boundaries.target_milestone_title || "";
       const targetWhy = boundaries.why_this_target_now || boundaries.current_boundary_summary || "";
       const targetUnlocks = (boundaries.what_unlocks_if_reviewed || []).slice(0, 2);
@@ -3153,6 +3159,39 @@
                   ${proposalReasonText(row) ? `<div class="footer"><strong>${proposalReasonLabel(row)}:</strong> ${truncateText(proposalReasonText(row), 220)}</div>` : ``}
                   ${row.main_risks?.length ? `<div class="footer"><strong>Main risk:</strong> ${truncateText(row.main_risks[0], 220)}</div>` : ``}
                   ${proposalNextText(row) ? `<div class="footer"><strong>${proposalNextLabel(row)}:</strong> ${truncateText(proposalNextText(row), 220)}</div>` : ``}
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      };
+      const similarityStrongRows = [
+        ...(similarity.similar_products || []),
+        ...(similarity.already_solved_subproblems || [])
+      ].slice(0, 3);
+      const similarityCautionRows = [
+        ...(similarity.adjacent_products || []),
+        ...(similarity.inspiration_not_substitute || [])
+      ].slice(0, 3);
+      const renderSimilarityBucket = (title, rows) => {
+        if (!rows.length) return "";
+        return `
+          <div class="steering-group">
+            <div class="steering-group-title">${title}</div>
+            <div class="steering-list">
+              ${rows.map(row => `
+                <div class="steering-row">
+                  <div class="steering-row-head">
+                    <strong>${row.label || "Reference"}</strong>
+                    <div class="steering-row-meta">
+                      ${row.item_type ? `<span class="mini-pill ${row.item_type}">${humanizeToken(row.item_type)}</span>` : ``}
+                      ${row.fit_as_reference ? `<span class="mini-pill ${row.fit_as_reference}">${humanizeToken(row.fit_as_reference)}</span>` : ``}
+                      ${row.budget_tier_signal ? `<span class="mini-pill ${row.budget_tier_signal}">${humanizeToken(row.budget_tier_signal)}</span>` : ``}
+                    </div>
+                  </div>
+                  <div>${truncateText(row.why_it_is_relevant || row.relationship_to_current_project || "", 220)}</div>
+                  ${row.why_it_might_reduce_reinvention ? `<div class="footer"><strong>Why it matters:</strong> ${truncateText(row.why_it_might_reduce_reinvention, 220)}</div>` : ``}
+                  ${row.what_it_should_not_be_overread_as ? `<div class="footer"><strong>Do not overread:</strong> ${truncateText(row.what_it_should_not_be_overread_as, 220)}</div>` : ``}
                 </div>
               `).join("")}
             </div>
@@ -3370,6 +3409,30 @@
         ${proposals.prototype_vs_product_interpretation ? `<div class="footer"><strong>Prototype vs product:</strong> ${truncateText(proposals.prototype_vs_product_interpretation, 240)}</div>` : ``}
         ${proposalTruthOwner ? `<div class="footer"><strong>Current truth owner:</strong> ${proposalTruthOwner.source_surface}</div>` : ``}
         ${proposalsSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(proposalsSection.purpose, 220)}</div>` : ``}
+      `;
+
+      document.getElementById("steeringSimilarity").innerHTML = `
+        <div class="verification-heading">${similaritySection.title || "Similar / Adjacent Products"}</div>
+        <div class="mini-pills">
+          ${similarity.trust_posture?.use_state ? `<span class="mini-pill ${similarity.trust_posture.use_state}">${humanizeToken(similarity.trust_posture.use_state)}</span>` : ``}
+          <span class="mini-pill strong_reference">Do not reinvent</span>
+          <span class="mini-pill inspiration_only">Not the same</span>
+        </div>
+        <div class="steering-copy">${similarity.similarity_review_summary || "No bounded similar-product review is available yet."}</div>
+        ${
+          similarityStrongRows.length || similarityCautionRows.length
+            ? `<div class="steering-groups">
+                ${renderSimilarityBucket("Strongest references", similarityStrongRows)}
+                ${renderSimilarityBucket("Caution / not substitute", similarityCautionRows)}
+              </div>`
+            : `<div class="steering-empty">No external reference is currently strong enough to change novelty or substitution judgment.</div>`
+        }
+        ${(similarity.do_not_reinvent_signals || []).length ? `<div class="footer"><strong>Do not reinvent:</strong> ${truncateText(similarity.do_not_reinvent_signals[0], 240)}</div>` : ``}
+        ${(similarity.real_differentiation_opportunities || []).length ? `<div class="footer"><strong>Real differentiation:</strong> ${truncateText(similarity.real_differentiation_opportunities[0], 240)}</div>` : ``}
+        ${(similarity.how_this_should_change_project_judgment || []).length ? `<div class="footer"><strong>Judgment impact:</strong> ${truncateText(similarity.how_this_should_change_project_judgment[0], 240)}</div>` : ``}
+        ${(similarity.what_this_does_not_change || []).length ? `<div class="footer"><strong>Does not change:</strong> ${truncateText(similarity.what_this_does_not_change[0], 240)}</div>` : ``}
+        ${similarityTruthOwner ? `<div class="footer"><strong>Supporting surface:</strong> ${similarityTruthOwner.source_surface}</div>` : ``}
+        ${similaritySection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(similaritySection.purpose, 220)}</div>` : ``}
       `;
 
       document.getElementById("steeringMilestones").innerHTML = `

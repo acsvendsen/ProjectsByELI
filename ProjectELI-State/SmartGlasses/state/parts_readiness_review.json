@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T21:40:40",
+  "generated_at": "2026-04-14T22:14:13",
   "parts_readiness_bands": [
     "not_ready_for_suggestions",
     "package_direction_only",
@@ -20,9 +20,36 @@
     "limited_evidence",
     "provisional"
   ],
-  "parts_readiness_band": "package_direction_only",
-  "current_shortlist_posture": "package_only_waiting_for_component_signals",
-  "suggested_now": [],
+  "parts_readiness_band": "provisional_component_candidates",
+  "current_shortlist_posture": "provisional_component_candidates_only",
+  "suggested_now": [
+    {
+      "item_id": "subsystem_breakdown_smaller_cache",
+      "label": "Smaller Cache",
+      "scope": "V1 Memory/Cache Default",
+      "suggestion_type": "subsystem_boundary",
+      "confidence": "emerging",
+      "why_suggested_now": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is weakly grounded.",
+      "depends_on": [
+        "V1 Memory/Cache Default"
+      ],
+      "what_could_replace_it": "A stronger grounded shortlist or schematic direction with better repo/runtime evidence could replace this provisional candidate.",
+      "truth_posture": "provisional"
+    },
+    {
+      "item_id": "subsystem_breakdown_recency_first",
+      "label": "Recency First",
+      "scope": "V1 Memory/Cache Default",
+      "suggestion_type": "subsystem_boundary",
+      "confidence": "emerging",
+      "why_suggested_now": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is weakly grounded.",
+      "depends_on": [
+        "V1 Memory/Cache Default"
+      ],
+      "what_could_replace_it": "A stronger grounded shortlist or schematic direction with better repo/runtime evidence could replace this provisional candidate.",
+      "truth_posture": "provisional"
+    }
+  ],
   "suggested_packages_now": [
     {
       "item_id": "required_now_hardware_stack_subsystem_boundary_package",
@@ -111,30 +138,30 @@
   ],
   "blocked_for_stronger_shortlist": [
     "Implementation artifact review is close enough to current reflect state to use as bounded supporting context.",
-    "No grounded component-shortlist, schematic-direction, interface-map, or subsystem-breakdown artifact currently justifies a stronger BOM package.",
+    "no provisional implementation package draft is currently emitted; Linked draft-candidate decisions no longer appear in current V1 review: v1_confidence_display_format, v1_default_subtitle_position,...",
     "Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.",
     "Current cost posture `product_tier_mismatch_risk` blocks a credible `discreet_consumer_assistive_wearable` product-candidate claim even if prototype progress continues.",
     "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
   ],
-  "why_not_stronger_yet": "Package-level suggestions are warranted now, but no grounded component-shortlist or equivalent implementation artifact justifies stronger part claims yet.",
+  "why_not_stronger_yet": "Some provisional component or interface candidates exist, but the shortlist is still too weak to read as bounded parts guidance.",
   "next_evidence_needed": [
-    "No grounded component-shortlist, schematic-direction, interface-map, or subsystem-breakdown artifact currently justifies a stronger BOM package.",
+    "no provisional implementation package draft is currently emitted; Linked draft-candidate decisions no longer appear in current V1 review: v1_confidence_display_format, v1_defaul...",
     "Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.",
     "Current cost posture `product_tier_mismatch_risk` blocks a credible `discreet_consumer_assistive_wearable` product-candidate claim even if prototype progress continues.",
     "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
     "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent."
   ],
   "operator_waiting_for": [
-    "No grounded component-shortlist, schematic-direction, interface-map, or subsystem-breakdown artifact currently justifies a stronger BOM package.",
+    "no provisional implementation package draft is currently emitted; Linked draft-candidate decisions no longer appear in current V1 review: v1_confidence_displ...",
     "Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.",
     "Current cost posture `product_tier_mismatch_risk` blocks a credible `discreet_consumer_assistive_wearable` product-candidate claim even if prototype progress...",
     "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
   ],
   "trust_posture": {
     "surface_role": "current_truth_review_surface",
-    "use_state": "provisional_context",
+    "use_state": "current_truth",
     "authority_scope": "parts readiness and provisional shortlist posture",
-    "trust_reason": "Treat this surface as provisional parts-readiness context until component-package and subsystem truth are operationally fresh."
+    "trust_reason": "Use this surface to distinguish package posture from actual part-suggestion readiness. It is honest about package-only suggestions when component confidence is not there yet."
   },
   "source_authority": {
     "component_package_truth": "component_package_review",
@@ -142,11 +169,11 @@
     "artifact_truth": "implementation_artifact_review"
   },
   "source_generated_at": {
-    "component_package_review": "2026-04-14T21:40:40",
-    "project_scorecard": "2026-04-14T21:38:07",
-    "implementation_artifact_review": "2026-04-14T21:38:38",
-    "reflect_state": "2026-04-14T21:40:36"
+    "component_package_review": "2026-04-14T22:14:13",
+    "project_scorecard": "2026-04-14T22:13:02",
+    "implementation_artifact_review": "2026-04-14T22:13:08",
+    "reflect_state": "2026-04-14T22:12:33"
   },
   "revisable": true,
-  "updated_at": "2026-04-14T21:40:40"
+  "updated_at": "2026-04-14T22:14:13"
 }

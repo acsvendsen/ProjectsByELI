@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T21:40:40",
+  "generated_at": "2026-04-14T22:14:13",
   "proposal_summary": "No operator proposal is under review right now. Proposal intake exists as a bounded lane, but raw operator input stays separate from direction, milestones, and implementation truth until proposals are actually submitted and classified.",
   "proposal_lifecycle_summary": "No operator proposal lifecycle is live right now. When proposals arrive, they will be carried as live, promoted, held, or rejected rows with explicit reasons instead of remaining passive notes.",
   "operator_proposals": [],
@@ -46,19 +46,21 @@
     "budget_pressure": "budget_tier_review",
     "cost_pressure": "cost_viability_review",
     "parts_readiness": "parts_readiness_review",
-    "pricing_pressure": "pricing_alternatives_review"
+    "pricing_pressure": "pricing_alternatives_review",
+    "external_similarity_context": "similar_products_review"
   },
   "source_generated_at": {
     "operator_proposal_intake": "2026-04-14T21:14:41",
-    "project_direction_review": "2026-04-14T21:40:40",
-    "exploratory_ideas_review": "2026-04-14T21:40:40",
-    "budget_tier_review": "2026-04-14T21:40:40",
-    "cost_viability_review": "2026-04-14T21:40:40",
-    "parts_readiness_review": "2026-04-14T21:40:40",
-    "pricing_alternatives_review": "2026-04-14T21:40:40",
-    "execution_boundaries": "2026-04-14T21:40:40",
+    "project_direction_review": "2026-04-14T22:14:13",
+    "exploratory_ideas_review": "2026-04-14T22:14:13",
+    "similar_products_review": "2026-04-14T22:14:13",
+    "budget_tier_review": "2026-04-14T22:14:13",
+    "cost_viability_review": "2026-04-14T22:14:13",
+    "parts_readiness_review": "2026-04-14T22:14:13",
+    "pricing_alternatives_review": "2026-04-14T22:14:13",
+    "execution_boundaries": "2026-04-14T22:14:13",
     "project_expectations": "2026-04-10T09:16:32"
   },
   "revisable": true,
-  "updated_at": "2026-04-14T21:40:40"
+  "updated_at": "2026-04-14T22:14:13"
 }

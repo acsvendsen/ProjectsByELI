@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T21:40:40",
+  "generated_at": "2026-04-14T22:14:13",
   "allowed_approval_states": [
     "not_yet_reviewable",
     "ready_for_review",
@@ -28,18 +28,20 @@
       "required_readiness": "At least one bounded decision should be close enough to review without pretending the overall product is settled.",
       "blocking_factors": [],
       "missing_evidence": [
-        "no bounded current product-definition review front is active",
-        "more grounded decision framing is needed before product-definition review",
         "Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototype-scoped rather than reading as a `discreet_consumer_assistive_wearable` product path."
       ],
-      "review_questions": [],
+      "review_questions": [
+        "What confidence format should V1 use by default during live subtitle support?",
+        "What should the default subtitle position behavior be for V1 live use?",
+        "What bounded memory/cache default should V1 use before richer recall behavior is expanded?"
+      ],
       "approval_state": "not_yet_reviewable",
       "unlocks": [
         "prototype_viability",
         "implementation_package_review"
       ],
       "current_band": "emerging",
-      "why_not_ready_yet": "no bounded current product-definition review front is active; more grounded decision framing is needed before product-definition review; Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototy...",
+      "why_not_ready_yet": "Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototype-scoped rather than reading as a `discreet_consumer_assistive_wearable` product path.",
       "revisable": true
     },
     {
@@ -119,20 +121,20 @@
       "required_readiness": "At least one emitted or strongly draft-ready artifact should exist before package review becomes real.",
       "blocking_factors": [],
       "missing_evidence": [
-        "no provisional implementation package draft is currently emitted",
-        "Linked draft-candidate decisions no longer appear in current V1 review: v1_confidence_display_format, v1_default_subtitle_position, v1_visual_hierarchy_default. Do not use it as current cross-surface truth without caution.",
         "Implementation-package review can stay live for prototype buildability, but current cost posture `product_tier_mismatch_risk` blocks reading it as a `discreet_consumer_assistive_wearable` implementation package."
       ],
       "review_questions": [
-        "Which parts of this implementation package are still prototype-learning scaffolds and should not be read as consumer-product commitments?"
+        "Which parts of this implementation package are still prototype-learning scaffolds and should not be read as consumer-product commitments?",
+        "Given the current constraints, should Label + Reason remain the leading default for What confidence format should V1 use by default during live subtitle support?",
+        "Given the current constraints, should More Prominent remain the leading default for What should the default subtitle position behavior be for V1 live use?"
       ],
-      "approval_state": "not_yet_reviewable",
+      "approval_state": "ready_for_review",
       "unlocks": [
         "architecture_lock",
         "implementation_planning"
       ],
-      "current_band": "too_early",
-      "why_not_ready_yet": "no provisional implementation package draft is currently emitted; Linked draft-candidate decisions no longer appear in current V1 review: v1_confidence_display_format, v1_default_subtitle_position, v1_visual_hierarchy_default. Do not use it as current cross...",
+      "current_band": "ready_to_review",
+      "why_not_ready_yet": "",
       "revisable": true
     },
     {
@@ -173,11 +175,11 @@
     }
   ],
   "counts": {
-    "not_yet_reviewable": 4,
-    "ready_for_review": 0,
+    "not_yet_reviewable": 3,
+    "ready_for_review": 1,
     "approved": 0,
     "held": 1,
     "rejected_for_now": 0
   },
-  "updated_at": "2026-04-14T21:40:40"
+  "updated_at": "2026-04-14T22:14:13"
 }

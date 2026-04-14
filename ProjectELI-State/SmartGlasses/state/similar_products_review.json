@@ -1,0 +1,188 @@
+{
+  "generated_at": "2026-04-14T22:14:13",
+  "similarity_review_summary": "External comparison now gives ELI a bounded way to say what is already solved elsewhere, what is only adjacent inspiration, what should be bought or adapted instead of reinvented, and where genuine differentiation still remains. The strongest signal now is that captions-on-glasses and discreet display eyewear already exist, so the rema...",
+  "similar_products": [
+    {
+      "item_id": "even_realities_g1",
+      "label": "Even Realities G1",
+      "item_type": "direct_similar",
+      "what_it_appears_to_solve": "Normal-looking display smart glasses with live captions, translation, notes, navigation, and a phone companion.",
+      "why_it_is_relevant": "This is the strongest direct reference for the claim that discreet everyday display glasses already exist and already support caption-like assistive use.",
+      "relationship_to_current_project": "Relevant as the closest reference for subtitle-capable everyday eyewear that still depends on a companion app and explicit display hardware.",
+      "why_it_is_not_the_same": "It does not settle our trust model, review posture, budget discipline, or prototype-vs-product honesty. It is a product reference, not our project truth.",
+      "why_it_might_reduce_reinvention": "It weakens novelty claims around \u201cnormal-looking display glasses with captions\u201d and reduces the case for reinventing a full baseline display-glasses concept from zero.",
+      "budget_tier_signal": "medium",
+      "trust_or_usability_signal": "Strong discreet everyday-wear signal with explicit display utility, but not proof of our trust or assistive posture.",
+      "fit_as_reference": "strong_reference",
+      "what_it_strengthens_or_weakens": "Weakens novelty for the baseline display-glasses idea while strengthening the current subtitle-first, phone-linked direction as a real category rather than a fantasy.",
+      "what_it_should_not_be_overread_as": "Do not overread it as proof that our exact assistive, budget, or trust problem is already solved.",
+      "source_strength": "official_product_page",
+      "truth_posture": "bounded_external_reference",
+      "reference_url": "https://www.evenrealities.com/en-US/g1",
+      "revisable": true
+    }
+  ],
+  "adjacent_products": [
+    {
+      "item_id": "vuzix_z100",
+      "label": "Vuzix Z100",
+      "item_type": "partial_substitute",
+      "what_it_appears_to_solve": "A lightweight monocular smart-glasses display module with touch interaction, Bluetooth linkage, and an SDK path.",
+      "why_it_is_relevant": "This matters because it is a realistic buy-or-adapt path for lightweight heads-up display experimentation instead of custom optics reinvention.",
+      "relationship_to_current_project": "Relevant as a partial substitute for early display hardware and line-of-sight caption experiments when the current parts posture is still package-level only.",
+      "why_it_is_not_the_same": "It is not a discreet everyday consumer-glasses answer. It is monocular, enterprise-shaped, and only a partial substitute for the current product ambition.",
+      "why_it_might_reduce_reinvention": "It reduces reinvention pressure on early display hardware, HUD integration, and prototype visual-output experiments.",
+      "budget_tier_signal": "mixed",
+      "trust_or_usability_signal": "Useful for prototype hardware adaptation, but socially and visually different from a discreet consumer-eyewear target.",
+      "fit_as_reference": "strong_reference",
+      "what_it_strengthens_or_weakens": "Strengthens \u201cbuy or adapt before you custom-build optics\u201d and weakens any claim that custom display hardware must be invented first for prototype learning.",
+      "what_it_should_not_be_overread_as": "Do not overread it as a final-product substitute or as evidence that a discreet consumer-tier package is already solved.",
+      "source_strength": "official_product_page",
+      "truth_posture": "bounded_external_reference",
+      "reference_url": "https://www.vuzix.com/products/z100-smart-glasses",
+      "revisable": true
+    }
+  ],
+  "already_solved_subproblems": [
+    {
+      "item_id": "xrai_glass",
+      "label": "XRAI Glass",
+      "item_type": "solved_subproblem",
+      "what_it_appears_to_solve": "Real-time captioning, translation, speaker labels, and conversation support on phones and smart glasses.",
+      "why_it_is_relevant": "This is strong evidence that the live-captioning subproblem is already solved well enough elsewhere that \u201ccaptions on glasses\u201d alone is weak novelty.",
+      "relationship_to_current_project": "Relevant as a do-not-reinvent signal for subtitle rendering, translation, speaker labeling, and phone-plus-glasses caption workflows.",
+      "why_it_is_not_the_same": "It is not the same as a discreet, budget-disciplined, trust-shaped SmartGlasses prototype path. It solves a captioning product surface, not our full architecture or realism problem.",
+      "why_it_might_reduce_reinvention": "It reduces reinvention pressure on live captions, translation, and conversation-assist feature framing.",
+      "budget_tier_signal": "mixed",
+      "trust_or_usability_signal": "Strong assistive captioning usefulness signal, but with a different trust, deployment, and product posture than the current project.",
+      "fit_as_reference": "strong_reference",
+      "what_it_strengthens_or_weakens": "Weakens novelty claims around live subtitles themselves while strengthening the case that the remaining differentiation must sit in trust, budget fit, and disciplined build posture.",
+      "what_it_should_not_be_overread_as": "Do not overread it as proof that our intended tier, discreetness target, or prototype/product boundary is already solved.",
+      "source_strength": "official_solution_page",
+      "truth_posture": "bounded_external_reference",
+      "reference_url": "https://xrai.glass/",
+      "revisable": true
+    },
+    {
+      "item_id": "mentra_captions",
+      "label": "Mentra Captions",
+      "item_type": "solved_subproblem",
+      "what_it_appears_to_solve": "Offline-capable live captions, speaker labels, translation, and phone-plus-glasses caption delivery across supported smart glasses.",
+      "why_it_is_relevant": "This shows that caption delivery on existing display glasses is already productized enough that ELI should treat many captioning ideas as adaptation or integration questions, not raw novelty.",
+      "relationship_to_current_project": "Relevant because it explicitly runs on Even Realities and Vuzix hardware, which makes \u201ccaptions on existing display glasses\u201d a concrete already-solved lane.",
+      "why_it_is_not_the_same": "It is not a substitute for our full project identity, current trust posture, or current budget-fit problem. It is a captioning layer on third-party hardware.",
+      "why_it_might_reduce_reinvention": "It reduces reinvention pressure on caption delivery, offline/on-phone caption use, and cross-device subtitle flows.",
+      "budget_tier_signal": "low",
+      "trust_or_usability_signal": "Strong deaf/HoH usability signal and stronger offline story than many generic AI-glasses comparisons, but still not our full product answer.",
+      "fit_as_reference": "strong_reference",
+      "what_it_strengthens_or_weakens": "Weakens novelty for glasses-based live captions and strengthens the case for buying, adapting, or integrating before inventing a caption stack from scratch.",
+      "what_it_should_not_be_overread_as": "Do not overread it as a substitute for our own trust, budget, or direction-of-travel judgment.",
+      "source_strength": "official_solution_page",
+      "truth_posture": "bounded_external_reference",
+      "reference_url": "https://mentraglass.com/captions",
+      "revisable": true
+    }
+  ],
+  "inspiration_not_substitute": [
+    {
+      "item_id": "xreal_one_pro",
+      "label": "XREAL One Pro",
+      "item_type": "inspiration_only",
+      "what_it_appears_to_solve": "High-end immersive AR optics, dedicated spatial-computing silicon, large field of view, and entertainment/productivity display ambition.",
+      "why_it_is_relevant": "This is relevant as a cautionary optics and complexity reference when operator ideas quietly drift toward heavier display ambition or integrated compute.",
+      "relationship_to_current_project": "Relevant as an upper-end optical and compute reference for what happens when display ambition becomes a primary product goal.",
+      "why_it_is_not_the_same": "It is not the same problem. It is immersive AR eyewear, not a discreet subtitle-first assistive prototype constrained by current cost posture.",
+      "why_it_might_reduce_reinvention": "It reduces reinvention pressure only in the sense that it shows what already exists at the ambitious end of AR optics and why that direction is not a cheap shortcut.",
+      "budget_tier_signal": "ambitious",
+      "trust_or_usability_signal": "High visual ambition and richer hardware stack, but much heavier product and pricing posture than the current target can honestly support.",
+      "fit_as_reference": "inspiration_only",
+      "what_it_strengthens_or_weakens": "Weakens proposals that quietly smuggle ambitious optics or on-glasses compute into a medium-tier prototype path.",
+      "what_it_should_not_be_overread_as": "Do not overread it as a substitute, cost fit, or validation for the current SmartGlasses direction.",
+      "source_strength": "official_product_page",
+      "truth_posture": "bounded_external_reference",
+      "reference_url": "https://www.xreal.com/one-pro",
+      "revisable": true
+    },
+    {
+      "item_id": "ray_ban_meta",
+      "label": "Ray-Ban Meta",
+      "item_type": "inspiration_only",
+      "what_it_appears_to_solve": "Mainstream smart glasses centered on camera, audio, voice, and consumer AI capture rather than wearer-visible display captions.",
+      "why_it_is_relevant": "This matters because many people will compare any glasses project to mainstream AI glasses even when the trust and feature problem is materially different.",
+      "relationship_to_current_project": "Relevant as a cautionary adjacent reference for consumer expectations, industrial design pressure, and the trust shift that comes with camera-first smart glasses.",
+      "why_it_is_not_the_same": "It is not a display-glasses captioning solution and not an assistive trust-preserving substitute for the current project.",
+      "why_it_might_reduce_reinvention": "It reduces reinvention pressure around generic \u201csmart glasses\u201d branding by making clear that the mainstream camera/audio path already exists and solves a different problem.",
+      "budget_tier_signal": "medium",
+      "trust_or_usability_signal": "Strong mainstream wearability signal, but its camera-and-voice posture shifts trust, privacy, and social acceptability in ways the current project is explicitly trying not to in...",
+      "fit_as_reference": "cautionary_reference",
+      "what_it_strengthens_or_weakens": "Strengthens the case for keeping the current path subtitle-first and trust-visible instead of drifting into undifferentiated consumer AI-glasses imitation.",
+      "what_it_should_not_be_overread_as": "Do not overread it as a direct competitor, a substitute, or proof that display-first assistive glasses are already commoditized.",
+      "source_strength": "official_product_page",
+      "truth_posture": "bounded_external_reference",
+      "reference_url": "https://www.ray-ban.com/usa/electronics/RW4013ray-ban%2520meta%2520headliner%2520-%2520gen%25202-black/8056262721285",
+      "revisable": true
+    }
+  ],
+  "do_not_reinvent_signals": [
+    "Live captions on smart glasses already exist through XRAI Glass and Mentra Captions, so \u201csubtitles on glasses\u201d by itself is weak novelty.",
+    "Normal-looking display smart glasses already exist through Even Realities G1, so novelty should not be claimed in the mere existence of discreet display eyewear.",
+    "A lightweight display-hardware adaptation path already exists through Vuzix Z100, so early prototype HUD work should bias toward adaptation before custom optics reinvention.",
+    "Mainstream camera/audio AI glasses already exist through Ray-Ban Meta, so copying generic smart-glasses behavior would weaken differentiation instead of strengthening it."
+  ],
+  "real_differentiation_opportunities": [
+    "Keep differentiation in trust-preserving subtitle-first assistance, not in the bare existence of captions or display glasses.",
+    "Keep differentiation in honest prototype-vs-product discipline, cost-aware gating, and explicit refusal to narrate consumer-tier readiness early.",
+    "Keep differentiation in budget-aware compromises across display placement, phone-first runtime, social acceptability, and packaging realism.",
+    "Treat partial substitutes and existing caption stacks as adaptation opportunities so engineering time stays on the genuinely unresolved boundaries."
+  ],
+  "why_these_products_are_visible_now": [
+    "Operator proposals and exploratory ideas can now be rejected, downgraded, or reframed with explicit already-solved and inspiration-only evidence instead of vague novelty language.",
+    "Current cost posture is harsh enough that external examples need to be interpreted against tier and trust fit, not just against feature similarity.",
+    "The current favored path is phone-first, touch-first, and subtitle-first, so external references now matter mainly for do-not-reinvent and cautionary comparison rather than for direction replacement.",
+    "Parts posture is still `provisional_component_candidates`, so external product references are most useful now as pattern constraints and substitute warnings rather than as final-BOM guidance."
+  ],
+  "how_this_should_change_project_judgment": [
+    "Proposal lifecycle can now reject or downgrade proposals whose novelty is weak because the underlying captioning or display pattern already exists elsewhere.",
+    "Exploratory ideas that mainly restate immersive AR optics or generic AI-glasses behavior should be treated as inspiration or caution, not as quietly rising current direction.",
+    "Direction of travel stays justified only if it remains visibly different on trust posture, prototype honesty, and budget discipline rather than pretending captions-on-glasses is itself the differentiator.",
+    "Budget-tier review should keep reading immersive AR and richer integrated hardware as above the intended `medium` posture unless a mixed-tier compromise is explicit.",
+    "Build reasoning should prefer adapting existing display hardware or caption stacks before opening custom optics or full custom platform work."
+  ],
+  "what_this_does_not_change": [
+    "This does not replace direction of travel, milestone truth, cost viability, or the current working target.",
+    "This does not make the project product-credible; cost posture remains `stop_if_cost_target_matters` and current budget posture remains `mixed`.",
+    "This does not prove any external product is a substitute for the current trust, discreetness, or assistive posture.",
+    "This does not justify final-BOM thinking while parts readiness is still package-level only."
+  ],
+  "trust_posture": {
+    "surface_role": "bounded_external_similarity_review_surface",
+    "use_state": "supporting_context",
+    "authority_scope": "external product and solved-subproblem comparison only",
+    "trust_reason": "Use this surface as supporting external-comparison context only. It can strengthen do-not-reinvent, proposal, idea, and direction judgment, but it cannot overwrite direction of travel, milestone truth, cost posture, or current execution target."
+  },
+  "source_authority": {
+    "current_truth_question": "Which outside products or solutions should change novelty, substitution, or do-not-reinvent judgment?",
+    "authoritative_surface": "similar_products_review",
+    "supporting_surfaces": [
+      "project_direction_review",
+      "exploratory_ideas_review",
+      "operator_proposal_review",
+      "budget_tier_review",
+      "cost_viability_review",
+      "parts_readiness_review",
+      "pricing_alternatives_review"
+    ]
+  },
+  "source_generated_at": {
+    "project_direction_review": "2026-04-14T22:14:13",
+    "exploratory_ideas_review": "2026-04-14T22:14:13",
+    "operator_proposal_review": "2026-04-14T21:40:40",
+    "budget_tier_review": "2026-04-14T22:14:13",
+    "cost_viability_review": "2026-04-14T22:14:13",
+    "parts_readiness_review": "2026-04-14T22:14:13",
+    "pricing_alternatives_review": "2026-04-14T22:14:13",
+    "project_expectations": "2026-04-10T09:16:32"
+  },
+  "revisable": true,
+  "updated_at": "2026-04-14T22:14:13"
+}
