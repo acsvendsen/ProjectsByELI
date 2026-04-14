@@ -12280,13 +12280,23 @@ def default_operator_proposal_review_state():
     return {
         'generated_at': '',
         'proposal_summary': '',
+        'proposal_lifecycle_summary': '',
         'operator_proposals': [],
+        'live_proposals': [],
+        'promoted_proposals': [],
+        'held_proposals': [],
+        'rejected_proposals': [],
         'why_proposals_are_visible_now': [],
         'proposals_fitting_current_direction': [],
         'proposals_challenging_current_direction': [],
         'proposals_blocked_or_too_weak': [],
+        'why_a_proposal_was_promoted': [],
+        'why_a_proposal_was_held': [],
+        'why_a_proposal_was_rejected': [],
         'what_would_promote_a_proposal': [],
+        'what_would_reopen_a_held_or_rejected_proposal': [],
         'what_keeps_proposals_non_authoritative': [],
+        'proposal_lifecycle_note': '',
         'prototype_vs_product_interpretation': '',
         'trust_posture': {},
         'source_authority': {},
@@ -12301,16 +12311,24 @@ def load_operator_proposal_review_state():
         data = default_operator_proposal_review_state()
     for key in (
         'operator_proposals',
+        'live_proposals',
+        'promoted_proposals',
+        'held_proposals',
+        'rejected_proposals',
         'why_proposals_are_visible_now',
         'proposals_fitting_current_direction',
         'proposals_challenging_current_direction',
         'proposals_blocked_or_too_weak',
+        'why_a_proposal_was_promoted',
+        'why_a_proposal_was_held',
+        'why_a_proposal_was_rejected',
         'what_would_promote_a_proposal',
+        'what_would_reopen_a_held_or_rejected_proposal',
         'what_keeps_proposals_non_authoritative',
     ):
         if not isinstance(data.get(key), list):
             data[key] = []
-    for key in ('proposal_summary', 'prototype_vs_product_interpretation'):
+    for key in ('proposal_summary', 'proposal_lifecycle_summary', 'proposal_lifecycle_note', 'prototype_vs_product_interpretation'):
         if not isinstance(data.get(key), str):
             data[key] = ''
     for key in ('trust_posture', 'source_authority', 'source_generated_at'):
@@ -12333,6 +12351,7 @@ def build_operator_proposal_review_state(
     review_snapshot=None,
     intake_state=None,
     direction_state=None,
+    ideas_state=None,
     budget_state=None,
     cost_state=None,
     parts_state=None,
@@ -12367,8 +12386,18 @@ def build_operator_proposal_review_state(
         review_snapshot=review_snapshot,
         cost_state=cost_state,
         direction_state=direction_state,
+        ideas_state=ideas_state,
         parts_state=parts_state,
         pricing_state=pricing_state,
+    )
+    ideas_state = ideas_state if isinstance(ideas_state, dict) else build_exploratory_ideas_review_state(
+        schema=schema,
+        review_snapshot=review_snapshot,
+        direction_state=direction_state,
+        cost_state=cost_state,
+        parts_state=parts_state,
+        pricing_state=pricing_state,
+        boundary_state=boundary_state,
     )
     expectations = load_project_expectations_state()
 
@@ -12387,6 +12416,19 @@ def build_operator_proposal_review_state(
     parts_blockers = parts_state.get('blocked_for_stronger_shortlist', []) if isinstance(parts_state.get('blocked_for_stronger_shortlist', []), list) else []
     pricing_fail_rows = pricing_state.get('why_current_choice_may_fail', []) if isinstance(pricing_state.get('why_current_choice_may_fail', []), list) else []
     current_focus = str(boundary_state.get('current_milestone_target_title', boundary_state.get('target_milestone_title', 'Implementation Package Review')) or 'Implementation Package Review')
+    favored_rows = direction_state.get('favored_choices', []) if isinstance(direction_state.get('favored_choices', []), list) else []
+    deferred_rows = direction_state.get('deferred_or_weaker_choices', []) if isinstance(direction_state.get('deferred_or_weaker_choices', []), list) else []
+    idea_rows = ideas_state.get('ideas_being_explored', []) if isinstance(ideas_state.get('ideas_being_explored', []), list) else []
+    price_rows = []
+    if isinstance(pricing_state.get('current_candidate_rows', []), list):
+        price_rows.extend(pricing_state.get('current_candidate_rows', []))
+    if isinstance(pricing_state.get('alternative_rows', []), list):
+        price_rows.extend(pricing_state.get('alternative_rows', []))
+    package_rows = []
+    if isinstance(parts_state.get('suggested_packages_now', []), list):
+        package_rows.extend(parts_state.get('suggested_packages_now', []))
+    if isinstance(parts_state.get('suggested_now', []), list):
+        package_rows.extend(parts_state.get('suggested_now', []))
 
     def unique_lines(items, limit, width=220):
         seen = set()
@@ -12403,6 +12445,53 @@ def build_operator_proposal_review_state(
             if len(rows) >= limit:
                 break
         return rows
+
+    def signal_tokens(text):
+        stopwords = {
+            'a', 'an', 'and', 'approach', 'as', 'be', 'by', 'candidate', 'current', 'for', 'from', 'idea',
+            'in', 'into', 'is', 'it', 'of', 'on', 'operator', 'or', 'path', 'proposal', 'system', 'the',
+            'this', 'to', 'with',
+        }
+        tokens = set()
+        for raw_token in re.split(r'[^a-z0-9]+', str(text or '').lower()):
+            token = normalize_signal_key(raw_token)
+            if not token or token in stopwords or len(token) < 3:
+                continue
+            tokens.add(token)
+        return tokens
+
+    def overlap_score(left, right):
+        left_tokens = signal_tokens(left)
+        right_tokens = signal_tokens(right)
+        if not left_tokens or not right_tokens:
+            return 0.0
+        intersection = left_tokens.intersection(right_tokens)
+        union = left_tokens.union(right_tokens)
+        if not union:
+            return 0.0
+        return len(intersection) / float(len(union))
+
+    def strongest_matches(text, rows, label_key, id_key, domain_key=None, limit=3):
+        matches = []
+        proposal_domain = infer_domain(text)
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            label = str(row.get(label_key, '') or '').strip()
+            if not label:
+                continue
+            score = overlap_score(text, label)
+            if domain_key and str(row.get(domain_key, '') or '') and normalize_signal_key(row.get(domain_key, '')) == proposal_domain:
+                score = max(score, 0.34)
+            if score < 0.24:
+                continue
+            matches.append({
+                'id': str(row.get(id_key, '') or '').strip(),
+                'label': label,
+                'score': score,
+            })
+        matches.sort(key=lambda item: item.get('score', 0.0), reverse=True)
+        return matches[:limit]
 
     def infer_domain(text, provided=''):
         provided_norm = normalize_signal_key(provided)
@@ -12496,10 +12585,35 @@ def build_operator_proposal_review_state(
             return None
         title = title or compact_text_excerpt(proposal_text, 100) or f'Operator proposal {index + 1}'
         proposal_id = normalize_signal_key(raw.get('proposal_id', title)) or f'operator_proposal_{index + 1}'
-        domain = infer_domain(' '.join([title, proposal_text]), str(raw.get('domain', '') or ''))
-        budget_tier = infer_budget_tier(' '.join([title, proposal_text]), domain, str(raw.get('budget_tier_hint', raw.get('operator_budget_hint', '')) or ''))
-        fit_direction = fit_with_current_direction(' '.join([title, proposal_text]), domain)
-        fit_budget = budget_fit_for_proposal(budget_tier, ' '.join([title, proposal_text]))
+        combined_text = ' '.join([title, proposal_text])
+        domain = infer_domain(combined_text, str(raw.get('domain', '') or ''))
+        budget_tier = infer_budget_tier(combined_text, domain, str(raw.get('budget_tier_hint', raw.get('operator_budget_hint', '')) or ''))
+        fit_direction = fit_with_current_direction(combined_text, domain)
+        fit_budget = budget_fit_for_proposal(budget_tier, combined_text)
+        proposal_tokens = signal_tokens(combined_text)
+        proposal_short = len(proposal_tokens) < 5
+
+        idea_matches = strongest_matches(combined_text, idea_rows, 'title', 'idea_id')
+        favored_matches = strongest_matches(combined_text, favored_rows, 'label', 'choice_id', domain_key='domain')
+        deferred_matches = strongest_matches(combined_text, deferred_rows, 'label', 'choice_id', domain_key='domain')
+        package_matches = strongest_matches(combined_text, package_rows, 'label', 'item_id')
+        price_matches = strongest_matches(combined_text, price_rows, 'label', 'label')
+
+        strongest_idea_score = idea_matches[0].get('score', 0.0) if idea_matches else 0.0
+        strongest_favored_score = favored_matches[0].get('score', 0.0) if favored_matches else 0.0
+        strongest_deferred_score = deferred_matches[0].get('score', 0.0) if deferred_matches else 0.0
+        explicit_already_solved_note = compact_text_excerpt(
+            str(raw.get('already_solved_note', raw.get('external_similarity_note', raw.get('differentiation_note', ''))) or '').strip(),
+            200,
+        )
+        lowered_text = combined_text.lower()
+        appears_already_solved = bool(explicit_already_solved_note) or any(
+            phrase in lowered_text
+            for phrase in ('already solved', 'already exists', 'reinvent', 'reinventing', 'not differentiated', 'weak novelty')
+        )
+        duplicates_current_direction = strongest_favored_score >= 0.56 and fit_direction == 'fits_current_direction'
+        duplicates_existing_idea = strongest_idea_score >= 0.56
+        direction_challenge = fit_direction == 'challenges_current_direction'
 
         if fit_budget == 'too_expensive_for_intended_tier':
             status = 'tier_mismatch'
@@ -12518,11 +12632,6 @@ def build_operator_proposal_review_state(
             status = 'worth_bounded_exploration'
 
         truth_posture = 'operator_input_under_review'
-        if status == 'worth_bounded_exploration':
-            truth_posture = 'bounded_exploration'
-        elif status == 'prototype_only':
-            truth_posture = 'prototype_only'
-
         good_reason = {
             'display_optics': 'It may offer a more concrete way to reason about subtitle visibility, display placement, and low-cost visual packaging.',
             'runtime_architecture': 'It may reduce complexity or clarify the phone/glasses boundary in a way that is easier to build and review.',
@@ -12560,6 +12669,20 @@ def build_operator_proposal_review_state(
             'The proposal conflicts with the current prototype-learning target without unlocking a stronger reviewable front.',
         ]
 
+        compared_against = unique_lines(
+            [
+                *(match.get('label', '') for match in favored_matches),
+                *(match.get('label', '') for match in deferred_matches),
+                *(match.get('label', '') for match in idea_matches),
+                *(match.get('label', '') for match in package_matches),
+                *(match.get('label', '') for match in price_matches),
+            ],
+            5,
+            width=160,
+        )
+        linked_exploratory_idea_ids = [match.get('id', '') for match in idea_matches if match.get('id')][:3]
+        linked_direction_rows = [match.get('id', '') for match in (favored_matches + deferred_matches) if match.get('id')][:3]
+
         prototype_note = compact_text_excerpt(
             f"This proposal is under review against a `{target_tier}` ambition, but it only counts as a prototype-path candidate until stronger parts, cost, and subsystem evidence exists.",
             220,
@@ -12585,13 +12708,111 @@ def build_operator_proposal_review_state(
         else:
             related_fronts.extend(['parts_readiness_review', 'pricing_alternatives_review', 'budget_tier_review'])
 
+        lifecycle_state = 'under_review'
+        promotion_reason = ''
+        hold_reason = ''
+        rejection_reason = ''
+        what_would_reopen_it = ''
+
+        if proposal_short:
+            lifecycle_state = 'rejected_for_now'
+            rejection_reason = compact_text_excerpt(
+                'The proposal is still too underspecified to compare cleanly against current direction, budget posture, and subsystem blockers.',
+                220,
+            )
+            what_would_reopen_it = compact_text_excerpt(
+                'Rewrite it with a clearer architecture claim, affected subsystem front, and intended compromise so ELI can compare it meaningfully.',
+                200,
+            )
+        elif fit_budget == 'too_expensive_for_intended_tier' and cost_signal in ('reframe_needed', 'stop_if_cost_target_matters'):
+            lifecycle_state = 'rejected_as_tier_mismatch'
+            rejection_reason = compact_text_excerpt(
+                'Current budget and cost posture already say this path sits above the intended tier with no honest consumer-tier read yet.',
+                220,
+            )
+            what_would_reopen_it = compact_text_excerpt(
+                'Reopen only if the intended tier changes, the proposal becomes explicitly prototype-only, or a credible lower-tier compromise appears.',
+                200,
+            )
+        elif appears_already_solved:
+            lifecycle_state = 'rejected_as_already_solved'
+            rejection_reason = explicit_already_solved_note or compact_text_excerpt(
+                'ELI currently reads this as closer to inspiration or an already-solved pattern than a differentiated project move worth carrying as a live proposal.',
+                220,
+            )
+            what_would_reopen_it = compact_text_excerpt(
+                'Reopen only if the proposal becomes materially differentiated under current trust, budget, and build constraints.',
+                200,
+            )
+        elif duplicates_current_direction:
+            lifecycle_state = 'rejected_as_unnecessary'
+            rejection_reason = compact_text_excerpt(
+                f"This proposal mostly restates the current favored direction `{favored_matches[0].get('label', '')}` and does not add a materially different review path yet.",
+                220,
+            )
+            what_would_reopen_it = compact_text_excerpt(
+                'Reopen only if it adds a bounded differentiator that current direction and current exploratory ideas do not already cover.',
+                200,
+            )
+        elif status in ('blocked', 'prototype_only'):
+            lifecycle_state = 'held_pending_evidence'
+            hold_reason = compact_text_excerpt(
+                parts_blockers[0] if parts_blockers else blocks[0] if blocks else prototype_note,
+                220,
+            )
+            if status == 'prototype_only':
+                hold_reason = compact_text_excerpt(
+                    'This is still interesting, but it only survives as prototype-only value under the current cost, tier, and subsystem posture.',
+                    220,
+                )
+            what_would_reopen_it = compact_text_excerpt(
+                raise_signals[0] if raise_signals else 'Reopen when new subsystem evidence or a cleaner prototype-only justification appears.',
+                200,
+            )
+        elif direction_challenge:
+            lifecycle_state = 'challenging_current_direction'
+            promotion_reason = compact_text_excerpt(
+                'This proposal challenges the current leading path strongly enough to deserve bounded comparison, but not strongly enough to replace direction of travel.',
+                220,
+            )
+        elif duplicates_existing_idea and linked_exploratory_idea_ids:
+            lifecycle_state = 'promoted_to_exploratory_ideas'
+            promotion_reason = compact_text_excerpt(
+                f"This proposal materially overlaps with the existing exploratory idea `{idea_matches[0].get('label', '')}` and is promoted there as bounded operator-originated pressure, not as a direction change.",
+                220,
+            )
+        elif status == 'fits_current_direction' and fit_budget in ('fits_intended_budget_posture', 'possible_if_scope_stays_bounded'):
+            lifecycle_state = 'becoming_serious'
+            promotion_reason = compact_text_excerpt(
+                'This proposal fits the current path and current tier pressure well enough to deserve stronger bounded comparison, but it still remains below direction truth and below milestone truth.',
+                220,
+            )
+        elif status == 'worth_bounded_exploration':
+            lifecycle_state = 'worth_bounded_exploration'
+        else:
+            lifecycle_state = 'under_review'
+
+        if lifecycle_state in ('promoted_to_exploratory_ideas', 'worth_bounded_exploration', 'challenging_current_direction', 'becoming_serious'):
+            truth_posture = 'bounded_exploration'
+        elif lifecycle_state == 'held_pending_evidence' and status == 'prototype_only':
+            truth_posture = 'prototype_only'
+        elif status == 'prototype_only':
+            truth_posture = 'prototype_only'
+
         return {
             'proposal_id': proposal_id,
             'title': title,
             'proposal_text': proposal_text,
             'domain': domain,
             'status': status,
+            'lifecycle_state': lifecycle_state,
             'eli_interpretation': interpretation_for(domain, title, proposal_text),
+            'promotion_reason': promotion_reason,
+            'hold_reason': hold_reason,
+            'rejection_reason': rejection_reason,
+            'what_it_was_compared_against': compared_against,
+            'what_would_reopen_it': what_would_reopen_it,
+            'what_would_strengthen_it': unique_lines(raise_signals, 3, width=180),
             'why_it_might_be_good': compact_text_excerpt(good_reason, 220),
             'why_it_might_be_wrong': compact_text_excerpt(wrong_reason, 220),
             'fit_with_current_direction': fit_direction,
@@ -12602,6 +12823,8 @@ def build_operator_proposal_review_state(
             'what_blocks_it': unique_lines(blocks, 3, width=180),
             'what_would_raise_it': unique_lines(raise_signals, 3, width=180),
             'what_would_kill_it': unique_lines(kill_signals, 3, width=180),
+            'linked_exploratory_idea_ids': linked_exploratory_idea_ids,
+            'linked_direction_rows': linked_direction_rows,
             'truth_posture': truth_posture,
             'related_project_fronts': [normalize_signal_key(item) for item in related_fronts if normalize_signal_key(item)][:5],
             'revisable': True,
@@ -12614,25 +12837,57 @@ def build_operator_proposal_review_state(
             proposals.append(row)
     proposals = proposals[:cfg.get('max_visible', 5)]
 
+    live_states = {'under_review', 'worth_bounded_exploration', 'challenging_current_direction', 'becoming_serious'}
+    promoted_states = {'promoted_to_exploratory_ideas'}
+    held_states = {'held_pending_evidence'}
+    rejected_states = {
+        'rejected_for_now',
+        'rejected_as_unnecessary',
+        'rejected_as_tier_mismatch',
+        'rejected_as_already_solved',
+    }
+    live_proposals = [row.get('title', '') for row in proposals if row.get('lifecycle_state') in live_states][:cfg.get('max_summary_rows', 5)]
+    promoted_proposals = [row.get('title', '') for row in proposals if row.get('lifecycle_state') in promoted_states][:cfg.get('max_summary_rows', 5)]
+    held_proposals = [row.get('title', '') for row in proposals if row.get('lifecycle_state') in held_states][:cfg.get('max_summary_rows', 5)]
+    rejected_proposals = [row.get('title', '') for row in proposals if row.get('lifecycle_state') in rejected_states][:cfg.get('max_summary_rows', 5)]
+
     fitting = [row.get('title', '') for row in proposals if row.get('fit_with_current_direction') == 'fits_current_direction'][:cfg.get('max_summary_rows', 5)]
-    challenging = [row.get('title', '') for row in proposals if row.get('fit_with_current_direction') in ('useful_alternative', 'challenges_current_direction')][:cfg.get('max_summary_rows', 5)]
-    blocked = [row.get('title', '') for row in proposals if row.get('status') in ('blocked', 'prototype_only', 'tier_mismatch', 'deferred')][:cfg.get('max_summary_rows', 5)]
+    challenging = [row.get('title', '') for row in proposals if row.get('lifecycle_state') == 'challenging_current_direction' or row.get('fit_with_current_direction') == 'challenges_current_direction'][:cfg.get('max_summary_rows', 5)]
+    blocked = [row.get('title', '') for row in proposals if row.get('lifecycle_state') in held_states.union(rejected_states)] [:cfg.get('max_summary_rows', 5)]
+
+    promoted_reasons = unique_lines([row.get('promotion_reason', '') for row in proposals if row.get('promotion_reason')], cfg.get('max_summary_rows', 5))
+    held_reasons = unique_lines([row.get('hold_reason', '') for row in proposals if row.get('hold_reason')], cfg.get('max_summary_rows', 5))
+    rejected_reasons = unique_lines([row.get('rejection_reason', '') for row in proposals if row.get('rejection_reason')], cfg.get('max_summary_rows', 5))
+    reopen_signals = unique_lines([row.get('what_would_reopen_it', '') for row in proposals if row.get('what_would_reopen_it')], cfg.get('max_summary_rows', 5))
 
     if proposals:
         proposal_summary = compact_text_excerpt(
             f"{len(proposals)} operator proposal(s) are under bounded review. They are visible because raw operator input now enters through a canonical intake lane and is classified against current direction, budget tier, cost pressure, and build posture before it can influence anything consequential.",
             320,
         )
+        proposal_lifecycle_summary = compact_text_excerpt(
+            f"{len(live_proposals)} live, {len(promoted_proposals)} promoted, {len(held_proposals)} held, and {len(rejected_proposals)} rejected proposal(s) currently exist. Promotion, hold, and rejection now stay explicit instead of disappearing into one flat review list.",
+            300,
+        )
     else:
         proposal_summary = compact_text_excerpt(
             'No operator proposal is under review right now. Proposal intake exists as a bounded lane, but raw operator input stays separate from direction, milestones, and implementation truth until proposals are actually submitted and classified.',
             320,
         )
+        proposal_lifecycle_summary = compact_text_excerpt(
+            'No operator proposal lifecycle is live right now. When proposals arrive, they will be carried as live, promoted, held, or rejected rows with explicit reasons instead of remaining passive notes.',
+            300,
+        )
 
     return {
         'generated_at': now_iso(),
         'proposal_summary': proposal_summary,
+        'proposal_lifecycle_summary': proposal_lifecycle_summary,
         'operator_proposals': proposals,
+        'live_proposals': live_proposals,
+        'promoted_proposals': promoted_proposals,
+        'held_proposals': held_proposals,
+        'rejected_proposals': rejected_proposals,
         'why_proposals_are_visible_now': unique_lines([
             'Operator ideas now enter through a canonical intake lane instead of living as raw notes or silently merging into project direction.',
             'Budget, cost, parts, and direction surfaces are strong enough now to classify proposals immediately instead of deferring all judgment.',
@@ -12641,18 +12896,26 @@ def build_operator_proposal_review_state(
         'proposals_fitting_current_direction': fitting,
         'proposals_challenging_current_direction': challenging,
         'proposals_blocked_or_too_weak': blocked,
+        'why_a_proposal_was_promoted': promoted_reasons,
+        'why_a_proposal_was_held': held_reasons,
+        'why_a_proposal_was_rejected': rejected_reasons,
         'what_would_promote_a_proposal': unique_lines([
             'Measured subsystem evidence on the front the proposal touches.',
             'A clearer package, component, or interface signal that makes the proposal more buildable than the current alternative.',
             'Operator confirmation that prototype-only value is acceptable if the proposal still misses the intended tier.',
             'A cost or budget change that removes current tier mismatch pressure.',
         ], cfg.get('max_summary_rows', 5)),
+        'what_would_reopen_a_held_or_rejected_proposal': reopen_signals,
         'what_keeps_proposals_non_authoritative': unique_lines([
             'Direction of travel remains the leading path; operator proposals are evaluated against it and do not replace it automatically.',
             'Milestones, execution target, and cost posture remain current-truth steering surfaces; a proposal row cannot rewrite them.',
             'Budget-tier, pricing, and parts-readiness pressure can block or downgrade a proposal even if the raw idea is interesting.',
             'Operator proposals remain distinct from ELI-generated exploratory ideas until stronger evidence justifies any promotion.',
         ], cfg.get('max_summary_rows', 5)),
+        'proposal_lifecycle_note': compact_text_excerpt(
+            'Proposal lifecycle is truth about proposal handling only. A promoted row can link into exploratory ideas or bounded comparison, but it still remains operator-originated history rather than silently becoming direction truth.',
+            260,
+        ),
         'prototype_vs_product_interpretation': compact_text_excerpt(
             f"Operator proposals are intake under review only. They may be worth bounded exploration or prototype learning, but they do not justify a `{target_tier}` product story while realism remains `serious_prototype_path` and cost posture remains `{cost_signal}`.",
             280,
@@ -12660,15 +12923,16 @@ def build_operator_proposal_review_state(
         'trust_posture': {
             'surface_role': 'bounded_proposal_review_surface',
             'use_state': 'current_truth',
-            'authority_scope': 'operator-proposed ideas under review only',
+            'authority_scope': 'operator-proposed ideas and proposal lifecycle state only',
             'trust_reason': compact_text_excerpt(
-                'Use this surface as the current-truth record of what the operator has proposed and how ELI currently classifies those proposals. It owns proposal review posture only and cannot silently change direction, milestones, cost posture, or build truth.',
+                'Use this surface as the current-truth record of what the operator has proposed, how ELI classified each proposal, and whether it stayed live, was promoted, held, or rejected. It owns proposal lifecycle posture only and cannot silently change direction, milestones, cost posture, or build truth.',
                 260,
             ),
         },
         'source_authority': {
             'proposal_input': 'operator_proposal_intake',
             'direction_boundary': 'project_direction_review',
+            'exploratory_ideas_boundary': 'exploratory_ideas_review',
             'budget_pressure': 'budget_tier_review',
             'cost_pressure': 'cost_viability_review',
             'parts_readiness': 'parts_readiness_review',
@@ -12677,6 +12941,7 @@ def build_operator_proposal_review_state(
         'source_generated_at': {
             'operator_proposal_intake': state_surface_generated_at(intake_state),
             'project_direction_review': state_surface_generated_at(direction_state),
+            'exploratory_ideas_review': state_surface_generated_at(ideas_state),
             'budget_tier_review': state_surface_generated_at(budget_state),
             'cost_viability_review': state_surface_generated_at(cost_state),
             'parts_readiness_review': state_surface_generated_at(parts_state),
@@ -12693,6 +12958,8 @@ def render_operator_proposal_review_context(proposal_state=None):
     lines = ['# Operator Proposal Review']
     if proposal_state.get('proposal_summary'):
         lines.append(f"- proposal_summary: {proposal_state.get('proposal_summary', '')}")
+    if proposal_state.get('proposal_lifecycle_summary'):
+        lines.append(f"- proposal_lifecycle_summary: {proposal_state.get('proposal_lifecycle_summary', '')}")
     trust_posture = proposal_state.get('trust_posture', {}) if isinstance(proposal_state.get('trust_posture', {}), dict) else {}
     if trust_posture:
         lines.append(
@@ -12705,14 +12972,22 @@ def render_operator_proposal_review_context(proposal_state=None):
             if not isinstance(row, dict):
                 continue
             lines.append(
-                f"  - {row.get('title', 'proposal')} (`{row.get('status', 'worth_bounded_exploration')}`, `{row.get('truth_posture', 'operator_input_under_review')}`): {row.get('eli_interpretation', '')}"
+                f"  - {row.get('title', 'proposal')} (`{row.get('lifecycle_state', 'under_review')}`, `{row.get('status', 'worth_bounded_exploration')}`, `{row.get('truth_posture', 'operator_input_under_review')}`): {row.get('eli_interpretation', '')}"
             )
+    if proposal_state.get('promoted_proposals'):
+        lines.append("- promoted_proposals: " + '; '.join(proposal_state.get('promoted_proposals', [])[:3]))
+    if proposal_state.get('held_proposals'):
+        lines.append("- held_proposals: " + '; '.join(proposal_state.get('held_proposals', [])[:3]))
+    if proposal_state.get('rejected_proposals'):
+        lines.append("- rejected_proposals: " + '; '.join(proposal_state.get('rejected_proposals', [])[:4]))
     if proposal_state.get('proposals_fitting_current_direction'):
         lines.append("- proposals_fitting_current_direction: " + '; '.join(proposal_state.get('proposals_fitting_current_direction', [])[:3]))
     if proposal_state.get('proposals_challenging_current_direction'):
         lines.append("- proposals_challenging_current_direction: " + '; '.join(proposal_state.get('proposals_challenging_current_direction', [])[:3]))
     if proposal_state.get('proposals_blocked_or_too_weak'):
         lines.append("- proposals_blocked_or_too_weak: " + '; '.join(proposal_state.get('proposals_blocked_or_too_weak', [])[:4]))
+    if proposal_state.get('proposal_lifecycle_note'):
+        lines.append(f"- proposal_lifecycle_note: {proposal_state.get('proposal_lifecycle_note', '')}")
     if proposal_state.get('prototype_vs_product_interpretation'):
         lines.append(f"- prototype_vs_product_interpretation: {proposal_state.get('prototype_vs_product_interpretation', '')}")
     return '\n'.join(lines) + '\n'
@@ -14449,6 +14724,7 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
         schema=schema,
         review_snapshot=review_snapshot,
         direction_state=direction_state,
+        ideas_state=ideas_state,
         budget_state=budget_state,
         cost_state=cost_state,
         parts_state=parts_state,
@@ -14677,9 +14953,9 @@ def build_ui_surface_plan_state(schema=None, review_snapshot=None, resume_state=
                 make_section(
                     'operator_proposals',
                     'Operator Proposals',
-                    'Show operator-injected ideas under bounded review, ELI interpretation, fit with current direction and budget tier, and what would raise or kill a proposal.',
+                    'Show operator proposals as live, promoted, held, or rejected rows with explicit lifecycle reasons, fit against current direction and budget tier, and reopen conditions.',
                     ['operator_proposal_review', 'project_direction_review', 'budget_tier_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
-                    'Operator proposals are live under review or the proposal-intake lane exists and should remain inspectable.',
+                    'Operator proposals are live under lifecycle review or the proposal-intake lane exists and should remain inspectable.',
                     'Hide only if operator proposal intake has been intentionally disabled and there is no proposal review surface to show.',
                 ),
                 make_section(
@@ -15554,6 +15830,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         schema=schema,
         review_snapshot=review_snapshot,
         direction_state=direction_state,
+        ideas_state=ideas_state,
         budget_state=budget_state,
         cost_state=cost_state,
         parts_state=load_parts_readiness_review_state(),
@@ -15753,12 +16030,12 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
         ],
     ))
     current_truth_sources.append(build_verification_source_entry(
-        'Operator-proposed ideas under review',
+        'Operator proposals under lifecycle review',
         'operator_proposal_review',
         proposal_state.get('trust_posture', {}).get('use_state', 'current_truth'),
-        proposal_state.get('trust_posture', {}).get('trust_reason', proposal_state.get('proposal_summary', '')),
+        proposal_state.get('trust_posture', {}).get('trust_reason', proposal_state.get('proposal_lifecycle_summary', proposal_state.get('proposal_summary', ''))),
         state_surface_generated_at(proposal_state),
-        supporting_surfaces=['operator_proposal_intake', 'project_direction_review', 'budget_tier_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+        supporting_surfaces=['operator_proposal_intake', 'project_direction_review', 'exploratory_ideas_review', 'budget_tier_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
         sample_titles=[row.get('title', '') for row in operator_proposals[:3] if isinstance(row, dict)],
     ))
     current_truth_sources.append(build_verification_source_entry(
@@ -15872,11 +16149,11 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
             ),
         })
     recent_source_wins.append({
-        'question': 'Operator-proposed ideas under review',
+        'question': 'Operator proposals under lifecycle review',
         'winning_surface': 'operator_proposal_review',
-        'supporting_surfaces': ['operator_proposal_intake', 'project_direction_review', 'budget_tier_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
+        'supporting_surfaces': ['operator_proposal_intake', 'project_direction_review', 'exploratory_ideas_review', 'budget_tier_review', 'cost_viability_review', 'parts_readiness_review', 'pricing_alternatives_review'],
         'why': compact_text_excerpt(
-            'This surface owns bounded intake and classification of operator-proposed ideas. It records what the operator has proposed and how ELI interprets it, but it does not overwrite current direction, milestones, cost posture, or build truth.',
+            'This surface owns bounded lifecycle review of operator proposals. It records what the operator proposed, how ELI interpreted it, whether it stayed live, was promoted, held, or rejected, and why that lifecycle state is current.',
             220,
         ),
     })
@@ -15935,7 +16212,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
     if exploratory_ideas:
         representation_risks.append('Exploratory ideas are supporting incubation context only; do not read a visible idea row as the current winning path, a live review front, or accepted implementation truth.')
     if operator_proposals:
-        representation_risks.append('Operator proposals are current-truth for intake under review only; do not read a submitted proposal as a direction change, milestone change, or accepted implementation posture.')
+        representation_risks.append('Operator proposals are current-truth for proposal lifecycle only; do not read promotion, hold, or rejection state as a direction change, milestone change, or accepted implementation posture.')
     if extension_actions:
         representation_risks.append('Recommended_waiting_for_opt_in is not the same as active_for_this_project; do not infer deployed extension help from a recommendation alone.')
     if topology_state.get('nodes'):
@@ -15959,7 +16236,7 @@ def build_verification_summary_state(schema=None, review_snapshot=None, resume_s
     if exploratory_ideas:
         operator_checks.append('For exploratory ideas, verify what changed, what still blocks the idea, and what would raise or kill it before spending more cycles on it.')
     if operator_proposals:
-        operator_checks.append('For operator proposals, verify ELI interpretation, fit with current direction, and fit with budget tier before promoting a proposal beyond intake review.')
+        operator_checks.append('For operator proposals, verify lifecycle state, reason, reopen condition, fit with current direction, and fit with budget tier before treating a proposal as more than bounded review truth.')
     if extension_actions:
         operator_checks.append('For extensions, read the top-level operator actions first. Recommended waiting for opt-in should not be treated as active help.')
     if topology_state.get('nodes'):
@@ -16133,6 +16410,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
         schema=schema,
         review_snapshot=review_snapshot,
         direction_state=direction_state,
+        ideas_state=ideas_state,
         budget_state=budget_state,
         cost_state=cost_viability_state,
         parts_state=parts_readiness_state,
@@ -16186,7 +16464,7 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
     if proposal_rows:
         current_truth_summary.append(
             compact_text_excerpt(
-                f"{len(proposal_rows)} operator proposal(s) are under review. They are visible as bounded proposals only and do not change direction, milestone focus, or product posture by themselves.",
+                f"{len(proposal_state.get('live_proposals', []))} live, {len(proposal_state.get('promoted_proposals', []))} promoted, {len(proposal_state.get('held_proposals', []))} held, and {len(proposal_state.get('rejected_proposals', []))} rejected operator proposal(s) are currently tracked. They remain bounded proposal truth only and do not change direction, milestone focus, or product posture by themselves.",
                 220,
             )
         )
@@ -16535,11 +16813,17 @@ def build_execution_resume_state(schema=None, review_snapshot=None, boundary_sta
             'trust_use': ideas_state.get('trust_posture', {}).get('use_state', 'supporting_context') if isinstance(ideas_state.get('trust_posture', {}), dict) else 'supporting_context',
         } if exploratory_ideas_review_config(schema).get('include_in_execution_resume', True) else {},
         'operator_proposals': {
-            'proposal_summary': proposal_state.get('proposal_summary', ''),
-            'live_count': len(proposal_rows),
+            'proposal_summary': proposal_state.get('proposal_lifecycle_summary', proposal_state.get('proposal_summary', '')),
+            'live_count': len(proposal_state.get('live_proposals', [])) if isinstance(proposal_state.get('live_proposals', []), list) else 0,
+            'promoted_count': len(proposal_state.get('promoted_proposals', [])) if isinstance(proposal_state.get('promoted_proposals', []), list) else 0,
+            'held_count': len(proposal_state.get('held_proposals', [])) if isinstance(proposal_state.get('held_proposals', []), list) else 0,
+            'rejected_count': len(proposal_state.get('rejected_proposals', [])) if isinstance(proposal_state.get('rejected_proposals', []), list) else 0,
             'top_fitting_proposal': (proposal_state.get('proposals_fitting_current_direction', []) or [''])[0] if isinstance(proposal_state.get('proposals_fitting_current_direction', []), list) else '',
             'top_challenging_proposal': (proposal_state.get('proposals_challenging_current_direction', []) or [''])[0] if isinstance(proposal_state.get('proposals_challenging_current_direction', []), list) else '',
-            'top_blocked_proposal': (proposal_state.get('proposals_blocked_or_too_weak', []) or [''])[0] if isinstance(proposal_state.get('proposals_blocked_or_too_weak', []), list) else '',
+            'top_promoted_proposal': (proposal_state.get('promoted_proposals', []) or [''])[0] if isinstance(proposal_state.get('promoted_proposals', []), list) else '',
+            'top_held_proposal': (proposal_state.get('held_proposals', []) or [''])[0] if isinstance(proposal_state.get('held_proposals', []), list) else '',
+            'top_rejected_proposal': (proposal_state.get('rejected_proposals', []) or [''])[0] if isinstance(proposal_state.get('rejected_proposals', []), list) else '',
+            'operator_follow_up_needed': bool(proposal_state.get('live_proposals') or proposal_state.get('held_proposals')),
             'prototype_vs_product_interpretation': proposal_state.get('prototype_vs_product_interpretation', ''),
             'trust_use': proposal_state.get('trust_posture', {}).get('use_state', 'current_truth') if isinstance(proposal_state.get('trust_posture', {}), dict) else 'current_truth',
         } if operator_proposal_review_config(schema).get('include_in_execution_resume', True) else {},
@@ -16693,13 +16977,38 @@ def render_execution_resume_section(resume_state=None, include_header=True):
                 else ''
             )
             + (
+                f" | promoted `{operator_proposals.get('promoted_count', 0)}`"
+                if operator_proposals.get('promoted_count') is not None
+                else ''
+            )
+            + (
+                f" | held `{operator_proposals.get('held_count', 0)}`"
+                if operator_proposals.get('held_count') is not None
+                else ''
+            )
+            + (
+                f" | rejected `{operator_proposals.get('rejected_count', 0)}`"
+                if operator_proposals.get('rejected_count') is not None
+                else ''
+            )
+            + (
                 f" | fitting `{operator_proposals.get('top_fitting_proposal', '')}`"
                 if operator_proposals.get('top_fitting_proposal')
                 else ''
             )
             + (
-                f" | blocked `{operator_proposals.get('top_blocked_proposal', '')}`"
-                if operator_proposals.get('top_blocked_proposal')
+                f" | promoted_top `{operator_proposals.get('top_promoted_proposal', '')}`"
+                if operator_proposals.get('top_promoted_proposal')
+                else ''
+            )
+            + (
+                f" | held_top `{operator_proposals.get('top_held_proposal', '')}`"
+                if operator_proposals.get('top_held_proposal')
+                else ''
+            )
+            + (
+                f" | rejected_top `{operator_proposals.get('top_rejected_proposal', '')}`"
+                if operator_proposals.get('top_rejected_proposal')
                 else ''
             )
         )

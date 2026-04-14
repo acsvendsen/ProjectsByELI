@@ -1,33 +1,34 @@
 {
-  "generated_at": "2026-04-14T21:14:41",
+  "generated_at": "2026-04-14T21:40:40",
   "source_generated_at": {
-    "review_state_consumption": "2026-04-14T21:14:41",
-    "reflect_state": "2026-04-14T21:12:49",
-    "project_scorecard": "2026-04-14T21:13:24",
-    "implementation_artifact_review": "2026-04-14T21:14:41",
-    "component_package_review": "2026-04-14T21:14:41",
-    "cost_viability_review": "2026-04-14T21:14:41",
-    "budget_tier_review": "2026-04-14T21:14:41",
-    "execution_boundaries": "2026-04-14T21:14:41",
-    "project_direction_review": "2026-04-14T21:14:41",
-    "exploratory_ideas_review": "2026-04-14T21:14:41",
-    "operator_proposal_review": "2026-04-14T21:14:41",
-    "extension_deployment_review": "2026-04-14T21:14:41",
-    "v1_decision_review": "2026-04-14T21:12:49",
-    "artifact_emission_readiness": "2026-04-14T21:14:41",
-    "draft_artifact_review": "2026-04-14T21:14:41"
+    "review_state_consumption": "2026-04-14T21:40:40",
+    "reflect_state": "2026-04-14T21:40:36",
+    "project_scorecard": "2026-04-14T21:38:07",
+    "implementation_artifact_review": "2026-04-14T21:38:38",
+    "component_package_review": "2026-04-14T21:40:40",
+    "cost_viability_review": "2026-04-14T21:40:40",
+    "budget_tier_review": "2026-04-14T21:40:40",
+    "execution_boundaries": "2026-04-14T21:40:40",
+    "project_direction_review": "2026-04-14T21:40:40",
+    "exploratory_ideas_review": "2026-04-14T21:40:40",
+    "operator_proposal_review": "2026-04-14T21:40:40",
+    "extension_deployment_review": "2026-04-14T21:40:40",
+    "v1_decision_review": "2026-04-14T21:40:36",
+    "artifact_emission_readiness": "2026-04-14T21:38:38",
+    "draft_artifact_review": "2026-04-14T21:38:38"
   },
   "trust_posture": {
-    "overall_sync_status": "in_sync",
-    "overall_trust_status": "operational",
-    "review_state_summary": "The current review-state files are close enough in time and linkage to compare operationally.",
+    "overall_sync_status": "cross_surface_mismatch",
+    "overall_trust_status": "caution",
+    "review_state_summary": "The current review-state files do not form one clean comparison set. Treat fresher surfaces as operational and older linked surfaces as provisional until they refresh.",
     "current_truth_surfaces": [
-      "v1_decision_review",
+      "v1_decision_review"
+    ],
+    "provisional_surfaces": [],
+    "cautionary_surfaces": [
       "artifact_emission_readiness",
       "draft_artifact_review"
     ],
-    "provisional_surfaces": [],
-    "cautionary_surfaces": [],
     "scorecard_use": "current_truth",
     "scorecard_reason": "The scorecard is fresh enough to use as current subsystem-readiness context.",
     "implementation_artifact_review_use": "provisional_context",
@@ -51,8 +52,8 @@
     "target_milestone_title": "Implementation Package Review",
     "current_milestone_target_id": "implementation_package_review",
     "current_milestone_target_title": "Implementation Package Review",
-    "why_this_target_now": "Implementation Package Review is the nearest honest review boundary because it is already `ready_for_review`. It is the strongest current gate for prototype buildability interpretation, while Product Realism Check, Product Definition Review remain held, blo...",
-    "current_target_posture": "reviewable_now",
+    "why_this_target_now": "Implementation Package Review is the least premature current front because it can still unlock downstream progress without pretending stronger product-facing milestones are ready.",
+    "current_target_posture": "blocked_by_grounding",
     "what_unlocks_if_reviewed": [
       "Clearer prototype buildability interpretation of the current implementation package.",
       "A bounded decision on whether the current emitted package is strong enough to carry forward as prototype-oriented implementation context.",
@@ -78,7 +79,7 @@
         "milestone_id": "product_definition",
         "title": "Product Definition Review",
         "approval_state": "not_yet_reviewable",
-        "why_deferred": "Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototype-scoped rather than reading as a `discreet_consumer_assistive_wearable` product path."
+        "why_deferred": "no bounded current product-definition review front is active; more grounded decision framing is needed before product-definition review; Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, s..."
       },
       {
         "milestone_id": "prototype_viability",
@@ -91,7 +92,7 @@
     "current_reason_to_continue": "Continue only prototype-learning work that can materially reduce blockers toward Implementation Package Review by adding new grounding on Wireless Interface, Firmware, Memory System.",
     "current_reason_to_pause": "Pause if another cycle does not add materially new grounding on Wireless Interface, Firmware, Memory System; repeating the same blocker posture is not a valid reason to continue. Package-only parts posture and directional-only pricing are not enough to just...",
     "current_reason_to_stop": "Stop product-shaped continuation if the `discreet_consumer_assistive_wearable` target still matters. Cost signal is `stop_if_cost_target_matters` and pricing fit is `no_candidate_currently_credible_for_target_tier`.",
-    "current_reason_to_escalate": "Escalate now because Implementation Package Review is review-gated and operator review is the current bottleneck. Implementation Package Review is already `ready_for_review`; more internal cycling should not be treated as a substitute fo...",
+    "current_reason_to_escalate": "Escalate now because Implementation Package Review is review-gated and operator review is the current bottleneck. Operator intent tightening is now required before stronger product-shaped continuation is honest under the current cost pos...",
     "prototype_vs_product_boundary_note": "Continue prototype-learning only when new grounding is appearing. Do not let implementation-package work, parts posture, or pricing comparisons silently become product-path narration while cost posture still caps that story."
   },
   "product_realism": {
@@ -106,7 +107,7 @@
     "component_package_kind": "subsystem_bom",
     "summary": "A concrete part list is still premature, but a bounded subsystem-level BOM frame is now warranted to improve buildability and package thinking without pretending the parts are settled.",
     "top_blocker": "Implementation artifact review is close enough to current reflect state to use as bounded supporting context.",
-    "trust_posture": "operational"
+    "trust_posture": "caution"
   },
   "cost_viability": {
     "cost_realism_band": "product_tier_mismatch_risk",
@@ -155,17 +156,23 @@
       "Execution boundaries now cap work at `Implementation Package Review` and keep product-shaped continuation constrained by `stop_if_cost_target_matters`.",
       "3 bounded rendering brief(s) now make hierarchy and display-region tradeoffs easier to inspect without treating them as accepted design.",
       "Direction of travel now makes phone-first, touch-first, and prototype-buildability the winning path, which changes how nearby compromise and hedge ideas should be interpreted.",
-      "Pending review fronts now include V1 Confidence Display Format, V1 Default Subtitle Position, so nearby ideas should stay non-authoritative."
+      "Pending review fronts now include no live V1 decision titles, so nearby ideas should stay non-authoritative."
     ],
     "prototype_vs_product_interpretation": "These ideas are bounded incubation only. They can still help prototype learning, cost-sensitive compromise, or hedge planning, but none currently justify a `discreet_consumer_assistive_wearable` product story while realism remains `serious_prototype_path` a...",
     "trust_use": "supporting_context"
   },
   "operator_proposals": {
-    "proposal_summary": "No operator proposal is under review right now. Proposal intake exists as a bounded lane, but raw operator input stays separate from direction, milestones, and implementation truth until proposals are actually submitted and classified.",
+    "proposal_summary": "No operator proposal lifecycle is live right now. When proposals arrive, they will be carried as live, promoted, held, or rejected rows with explicit reasons instead of remaining passive notes.",
     "live_count": 0,
+    "promoted_count": 0,
+    "held_count": 0,
+    "rejected_count": 0,
     "top_fitting_proposal": "",
     "top_challenging_proposal": "",
-    "top_blocked_proposal": "",
+    "top_promoted_proposal": "",
+    "top_held_proposal": "",
+    "top_rejected_proposal": "",
+    "operator_follow_up_needed": false,
     "prototype_vs_product_interpretation": "Operator proposals are intake under review only. They may be worth bounded exploration or prototype learning, but they do not justify a `discreet_consumer_assistive_wearable` product story while realism remains `serious_prototype_path` and cost posture remains `stop_if_cost_ta...",
     "trust_use": "current_truth"
   },
@@ -179,7 +186,7 @@
     "trust_use": "current_truth"
   },
   "current_truth_summary": [
-    "The current review-state files are close enough in time and linkage to compare operationally.",
+    "The current review-state files do not form one clean comparison set. Treat fresher surfaces as operational and older linked surfaces as provisional until they refresh.",
     "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable`, intended budget posture is `medium`, and acceptable cost...",
     "Cost posture is `product_tier_mismatch_risk` with signal `stop_if_cost_target_matters`.",
     "Current budget posture is `mixed` against intended posture `medium`. Boundary-first hardware, phone-first runtime, and stripped prototype packaging keep the learning path closer to low or medium tiers, but current wir...",
@@ -187,12 +194,12 @@
   ],
   "active_review_front": [
     {
-      "lane": "pending_v1_decision",
+      "lane": "implementation_artifact_review",
       "title": "V1 Confidence Display Format",
-      "source_surface": "v1_decision_review",
-      "trust_use": "current_truth",
-      "why_active_now": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit...",
-      "current_direction": "Label + Reason",
+      "source_surface": "implementation_artifact_review",
+      "trust_use": "provisional_context",
+      "why_active_now": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is grounded.",
+      "current_direction": "Confidence Object Spec",
       "bounded_options": [
         "Label Only",
         "Label + Reason"
@@ -200,12 +207,25 @@
       "revisable": true
     },
     {
-      "lane": "pending_v1_decision",
+      "lane": "implementation_artifact_review",
+      "title": "V1 Visual Hierarchy Default",
+      "source_surface": "implementation_artifact_review",
+      "trust_use": "provisional_context",
+      "why_active_now": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is grounded.",
+      "current_direction": "Visual Layout Rule",
+      "bounded_options": [
+        "Subtitles Dominate",
+        "Balanced Overlay"
+      ],
+      "revisable": true
+    },
+    {
+      "lane": "implementation_artifact_review",
       "title": "V1 Default Subtitle Position",
-      "source_surface": "v1_decision_review",
-      "trust_use": "current_truth",
-      "why_active_now": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit...",
-      "current_direction": "More Prominent",
+      "source_surface": "implementation_artifact_review",
+      "trust_use": "provisional_context",
+      "why_active_now": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is grounded.",
+      "current_direction": "Visual Layout Rule",
       "bounded_options": [
         "Stable Default",
         "More Prominent"
@@ -227,10 +247,34 @@
       ]
     },
     {
+      "title": "Phone/Cloud Boundary",
+      "source_surface": "reflect_state",
+      "judgment": "hold_until_new_grounding",
+      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Latency vs richness, Privacy vs usefulness; needs counterweight discipline on Latency vs richness, Privacy vs usefulness; still...",
+      "release_on": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ]
+    },
+    {
       "title": "Visual Hierarchy",
       "source_surface": "reflect_state",
       "judgment": "hold_until_new_grounding",
       "why_held": "aligns with Real-time subtitle clarity, Low-friction assistance; meets resistance from Discreet UX vs visual clarity; needs counterweight discipline on Discreet UX vs visual clarity; still meaningful, but not newly ac...",
+      "release_on": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ]
+    },
+    {
+      "title": "Confidence Display",
+      "source_surface": "reflect_state",
+      "judgment": "hold_until_new_grounding",
+      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Discreet UX vs visual clarity, Latency vs richness; needs counterweight discipline on Latency vs richness, Discreet UX vs visua...",
       "release_on": [
         "real repo change or stronger repo grounding",
         "a new source type such as runtime truth or code-config evidence",
@@ -274,37 +318,24 @@
     }
   ],
   "unblocked_next": {
-    "kind": "pending_v1_decision",
+    "kind": "implementation_artifact_review",
     "title": "V1 Confidence Display Format",
-    "source_surface": "v1_decision_review",
-    "why_now": "What confidence format should V1 use by default during live subtitle support?",
+    "source_surface": "implementation_artifact_review",
+    "why_now": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is grounded.",
     "revisable": true
   },
-  "needs_human_review": [
-    {
-      "kind": "pending_v1_decision",
-      "title": "V1 Confidence Display Format",
-      "source_surface": "v1_decision_review",
-      "review_question": "What confidence format should V1 use by default during live subtitle support?",
-      "revisable": true
-    },
-    {
-      "kind": "pending_v1_decision",
-      "title": "V1 Default Subtitle Position",
-      "source_surface": "v1_decision_review",
-      "review_question": "What should the default subtitle position behavior be for V1 live use?",
-      "revisable": true
-    }
-  ],
+  "needs_human_review": [],
   "resume_notes": [
     "Do not assume this becomes a real product just because the prototype direction is interesting. Current cost posture is weak enough that commercial ambition should pause, stop, or reframe unless cost-sensitive assumptions improve.",
+    "There is no live pending V1 decision front right now; do not infer missing work from older review surfaces.",
+    "Artifact-emission readiness is currently quiet; no implementation-artifact candidate is mature enough for draft emission.",
     "Implementation artifact review is close enough to current reflect state to use as bounded supporting context."
   ],
   "counts": {
-    "active_review_front": 2,
-    "held_lanes": 2,
+    "active_review_front": 3,
+    "held_lanes": 4,
     "blocked_lanes": 4,
-    "needs_human_review": 2
+    "needs_human_review": 0
   },
-  "updated_at": "2026-04-14T21:14:41"
+  "updated_at": "2026-04-14T21:40:40"
 }

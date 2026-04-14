@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T21:14:41",
+  "generated_at": "2026-04-14T21:40:40",
   "ideas_summary": "5 bounded exploratory idea(s) are currently worth watching. They stay visible because cost, parts, review, and runtime pressure create real compromise or hedge paths, but they remain below current direction and below reviewable decisions.",
   "ideas_being_explored": [
     {
@@ -103,13 +103,14 @@
         "Favor phone-first runtime and lightweight on-glasses logic over heavier autonomous glasses compute. Do not reopen boundary changes until stronger link evidence appears."
       ],
       "what_blocks_it": [
+        "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
         "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
         "Current suggestions are still useful mainly for prototype learning. No current or cheaper/simpler alternative is good enough yet for the declared target tier, so stay prototype-..."
       ],
       "what_would_raise_it": [
         "real repo change or stronger repo grounding",
         "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
+        "meaningfully stronger architectural pull"
       ],
       "what_would_kill_it": [
         "Runtime truth shows strict phone-first is reliable enough that richer fallback buys little.",
@@ -185,7 +186,7 @@
       ],
       "what_blocks_it": [
         "Current hardware, packaging, and subsystem pressure already look mismatched to a discreet consumer-tier wearable cost story. Wireless and firmware gaps still add likely hidden c...",
-        "Ensure ongoing battery optimization and thermal management without adding unnecessary complexity.",
+        "Ensure that future firmware updates do not introduce unnecessary complexity that could impact battery life or social acceptability.",
         "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
       ],
       "what_would_raise_it": [
@@ -225,7 +226,7 @@
     "Execution boundaries now cap work at `Implementation Package Review` and keep product-shaped continuation constrained by `stop_if_cost_target_matters`.",
     "3 bounded rendering brief(s) now make hierarchy and display-region tradeoffs easier to inspect without treating them as accepted design.",
     "Direction of travel now makes phone-first, touch-first, and prototype-buildability the winning path, which changes how nearby compromise and hedge ideas should be interpreted.",
-    "Pending review fronts now include V1 Confidence Display Format, V1 Default Subtitle Position, so nearby ideas should stay non-authoritative."
+    "Pending review fronts now include no live V1 decision titles, so nearby ideas should stay non-authoritative."
   ],
   "what_would_promote_an_idea": [
     "Real repo changes or stronger repo grounding on the held front.",
@@ -256,17 +257,17 @@
     "rendering_support": "hardware_aware_rendering_brief_review"
   },
   "source_generated_at": {
-    "reflect_state": "2026-04-14T21:12:49",
-    "project_direction_review": "2026-04-14T21:14:41",
-    "cost_viability_review": "2026-04-14T21:14:41",
-    "parts_readiness_review": "2026-04-14T21:14:41",
-    "pricing_alternatives_review": "2026-04-14T21:14:41",
-    "execution_boundaries": "2026-04-14T21:14:41",
-    "hardware_aware_rendering_brief_review": "2026-04-14T20:45:59",
-    "v1_decision_review": "2026-04-14T21:12:49",
-    "project_scorecard": "2026-04-14T21:13:24",
+    "reflect_state": "2026-04-14T21:40:36",
+    "project_direction_review": "2026-04-14T21:40:40",
+    "cost_viability_review": "2026-04-14T21:40:40",
+    "parts_readiness_review": "2026-04-14T21:40:40",
+    "pricing_alternatives_review": "2026-04-14T21:40:40",
+    "execution_boundaries": "2026-04-14T21:40:40",
+    "hardware_aware_rendering_brief_review": "2026-04-14T21:38:38",
+    "v1_decision_review": "2026-04-14T21:40:36",
+    "project_scorecard": "2026-04-14T21:38:07",
     "project_expectations": "2026-04-10T09:16:32"
   },
   "revisable": true,
-  "updated_at": "2026-04-14T21:14:41"
+  "updated_at": "2026-04-14T21:40:40"
 }

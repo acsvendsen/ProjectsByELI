@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T21:14:41",
+  "generated_at": "2026-04-14T21:40:40",
   "pricing_confidence_posture": "package_level_directional_only",
   "current_candidate_rows": [
     {
@@ -75,9 +75,9 @@
   "operator_warning": "Current suggestions are still useful mainly for prototype learning. No current or cheaper/simpler alternative is good enough yet for the declared target tier, so stay prototype-only unless cost posture improves.",
   "trust_posture": {
     "surface_role": "current_truth_review_surface",
-    "use_state": "current_truth",
+    "use_state": "provisional_context",
     "authority_scope": "pricing posture and directional alternatives for current package suggestions",
-    "trust_reason": "Use this surface to compare current package suggestions against cheaper or simpler alternatives without pretending the project has vendor-ready parts."
+    "trust_reason": "Treat this surface as provisional pricing context until parts-readiness and cost posture are operationally fresh."
   },
   "source_authority": {
     "parts_readiness_truth": "parts_readiness_review",
@@ -86,11 +86,11 @@
     "project_expectations": "project_expectations"
   },
   "source_generated_at": {
-    "parts_readiness_review": "2026-04-14T21:14:41",
-    "component_package_review": "2026-04-14T21:14:41",
-    "cost_viability_review": "2026-04-14T21:14:41",
+    "parts_readiness_review": "2026-04-14T21:40:40",
+    "component_package_review": "2026-04-14T21:40:40",
+    "cost_viability_review": "2026-04-14T21:40:40",
     "project_expectations": "2026-04-10T09:16:32"
   },
   "revisable": true,
-  "updated_at": "2026-04-14T21:14:41"
+  "updated_at": "2026-04-14T21:40:40"
 }

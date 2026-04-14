@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T21:21:49",
+  "generated_at": "2026-04-14T21:40:36",
   "response_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/state/v1_decision_human_responses.json",
   "allowed_responses": [
     "accept_for_v1",
@@ -12,5 +12,42 @@
     "pending_v1_decisions": 0,
     "human_responded": 0
   },
-  "updated_at": "2026-04-14T21:21:49"
+  "updated_at": "2026-04-14T21:40:36",
+  "sync_metadata": {
+    "surface": "v1_decision_review",
+    "cycle_id": "20260414T214036",
+    "generated_from_cycle": "20260414T214036",
+    "generated_at": "2026-04-14T21:40:36",
+    "depends_on": [
+      "artifact_emission_readiness",
+      "draft_artifact_review",
+      "reflect_state"
+    ],
+    "checked_against": [
+      {
+        "surface": "artifact_emission_readiness",
+        "generated_at": "2026-04-14T21:38:38",
+        "comparison_status": "nearby"
+      },
+      {
+        "surface": "draft_artifact_review",
+        "generated_at": "2026-04-14T21:38:38",
+        "comparison_status": "nearby"
+      },
+      {
+        "surface": "reflect_state",
+        "generated_at": "2026-04-14T21:40:36",
+        "comparison_status": "nearby"
+      }
+    ],
+    "sync_status": "cross_surface_mismatch",
+    "trust_status": "operational",
+    "hard_issues": [
+      "Artifact-emission readiness still reflects older linked V1 decision state: v1_confidence_display_format, v1_default_subtitle_position, v1_visual_hierarchy_default.",
+      "Draft-artifact review still carries older pending-decision alignment rows: v1_confidence_display_format, v1_default_subtitle_position, v1_visual_hierarchy_default.",
+      "Draft-artifact review still emits briefs that no longer match current V1 decision state: V1 Confidence Display Format, V1 Default Subtitle Position, V1 Visual Hierarchy Default."
+    ],
+    "explained_differences": [],
+    "trust_reason": "Artifact-emission readiness still reflects older linked V1 decision state: v1_confidence_display_format, v1_default_subtitle_position, v1_visual_hierarchy_default. Treat this file as the fresher operational surface, and treat cross-surface comparison as provisional until downstream files refresh."
+  }
 }

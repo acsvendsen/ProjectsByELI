@@ -1,35 +1,35 @@
 {
-  "generated_at": "2026-04-14T21:14:41",
+  "generated_at": "2026-04-14T21:40:40",
   "surfaces": {
     "v1_decision_review": {
-      "generated_at": "2026-04-14T21:12:49",
-      "cycle_id": "20260414T211249",
-      "sync_status": "in_sync",
+      "generated_at": "2026-04-14T21:40:36",
+      "cycle_id": "20260414T214036",
+      "sync_status": "cross_surface_mismatch",
       "trust_status": "operational",
-      "trust_reason": "This file is close enough to its linked review surfaces to compare operationally.",
+      "trust_reason": "Artifact-emission readiness still reflects older linked V1 decision state: v1_confidence_display_format, v1_default_subtitle_position, v1_visual_hierarchy_default. Treat this file as the fresher operational surface, and treat cross-surface comparison as provisional until downstream files refresh.",
       "recommended_use": "current_truth",
-      "recommended_use_reason": "This file is close enough to its linked review surfaces to compare operationally."
+      "recommended_use_reason": "Artifact-emission readiness still reflects older linked V1 decision state: v1_confidence_display_format, v1_default_subtitle_position, v1_visual_hierarchy_default. Treat this file as the fresher operational surface, and treat cross-surface comparison as provisional until downstream files refresh."
     },
     "artifact_emission_readiness": {
-      "generated_at": "2026-04-14T21:14:41",
-      "cycle_id": "20260414T211441",
-      "sync_status": "in_sync",
-      "trust_status": "operational",
-      "trust_reason": "This file is close enough to its linked review surfaces to compare operationally.",
-      "recommended_use": "current_truth",
-      "recommended_use_reason": "This file is close enough to its linked review surfaces to compare operationally."
+      "generated_at": "2026-04-14T21:38:38",
+      "cycle_id": "20260414T213838",
+      "sync_status": "cross_surface_mismatch",
+      "trust_status": "caution",
+      "trust_reason": "Linked draft-candidate decisions no longer appear in current V1 review: v1_confidence_display_format, v1_default_subtitle_position, v1_visual_hierarchy_default. Do not use it as current cross-surface truth without caution.",
+      "recommended_use": "withheld_from_cross_surface_synthesis",
+      "recommended_use_reason": "Linked draft-candidate decisions no longer appear in current V1 review: v1_confidence_display_format, v1_default_subtitle_position, v1_visual_hierarchy_default. Do not use it as current cross-surface truth without caution."
     },
     "draft_artifact_review": {
-      "generated_at": "2026-04-14T21:14:41",
-      "cycle_id": "20260414T211441",
-      "sync_status": "in_sync",
-      "trust_status": "operational",
-      "trust_reason": "This file is close enough to its linked review surfaces to compare operationally.",
-      "recommended_use": "current_truth",
-      "recommended_use_reason": "This file is close enough to its linked review surfaces to compare operationally."
+      "generated_at": "2026-04-14T21:38:38",
+      "cycle_id": "20260414T213838",
+      "sync_status": "cross_surface_mismatch",
+      "trust_status": "caution",
+      "trust_reason": "Draft-emission alignment rows still reference decisions that are no longer pending: v1_confidence_display_format, v1_default_subtitle_position, v1_visual_hierarchy_default. Do not use it as current cross-surface truth without caution.",
+      "recommended_use": "withheld_from_cross_surface_synthesis",
+      "recommended_use_reason": "Draft-emission alignment rows still reference decisions that are no longer pending: v1_confidence_display_format, v1_default_subtitle_position, v1_visual_hierarchy_default. Do not use it as current cross-surface truth without caution."
     }
   },
-  "overall_sync_status": "in_sync",
-  "overall_trust_status": "operational",
-  "summary": "The current review-state files are close enough in time and linkage to compare operationally."
+  "overall_sync_status": "cross_surface_mismatch",
+  "overall_trust_status": "caution",
+  "summary": "The current review-state files do not form one clean comparison set. Treat fresher surfaces as operational and older linked surfaces as provisional until they refresh."
 }

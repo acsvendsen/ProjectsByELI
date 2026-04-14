@@ -484,6 +484,30 @@
       background: rgba(255,255,255,0.5);
     }
 
+    .steering-groups {
+      display: grid;
+      gap: 12px;
+    }
+
+    .steering-group {
+      display: grid;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(31,38,36,0.08);
+    }
+
+    .steering-group:first-child {
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .steering-group-title {
+      font-size: 0.77rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
     .topology-panel {
       margin-top: 18px;
       border-top: 1px solid rgba(31,38,36,0.08);
@@ -1187,7 +1211,8 @@
     .mini-pill.provisional_context,
     .mini-pill.provisional,
     .mini-pill.operator_input_under_review,
-    .mini-pill.worth_bounded_exploration {
+    .mini-pill.worth_bounded_exploration,
+    .mini-pill.under_review {
       color: var(--accent);
       background: rgba(13,124,102,0.08);
     }
@@ -1230,6 +1255,9 @@
     }
 
     .mini-pill.rejected_for_now,
+    .mini-pill.rejected_as_unnecessary,
+    .mini-pill.rejected_as_tier_mismatch,
+    .mini-pill.rejected_as_already_solved,
     .mini-pill.concept_only,
     .mini-pill.missing {
       color: var(--danger);
@@ -1256,7 +1284,8 @@
 
     .mini-pill.not_yet_justified,
     .mini-pill.missing_but_useful,
-    .mini-pill.deferred {
+    .mini-pill.deferred,
+    .mini-pill.held_pending_evidence {
       color: var(--late);
       background: rgba(181,106,45,0.1);
     }
@@ -1393,7 +1422,9 @@
     }
 
     .mini-pill.mixed_tier_compromise_candidate,
-    .mini-pill.useful_alternative {
+    .mini-pill.useful_alternative,
+    .mini-pill.promoted_to_exploratory_ideas,
+    .mini-pill.challenging_current_direction {
       color: var(--accent);
       background: rgba(13,124,102,0.08);
     }
@@ -3015,7 +3046,7 @@
         row.question === "Budget tier posture and mixed-tier compromise paths"
       );
       const proposalTruthOwner = (verification.current_truth_sources || []).find(row =>
-        row.question === "Operator-proposed ideas under review"
+        row.source_surface === "operator_proposal_review"
       );
       const ideaTruthOwner = (verification.supporting_context_sources || []).find(row =>
         row.question === "Exploratory ideas being incubated"
@@ -3062,7 +3093,72 @@
         }
       ].filter(row => row.summary);
       const ideaRows = (ideas.ideas_being_explored || []).slice(0, 4);
-      const proposalRows = (proposals.operator_proposals || []).slice(0, 4);
+      const proposalRows = proposals.operator_proposals || [];
+      const proposalLifecycleState = row => row.lifecycle_state || "under_review";
+      const proposalBucketRows = {
+        live: proposalRows.filter(row => ["under_review", "worth_bounded_exploration", "challenging_current_direction", "becoming_serious"].includes(proposalLifecycleState(row))).slice(0, 2),
+        promoted: proposalRows.filter(row => proposalLifecycleState(row) === "promoted_to_exploratory_ideas").slice(0, 2),
+        held: proposalRows.filter(row => proposalLifecycleState(row) === "held_pending_evidence").slice(0, 2),
+        rejected: proposalRows.filter(row => [
+          "rejected_for_now",
+          "rejected_as_unnecessary",
+          "rejected_as_tier_mismatch",
+          "rejected_as_already_solved"
+        ].includes(proposalLifecycleState(row))).slice(0, 2)
+      };
+      const proposalReasonLabel = row => {
+        const lifecycle = proposalLifecycleState(row);
+        if (lifecycle === "promoted_to_exploratory_ideas") return "Promoted because";
+        if (lifecycle === "held_pending_evidence") return "Held because";
+        if (lifecycle.startsWith("rejected")) return "Rejected because";
+        if (lifecycle === "challenging_current_direction") return "Challenge reason";
+        if (lifecycle === "becoming_serious") return "Why it is rising";
+        return "Current reason";
+      };
+      const proposalReasonText = row =>
+        row.promotion_reason ||
+        row.hold_reason ||
+        row.rejection_reason ||
+        (row.what_blocks_it || [])[0] ||
+        row.why_it_might_be_good ||
+        row.eli_interpretation ||
+        "";
+      const proposalNextLabel = row => {
+        const lifecycle = proposalLifecycleState(row);
+        if (lifecycle === "held_pending_evidence" || lifecycle.startsWith("rejected")) return "Would reopen";
+        return "Would raise it";
+      };
+      const proposalNextText = row =>
+        row.what_would_reopen_it ||
+        (row.what_would_raise_it || [])[0] ||
+        (row.what_would_strengthen_it || [])[0] ||
+        "";
+      const renderProposalBucket = (title, rows) => {
+        if (!rows.length) return "";
+        return `
+          <div class="steering-group">
+            <div class="steering-group-title">${title}</div>
+            <div class="steering-list">
+              ${rows.map(row => `
+                <div class="steering-row">
+                  <div class="steering-row-head">
+                    <strong>${row.title || "Proposal"}</strong>
+                    <div class="steering-row-meta">
+                      ${proposalLifecycleState(row) ? `<span class="mini-pill ${proposalLifecycleState(row)}">${humanizeToken(proposalLifecycleState(row))}</span>` : ``}
+                      ${row.fit_with_current_direction ? `<span class="mini-pill ${row.fit_with_current_direction}">${humanizeToken(row.fit_with_current_direction)}</span>` : ``}
+                      ${row.fit_with_budget_tier ? `<span class="mini-pill ${row.fit_with_budget_tier}">${humanizeToken(row.fit_with_budget_tier)}</span>` : ``}
+                    </div>
+                  </div>
+                  <div>${truncateText(row.eli_interpretation || row.proposal_text || "", 210)}</div>
+                  ${proposalReasonText(row) ? `<div class="footer"><strong>${proposalReasonLabel(row)}:</strong> ${truncateText(proposalReasonText(row), 220)}</div>` : ``}
+                  ${row.main_risks?.length ? `<div class="footer"><strong>Main risk:</strong> ${truncateText(row.main_risks[0], 220)}</div>` : ``}
+                  ${proposalNextText(row) ? `<div class="footer"><strong>${proposalNextLabel(row)}:</strong> ${truncateText(proposalNextText(row), 220)}</div>` : ``}
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      };
 
       document.getElementById("steeringIntent").innerHTML = `
         <div class="verification-heading">Intent</div>
@@ -3246,38 +3342,31 @@
         <div class="verification-heading">${proposalsSection.title || "Operator Proposals"}</div>
         <div class="mini-pills">
           ${proposals.trust_posture?.use_state ? `<span class="mini-pill ${proposals.trust_posture.use_state}">${humanizeToken(proposals.trust_posture.use_state)}</span>` : ``}
-          <span class="mini-pill operator_input_under_review">Operator input under review</span>
+          <span class="mini-pill operator_input_under_review">Lifecycle-aware review</span>
           <span class="mini-pill review_only">Non-authoritative</span>
         </div>
-        <div class="steering-copy">${proposals.proposal_summary || "No operator proposal is under review right now."}</div>
+        <div class="steering-copy">${proposals.proposal_lifecycle_summary || proposals.proposal_summary || "No operator proposal lifecycle is active right now."}</div>
+        <div class="mini-pills">
+          <span class="mini-pill under_review">Live ${(proposals.live_proposals || []).length}</span>
+          <span class="mini-pill promoted_to_exploratory_ideas">Promoted ${(proposals.promoted_proposals || []).length}</span>
+          <span class="mini-pill held_pending_evidence">Held ${(proposals.held_proposals || []).length}</span>
+          <span class="mini-pill rejected_for_now">Rejected ${(proposals.rejected_proposals || []).length}</span>
+        </div>
         ${
           proposalRows.length
-            ? `<div class="steering-list">
-                ${proposalRows.map(row => `
-                  <div class="steering-row">
-                    <div class="steering-row-head">
-                      <strong>${row.title || "Proposal"}</strong>
-                      <div class="steering-row-meta">
-                        ${row.status ? `<span class="mini-pill ${row.status}">${humanizeToken(row.status)}</span>` : ``}
-                        ${row.truth_posture ? `<span class="mini-pill ${row.truth_posture}">${humanizeToken(row.truth_posture)}</span>` : ``}
-                        ${row.domain ? `<span class="mini-pill">${humanizeToken(row.domain)}</span>` : ``}
-                      </div>
-                    </div>
-                    <div>${truncateText(row.eli_interpretation || row.proposal_text || "", 220)}</div>
-                    ${row.proposal_text ? `<div class="footer"><strong>Proposal:</strong> ${truncateText(row.proposal_text, 220)}</div>` : ``}
-                    ${row.fit_with_current_direction ? `<div class="footer"><strong>Fit with current direction:</strong> ${truncateText(humanizeToken(row.fit_with_current_direction), 180)}</div>` : ``}
-                    ${row.fit_with_budget_tier ? `<div class="footer"><strong>Fit with budget tier:</strong> ${truncateText(humanizeToken(row.fit_with_budget_tier), 180)}</div>` : ``}
-                    ${(row.main_risks || []).length ? `<div class="footer"><strong>Main risk:</strong> ${truncateText(row.main_risks[0], 220)}</div>` : ``}
-                    ${(row.what_would_raise_it || []).length ? `<div class="footer"><strong>Would raise it:</strong> ${truncateText(row.what_would_raise_it[0], 220)}</div>` : ``}
-                  </div>
-                `).join("")}
+            ? `<div class="steering-groups">
+                ${renderProposalBucket("Live Under Review", proposalBucketRows.live)}
+                ${renderProposalBucket("Promoted", proposalBucketRows.promoted)}
+                ${renderProposalBucket("Held", proposalBucketRows.held)}
+                ${renderProposalBucket("Rejected", proposalBucketRows.rejected)}
               </div>`
-            : `<div class="steering-empty">No operator proposal is under review. New operator ideas will enter here as bounded proposals before they can influence direction or budget posture.</div>`
+            : `<div class="steering-empty">No operator proposal lifecycle is active. New operator ideas will enter here as bounded proposals first, then stay live, be promoted, be held, or be rejected with explicit reasons.</div>`
         }
-        ${(proposals.proposals_fitting_current_direction || []).length ? `<div class="footer"><strong>Fits current direction:</strong> ${truncateText(proposals.proposals_fitting_current_direction.join("; "), 240)}</div>` : ``}
-        ${(proposals.proposals_challenging_current_direction || []).length ? `<div class="footer"><strong>Challenges current direction:</strong> ${truncateText(proposals.proposals_challenging_current_direction.join("; "), 240)}</div>` : ``}
-        ${(proposals.proposals_blocked_or_too_weak || []).length ? `<div class="footer"><strong>Blocked / too weak:</strong> ${truncateText(proposals.proposals_blocked_or_too_weak.join("; "), 240)}</div>` : ``}
-        ${(proposals.what_would_promote_a_proposal || []).length ? `<div class="footer"><strong>Would promote a proposal:</strong> ${truncateText(proposals.what_would_promote_a_proposal[0], 240)}</div>` : ``}
+        ${(proposals.why_a_proposal_was_promoted || []).length ? `<div class="footer"><strong>Promotion logic:</strong> ${truncateText(proposals.why_a_proposal_was_promoted[0], 240)}</div>` : ``}
+        ${(proposals.why_a_proposal_was_held || []).length ? `<div class="footer"><strong>Hold logic:</strong> ${truncateText(proposals.why_a_proposal_was_held[0], 240)}</div>` : ``}
+        ${(proposals.why_a_proposal_was_rejected || []).length ? `<div class="footer"><strong>Rejection logic:</strong> ${truncateText(proposals.why_a_proposal_was_rejected[0], 240)}</div>` : ``}
+        ${(proposals.what_would_reopen_a_held_or_rejected_proposal || []).length ? `<div class="footer"><strong>Would reopen:</strong> ${truncateText(proposals.what_would_reopen_a_held_or_rejected_proposal[0], 240)}</div>` : ``}
+        ${proposals.proposal_lifecycle_note ? `<div class="footer"><strong>Lifecycle note:</strong> ${truncateText(proposals.proposal_lifecycle_note, 240)}</div>` : ``}
         ${proposals.prototype_vs_product_interpretation ? `<div class="footer"><strong>Prototype vs product:</strong> ${truncateText(proposals.prototype_vs_product_interpretation, 240)}</div>` : ``}
         ${proposalTruthOwner ? `<div class="footer"><strong>Current truth owner:</strong> ${proposalTruthOwner.source_surface}</div>` : ``}
         ${proposalsSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(proposalsSection.purpose, 220)}</div>` : ``}

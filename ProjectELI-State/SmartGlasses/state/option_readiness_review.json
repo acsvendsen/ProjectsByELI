@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T21:14:41",
+  "generated_at": "2026-04-14T21:38:38",
   "readiness_bands": [
     "ready_to_review",
     "almost_ready",
@@ -57,6 +57,30 @@
       "linked_review_kind": "v1_decision_review"
     },
     {
+      "option_id": "decision:v1_visual_hierarchy_default",
+      "title": "V1 Visual Hierarchy Default",
+      "option_kind": "bounded_decision_option",
+      "source_lane": "pending_v1_decisions",
+      "current_direction": "Subtitles Dominate",
+      "readiness_band": "ready_to_review",
+      "why_surfaced": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit V1 options. promoting it to a decision candidate should reduce repeated abstract re-probing. this do...",
+      "could_still_change": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully lower resistance"
+      ],
+      "blocking_factors": [],
+      "missing_evidence": [],
+      "bounded_options": [
+        "Subtitles Dominate",
+        "Balanced Overlay"
+      ],
+      "provisional": true,
+      "revisable": true,
+      "linked_review_id": "v1_visual_hierarchy_default",
+      "linked_review_kind": "v1_decision_review"
+    },
+    {
       "option_id": "artifact:confidence_object_spec-confidence-display",
       "title": "V1 Confidence Display Format",
       "option_kind": "implementation_artifact_option",
@@ -110,6 +134,32 @@
       "linked_review_kind": "implementation_artifact_review"
     },
     {
+      "option_id": "artifact:visual_layout_rule-visual-hierarchy",
+      "title": "V1 Visual Hierarchy Default",
+      "option_kind": "implementation_artifact_option",
+      "source_lane": "implementation_artifact_review",
+      "current_direction": "Visual Layout Rule",
+      "readiness_band": "almost_ready",
+      "why_surfaced": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is grounded.",
+      "could_still_change": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully lower resistance"
+      ],
+      "blocking_factors": [],
+      "missing_evidence": [],
+      "bounded_options": [
+        "Subtitles Dominate",
+        "Balanced Overlay"
+      ],
+      "artifact_type": "visual_layout_rule",
+      "artifact_type_label": "Visual Layout Rule",
+      "provisional": true,
+      "revisable": true,
+      "linked_review_id": "visual_layout_rule-visual-hierarchy",
+      "linked_review_kind": "implementation_artifact_review"
+    },
+    {
       "option_id": "held:memory-cache-policy",
       "title": "Memory/Cache Policy",
       "option_kind": "held_option",
@@ -142,11 +192,11 @@
       "linked_review_kind": "held_option"
     },
     {
-      "option_id": "held:visual-hierarchy",
-      "title": "Visual Hierarchy",
+      "option_id": "held:phone-cloud-boundary",
+      "title": "Phone/Cloud Boundary",
       "option_kind": "held_option",
       "source_lane": "held_items",
-      "current_direction": "Subtitles Dominate",
+      "current_direction": "Balanced Fallback",
       "readiness_band": "emerging",
       "why_surfaced": "This remains meaningful enough to track, but ELI is explicitly holding it until new grounding appears.",
       "could_still_change": [
@@ -165,20 +215,20 @@
         "meaningfully lower resistance"
       ],
       "bounded_options": [
-        "Subtitles Dominate",
-        "Balanced Overlay"
+        "Phone First",
+        "Balanced Fallback"
       ],
       "provisional": true,
       "revisable": true,
-      "linked_review_id": "visual-hierarchy",
+      "linked_review_id": "phone-cloud-boundary",
       "linked_review_kind": "held_option"
     }
   ],
   "counts": {
-    "ready_to_review": 2,
-    "almost_ready": 2,
+    "ready_to_review": 3,
+    "almost_ready": 3,
     "emerging": 2,
     "too_early": 0
   },
-  "updated_at": "2026-04-14T21:14:41"
+  "updated_at": "2026-04-14T21:38:38"
 }

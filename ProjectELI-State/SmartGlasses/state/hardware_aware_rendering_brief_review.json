@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T21:14:41",
+  "generated_at": "2026-04-14T21:40:40",
   "summary": "3 exploratory hardware-aware rendering brief(s) are warranted now because visualization support is recommended, implementation-package review is materially live, and build-oriented prototype surfaces are honest enough to benefit from bounded visual drafting.",
   "eli_authority_note": "ELI decides whether hardware-aware rendering help is worth surfacing. Any rendering result is drafting support only, not project truth, and ELI may partially accept, reject, defer, or revise it.",
   "informational_extension_posture": "informational_only",
@@ -59,7 +59,7 @@
           "subsystem": "Subtitle System",
           "status": "on_track",
           "grounding_status": "grounded",
-          "why_it_matters": "Current subtitle direction is `More Prominent` and should remain the first readability anchor."
+          "why_it_matters": "Current subtitle direction is `Stable Default` and should remain the first readability anchor."
         },
         {
           "subsystem": "Hardware Stack",
@@ -234,7 +234,7 @@
       "realism_posture": "serious_prototype_path",
       "hardware_constraints": [
         "Anchor comparisons to a constrained subtitle or display region, not a full-screen HUD.",
-        "Current subtitle-position default is `More Prominent` and current confidence format is `Label + Reason`; show alternatives without implying closure.",
+        "Current subtitle-position default is `Stable Default` and current confidence format is `Label + Reason`; show alternatives without implying closure.",
         "Current visual hierarchy default is `Subtitles Dominate`; keep the comparison bounded rather than treating it as settled.",
         "Keep social acceptability and glanceability visible if subtitles or confidence overlays become more prominent.",
         "Do not imply solved display posture, solved optical alignment, or perfect readability under all conditions."
@@ -319,13 +319,13 @@
   ],
   "source_generated_at": {
     "project_expectations": "2026-04-10T09:16:32",
-    "project_milestones": "2026-04-14T21:14:41",
-    "product_realism_review": "2026-04-14T21:14:41",
-    "component_package_review": "2026-04-14T21:14:41",
-    "extensions_capability_review": "2026-04-14T21:14:41",
-    "v1_decision_review": "2026-04-14T21:12:49",
-    "project_scorecard": "2026-04-14T21:13:24"
+    "project_milestones": "2026-04-14T21:40:40",
+    "product_realism_review": "2026-04-14T21:40:40",
+    "component_package_review": "2026-04-14T21:40:40",
+    "extensions_capability_review": "2026-04-14T21:40:40",
+    "v1_decision_review": "2026-04-14T21:40:36",
+    "project_scorecard": "2026-04-14T21:38:07"
   },
   "revisable": true,
-  "updated_at": "2026-04-14T21:14:41"
+  "updated_at": "2026-04-14T21:40:40"
 }
