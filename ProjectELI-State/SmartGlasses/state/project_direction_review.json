@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T20:45:59",
+  "generated_at": "2026-04-14T21:14:41",
   "current_direction_summary": "ELI is currently steering SmartGlasses toward a boundary-first, phone-first, touch-first, subtitle-first functional prototype that can be reviewed for prototype buildability while consumer-tier product narration remains capped by cost and grounding gaps.",
   "hardware_direction": "Favor a boundary-first hardware stack with minimal on-glasses compute, explicit weight/bulk discipline, and later-stage hardware packages kept deferred.",
   "software_direction": "Favor phone-first runtime and lightweight on-glasses logic over heavier autonomous glasses compute. Do not reopen boundary changes until stronger link evidence appears.",
@@ -18,7 +18,7 @@
         "Current cost posture rewards simpler prototype-scoped hardware over heavier integrated product hardware."
       ],
       "what_weakens_it": [
-        "Continue defining minimal hardware components and ensuring the glasses do not exceed social acceptability limits.",
+        "Ensure ongoing battery optimization and thermal management without adding unnecessary complexity.",
         "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
       ],
       "truth_posture": "current_truth",
@@ -57,7 +57,7 @@
       ],
       "what_weakens_it": [
         "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
-        "V1 Default Subtitle Position"
+        "V1 Confidence Display Format"
       ],
       "truth_posture": "provisional",
       "budget_tier_hint": "prototype_foundation_only",
@@ -76,6 +76,7 @@
       ],
       "what_weakens_it": [
         "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
+        "V1 Confidence Display Format",
         "V1 Default Subtitle Position"
       ],
       "truth_posture": "bounded",
@@ -239,16 +240,16 @@
     "review_truth": "v1_decision_review"
   },
   "source_generated_at": {
-    "project_scorecard": "2026-04-14T20:43:09",
-    "execution_boundaries": "2026-04-14T20:45:59",
-    "product_realism_review": "2026-04-14T20:45:59",
-    "cost_viability_review": "2026-04-14T20:45:59",
-    "component_package_review": "2026-04-14T20:45:59",
-    "parts_readiness_review": "2026-04-14T20:45:59",
-    "pricing_alternatives_review": "2026-04-14T20:45:59",
-    "v1_decision_review": "2026-04-14T20:45:41",
-    "reflect_state": "2026-04-14T20:45:41"
+    "project_scorecard": "2026-04-14T21:13:24",
+    "execution_boundaries": "2026-04-14T21:14:41",
+    "product_realism_review": "2026-04-14T21:14:41",
+    "cost_viability_review": "2026-04-14T21:14:41",
+    "component_package_review": "2026-04-14T21:14:41",
+    "parts_readiness_review": "2026-04-14T21:14:41",
+    "pricing_alternatives_review": "2026-04-14T21:14:41",
+    "v1_decision_review": "2026-04-14T21:12:49",
+    "reflect_state": "2026-04-14T21:12:49"
   },
   "revisable": true,
-  "updated_at": "2026-04-14T20:45:59"
+  "updated_at": "2026-04-14T21:14:41"
 }

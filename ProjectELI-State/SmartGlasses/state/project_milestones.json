@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T20:45:59",
+  "generated_at": "2026-04-14T21:14:41",
   "allowed_approval_states": [
     "not_yet_reviewable",
     "ready_for_review",
@@ -16,34 +16,6 @@
   ],
   "milestones": [
     {
-      "milestone_id": "implementation_package_review",
-      "title": "Implementation Package Review",
-      "style": "implementation_package_review",
-      "purpose": "Review whether the current implementation-artifact package is mature enough to inspect as a bounded package rather than scattered review fragments.",
-      "depends_on": [
-        "artifact_emission_readiness",
-        "draft_artifact_review"
-      ],
-      "required_grounding": "Draft-emission readiness and emitted review artifacts should both be grounded enough to inspect together.",
-      "required_readiness": "At least one emitted or strongly draft-ready artifact should exist before package review becomes real.",
-      "blocking_factors": [],
-      "missing_evidence": [
-        "Implementation-package review can stay live for prototype buildability, but current cost posture `product_tier_mismatch_risk` blocks reading it as a `discreet_consumer_assistive_wearable` implementation package."
-      ],
-      "review_questions": [
-        "Which parts of this implementation package are still prototype-learning scaffolds and should not be read as consumer-product commitments?",
-        "Given the current constraints, should More Prominent remain the leading default for What should the default subtitle position behavior be for V1 live use?"
-      ],
-      "approval_state": "not_yet_reviewable",
-      "unlocks": [
-        "architecture_lock",
-        "implementation_planning"
-      ],
-      "current_band": "almost_ready",
-      "why_not_ready_yet": "Implementation-package review can stay live for prototype buildability, but current cost posture `product_tier_mismatch_risk` blocks reading it as a `discreet_consumer_assistive_wearable` implementation package.",
-      "revisable": true
-    },
-    {
       "milestone_id": "product_definition",
       "title": "Product Definition Review",
       "style": "product_definition",
@@ -59,6 +31,7 @@
         "Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototype-scoped rather than reading as a `discreet_consumer_assistive_wearable` product path."
       ],
       "review_questions": [
+        "What confidence format should V1 use by default during live subtitle support?",
         "What should the default subtitle position behavior be for V1 live use?"
       ],
       "approval_state": "not_yet_reviewable",
@@ -135,6 +108,35 @@
       "revisable": true
     },
     {
+      "milestone_id": "implementation_package_review",
+      "title": "Implementation Package Review",
+      "style": "implementation_package_review",
+      "purpose": "Review whether the current implementation-artifact package is mature enough to inspect as a bounded package rather than scattered review fragments.",
+      "depends_on": [
+        "artifact_emission_readiness",
+        "draft_artifact_review"
+      ],
+      "required_grounding": "Draft-emission readiness and emitted review artifacts should both be grounded enough to inspect together.",
+      "required_readiness": "At least one emitted or strongly draft-ready artifact should exist before package review becomes real.",
+      "blocking_factors": [],
+      "missing_evidence": [
+        "Implementation-package review can stay live for prototype buildability, but current cost posture `product_tier_mismatch_risk` blocks reading it as a `discreet_consumer_assistive_wearable` implementation package."
+      ],
+      "review_questions": [
+        "Which parts of this implementation package are still prototype-learning scaffolds and should not be read as consumer-product commitments?",
+        "Given the current constraints, should Label + Reason remain the leading default for What confidence format should V1 use by default during live subtitle support?",
+        "Given the current constraints, should More Prominent remain the leading default for What should the default subtitle position behavior be for V1 live use?"
+      ],
+      "approval_state": "ready_for_review",
+      "unlocks": [
+        "architecture_lock",
+        "implementation_planning"
+      ],
+      "current_band": "ready_to_review",
+      "why_not_ready_yet": "",
+      "revisable": true
+    },
+    {
       "milestone_id": "product_realism_check",
       "title": "Product Realism Check",
       "style": "product_realism_check",
@@ -172,11 +174,11 @@
     }
   ],
   "counts": {
-    "not_yet_reviewable": 4,
-    "ready_for_review": 0,
+    "not_yet_reviewable": 3,
+    "ready_for_review": 1,
     "approved": 0,
     "held": 1,
     "rejected_for_now": 0
   },
-  "updated_at": "2026-04-14T20:45:59"
+  "updated_at": "2026-04-14T21:14:41"
 }

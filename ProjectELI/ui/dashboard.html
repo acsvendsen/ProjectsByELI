@@ -1185,7 +1185,9 @@
     }
 
     .mini-pill.provisional_context,
-    .mini-pill.provisional {
+    .mini-pill.provisional,
+    .mini-pill.operator_input_under_review,
+    .mini-pill.worth_bounded_exploration {
       color: var(--accent);
       background: rgba(13,124,102,0.08);
     }
@@ -1198,7 +1200,9 @@
     }
 
     .mini-pill.withheld_from_cross_surface_synthesis,
-    .mini-pill.blocked {
+    .mini-pill.blocked,
+    .mini-pill.tier_mismatch,
+    .mini-pill.too_expensive_for_intended_tier {
       color: var(--danger);
       background: rgba(179,58,58,0.1);
     }
@@ -1206,7 +1210,9 @@
     .mini-pill.ready_for_review,
     .mini-pill.approved,
     .mini-pill.operator_reviewed,
-    .mini-pill.real_product_path_credible {
+    .mini-pill.real_product_path_credible,
+    .mini-pill.fits_current_direction,
+    .mini-pill.fits_intended_budget_posture {
       color: var(--good);
       background: rgba(23,100,58,0.08);
     }
@@ -1379,6 +1385,19 @@
       background: rgba(179,58,58,0.1);
     }
 
+    .mini-pill.possible_if_prototype_only,
+    .mini-pill.possible_if_scope_stays_bounded,
+    .mini-pill.becoming_serious {
+      color: var(--late);
+      background: rgba(181,106,45,0.1);
+    }
+
+    .mini-pill.mixed_tier_compromise_candidate,
+    .mini-pill.useful_alternative {
+      color: var(--accent);
+      background: rgba(13,124,102,0.08);
+    }
+
     .mono { font-family: var(--font-mono); }
 
     @media (max-width: 980px) {
@@ -1482,6 +1501,7 @@
           <article class="steering-card" id="steeringBlockers"></article>
           <article class="steering-card wide" id="steeringDirection"></article>
           <article class="steering-card wide" id="steeringIdeas"></article>
+          <article class="steering-card wide" id="steeringOperatorProposals"></article>
           <article class="steering-card wide" id="steeringMilestones"></article>
         </div>
         <div class="topology-panel" id="projectTopologyPanel" style="display:none">
@@ -2973,6 +2993,7 @@
       const boundaries = status.execution_boundaries || resume.execution_boundaries || {};
       const direction = status.project_direction_review || {};
       const ideas = status.exploratory_ideas_review || {};
+      const proposals = status.operator_proposal_review || {};
       const budget = status.budget_tier_review || {};
       const cost = status.cost_viability_review || {};
       const verification = status.verification_summary || {};
@@ -2993,6 +3014,9 @@
       const budgetTruthOwner = (verification.current_truth_sources || []).find(row =>
         row.question === "Budget tier posture and mixed-tier compromise paths"
       );
+      const proposalTruthOwner = (verification.current_truth_sources || []).find(row =>
+        row.question === "Operator-proposed ideas under review"
+      );
       const ideaTruthOwner = (verification.supporting_context_sources || []).find(row =>
         row.question === "Exploratory ideas being incubated"
       );
@@ -3000,6 +3024,7 @@
       const budgetSection = sections.find(section => section.section_id === "budget_tier_posture") || {};
       const directionSection = sections.find(section => section.section_id === "direction_of_travel") || {};
       const ideasSection = sections.find(section => section.section_id === "ideas_im_exploring") || {};
+      const proposalsSection = sections.find(section => section.section_id === "operator_proposals") || {};
       const targetTitle = boundaries.current_milestone_target_title || boundaries.target_milestone_title || "";
       const targetWhy = boundaries.why_this_target_now || boundaries.current_boundary_summary || "";
       const targetUnlocks = (boundaries.what_unlocks_if_reviewed || []).slice(0, 2);
@@ -3037,6 +3062,7 @@
         }
       ].filter(row => row.summary);
       const ideaRows = (ideas.ideas_being_explored || []).slice(0, 4);
+      const proposalRows = (proposals.operator_proposals || []).slice(0, 4);
 
       document.getElementById("steeringIntent").innerHTML = `
         <div class="verification-heading">Intent</div>
@@ -3214,6 +3240,47 @@
         ${ideas.prototype_vs_product_interpretation ? `<div class="footer"><strong>Prototype vs product:</strong> ${truncateText(ideas.prototype_vs_product_interpretation, 240)}</div>` : ""}
         ${ideaTruthOwner ? `<div class="footer"><strong>Supporting surface:</strong> ${ideaTruthOwner.source_surface}</div>` : ""}
         ${ideasSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(ideasSection.purpose, 220)}</div>` : ""}
+      `;
+
+      document.getElementById("steeringOperatorProposals").innerHTML = `
+        <div class="verification-heading">${proposalsSection.title || "Operator Proposals"}</div>
+        <div class="mini-pills">
+          ${proposals.trust_posture?.use_state ? `<span class="mini-pill ${proposals.trust_posture.use_state}">${humanizeToken(proposals.trust_posture.use_state)}</span>` : ``}
+          <span class="mini-pill operator_input_under_review">Operator input under review</span>
+          <span class="mini-pill review_only">Non-authoritative</span>
+        </div>
+        <div class="steering-copy">${proposals.proposal_summary || "No operator proposal is under review right now."}</div>
+        ${
+          proposalRows.length
+            ? `<div class="steering-list">
+                ${proposalRows.map(row => `
+                  <div class="steering-row">
+                    <div class="steering-row-head">
+                      <strong>${row.title || "Proposal"}</strong>
+                      <div class="steering-row-meta">
+                        ${row.status ? `<span class="mini-pill ${row.status}">${humanizeToken(row.status)}</span>` : ``}
+                        ${row.truth_posture ? `<span class="mini-pill ${row.truth_posture}">${humanizeToken(row.truth_posture)}</span>` : ``}
+                        ${row.domain ? `<span class="mini-pill">${humanizeToken(row.domain)}</span>` : ``}
+                      </div>
+                    </div>
+                    <div>${truncateText(row.eli_interpretation || row.proposal_text || "", 220)}</div>
+                    ${row.proposal_text ? `<div class="footer"><strong>Proposal:</strong> ${truncateText(row.proposal_text, 220)}</div>` : ``}
+                    ${row.fit_with_current_direction ? `<div class="footer"><strong>Fit with current direction:</strong> ${truncateText(humanizeToken(row.fit_with_current_direction), 180)}</div>` : ``}
+                    ${row.fit_with_budget_tier ? `<div class="footer"><strong>Fit with budget tier:</strong> ${truncateText(humanizeToken(row.fit_with_budget_tier), 180)}</div>` : ``}
+                    ${(row.main_risks || []).length ? `<div class="footer"><strong>Main risk:</strong> ${truncateText(row.main_risks[0], 220)}</div>` : ``}
+                    ${(row.what_would_raise_it || []).length ? `<div class="footer"><strong>Would raise it:</strong> ${truncateText(row.what_would_raise_it[0], 220)}</div>` : ``}
+                  </div>
+                `).join("")}
+              </div>`
+            : `<div class="steering-empty">No operator proposal is under review. New operator ideas will enter here as bounded proposals before they can influence direction or budget posture.</div>`
+        }
+        ${(proposals.proposals_fitting_current_direction || []).length ? `<div class="footer"><strong>Fits current direction:</strong> ${truncateText(proposals.proposals_fitting_current_direction.join("; "), 240)}</div>` : ``}
+        ${(proposals.proposals_challenging_current_direction || []).length ? `<div class="footer"><strong>Challenges current direction:</strong> ${truncateText(proposals.proposals_challenging_current_direction.join("; "), 240)}</div>` : ``}
+        ${(proposals.proposals_blocked_or_too_weak || []).length ? `<div class="footer"><strong>Blocked / too weak:</strong> ${truncateText(proposals.proposals_blocked_or_too_weak.join("; "), 240)}</div>` : ``}
+        ${(proposals.what_would_promote_a_proposal || []).length ? `<div class="footer"><strong>Would promote a proposal:</strong> ${truncateText(proposals.what_would_promote_a_proposal[0], 240)}</div>` : ``}
+        ${proposals.prototype_vs_product_interpretation ? `<div class="footer"><strong>Prototype vs product:</strong> ${truncateText(proposals.prototype_vs_product_interpretation, 240)}</div>` : ``}
+        ${proposalTruthOwner ? `<div class="footer"><strong>Current truth owner:</strong> ${proposalTruthOwner.source_surface}</div>` : ``}
+        ${proposalsSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(proposalsSection.purpose, 220)}</div>` : ``}
       `;
 
       document.getElementById("steeringMilestones").innerHTML = `

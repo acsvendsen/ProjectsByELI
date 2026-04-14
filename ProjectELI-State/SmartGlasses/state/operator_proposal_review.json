@@ -1,0 +1,52 @@
+{
+  "generated_at": "2026-04-14T21:14:41",
+  "proposal_summary": "No operator proposal is under review right now. Proposal intake exists as a bounded lane, but raw operator input stays separate from direction, milestones, and implementation truth until proposals are actually submitted and classified.",
+  "operator_proposals": [],
+  "why_proposals_are_visible_now": [
+    "Operator ideas now enter through a canonical intake lane instead of living as raw notes or silently merging into project direction.",
+    "Budget, cost, parts, and direction surfaces are strong enough now to classify proposals immediately instead of deferring all judgment.",
+    "Current working target is `Implementation Package Review`, so proposals can be read against prototype buildability rather than vague product ambition."
+  ],
+  "proposals_fitting_current_direction": [],
+  "proposals_challenging_current_direction": [],
+  "proposals_blocked_or_too_weak": [],
+  "what_would_promote_a_proposal": [
+    "Measured subsystem evidence on the front the proposal touches.",
+    "A clearer package, component, or interface signal that makes the proposal more buildable than the current alternative.",
+    "Operator confirmation that prototype-only value is acceptable if the proposal still misses the intended tier.",
+    "A cost or budget change that removes current tier mismatch pressure."
+  ],
+  "what_keeps_proposals_non_authoritative": [
+    "Direction of travel remains the leading path; operator proposals are evaluated against it and do not replace it automatically.",
+    "Milestones, execution target, and cost posture remain current-truth steering surfaces; a proposal row cannot rewrite them.",
+    "Budget-tier, pricing, and parts-readiness pressure can block or downgrade a proposal even if the raw idea is interesting.",
+    "Operator proposals remain distinct from ELI-generated exploratory ideas until stronger evidence justifies any promotion."
+  ],
+  "prototype_vs_product_interpretation": "Operator proposals are intake under review only. They may be worth bounded exploration or prototype learning, but they do not justify a `discreet_consumer_assistive_wearable` product story while realism remains `serious_prototype_path` and cost posture remains `stop_if_cost_ta...",
+  "trust_posture": {
+    "surface_role": "bounded_proposal_review_surface",
+    "use_state": "current_truth",
+    "authority_scope": "operator-proposed ideas under review only",
+    "trust_reason": "Use this surface as the current-truth record of what the operator has proposed and how ELI currently classifies those proposals. It owns proposal review posture only and cannot silently change direction, milestones, cost posture, or build truth."
+  },
+  "source_authority": {
+    "proposal_input": "operator_proposal_intake",
+    "direction_boundary": "project_direction_review",
+    "budget_pressure": "budget_tier_review",
+    "cost_pressure": "cost_viability_review",
+    "parts_readiness": "parts_readiness_review",
+    "pricing_pressure": "pricing_alternatives_review"
+  },
+  "source_generated_at": {
+    "operator_proposal_intake": "2026-04-14T21:14:41",
+    "project_direction_review": "2026-04-14T21:14:41",
+    "budget_tier_review": "2026-04-14T21:14:41",
+    "cost_viability_review": "2026-04-14T21:14:41",
+    "parts_readiness_review": "2026-04-14T21:14:41",
+    "pricing_alternatives_review": "2026-04-14T21:14:41",
+    "execution_boundaries": "2026-04-14T21:14:41",
+    "project_expectations": "2026-04-10T09:16:32"
+  },
+  "revisable": true,
+  "updated_at": "2026-04-14T21:14:41"
+}
