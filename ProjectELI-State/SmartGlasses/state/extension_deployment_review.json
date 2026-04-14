@@ -1,0 +1,163 @@
+{
+  "generated_at": "2026-04-14T20:06:18",
+  "extensions_summary": "0 extension capability row(s) are currently active for this project. 2 are recommended but still waiting for explicit operator opt-in. 2 are merely available, and 2 are deferred or not yet justified. This surface models operator control posture only; it does not imply backend enablement or hidden...",
+  "eli_authority_note": "ELI remains authoritative. Extension rows only describe whether subordinate help is active, waiting for opt-in, merely available, or deferred; they do not make extensions equal authorities or hidden autonomous workers.",
+  "deployment_execution_posture": "state_model_only",
+  "trust_posture": {
+    "surface_role": "extension_operator_control_surface",
+    "use_state": "current_truth",
+    "trust_reason": "This surface is the canonical operator-control answer to which extension capabilities are active, waiting for opt-in, merely available, or deferred. It still does not imply backend execution exists beyond the state model."
+  },
+  "source_authority": {
+    "current_truth_question": "Extension deployment state and required operator action",
+    "authoritative_surface": "extension_deployment_review",
+    "supporting_surfaces": [
+      "extensions_capability_review",
+      "project_milestones",
+      "product_realism_review",
+      "component_package_review",
+      "execution_boundaries"
+    ]
+  },
+  "top_level_operator_actions_needed": [
+    {
+      "capability_id": "coding_implementation_help",
+      "label": "Coding & Implementation Help",
+      "state": "recommended_waiting_for_opt_in",
+      "action": "Confirm whether coding and implementation help should be active now for the current implementation-package review.",
+      "why_now": "Implementation-package review is live and current blockers still include architecture, firmware, memory, or boundary-sensitive questions.",
+      "expected_gain": "high"
+    },
+    {
+      "capability_id": "embedded_device_integration_help",
+      "label": "Embedded Device Integration Help",
+      "state": "recommended_waiting_for_opt_in",
+      "action": "Opt in to embedded-device integration help if you want subordinate hardware and runtime critique on the current hardware, wireless, and firmware pressure.",
+      "why_now": "Hardware, wireless, and firmware-adjacent subsystem pressure is now real enough that embedded integration critique could reduce blind spots.",
+      "expected_gain": "medium"
+    }
+  ],
+  "active_extensions": [],
+  "recommended_waiting_for_opt_in": [
+    {
+      "capability_id": "coding_implementation_help",
+      "label": "Coding & Implementation Help",
+      "state": "recommended_waiting_for_opt_in",
+      "expected_gain": "high",
+      "operator_action_required": "Confirm whether coding and implementation help should be active now for the current implementation-package review.",
+      "why_it_is_in_this_state": "Implementation-package review is live and current blockers still include architecture, firmware, memory, or boundary-sensitive questions.",
+      "what_it_is_currently_helping_with": "Not active yet. If opted in, it would help with Implementation-package review is live and current blockers still include architecture, firmware, memory, or boundary-sensitive questions..",
+      "what_would_activate_it": "Explicit operator opt-in while implementation-package review remains a live project bottleneck.",
+      "what_would_deactivate_it": "Deactivate it if operator opt-in is withdrawn or implementation-package pressure stops being a live bottleneck.",
+      "authority_posture": "eli_authoritative_subordinate_instrument",
+      "capability_family": "coding_implementation",
+      "enablement_status": "available",
+      "project_status": "recommended_for_this_project",
+      "revisable": true
+    },
+    {
+      "capability_id": "embedded_device_integration_help",
+      "label": "Embedded Device Integration Help",
+      "state": "recommended_waiting_for_opt_in",
+      "expected_gain": "medium",
+      "operator_action_required": "Opt in to embedded-device integration help if you want subordinate hardware and runtime critique on the current hardware, wireless, and firmware pressure.",
+      "why_it_is_in_this_state": "Hardware, wireless, and firmware-adjacent subsystem pressure is now real enough that embedded integration critique could reduce blind spots.",
+      "what_it_is_currently_helping_with": "Not active yet. If opted in, it would help with Hardware, wireless, and firmware-adjacent subsystem pressure is now real enough that embedded integration critique could reduce blind spots..",
+      "what_would_activate_it": "Explicit operator opt-in while hardware, wireless, or firmware pressure remains active.",
+      "what_would_deactivate_it": "Deactivate it if operator opt-in is withdrawn or the project returns to a non-hardware-facing posture.",
+      "authority_posture": "eli_authoritative_subordinate_instrument",
+      "capability_family": "hardware_integration",
+      "enablement_status": "available",
+      "project_status": "recommended_for_this_project",
+      "revisable": true
+    }
+  ],
+  "available_but_not_requested": [
+    {
+      "capability_id": "visualization_rendering_help",
+      "label": "Visualization & Rendering Help",
+      "state": "available_but_not_requested",
+      "expected_gain": "medium",
+      "operator_action_required": "No operator action needed until visual review pressure materially increases.",
+      "why_it_is_in_this_state": "No strong visual review front is currently active enough to justify dedicated visualization help.",
+      "what_it_is_currently_helping_with": "Not currently helping. Keep it inactive unless the operator asks for it or project pressure shifts.",
+      "what_would_activate_it": "Explicit operator opt-in while visual or layout-shaped review pressure remains live.",
+      "what_would_deactivate_it": "Deactivate it if the operator withdraws opt-in or the project no longer has a live visual drafting pressure.",
+      "authority_posture": "eli_authoritative_subordinate_instrument",
+      "capability_family": "visualization_rendering",
+      "enablement_status": "available",
+      "project_status": "optional",
+      "revisable": true
+    },
+    {
+      "capability_id": "hardware_implementation_specialist_v1",
+      "label": "Hardware Implementation Specialist",
+      "state": "available_but_not_requested",
+      "expected_gain": "low",
+      "operator_action_required": "No operator action needed now.",
+      "why_it_is_in_this_state": "This capability exists and is available, but current project pressure does not justify requesting it now.",
+      "what_it_is_currently_helping_with": "Not currently helping. Keep it inactive unless the operator asks for it or project pressure shifts.",
+      "what_would_activate_it": "Explicit operator opt-in plus a real project bottleneck that this capability would materially help.",
+      "what_would_deactivate_it": "Deactivate it if the operator withdraws opt-in or the project pressure no longer justifies it.",
+      "authority_posture": "eli_authoritative_subordinate_instrument",
+      "capability_family": "specialist_extension",
+      "enablement_status": "available",
+      "project_status": "optional",
+      "revisable": true
+    }
+  ],
+  "deferred_or_not_yet_justified": [
+    {
+      "capability_id": "controls_and_benchmarking_help",
+      "label": "Controls & Benchmarking Help",
+      "state": "not_yet_justified",
+      "expected_gain": "low",
+      "operator_action_required": "No operator action needed now.",
+      "why_it_is_in_this_state": "This project does not currently show a grounded control-loop, actuator, or benchmarking problem that would justify controls help.",
+      "what_it_is_currently_helping_with": "This project does not currently show a grounded control-loop, actuator, or benchmarking problem that would justify controls help.",
+      "what_would_activate_it": "Explicit operator opt-in plus a real project bottleneck that this capability would materially help.",
+      "what_would_deactivate_it": "Deactivate it if the operator withdraws opt-in or the project pressure no longer justifies it.",
+      "authority_posture": "eli_authoritative_subordinate_instrument",
+      "capability_family": "controls_benchmarking",
+      "enablement_status": "available",
+      "project_status": "not_yet_justified",
+      "revisable": true
+    },
+    {
+      "capability_id": "structured_report_packaging_help",
+      "label": "Structured Report & Packaging Help",
+      "state": "not_yet_justified",
+      "expected_gain": "low",
+      "operator_action_required": "No operator action needed now.",
+      "why_it_is_in_this_state": "Packaging is not the bottleneck while core review, buildability, and realism questions still need grounding.",
+      "what_it_is_currently_helping_with": "Packaging is not the bottleneck while core review, buildability, and realism questions still need grounding.",
+      "what_would_activate_it": "Explicit operator opt-in plus a real project bottleneck that this capability would materially help.",
+      "what_would_deactivate_it": "Deactivate it if the operator withdraws opt-in or the project pressure no longer justifies it.",
+      "authority_posture": "eli_authoritative_subordinate_instrument",
+      "capability_family": "artifact_packaging",
+      "enablement_status": "available",
+      "project_status": "not_yet_justified",
+      "revisable": true
+    }
+  ],
+  "why_this_state_is_current": [
+    "Implementation-package review is live and current blockers still include architecture, firmware, memory, or boundary-sensitive questions.",
+    "Hardware, wireless, and firmware-adjacent subsystem pressure is now real enough that embedded integration critique could reduce blind spots.",
+    "No strong visual review front is currently active enough to justify dedicated visualization help.",
+    "This capability exists and is available, but current project pressure does not justify requesting it now.",
+    "This project does not currently show a grounded control-loop, actuator, or benchmarking problem that would justify controls help."
+  ],
+  "what_operator_can_do_now": [
+    "Confirm whether coding and implementation help should be active now for the current implementation-package review.",
+    "Opt in to embedded-device integration help if you want subordinate hardware and runtime critique on the current hardware, wireless, and firmware pressure.",
+    "Recommended and active are different. Do not assume a recommended capability is deployed until the operator explicitly opts in."
+  ],
+  "source_generated_at": {
+    "extensions_capability_review": "2026-04-14T20:06:18",
+    "specialist_registry": "2026-04-07T22:30:55",
+    "specialist_routing_policy": "2026-04-07T23:35:37",
+    "review_state_consumption": "2026-04-14T20:06:18"
+  },
+  "revisable": true,
+  "updated_at": "2026-04-14T20:06:18"
+}

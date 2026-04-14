@@ -1,60 +1,6 @@
 {
   "entries": [
     {
-      "timestamp": "2026-04-14T19:36:39",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "reflect",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_reflect.md",
-          "20260414_193639_reflect.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-14T19:36:55",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "scorecard",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "20260414_193655_scorecard.md",
-          "latest_scorecard.md"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-04-14T19:36:55",
-      "kind": "report_prune",
-      "summary": {
-        "removed_count": 1,
-        "groups": [
-          {
-            "report_name": "daily_snapshot",
-            "removed_count": 1,
-            "kept_count": 72
-          }
-        ],
-        "protected_paths": [
-          "latest_daily_snapshot.md",
-          "20260414_193655_daily_snapshot.md"
-        ]
-      }
-    },
-    {
       "timestamp": "2026-04-14T19:37:12",
       "kind": "report_prune",
       "summary": {
@@ -2159,7 +2105,61 @@
           "20260414_203303_reflect.md"
         ]
       }
+    },
+    {
+      "timestamp": "2026-04-14T20:33:34",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "scorecard",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260414_203334_scorecard.md",
+          "latest_scorecard.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-14T20:33:34",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "daily_snapshot",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "latest_daily_snapshot.md",
+          "20260414_203334_daily_snapshot.md"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-04-14T20:33:54",
+      "kind": "report_prune",
+      "summary": {
+        "removed_count": 1,
+        "groups": [
+          {
+            "report_name": "sleep",
+            "removed_count": 1,
+            "kept_count": 72
+          }
+        ],
+        "protected_paths": [
+          "20260414_203354_sleep.md",
+          "latest_sleep.md"
+        ]
+      }
     }
   ],
-  "updated_at": "2026-04-14T20:33:03"
+  "updated_at": "2026-04-14T20:33:54"
 }
