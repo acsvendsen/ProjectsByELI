@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T22:14:13",
+  "generated_at": "2026-04-16T10:17:12",
   "budget_tier_summary": "Current budget posture is `mixed` against intended posture `medium`. Boundary-first hardware, phone-first runtime, and stripped prototype packaging keep the learning path closer to low or medium tiers, but current wireless/firmware upgrade pressure and discreet-consumer ambition still pull the project upward fast enough that alignment is weak.",
   "supported_budget_tiers": [
     "low",
@@ -19,7 +19,7 @@
       "budget_tier": "low",
       "fit_for_current_project": "fits_current_prototype_learning",
       "why_it_sits_here": "Hardware direction is strongest when it stays simple, discreet, and package-boundary-first instead of implying tightly integrated consumer-tier hardware.",
-      "what_pushes_it_up": "Ensure the glasses remain discreet and socially acceptable during V1 development.",
+      "what_pushes_it_up": "Continue refining subtitle placement rules to ensure they remain usable without becoming distracting",
       "what_could_pull_it_down": "Keep scope boundary-first, phone-first, and prototype-only instead of reopening consumer-tier integration pressure.",
       "tradeoff_summary": "Boundary-first hardware stack with minimal on-glasses compute",
       "truth_posture": "current_truth",
@@ -67,6 +67,32 @@
   ],
   "where_current_ideas_sit": [
     {
+      "row_id": "stripped_prototype_package",
+      "label": "Stripped prototype package before subsystem quality upgrades",
+      "row_type": "idea",
+      "budget_tier": "low",
+      "fit_for_current_project": "fits_current_prototype_learning",
+      "why_it_sits_here": "This is the cleanest cost-sensitive compromise now because it protects prototype-learning value without pretending the project is closer to a consumer-tier implementation package than it is.",
+      "what_pushes_it_up": "Deferring quality-upgrade packages may underbuild wireless or firmware trust margin.",
+      "what_could_pull_it_down": "Keep scope boundary-first, phone-first, and prototype-only instead of reopening consumer-tier integration pressure.",
+      "tradeoff_summary": "Keep the boundary-first hardware package as the active prototype package and defer wireless and firmware quality upgrades until those subsystems produce stronger grounding.",
+      "truth_posture": "bounded_exploration",
+      "revisable": true
+    },
+    {
+      "row_id": "recency_first_memory_reinforcement",
+      "label": "Recency-first local memory reinforcement",
+      "row_type": "idea",
+      "budget_tier": "low",
+      "fit_for_current_project": "fits_current_prototype_learning",
+      "why_it_sits_here": "This could improve recall usefulness and confidence without reopening broad memory ambition or heavy cloud dependence.",
+      "what_pushes_it_up": "Can increase false certainty if reinforcement and trust cues are weak.",
+      "what_could_pull_it_down": "Keep scope boundary-first, phone-first, and prototype-only instead of reopening consumer-tier integration pressure.",
+      "tradeoff_summary": "Keep a small recency-first local cache for names and faces on the phone, instead of jumping to richer memory behavior.",
+      "truth_posture": "prototype_only",
+      "revisable": true
+    },
+    {
       "row_id": "balanced_fallback_memory_boundary",
       "label": "Balanced fallback for slower memory lookups",
       "row_type": "idea",
@@ -90,19 +116,6 @@
       "what_could_pull_it_down": "Keep scope boundary-first, phone-first, and prototype-only instead of reopening consumer-tier integration pressure.",
       "tradeoff_summary": "Keep subtitles dominant while one-line prompts and trust cues stay visibly secondary during live use.",
       "truth_posture": "bounded_exploration",
-      "revisable": true
-    },
-    {
-      "row_id": "autonomous_on_glasses_compute_hedge",
-      "label": "Heavier on-glasses compute as a fallback hedge",
-      "row_type": "idea",
-      "budget_tier": "ambitious",
-      "fit_for_current_project": "mismatched_if_cost_target_matters",
-      "why_it_sits_here": "It remains interesting only because it could reduce dependence on a fragile phone link later if runtime evidence goes badly.",
-      "what_pushes_it_up": "Strong battery, thermal, packaging, and cost pressure.",
-      "what_could_pull_it_down": "Drop heavier local autonomy or immediate quality-upgrade assumptions before treating this as the working path.",
-      "tradeoff_summary": "Keep a more autonomous glasses-runtime idea visible only as a hedge if the phone-first link proves materially weaker than expected.",
-      "truth_posture": "exploratory_only",
       "revisable": true
     }
   ],
@@ -145,22 +158,22 @@
       "tradeoff_summary": "replace_if_cost_target_matters",
       "truth_posture": "bounded",
       "revisable": true
-    },
-    {
-      "row_id": "smaller_cache",
-      "label": "Smaller Cache",
-      "row_type": "package",
-      "budget_tier": "unknown",
-      "fit_for_current_project": "not_yet_classifiable",
-      "why_it_sits_here": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is weakly grounded. Current hardware, packaging, and subsystem pressure alr...",
-      "what_pushes_it_up": "A discreet consumer-wearable posture pushes miniaturization, packaging, and industrial-design pressure before cost credibility is proven.",
-      "what_could_pull_it_down": "Wait for stronger component or runtime evidence before forcing a tighter budget-tier claim.",
-      "tradeoff_summary": "replace_if_cost_target_matters",
-      "truth_posture": "bounded",
-      "revisable": true
     }
   ],
   "mixed_tier_compromise_paths": [
+    {
+      "row_id": "stripped_prototype_package",
+      "label": "Stripped prototype package before subsystem quality upgrades",
+      "row_type": "compromise_path",
+      "budget_tier": "low",
+      "fit_for_current_project": "fits_current_prototype_learning",
+      "why_it_sits_here": "This is the cleanest cost-sensitive compromise now because it protects prototype-learning value without pretending the project is closer to a consumer-tier implementation package than it is.",
+      "what_pushes_it_up": "Deferring quality-upgrade packages may underbuild wireless or firmware trust margin.",
+      "what_could_pull_it_down": "Keep wireless and firmware upgrades deferred until link or touch/display evidence makes them unavoidable.",
+      "tradeoff_summary": "Keep the boundary-first hardware package as the active prototype package and defer wireless and firmware quality upgrades until those subsystems produce stronger grounding.",
+      "truth_posture": "bounded_exploration",
+      "revisable": true
+    },
     {
       "row_id": "one_quality_upgrade_at_a_time",
       "label": "Boundary-first main path with one evidence-justified quality upgrade at a time",
@@ -229,13 +242,13 @@
   },
   "source_generated_at": {
     "project_expectations": "2026-04-10T09:16:32",
-    "cost_viability_review": "2026-04-14T22:14:13",
-    "project_direction_review": "2026-04-14T22:14:13",
-    "exploratory_ideas_review": "2026-04-14T22:14:13",
-    "parts_readiness_review": "2026-04-14T22:14:13",
-    "pricing_alternatives_review": "2026-04-14T22:14:13",
-    "component_package_review": "2026-04-14T22:14:13"
+    "cost_viability_review": "2026-04-16T10:17:12",
+    "project_direction_review": "2026-04-16T10:17:12",
+    "exploratory_ideas_review": "2026-04-16T10:17:12",
+    "parts_readiness_review": "2026-04-16T10:17:12",
+    "pricing_alternatives_review": "2026-04-16T10:17:12",
+    "component_package_review": "2026-04-16T10:17:12"
   },
   "revisable": true,
-  "updated_at": "2026-04-14T22:14:13"
+  "updated_at": "2026-04-16T10:17:12"
 }

@@ -1,7 +1,89 @@
 {
-  "generated_at": "2026-04-14T22:14:13",
-  "ideas_summary": "3 bounded exploratory idea(s) are currently worth watching. They stay visible because cost, parts, review, and runtime pressure create real compromise or hedge paths, but they remain below current direction and below reviewable decisions.",
+  "generated_at": "2026-04-16T10:17:12",
+  "ideas_summary": "5 bounded exploratory idea(s) are currently worth watching. They stay visible because cost, parts, review, and runtime pressure create real compromise or hedge paths, but they remain below current direction and below reviewable decisions.",
   "ideas_being_explored": [
+    {
+      "idea_id": "stripped_prototype_package",
+      "title": "Stripped prototype package before subsystem quality upgrades",
+      "idea_type": "budget_sensitive_package_compromise",
+      "origin": "eli_generated",
+      "status": "gaining_strength",
+      "summary": "Keep the boundary-first hardware package as the active prototype package and defer wireless and firmware quality upgrades until those subsystems produce stronger grounding.",
+      "why_it_might_be_good": "This is the cleanest cost-sensitive compromise now because it protects prototype-learning value without pretending the project is closer to a consumer-tier implementation package than it is.",
+      "what_is_different_now": "Pricing alternatives now expose the cheaper hardware-boundary package and explicit defer options for wireless and firmware, so the cost-sensitive prototype path is no longer just an implicit compromise.",
+      "budget_tier_hint": "low",
+      "main_risks": [
+        "Deferring quality-upgrade packages may underbuild wireless or firmware trust margin.",
+        "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent."
+      ],
+      "what_supports_it": [
+        "Cheaper and simpler than expanding Hardware Stack beyond its current boundary package before stronger component evidence exists. As a prototype-learning path this can still be w...",
+        "Defer this package until stronger evidence exists. This is cheaper and simpler now, but it weakens the quality and trust/performance margin carried by that subsystem package. Wi...",
+        "Defer this package until stronger evidence exists. This is cheaper and simpler now, but it weakens the quality and trust/performance margin carried by that subsystem package. Fi..."
+      ],
+      "what_blocks_it": [
+        "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
+        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent.",
+        "Current suggestions are still useful mainly for prototype learning. No current or cheaper/simpler alternative is good enough yet for the declared target tier, so stay prototype-..."
+      ],
+      "what_would_raise_it": [
+        "Measured prototype evidence that the hardware boundary package can carry build learning without immediate wireless or firmware quality upgrades.",
+        "A bounded implementation review that separates must-have prototype scaffolding from later quality upgrades."
+      ],
+      "what_would_kill_it": [
+        "Wireless evidence shows the deferred package is already required for baseline link trust.",
+        "Firmware evidence shows touch-input or display-control simplicity cannot survive without the deferred package."
+      ],
+      "truth_posture": "bounded_exploration",
+      "related_project_fronts": [
+        "parts_readiness_review",
+        "pricing_alternatives_review",
+        "cost_viability_review",
+        "execution_boundaries"
+      ],
+      "revisable": true
+    },
+    {
+      "idea_id": "recency_first_memory_reinforcement",
+      "title": "Recency-first local memory reinforcement",
+      "idea_type": "memory_policy",
+      "origin": "hybrid",
+      "status": "blocked",
+      "summary": "Keep a small recency-first local cache for names and faces on the phone, instead of jumping to richer memory behavior.",
+      "why_it_might_be_good": "This could improve recall usefulness and confidence without reopening broad memory ambition or heavy cloud dependence.",
+      "what_is_different_now": "The idea stays visible because memory trust remains central, phone-first runtime still makes a bounded local cache attractive, and the selected recency-first policy is still the clearest small memory move even while t...",
+      "budget_tier_hint": "low",
+      "main_risks": [
+        "Can increase false certainty if reinforcement and trust cues are weak.",
+        "Ground trust-preserving recall with confidence objects and reinforcement rules before expanding cache policy or retention scope.",
+        "Tie confidence display, memory reinforcement, and boundary choices to explicit wearer-visible trust rules and consent handling."
+      ],
+      "what_supports_it": [
+        "Favor touch-first control, lightweight display behavior, and conservative visible trust cues over richer interaction assumptions."
+      ],
+      "what_blocks_it": [
+        "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
+        "Do not assume this becomes a real product just because the prototype direction is interesting. Current cost posture is weak enough that commercial ambition should pause, stop, o..."
+      ],
+      "what_would_raise_it": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull"
+      ],
+      "what_would_kill_it": [
+        "New trust evidence shows recency-first reinforcement still creates unsafe or misleading recall.",
+        "Operator or runtime evidence pushes memory back toward no bounded local reinforcement at all."
+      ],
+      "truth_posture": "prototype_only",
+      "related_project_fronts": [
+        "memory_system",
+        "privacy_and_trust",
+        "project_direction_review",
+        "execution_boundaries"
+      ],
+      "revisable": true
+    },
     {
       "idea_id": "balanced_fallback_memory_boundary",
       "title": "Balanced fallback for slower memory lookups",
@@ -21,13 +103,14 @@
         "Favor phone-first runtime and lightweight on-glasses logic over heavier autonomous glasses compute. Do not reopen boundary changes until stronger link evidence appears."
       ],
       "what_blocks_it": [
+        "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
         "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
         "Current suggestions are still useful mainly for prototype learning. No current or cheaper/simpler alternative is good enough yet for the declared target tier, so stay prototype-..."
       ],
       "what_would_raise_it": [
         "real repo change or stronger repo grounding",
         "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
+        "meaningfully stronger architectural pull"
       ],
       "what_would_kill_it": [
         "Runtime truth shows strict phone-first is reliable enough that richer fallback buys little.",
@@ -103,7 +186,7 @@
       ],
       "what_blocks_it": [
         "Current hardware, packaging, and subsystem pressure already look mismatched to a discreet consumer-tier wearable cost story. Wireless and firmware gaps still add likely hidden c...",
-        "Ensure the glasses remain discreet and socially acceptable during V1 development.",
+        "Continue refining subtitle placement rules to ensure they remain usable without becoming distracting",
         "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
       ],
       "what_would_raise_it": [
@@ -130,8 +213,11 @@
     "Rendering briefs and grounded subtitle evidence make some display and hierarchy questions more inspectable without promoting them into design truth.",
     "Wireless, firmware, and cost pressure keep heavier or more integrated alternatives visible as hedges or warning cases rather than current direction."
   ],
-  "ideas_gaining_strength": [],
+  "ideas_gaining_strength": [
+    "Stripped prototype package before subsystem quality upgrades"
+  ],
   "ideas_fading_or_blocked": [
+    "Recency-first local memory reinforcement",
     "Balanced fallback for slower memory lookups",
     "Heavier on-glasses compute as a fallback hedge"
   ],
@@ -140,7 +226,7 @@
     "Execution boundaries now cap work at `Implementation Package Review` and keep product-shaped continuation constrained by `stop_if_cost_target_matters`.",
     "3 bounded rendering brief(s) now make hierarchy and display-region tradeoffs easier to inspect without treating them as accepted design.",
     "Direction of travel now makes phone-first, touch-first, and prototype-buildability the winning path, which changes how nearby compromise and hedge ideas should be interpreted.",
-    "Pending review fronts now include V1 Confidence Display Format, V1 Default Subtitle Position, so nearby ideas should stay non-authoritative."
+    "Pending review fronts now include V1 Default Subtitle Position, so nearby ideas should stay non-authoritative."
   ],
   "what_would_promote_an_idea": [
     "Real repo changes or stronger repo grounding on the held front.",
@@ -171,17 +257,17 @@
     "rendering_support": "hardware_aware_rendering_brief_review"
   },
   "source_generated_at": {
-    "reflect_state": "2026-04-14T22:12:33",
-    "project_direction_review": "2026-04-14T22:14:13",
-    "cost_viability_review": "2026-04-14T22:14:13",
-    "parts_readiness_review": "2026-04-14T22:14:13",
-    "pricing_alternatives_review": "2026-04-14T22:14:13",
-    "execution_boundaries": "2026-04-14T22:14:13",
-    "hardware_aware_rendering_brief_review": "2026-04-14T21:40:40",
-    "v1_decision_review": "2026-04-14T22:12:33",
-    "project_scorecard": "2026-04-14T22:13:02",
+    "reflect_state": "2026-04-16T10:16:22",
+    "project_direction_review": "2026-04-16T10:17:12",
+    "cost_viability_review": "2026-04-16T10:17:12",
+    "parts_readiness_review": "2026-04-16T10:17:12",
+    "pricing_alternatives_review": "2026-04-16T10:17:12",
+    "execution_boundaries": "2026-04-16T10:17:12",
+    "hardware_aware_rendering_brief_review": "2026-04-16T10:16:22",
+    "v1_decision_review": "2026-04-16T10:16:22",
+    "project_scorecard": "2026-04-16T10:17:12",
     "project_expectations": "2026-04-10T09:16:32"
   },
   "revisable": true,
-  "updated_at": "2026-04-14T22:14:13"
+  "updated_at": "2026-04-16T10:17:12"
 }

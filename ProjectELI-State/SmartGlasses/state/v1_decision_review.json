@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T23:11:26",
+  "generated_at": "2026-04-16T10:16:22",
   "response_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/state/v1_decision_human_responses.json",
   "allowed_responses": [
     "accept_for_v1",
@@ -48,9 +48,126 @@
       "confidence": 0.779
     }
   ],
+  "recently_changed_v1_decisions": [
+    {
+      "decision_id": "v1_confidence_display_format",
+      "label": "V1 Confidence Display Format",
+      "action_id": "confidence-display",
+      "action_title": "Confidence Display",
+      "action_domain": "confidence display",
+      "previous_candidate_status": "pending_v1_decision",
+      "current_candidate_status": "held_pending_grounding",
+      "transition_reason": "moved_to_hold",
+      "transition_summary": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
+      "current_location": "held_pending_grounding",
+      "parked_in": "held_pending_grounding",
+      "replacement_decision_id": "",
+      "replacement_label": "",
+      "human_response": "",
+      "human_response_at": "",
+      "human_response_note": "",
+      "human_response_choice_label": "",
+      "revisable": true,
+      "revision_signals": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ],
+      "transition_at": "2026-04-16T10:16:22"
+    },
+    {
+      "decision_id": "v1_visual_hierarchy_default",
+      "label": "V1 Visual Hierarchy Default",
+      "action_id": "visual-hierarchy",
+      "action_title": "Visual Hierarchy",
+      "action_domain": "visual hierarchy",
+      "previous_candidate_status": "pending_v1_decision",
+      "current_candidate_status": "held_pending_grounding",
+      "transition_reason": "moved_to_hold",
+      "transition_summary": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
+      "current_location": "held_pending_grounding",
+      "parked_in": "held_pending_grounding",
+      "replacement_decision_id": "",
+      "replacement_label": "",
+      "human_response": "",
+      "human_response_at": "",
+      "human_response_note": "",
+      "human_response_choice_label": "",
+      "revisable": true,
+      "revision_signals": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ],
+      "transition_at": "2026-04-15T21:31:07"
+    },
+    {
+      "decision_id": "v1_memory_cache_default",
+      "label": "V1 Memory/Cache Default",
+      "action_id": "memory-cache-policy",
+      "action_title": "Memory/Cache Policy",
+      "action_domain": "memory/cache policy",
+      "previous_candidate_status": "pending_v1_decision",
+      "current_candidate_status": "held_pending_grounding",
+      "transition_reason": "moved_to_hold",
+      "transition_summary": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
+      "current_location": "held_pending_grounding",
+      "parked_in": "held_pending_grounding",
+      "replacement_decision_id": "",
+      "replacement_label": "",
+      "human_response": "",
+      "human_response_at": "",
+      "human_response_note": "",
+      "human_response_choice_label": "",
+      "revisable": true,
+      "revision_signals": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ],
+      "transition_at": "2026-04-15T14:56:12"
+    }
+  ],
   "counts": {
     "pending_v1_decisions": 1,
+    "recently_changed_v1_decisions": 3,
     "human_responded": 0
   },
-  "updated_at": "2026-04-14T23:11:26"
+  "sync_metadata": {
+    "surface": "v1_decision_review",
+    "cycle_id": "20260416T101622",
+    "generated_from_cycle": "20260416T101622",
+    "generated_at": "2026-04-16T10:16:22",
+    "depends_on": [
+      "artifact_emission_readiness",
+      "draft_artifact_review",
+      "reflect_state"
+    ],
+    "checked_against": [
+      {
+        "surface": "artifact_emission_readiness",
+        "generated_at": "2026-04-16T10:16:22",
+        "comparison_status": "nearby"
+      },
+      {
+        "surface": "draft_artifact_review",
+        "generated_at": "2026-04-16T10:16:22",
+        "comparison_status": "nearby"
+      },
+      {
+        "surface": "reflect_state",
+        "generated_at": "2026-04-16T10:11:15",
+        "comparison_status": "linked_surface_older"
+      }
+    ],
+    "sync_status": "settling",
+    "trust_status": "provisional",
+    "hard_issues": [],
+    "explained_differences": [],
+    "trust_reason": "This file is recent enough to use provisionally, but linked review surfaces are not yet close enough in time to treat as one settled comparison set."
+  },
+  "updated_at": "2026-04-16T10:16:22"
 }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T22:13:08",
+  "generated_at": "2026-04-16T10:16:22",
   "readiness_bands": [
     "ready_to_review",
     "almost_ready",
@@ -7,30 +7,6 @@
     "too_early"
   ],
   "surfaced_options": [
-    {
-      "option_id": "decision:v1_confidence_display_format",
-      "title": "V1 Confidence Display Format",
-      "option_kind": "bounded_decision_option",
-      "source_lane": "pending_v1_decisions",
-      "current_direction": "Label + Reason",
-      "readiness_band": "ready_to_review",
-      "why_surfaced": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit V1 options. promoting it to a decision candidate should reduce repeated abstract re-probing. this do...",
-      "could_still_change": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
-      ],
-      "blocking_factors": [],
-      "missing_evidence": [],
-      "bounded_options": [
-        "Label Only",
-        "Label + Reason"
-      ],
-      "provisional": true,
-      "revisable": true,
-      "linked_review_id": "v1_confidence_display_format",
-      "linked_review_kind": "v1_decision_review"
-    },
     {
       "option_id": "decision:v1_default_subtitle_position",
       "title": "V1 Default Subtitle Position",
@@ -55,58 +31,6 @@
       "revisable": true,
       "linked_review_id": "v1_default_subtitle_position",
       "linked_review_kind": "v1_decision_review"
-    },
-    {
-      "option_id": "decision:v1_memory_cache_default",
-      "title": "V1 Memory/Cache Default",
-      "option_kind": "bounded_decision_option",
-      "source_lane": "pending_v1_decisions",
-      "current_direction": "Recency First",
-      "readiness_band": "ready_to_review",
-      "why_surfaced": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is weakly grounded. reality currently reads feasible now. the choice is bounded to 2 explicit V1 options. this does not reopen it as an action even though current action judgment is pause.",
-      "could_still_change": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
-      ],
-      "blocking_factors": [],
-      "missing_evidence": [
-        "stronger subsystem grounding than weakly grounded"
-      ],
-      "bounded_options": [
-        "Smaller Cache",
-        "Recency First"
-      ],
-      "provisional": true,
-      "revisable": true,
-      "linked_review_id": "v1_memory_cache_default",
-      "linked_review_kind": "v1_decision_review"
-    },
-    {
-      "option_id": "artifact:confidence_object_spec-confidence-display",
-      "title": "V1 Confidence Display Format",
-      "option_kind": "implementation_artifact_option",
-      "source_lane": "implementation_artifact_review",
-      "current_direction": "Confidence Object Spec",
-      "readiness_band": "almost_ready",
-      "why_surfaced": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is grounded.",
-      "could_still_change": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
-      ],
-      "blocking_factors": [],
-      "missing_evidence": [],
-      "bounded_options": [
-        "Label Only",
-        "Label + Reason"
-      ],
-      "artifact_type": "confidence_object_spec",
-      "artifact_type_label": "Confidence Object Spec",
-      "provisional": true,
-      "revisable": true,
-      "linked_review_id": "confidence_object_spec-confidence-display",
-      "linked_review_kind": "implementation_artifact_review"
     },
     {
       "option_id": "artifact:visual_layout_rule-subtitle-placement",
@@ -136,30 +60,36 @@
       "linked_review_kind": "implementation_artifact_review"
     },
     {
-      "option_id": "artifact:subsystem_breakdown-memory-cache-policy",
-      "title": "V1 Memory/Cache Default",
-      "option_kind": "implementation_artifact_option",
-      "source_lane": "implementation_artifact_review",
-      "current_direction": "Subsystem Breakdown",
-      "readiness_band": "almost_ready",
-      "why_surfaced": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is weakly grounded.",
+      "option_id": "held:memory-cache-policy",
+      "title": "Memory/Cache Policy",
+      "option_kind": "held_option",
+      "source_lane": "held_items",
+      "current_direction": "Recency First",
+      "readiness_band": "emerging",
+      "why_surfaced": "This remains meaningful enough to track, but ELI is explicitly holding it until new grounding appears.",
       "could_still_change": [
         "real repo change or stronger repo grounding",
         "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
         "meaningfully lower resistance"
       ],
-      "blocking_factors": [],
-      "missing_evidence": [],
+      "blocking_factors": [
+        "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions"
+      ],
+      "missing_evidence": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ],
       "bounded_options": [
         "Smaller Cache",
         "Recency First"
       ],
-      "artifact_type": "subsystem_breakdown",
-      "artifact_type_label": "Subsystem Breakdown",
       "provisional": true,
       "revisable": true,
-      "linked_review_id": "subsystem_breakdown-memory-cache-policy",
-      "linked_review_kind": "implementation_artifact_review"
+      "linked_review_id": "memory-cache-policy",
+      "linked_review_kind": "held_option"
     },
     {
       "option_id": "held:visual-hierarchy",
@@ -192,13 +122,77 @@
       "revisable": true,
       "linked_review_id": "visual-hierarchy",
       "linked_review_kind": "held_option"
+    },
+    {
+      "option_id": "held:confidence-display",
+      "title": "Confidence Display",
+      "option_kind": "held_option",
+      "source_lane": "held_items",
+      "current_direction": "Label + Reason",
+      "readiness_band": "emerging",
+      "why_surfaced": "This remains meaningful enough to track, but ELI is explicitly holding it until new grounding appears.",
+      "could_still_change": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ],
+      "blocking_factors": [
+        "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions"
+      ],
+      "missing_evidence": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ],
+      "bounded_options": [
+        "Label Only",
+        "Label + Reason"
+      ],
+      "provisional": true,
+      "revisable": true,
+      "linked_review_id": "confidence-display",
+      "linked_review_kind": "held_option"
+    },
+    {
+      "option_id": "held:phone-cloud-boundary",
+      "title": "Phone/Cloud Boundary",
+      "option_kind": "held_option",
+      "source_lane": "held_items",
+      "current_direction": "Balanced Fallback",
+      "readiness_band": "emerging",
+      "why_surfaced": "This remains meaningful enough to track, but ELI is explicitly holding it until new grounding appears.",
+      "could_still_change": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ],
+      "blocking_factors": [
+        "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions"
+      ],
+      "missing_evidence": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ],
+      "bounded_options": [
+        "Phone First",
+        "Balanced Fallback"
+      ],
+      "provisional": true,
+      "revisable": true,
+      "linked_review_id": "phone-cloud-boundary",
+      "linked_review_kind": "held_option"
     }
   ],
   "counts": {
-    "ready_to_review": 3,
-    "almost_ready": 3,
-    "emerging": 1,
+    "ready_to_review": 1,
+    "almost_ready": 1,
+    "emerging": 4,
     "too_early": 0
   },
-  "updated_at": "2026-04-14T22:13:08"
+  "updated_at": "2026-04-16T10:16:22"
 }

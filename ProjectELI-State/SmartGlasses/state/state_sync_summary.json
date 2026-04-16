@@ -1,35 +1,35 @@
 {
-  "generated_at": "2026-04-14T22:14:13",
+  "generated_at": "2026-04-16T10:16:22",
   "surfaces": {
     "v1_decision_review": {
-      "generated_at": "2026-04-14T22:12:33",
-      "cycle_id": "20260414T221233",
-      "sync_status": "in_sync",
-      "trust_status": "operational",
-      "trust_reason": "This file is close enough to its linked review surfaces to compare operationally.",
-      "recommended_use": "current_truth",
-      "recommended_use_reason": "This file is close enough to its linked review surfaces to compare operationally."
+      "generated_at": "2026-04-16T10:16:22",
+      "cycle_id": "20260416T101622",
+      "sync_status": "settling",
+      "trust_status": "provisional",
+      "trust_reason": "This file is recent enough to use provisionally, but linked review surfaces are not yet close enough in time to treat as one settled comparison set.",
+      "recommended_use": "provisional_context",
+      "recommended_use_reason": "This file is recent enough to use provisionally, but linked review surfaces are not yet close enough in time to treat as one settled comparison set."
     },
     "artifact_emission_readiness": {
-      "generated_at": "2026-04-14T22:13:08",
-      "cycle_id": "20260414T221308",
-      "sync_status": "in_sync",
-      "trust_status": "operational",
-      "trust_reason": "This file is close enough to its linked review surfaces to compare operationally.",
-      "recommended_use": "current_truth",
-      "recommended_use_reason": "This file is close enough to its linked review surfaces to compare operationally."
+      "generated_at": "2026-04-16T10:16:22",
+      "cycle_id": "20260416T101622",
+      "sync_status": "settling",
+      "trust_status": "provisional",
+      "trust_reason": "This file is recent enough to use provisionally, but linked review surfaces are not yet close enough in time to treat as one settled comparison set.",
+      "recommended_use": "provisional_context",
+      "recommended_use_reason": "This file is recent enough to use provisionally, but linked review surfaces are not yet close enough in time to treat as one settled comparison set."
     },
     "draft_artifact_review": {
-      "generated_at": "2026-04-14T22:13:08",
-      "cycle_id": "20260414T221308",
-      "sync_status": "in_sync",
-      "trust_status": "operational",
-      "trust_reason": "This file is close enough to its linked review surfaces to compare operationally.",
-      "recommended_use": "current_truth",
-      "recommended_use_reason": "This file is close enough to its linked review surfaces to compare operationally."
+      "generated_at": "2026-04-16T10:16:22",
+      "cycle_id": "20260416T101622",
+      "sync_status": "settling",
+      "trust_status": "provisional",
+      "trust_reason": "This file is recent enough to use provisionally, but linked review surfaces are not yet close enough in time to treat as one settled comparison set.",
+      "recommended_use": "provisional_context",
+      "recommended_use_reason": "This file is recent enough to use provisionally, but linked review surfaces are not yet close enough in time to treat as one settled comparison set."
     }
   },
-  "overall_sync_status": "in_sync",
-  "overall_trust_status": "operational",
-  "summary": "The current review-state files are close enough in time and linkage to compare operationally."
+  "overall_sync_status": "settling",
+  "overall_trust_status": "provisional",
+  "summary": "The current review-state files are still settling. Use them provisionally and avoid over-reading cross-surface differences."
 }

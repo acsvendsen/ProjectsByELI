@@ -1,57 +1,10 @@
 {
-  "generated_at": "2026-04-14T22:13:08",
+  "generated_at": "2026-04-16T10:16:22",
   "allowed_forms": [
     "structured_design_brief"
   ],
   "scope_note": "This surface only emits provisional structured design brief drafts. It does not emit technical engineering drafts or final design commitments.",
   "emitted_drafts": [
-    {
-      "artifact_id": "confidence_object_spec-confidence-display",
-      "linked_decision_id": "v1_confidence_display_format",
-      "source_artifact_type": "confidence_object_spec",
-      "source_artifact_type_label": "Confidence Object Spec",
-      "emitted_draft_form": "structured_design_brief",
-      "title": "V1 Confidence Display Format Draft Design Brief",
-      "label": "V1 Confidence Display Format",
-      "bounded_framing": "What confidence format should V1 use by default during live subtitle support?",
-      "draft_summary": "V1 Confidence Display Format is mature enough for a provisional confidence object spec design brief. Focus the brief on: What confidence format should V1 use by default during live subtitle support. Current leading direction: Label Only. Keep active constraints explicit: discreet ux vs visual clarity, latency vs richness, core deepening over sprawl. This draft remains review-oriented and revisable, not a final implementation commitment.",
-      "leading_direction": "Label + Reason",
-      "leading_direction_rationale": "Label + Reason currently leads because it gives this confidence object spec brief a bounded default while staying closer to the active review pressures around discreet ux vs visual clarity, latency vs richness.",
-      "alternative_direction_tradeoff": "Main alternative: Label Only. The real tradeoff is whether Label Only handles discreet ux vs visual clarity better while Label + Reason stays simpler or more stable for the current review scope.",
-      "success_condition": "A reviewer can say whether Label + Reason is a credible default answer to: What confidence format should V1 use by default during live subtitle support, while still respecting discreet ux vs visual clarity, latency vs richness.",
-      "failure_risk": "The current direction may fail if it creates too much pressure against discreet ux vs visual clarity or latency vs richness; likely revision signals include real repo change or stronger repo grounding, a new source type such as runtime t...",
-      "what_would_change_this_choice": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
-      ],
-      "review_question_for_human": "Given the current constraints, should Label + Reason remain the leading default for What confidence format should V1 use by default during live subtitle support?",
-      "why_emitted_now": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.",
-      "current_constraints": [
-        "discreet ux vs visual clarity",
-        "latency vs richness",
-        "core deepening over sprawl"
-      ],
-      "candidate_directions": [
-        "Label Only",
-        "Label + Reason"
-      ],
-      "relevant_interfaces": [],
-      "provisional": true,
-      "revisable": true,
-      "evidence_to_strengthen_or_revise": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
-      ],
-      "linked_review_id": "confidence_object_spec-confidence-display",
-      "linked_decision_label": "V1 Confidence Display Format",
-      "pending_v1_decision_alignment_status": "linked_to_current_pending_decision",
-      "linked_pending_decision": "V1 Confidence Display Format",
-      "linked_pending_decision_status": "pending_v1_decision",
-      "pending_v1_decision_currently_pending": true,
-      "pending_v1_decision_alignment_reason": ""
-    },
     {
       "artifact_id": "visual_layout_rule-subtitle-placement",
       "linked_decision_id": "v1_default_subtitle_position",
@@ -104,19 +57,6 @@
   ],
   "pending_v1_decision_alignment": [
     {
-      "decision_id": "v1_confidence_display_format",
-      "label": "V1 Confidence Display Format",
-      "candidate_status": "pending_v1_decision",
-      "emission_alignment_status": "emitted_as_structured_design_brief",
-      "linked_pending_decision": "V1 Confidence Display Format",
-      "linked_artifact_id": "confidence_object_spec-confidence-display",
-      "linked_emitted_draft_title": "V1 Confidence Display Format Draft Design Brief",
-      "linked_emitted_draft_form": "structured_design_brief",
-      "linked_readiness_state": "draft_candidate",
-      "linked_suggested_draft_form": "structured_design_brief",
-      "not_emitted_reason": ""
-    },
-    {
       "decision_id": "v1_default_subtitle_position",
       "label": "V1 Default Subtitle Position",
       "candidate_status": "pending_v1_decision",
@@ -128,30 +68,17 @@
       "linked_readiness_state": "draft_candidate",
       "linked_suggested_draft_form": "structured_design_brief",
       "not_emitted_reason": ""
-    },
-    {
-      "decision_id": "v1_memory_cache_default",
-      "label": "V1 Memory/Cache Default",
-      "candidate_status": "pending_v1_decision",
-      "emission_alignment_status": "not_emitted",
-      "linked_pending_decision": "V1 Memory/Cache Default",
-      "linked_artifact_id": "subsystem_breakdown-memory-cache-policy",
-      "linked_emitted_draft_title": "",
-      "linked_emitted_draft_form": "",
-      "linked_readiness_state": "not_ready_for_draft",
-      "linked_suggested_draft_form": "structured_design_brief",
-      "not_emitted_reason": "This artifact is still review-oriented, but unresolved constraints or missing grounding keep it below draft-emission readiness."
     }
   ],
   "counts": {
-    "structured_design_brief": 2,
+    "structured_design_brief": 1,
     "emitted_without_current_pending_decision": 0
   },
   "sync_metadata": {
     "surface": "draft_artifact_review",
-    "cycle_id": "20260414T221308",
-    "generated_from_cycle": "20260414T221308",
-    "generated_at": "2026-04-14T22:13:08",
+    "cycle_id": "20260416T101622",
+    "generated_from_cycle": "20260416T101622",
+    "generated_at": "2026-04-16T10:16:22",
     "depends_on": [
       "v1_decision_review",
       "artifact_emission_readiness",
@@ -160,25 +87,25 @@
     "checked_against": [
       {
         "surface": "v1_decision_review",
-        "generated_at": "2026-04-14T22:12:33",
+        "generated_at": "2026-04-16T10:16:22",
         "comparison_status": "nearby"
       },
       {
         "surface": "artifact_emission_readiness",
-        "generated_at": "2026-04-14T22:13:08",
+        "generated_at": "2026-04-16T10:16:22",
         "comparison_status": "nearby"
       },
       {
         "surface": "reflect_state",
-        "generated_at": "2026-04-14T22:12:33",
-        "comparison_status": "nearby"
+        "generated_at": "2026-04-16T10:11:15",
+        "comparison_status": "linked_surface_older"
       }
     ],
-    "sync_status": "in_sync",
-    "trust_status": "operational",
+    "sync_status": "settling",
+    "trust_status": "provisional",
     "hard_issues": [],
     "explained_differences": [],
-    "trust_reason": "This file is close enough to its linked review surfaces to compare operationally."
+    "trust_reason": "This file is recent enough to use provisionally, but linked review surfaces are not yet close enough in time to treat as one settled comparison set."
   },
-  "updated_at": "2026-04-14T22:13:08"
+  "updated_at": "2026-04-16T10:16:22"
 }

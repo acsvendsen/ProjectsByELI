@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T22:13:08",
+  "generated_at": "2026-04-16T10:16:22",
   "allowed_states": [
     "draft_candidate",
     "not_ready_for_draft"
@@ -13,41 +13,6 @@
     "kicad_related_scaffold"
   ],
   "artifact_emission_readiness": [
-    {
-      "artifact_id": "confidence_object_spec-confidence-display",
-      "label": "V1 Confidence Display Format",
-      "artifact_type": "confidence_object_spec",
-      "artifact_type_label": "Confidence Object Spec",
-      "draft_readiness_state": "draft_candidate",
-      "draft_readiness_reason": "Grounding, bounded detail, and current readiness are strong enough to justify considering a provisional draft artifact emission.",
-      "grounding_status": "grounded",
-      "option_readiness_band": "almost_ready",
-      "review_status": "provisional_review_candidate",
-      "suggested_draft_form": "structured_design_brief",
-      "missing_evidence": [],
-      "blocking_constraints": [
-        "discreet ux vs visual clarity",
-        "latency vs richness",
-        "core deepening over sprawl"
-      ],
-      "evidence_to_progress": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
-      ],
-      "bounded_framing": "What confidence format should V1 use by default during live subtitle support?",
-      "candidate_directions": [
-        "Label Only",
-        "Label + Reason"
-      ],
-      "relevant_interfaces": [],
-      "candidate_components": [],
-      "provisional": true,
-      "revisable": true,
-      "linked_review_id": "confidence_object_spec-confidence-display",
-      "linked_decision_id": "v1_confidence_display_format",
-      "linked_decision_label": "V1 Confidence Display Format"
-    },
     {
       "artifact_id": "visual_layout_rule-subtitle-placement",
       "label": "V1 Default Subtitle Position",
@@ -83,58 +48,17 @@
       "linked_review_id": "visual_layout_rule-subtitle-placement",
       "linked_decision_id": "v1_default_subtitle_position",
       "linked_decision_label": "V1 Default Subtitle Position"
-    },
-    {
-      "artifact_id": "subsystem_breakdown-memory-cache-policy",
-      "label": "V1 Memory/Cache Default",
-      "artifact_type": "subsystem_breakdown",
-      "artifact_type_label": "Subsystem Breakdown",
-      "draft_readiness_state": "not_ready_for_draft",
-      "draft_readiness_reason": "This artifact is still review-oriented, but unresolved constraints or missing grounding keep it below draft-emission readiness.",
-      "grounding_status": "weakly_grounded",
-      "option_readiness_band": "almost_ready",
-      "review_status": "provisional_review_candidate",
-      "suggested_draft_form": "structured_design_brief",
-      "missing_evidence": [
-        "stronger grounding than weakly grounded"
-      ],
-      "blocking_constraints": [
-        "privacy vs usefulness",
-        "latency vs richness",
-        "phone first runtime",
-        "core deepening over sprawl"
-      ],
-      "evidence_to_progress": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully lower resistance"
-      ],
-      "bounded_framing": "What bounded memory/cache default should V1 use before richer recall behavior is expanded?",
-      "candidate_directions": [
-        "Smaller Cache",
-        "Recency First"
-      ],
-      "relevant_interfaces": [
-        "memory",
-        "cache policy"
-      ],
-      "candidate_components": [],
-      "provisional": true,
-      "revisable": true,
-      "linked_review_id": "subsystem_breakdown-memory-cache-policy",
-      "linked_decision_id": "v1_memory_cache_default",
-      "linked_decision_label": "V1 Memory/Cache Default"
     }
   ],
   "counts": {
-    "draft_candidate": 2,
-    "not_ready_for_draft": 1
+    "draft_candidate": 1,
+    "not_ready_for_draft": 0
   },
   "sync_metadata": {
     "surface": "artifact_emission_readiness",
-    "cycle_id": "20260414T221308",
-    "generated_from_cycle": "20260414T221308",
-    "generated_at": "2026-04-14T22:13:08",
+    "cycle_id": "20260416T101622",
+    "generated_from_cycle": "20260416T101622",
+    "generated_at": "2026-04-16T10:16:22",
     "depends_on": [
       "v1_decision_review",
       "draft_artifact_review",
@@ -143,25 +67,25 @@
     "checked_against": [
       {
         "surface": "v1_decision_review",
-        "generated_at": "2026-04-14T22:12:33",
+        "generated_at": "2026-04-16T10:16:22",
         "comparison_status": "nearby"
       },
       {
         "surface": "draft_artifact_review",
-        "generated_at": "2026-04-14T22:13:08",
+        "generated_at": "2026-04-16T10:16:22",
         "comparison_status": "nearby"
       },
       {
         "surface": "reflect_state",
-        "generated_at": "2026-04-14T22:12:33",
-        "comparison_status": "nearby"
+        "generated_at": "2026-04-16T10:11:15",
+        "comparison_status": "linked_surface_older"
       }
     ],
-    "sync_status": "in_sync",
-    "trust_status": "operational",
+    "sync_status": "settling",
+    "trust_status": "provisional",
     "hard_issues": [],
     "explained_differences": [],
-    "trust_reason": "This file is close enough to its linked review surfaces to compare operationally."
+    "trust_reason": "This file is recent enough to use provisionally, but linked review surfaces are not yet close enough in time to treat as one settled comparison set."
   },
-  "updated_at": "2026-04-14T22:13:08"
+  "updated_at": "2026-04-16T10:16:22"
 }
