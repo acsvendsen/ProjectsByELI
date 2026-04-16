@@ -32,6 +32,7 @@ from orchestrator import (
     PROJECT_DIRECTION_REVIEW_PATH,
     PROJECT_EXPECTATIONS_PATH,
     PROJECT_MILESTONES_PATH,
+    PROJECT_STATE_DIR,
     SIMILAR_PRODUCTS_REVIEW_PATH,
     REUSE_RECOMMENDATION_REVIEW_PATH,
     PROJECT_TOPOLOGY_VIEW_PATH,
@@ -43,6 +44,9 @@ from orchestrator import (
     UI_SURFACE_PLAN_PATH,
     VERIFICATION_SUMMARY_PATH,
     ensure_db,
+    runtime_review_surface_path,
+    state_write_config,
+    state_write_mode_status,
     watch_roots,
 )
 
@@ -60,10 +64,26 @@ SCORECARD_HISTORY_LOOKBACK = 24
 
 
 def read_json(path, fallback):
+    path = resolve_dashboard_json_path(path)
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return fallback
+
+
+def resolve_dashboard_json_path(path):
+    path = pathlib.Path(path)
+    cfg = state_write_config()
+    if not cfg.get("dashboard_prefer_runtime_review_surfaces", True):
+        return path
+    try:
+        path.relative_to(PROJECT_STATE_DIR)
+    except Exception:
+        return path
+    runtime_path = runtime_review_surface_path(path)
+    if runtime_path.exists():
+        return runtime_path
+    return path
 
 
 def write_json(path, payload):
@@ -338,6 +358,11 @@ def update_action_choice(action_id, choice_id=None):
 def load_dashboard_data():
     ensure_db()
     runtime_state = read_json(RUNTIME_STATE_PATH, {})
+    if not isinstance(runtime_state, dict):
+        runtime_state = {}
+    runtime_state_defaults = state_write_mode_status()
+    for key, value in runtime_state_defaults.items():
+        runtime_state.setdefault(key, value)
     operator_guidance = read_json(OPERATOR_GUIDANCE_PATH, {"mode": "best_effort"})
     action_inbox = load_action_inbox_data()
     project_expectations = read_json(PROJECT_EXPECTATIONS_PATH, {
@@ -752,6 +777,8 @@ def load_dashboard_data():
             "scheduler_mode": "continuous" if CFG.get("cycles", {}).get("continuous", True) else "interval",
             "pause_seconds_between_runs": int(CFG.get("cycles", {}).get("pause_seconds_between_runs", 5)),
             "eli_role": "project refinement, architecture critique, and task guidance",
+            "state_write_mode": runtime_state.get("runtime_mode", "unknown"),
+            "state_write_summary": runtime_state.get("summary", ""),
         },
         "runtime_state": runtime_state,
         "operator_guidance": operator_guidance,

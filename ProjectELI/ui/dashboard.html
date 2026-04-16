@@ -3684,7 +3684,14 @@
             : `${status.project.cycle_interval_minutes} min`,
           status.project.scheduler_mode === "continuous" ? "continuous loop pause" : "interval loop cadence"
         ),
-        statCard("Watch Roots", status.project.watch_roots.length, "core, inbox, linked repo inputs")
+        statCard("Watch Roots", status.project.watch_roots.length, "core, inbox, linked repo inputs"),
+        statCard(
+          "State Writes",
+          (status.project.state_write_mode || "unknown").replaceAll("_", " "),
+          status.runtime_state.canonical_publish_mode === "explicit_only"
+            ? "tracked canonical state only on explicit publish"
+            : (status.project.state_write_summary || "runtime state write mode")
+        )
       ].join("");
 
       document.getElementById("projectMode").textContent = (status.project.execution_mode || "single_project").replaceAll("_", " ");
@@ -3692,6 +3699,7 @@
         `<div class="note"><strong>Active project:</strong> ${status.project.current_project || status.project.name}</div>`,
         `<div class="note"><strong>ELI role:</strong> ${status.project.eli_role || "project refinement"}</div>`,
         `<div class="note"><strong>Project root:</strong> <span class="mono">${status.project.project_root || "n/a"}</span></div>`,
+        `<div class="note"><strong>State writes:</strong> ${(status.project.state_write_mode || "unknown").replaceAll("_", " ")}. ${status.project.state_write_summary || ""}</div>`,
         `<div class="note">Scheduler mode: ${status.project.scheduler_mode === "continuous" ? `continuous with a ${status.project.pause_seconds_between_runs}s pause between full loops` : `interval every ${status.project.cycle_interval_minutes} minutes`}.</div>`,
         `<div class="note">True multi-project compute scheduling is not enabled yet. Right now ELI Brain runs one project context at a time.</div>`
       ].join("");

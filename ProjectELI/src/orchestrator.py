@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse, ast, datetime as dt, hashlib, json, os, pathlib, re, sqlite3, subprocess, time, urllib.request
+from contextlib import contextmanager
 
 BASE = pathlib.Path(__file__).resolve().parents[1]
 CONFIG_PATH = BASE / "config" / "config.yaml"
@@ -680,15 +681,17 @@ CORE_DIR = PROJECT_DIR / "core"
 FIELD_V2_DIR = CORE_DIR / "field_v2"
 SCORECARD_CONFIG_PATH = CORE_DIR / "project_scorecard.json"
 PROJECT_STATE_DIR = PROJECT_DIR / "state"
-FIELD_DELTA_HISTORY_PATH = PROJECT_STATE_DIR / "field_delta_history.json"
 ENGINE_STATE_DIR = BASE / "state"
-STATE_DIR = PROJECT_STATE_DIR
+RUNTIME_PROJECT_STATE_DIR = ENGINE_STATE_DIR / "projects" / PROJECT_SLUG
+RUNTIME_REVIEW_SURFACES_DIR = RUNTIME_PROJECT_STATE_DIR / "review_surfaces"
+STATE_DIR = RUNTIME_PROJECT_STATE_DIR
 RUNTIME_STATE_PATH = STATE_DIR / "runtime_state.json"
 OPERATOR_GUIDANCE_PATH = STATE_DIR / "operator_guidance.json"
 ACTION_INBOX_PATH = STATE_DIR / "action_inbox.json"
 ACTION_MEMORY_PATH = STATE_DIR / "action_memory.json"
 SCORECARD_STATE_PATH = STATE_DIR / "project_scorecard.json"
 REFLECT_STATE_PATH = STATE_DIR / "reflect_state.json"
+FIELD_DELTA_HISTORY_PATH = STATE_DIR / "field_delta_history.json"
 INBOX_DIR = PROJECT_DIR / "inbox"
 LINKS_DIR = PROJECT_DIR / "links"
 REPO_LINK_DIR = LINKS_DIR / "repo"
@@ -698,10 +701,10 @@ SPECIALIST_REGISTRY_PATH = CORE_DIR / "specialist_registry.yaml"
 SPECIALIST_ROUTING_POLICY_PATH = CORE_DIR / "specialist_routing_policy.yaml"
 BUILD_SUMMARY_PATH = ENGINE_STATE_DIR / str(CFG.get('build_summary_filename', 'transcriptlab_xcode_build_summary.md'))
 BUILD_CAPTURE_SCRIPT_PATH = cfg_path_value('build_capture_script', 'scripts/capture_transcriptlab_build.py')
-SPECIALIST_TRUST_MEMORY_PATH = PROJECT_STATE_DIR / "specialist_trust_memory.json"
-SPECIALIST_CONSULTATION_HISTORY_PATH = PROJECT_STATE_DIR / "specialist_consultation_history.json"
-RETENTION_AUDIT_PATH = PROJECT_STATE_DIR / "retention_audit.json"
-LATEST_ALIAS_STATE_PATH = PROJECT_STATE_DIR / "latest_alias_state.json"
+SPECIALIST_TRUST_MEMORY_PATH = STATE_DIR / "specialist_trust_memory.json"
+SPECIALIST_CONSULTATION_HISTORY_PATH = STATE_DIR / "specialist_consultation_history.json"
+RETENTION_AUDIT_PATH = STATE_DIR / "retention_audit.json"
+LATEST_ALIAS_STATE_PATH = STATE_DIR / "latest_alias_state.json"
 V1_DECISION_HUMAN_RESPONSES_PATH = PROJECT_STATE_DIR / "v1_decision_human_responses.json"
 V1_DECISION_REVIEW_PATH = PROJECT_STATE_DIR / "v1_decision_review.json"
 IMPLEMENTATION_ARTIFACT_REVIEW_PATH = PROJECT_STATE_DIR / "implementation_artifact_review.json"
@@ -2756,7 +2759,7 @@ def load_field_delta_history():
 
 
 def save_field_delta_history(history):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
     history['updated_at'] = now_iso()
     limit = safe_int(runtime_retention_config().get('state', {}).get('field_delta_history_limit', 400), 400)
     history['entries'] = history.get('entries', [])[-max(1, limit):]
@@ -5716,6 +5719,179 @@ def now_iso():
     return dt.datetime.now().isoformat(timespec='seconds')
 
 
+def state_write_config():
+    cfg = CFG.get('state_writes', {}) if isinstance(CFG.get('state_writes', {}), dict) else {}
+    runtime_mode = str(cfg.get('runtime_mode', 'branch_safe')).strip().lower()
+    if runtime_mode not in ('branch_safe', 'canonical'):
+        runtime_mode = 'branch_safe'
+    canonical_publish_mode = str(cfg.get('canonical_publish_mode', 'explicit_only')).strip().lower()
+    if canonical_publish_mode not in ('explicit_only', 'runtime_allowed'):
+        canonical_publish_mode = 'explicit_only'
+    return {
+        'runtime_mode': runtime_mode,
+        'canonical_publish_mode': canonical_publish_mode,
+        'dashboard_prefer_runtime_review_surfaces': bool(cfg.get('dashboard_prefer_runtime_review_surfaces', True)),
+    }
+
+
+def runtime_state_write_target():
+    return 'runtime' if state_write_config().get('runtime_mode') == 'branch_safe' else 'canonical'
+
+
+_PROJECT_STATE_WRITE_TARGET = 'canonical'
+
+
+def current_project_state_write_target():
+    return _PROJECT_STATE_WRITE_TARGET
+
+
+@contextmanager
+def project_state_write_target(mode):
+    global _PROJECT_STATE_WRITE_TARGET
+    normalized = 'runtime' if str(mode).strip().lower() == 'runtime' else 'canonical'
+    previous = _PROJECT_STATE_WRITE_TARGET
+    _PROJECT_STATE_WRITE_TARGET = normalized
+    try:
+        yield
+    finally:
+        _PROJECT_STATE_WRITE_TARGET = previous
+
+
+def runtime_review_surface_path(canonical_path):
+    canonical_path = pathlib.Path(canonical_path)
+    try:
+        relative = canonical_path.relative_to(PROJECT_STATE_DIR)
+    except Exception:
+        return canonical_path
+    return RUNTIME_REVIEW_SURFACES_DIR / relative
+
+
+def project_state_output_path(canonical_path):
+    canonical_path = pathlib.Path(canonical_path)
+    if current_project_state_write_target() == 'runtime':
+        return runtime_review_surface_path(canonical_path)
+    return canonical_path
+
+
+def write_project_state_json(canonical_path, payload, trailing_newline=True):
+    path = project_state_output_path(canonical_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(payload, indent=2)
+    if trailing_newline:
+        text += "\n"
+    path.write_text(text, encoding='utf-8')
+    return path
+
+
+def load_runtime_or_canonical_json(canonical_path, fallback):
+    canonical_path = pathlib.Path(canonical_path)
+    if current_project_state_write_target() == 'runtime':
+        runtime_path = runtime_review_surface_path(canonical_path)
+        if runtime_path.exists():
+            try:
+                return json.loads(runtime_path.read_text(encoding='utf-8'))
+            except Exception:
+                pass
+    try:
+        return json.loads(canonical_path.read_text(encoding='utf-8'))
+    except Exception:
+        return fallback
+
+
+def state_write_mode_status():
+    cfg = state_write_config()
+    runtime_mode = 'branch_safe_runtime' if cfg.get('runtime_mode') == 'branch_safe' else 'canonical_runtime'
+    canonical_publish_mode = cfg.get('canonical_publish_mode', 'explicit_only')
+    if runtime_mode == 'branch_safe_runtime':
+        summary = (
+            'Branch-safe runtime mode is active. Live runtime state and review-surface churn write to ignored runtime storage; '
+            'tracked canonical project state is only updated by explicit publish.'
+        )
+    else:
+        summary = (
+            'Canonical runtime mode is active. Normal runtime may update tracked project state directly.'
+        )
+    return {
+        'runtime_mode': runtime_mode,
+        'canonical_publish_mode': canonical_publish_mode,
+        'tracked_canonical_writes_from_runtime': runtime_mode != 'branch_safe_runtime',
+        'runtime_project_state_dir': str(RUNTIME_PROJECT_STATE_DIR),
+        'runtime_review_surface_dir': str(RUNTIME_REVIEW_SURFACES_DIR),
+        'canonical_project_state_dir': str(PROJECT_STATE_DIR),
+        'summary': summary,
+    }
+
+
+def canonical_publishable_project_state_paths():
+    return [
+        V1_DECISION_REVIEW_PATH,
+        IMPLEMENTATION_ARTIFACT_REVIEW_PATH,
+        OPTION_READINESS_REVIEW_PATH,
+        ARTIFACT_EMISSION_READINESS_PATH,
+        DRAFT_ARTIFACT_REVIEW_PATH,
+        STATE_SYNC_SUMMARY_PATH,
+        EXECUTION_RESUME_PATH,
+        VERIFICATION_SUMMARY_PATH,
+        PROJECT_EXPECTATIONS_PATH,
+        PROJECT_MILESTONES_PATH,
+        PRODUCT_REALISM_REVIEW_PATH,
+        COMPONENT_PACKAGE_REVIEW_PATH,
+        PARTS_READINESS_REVIEW_PATH,
+        COST_VIABILITY_REVIEW_PATH,
+        PRICING_ALTERNATIVES_REVIEW_PATH,
+        BUDGET_TIER_REVIEW_PATH,
+        EXECUTION_BOUNDARIES_PATH,
+        PROJECT_DIRECTION_REVIEW_PATH,
+        EXPLORATORY_IDEAS_REVIEW_PATH,
+        OPERATOR_PROPOSAL_REVIEW_PATH,
+        SIMILAR_PRODUCTS_REVIEW_PATH,
+        REUSE_RECOMMENDATION_REVIEW_PATH,
+        PROJECT_TOPOLOGY_VIEW_PATH,
+        EXTENSIONS_CAPABILITY_REVIEW_PATH,
+        EXTENSION_DEPLOYMENT_REVIEW_PATH,
+        HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH,
+        UI_SURFACE_PLAN_PATH,
+    ]
+
+
+def publish_canonical_project_state(schema=None, dry_run=False):
+    schema = schema or load_cognition_schema()
+    with project_state_write_target('runtime'):
+        refresh_review_state_sync_metadata(schema=schema)
+    published_paths = []
+    retained_canonical_paths = []
+    missing_runtime_paths = []
+    for canonical_path in canonical_publishable_project_state_paths():
+        runtime_path = runtime_review_surface_path(canonical_path)
+        if not runtime_path.exists():
+            if canonical_path.exists():
+                retained_canonical_paths.append(str(canonical_path))
+            else:
+                missing_runtime_paths.append(str(canonical_path))
+            continue
+        if not dry_run:
+            canonical_path.parent.mkdir(parents=True, exist_ok=True)
+            write_text_atomic(canonical_path, runtime_path.read_text(encoding='utf-8'))
+        published_paths.append(str(canonical_path))
+    return {
+        'updated_at': now_iso(),
+        'dry_run': bool(dry_run),
+        'runtime_mode': state_write_mode_status().get('runtime_mode', 'unknown'),
+        'canonical_publish_mode': 'explicit_publish',
+        'published_count': len(published_paths),
+        'retained_canonical_count': len(retained_canonical_paths),
+        'missing_runtime_count': len(missing_runtime_paths),
+        'published_paths': published_paths,
+        'retained_canonical_paths': retained_canonical_paths,
+        'missing_runtime_paths': missing_runtime_paths,
+        'summary': (
+            'Canonical project state would be published from runtime review mirrors.'
+            if dry_run else
+            'Canonical project state was published from runtime review mirrors.'
+        ),
+    }
+
+
 def write_runtime_state(**state):
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     merged = {}
@@ -5728,6 +5904,7 @@ def write_runtime_state(**state):
         'updated_at': now_iso(),
         'pid': os.getpid(),
     })
+    merged.update(state_write_mode_status())
     merged.update(state)
     RUNTIME_STATE_PATH.write_text(json.dumps(merged, indent=2), encoding='utf-8')
 
@@ -6186,13 +6363,12 @@ def build_v1_decision_review_state(candidate_rows, current_items=None, implement
 
 
 def save_v1_decision_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else {'pending_v1_decisions': []}
     existing = load_json_file(V1_DECISION_REVIEW_PATH, {})
     if isinstance(existing, dict) and isinstance(existing.get('sync_metadata'), dict) and existing.get('sync_metadata') and not payload.get('sync_metadata'):
         payload['sync_metadata'] = existing.get('sync_metadata', {})
     payload['updated_at'] = now_iso()
-    V1_DECISION_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(V1_DECISION_REVIEW_PATH, payload)
 
 
 def implementation_artifact_review_continuity_config(schema=None):
@@ -6439,10 +6615,9 @@ def build_implementation_artifact_review_state(artifact_rows, current_items=None
 
 
 def save_implementation_artifact_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else {'implementation_artifact_candidates': []}
     payload['updated_at'] = now_iso()
-    IMPLEMENTATION_ARTIFACT_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(IMPLEMENTATION_ARTIFACT_REVIEW_PATH, payload)
 
 
 def option_readiness_config(schema=None):
@@ -6655,10 +6830,9 @@ def build_option_readiness_review_state(v1_decision_candidates, implementation_a
 
 
 def save_option_readiness_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else {'surfaced_options': []}
     payload['updated_at'] = now_iso()
-    OPTION_READINESS_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(OPTION_READINESS_REVIEW_PATH, payload)
 
 
 def artifact_emission_readiness_config(schema=None):
@@ -6856,13 +7030,12 @@ def build_artifact_emission_readiness_state(artifact_review_state, option_readin
 
 
 def save_artifact_emission_readiness_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else {'artifact_emission_readiness': []}
     existing = load_json_file(ARTIFACT_EMISSION_READINESS_PATH, {})
     if isinstance(existing, dict) and isinstance(existing.get('sync_metadata'), dict) and existing.get('sync_metadata') and not payload.get('sync_metadata'):
         payload['sync_metadata'] = existing.get('sync_metadata', {})
     payload['updated_at'] = now_iso()
-    ARTIFACT_EMISSION_READINESS_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(ARTIFACT_EMISSION_READINESS_PATH, payload)
 
 
 def draft_artifact_emission_config(schema=None):
@@ -7238,13 +7411,12 @@ def build_draft_artifact_review_state(artifact_emission_state, artifact_review_s
 
 
 def save_draft_artifact_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else {'emitted_drafts': []}
     existing = load_json_file(DRAFT_ARTIFACT_REVIEW_PATH, {})
     if isinstance(existing, dict) and isinstance(existing.get('sync_metadata'), dict) and existing.get('sync_metadata') and not payload.get('sync_metadata'):
         payload['sync_metadata'] = existing.get('sync_metadata', {})
     payload['updated_at'] = now_iso()
-    DRAFT_ARTIFACT_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(DRAFT_ARTIFACT_REVIEW_PATH, payload)
 
 
 def state_sync_trust_config(schema=None):
@@ -7910,10 +8082,9 @@ def load_execution_resume_state():
 
 
 def save_execution_resume_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_execution_resume_state()
     payload['updated_at'] = now_iso()
-    EXECUTION_RESUME_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(EXECUTION_RESUME_PATH, payload)
 
 
 def default_project_expectations_state():
@@ -7982,12 +8153,11 @@ def load_project_expectations_state():
 
 
 def save_project_expectations_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_project_expectations_state()
     if not payload.get('generated_at'):
         payload['generated_at'] = now_iso()
     payload['updated_at'] = now_iso()
-    PROJECT_EXPECTATIONS_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(PROJECT_EXPECTATIONS_PATH, payload)
 
 
 def project_expectations_summary(expectations=None):
@@ -8071,10 +8241,9 @@ def load_project_milestones_state():
 
 
 def save_project_milestones_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_project_milestones_state()
     payload['updated_at'] = now_iso()
-    PROJECT_MILESTONES_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(PROJECT_MILESTONES_PATH, payload)
 
 
 def milestone_readiness_score_to_approval_state(score, current_band, hold_reason=''):
@@ -8426,10 +8595,9 @@ def load_product_realism_review_state():
 
 
 def save_product_realism_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_product_realism_review_state()
     payload['updated_at'] = now_iso()
-    PRODUCT_REALISM_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(PRODUCT_REALISM_REVIEW_PATH, payload)
 
 
 def product_realism_band_index(value):
@@ -8927,10 +9095,9 @@ def load_cost_viability_review_state():
 
 
 def save_cost_viability_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_cost_viability_review_state()
     payload['updated_at'] = now_iso()
-    COST_VIABILITY_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(COST_VIABILITY_REVIEW_PATH, payload)
 
 
 def build_cost_viability_review_state(schema=None, review_snapshot=None, product_realism_state=None, component_package_state=None):
@@ -9259,10 +9426,9 @@ def load_component_package_review_state():
 
 
 def save_component_package_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_component_package_review_state()
     payload['updated_at'] = now_iso()
-    COMPONENT_PACKAGE_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(COMPONENT_PACKAGE_REVIEW_PATH, payload)
 
 
 def component_package_band_index(value):
@@ -9633,10 +9799,9 @@ def load_parts_readiness_review_state():
 
 
 def save_parts_readiness_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_parts_readiness_review_state()
     payload['updated_at'] = now_iso()
-    PARTS_READINESS_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(PARTS_READINESS_REVIEW_PATH, payload)
 
 
 def parts_confidence_from_row(row, default='provisional'):
@@ -9997,10 +10162,9 @@ def load_pricing_alternatives_review_state():
 
 
 def save_pricing_alternatives_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_pricing_alternatives_review_state()
     payload['updated_at'] = now_iso()
-    PRICING_ALTERNATIVES_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(PRICING_ALTERNATIVES_REVIEW_PATH, payload)
 
 
 def pricing_candidate_row(label, scope, cost_posture, confidence, fit_for_target, why_it_is_current_or_alternative, replacement_priority):
@@ -10383,10 +10547,9 @@ def load_budget_tier_review_state():
 
 
 def save_budget_tier_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_budget_tier_review_state()
     payload['updated_at'] = now_iso()
-    BUDGET_TIER_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(BUDGET_TIER_REVIEW_PATH, payload)
 
 
 def build_budget_tier_review_state(
@@ -10877,10 +11040,9 @@ def load_execution_boundaries_state():
 
 
 def save_execution_boundaries_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_execution_boundaries_state()
     payload['updated_at'] = now_iso()
-    EXECUTION_BOUNDARIES_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(EXECUTION_BOUNDARIES_PATH, payload)
 
 
 def build_execution_boundaries_state(schema=None, review_snapshot=None, milestone_state=None, cost_state=None, parts_state=None, pricing_state=None):
@@ -11367,10 +11529,9 @@ def load_project_direction_review_state():
 
 
 def save_project_direction_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_project_direction_review_state()
     payload['updated_at'] = now_iso()
-    PROJECT_DIRECTION_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(PROJECT_DIRECTION_REVIEW_PATH, payload)
 
 
 def build_project_direction_review_state(schema=None, review_snapshot=None, realism_state=None, cost_state=None, component_state=None, parts_state=None, pricing_state=None, boundary_state=None):
@@ -11839,10 +12000,9 @@ def load_exploratory_ideas_review_state():
 
 
 def save_exploratory_ideas_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_exploratory_ideas_review_state()
     payload['updated_at'] = now_iso()
-    EXPLORATORY_IDEAS_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(EXPLORATORY_IDEAS_REVIEW_PATH, payload)
 
 
 def build_exploratory_ideas_review_state(
@@ -12352,11 +12512,10 @@ def load_operator_proposal_intake_state():
 
 
 def save_operator_proposal_intake_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_operator_proposal_intake_state()
     payload['generated_at'] = payload.get('generated_at') or now_iso()
     payload['updated_at'] = now_iso()
-    OPERATOR_PROPOSAL_INTAKE_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(OPERATOR_PROPOSAL_INTAKE_PATH, payload)
 
 
 def default_operator_proposal_review_state():
@@ -12423,10 +12582,9 @@ def load_operator_proposal_review_state():
 
 
 def save_operator_proposal_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_operator_proposal_review_state()
     payload['updated_at'] = now_iso()
-    OPERATOR_PROPOSAL_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(OPERATOR_PROPOSAL_REVIEW_PATH, payload)
 
 
 def build_operator_proposal_review_state(
@@ -13185,10 +13343,9 @@ def load_similar_products_review_state():
 
 
 def save_similar_products_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_similar_products_review_state()
     payload['updated_at'] = now_iso()
-    SIMILAR_PRODUCTS_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(SIMILAR_PRODUCTS_REVIEW_PATH, payload)
 
 
 def build_similar_products_review_state(
@@ -13579,10 +13736,9 @@ def load_reuse_recommendation_review_state():
 
 
 def save_reuse_recommendation_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_reuse_recommendation_review_state()
     payload['updated_at'] = now_iso()
-    REUSE_RECOMMENDATION_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(REUSE_RECOMMENDATION_REVIEW_PATH, payload)
 
 
 def build_reuse_recommendation_review_state(
@@ -14087,10 +14243,9 @@ def load_project_topology_view_state():
 
 
 def save_project_topology_view_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_project_topology_view_state()
     payload['updated_at'] = now_iso()
-    PROJECT_TOPOLOGY_VIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(PROJECT_TOPOLOGY_VIEW_PATH, payload)
 
 
 def build_project_topology_view_state(schema=None, review_snapshot=None, resume_state=None, boundary_state=None, milestone_state=None, realism_state=None, cost_state=None, parts_state=None, pricing_state=None, component_state=None, rendering_state=None):
@@ -14460,10 +14615,9 @@ def load_extensions_capability_review_state():
 
 
 def save_extensions_capability_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_extensions_capability_review_state()
     payload['updated_at'] = now_iso()
-    EXTENSIONS_CAPABILITY_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(EXTENSIONS_CAPABILITY_REVIEW_PATH, payload)
 
 
 def extension_surface_generated_at(path):
@@ -14885,10 +15039,9 @@ def load_extension_deployment_review_state():
 
 
 def save_extension_deployment_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_extension_deployment_review_state()
     payload['updated_at'] = now_iso()
-    EXTENSION_DEPLOYMENT_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(EXTENSION_DEPLOYMENT_REVIEW_PATH, payload)
 
 
 def build_extension_deployment_review_state(schema=None, review_snapshot=None, extensions_state=None):
@@ -15213,10 +15366,9 @@ def load_hardware_aware_rendering_brief_review_state():
 
 
 def save_hardware_aware_rendering_brief_review_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_hardware_aware_rendering_brief_review_state()
     payload['updated_at'] = now_iso()
-    HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(HARDWARE_AWARE_RENDERING_BRIEF_REVIEW_PATH, payload)
 
 
 def build_hardware_aware_rendering_brief_review_state(
@@ -15647,10 +15799,9 @@ def load_ui_surface_plan_state():
 
 
 def save_ui_surface_plan_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_ui_surface_plan_state()
     payload['updated_at'] = now_iso()
-    UI_SURFACE_PLAN_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(UI_SURFACE_PLAN_PATH, payload)
 
 
 def ui_page_priority_rank(priority):
@@ -16851,10 +17002,9 @@ def load_verification_summary_state():
 
 
 def save_verification_summary_state(data):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
     payload = data if isinstance(data, dict) else default_verification_summary_state()
     payload['updated_at'] = now_iso()
-    VERIFICATION_SUMMARY_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(VERIFICATION_SUMMARY_PATH, payload)
 
 
 def build_verification_source_entry(question, source_surface, use_state, reason, generated_at, supporting_surfaces=None, sample_titles=None):
@@ -18497,11 +18647,11 @@ def refresh_review_state_sync_metadata(schema=None):
         metadata_by_surface[surface_name] = build_review_surface_sync_metadata(surface_name, payloads, semantic_flags, cfg)
         payloads[surface_name]['sync_metadata'] = metadata_by_surface[surface_name]
 
-    V1_DECISION_REVIEW_PATH.write_text(json.dumps(payloads['v1_decision_review'], indent=2) + "\n", encoding='utf-8')
-    ARTIFACT_EMISSION_READINESS_PATH.write_text(json.dumps(payloads['artifact_emission_readiness'], indent=2) + "\n", encoding='utf-8')
-    DRAFT_ARTIFACT_REVIEW_PATH.write_text(json.dumps(payloads['draft_artifact_review'], indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(V1_DECISION_REVIEW_PATH, payloads['v1_decision_review'])
+    write_project_state_json(ARTIFACT_EMISSION_READINESS_PATH, payloads['artifact_emission_readiness'])
+    write_project_state_json(DRAFT_ARTIFACT_REVIEW_PATH, payloads['draft_artifact_review'])
     summary = build_review_state_sync_summary(payloads, metadata_by_surface)
-    STATE_SYNC_SUMMARY_PATH.write_text(json.dumps(summary, indent=2) + "\n", encoding='utf-8')
+    write_project_state_json(STATE_SYNC_SUMMARY_PATH, summary)
     review_snapshot = load_review_state_consumption_snapshot()
     component_package_state = build_component_package_review_state(schema=schema, review_snapshot=review_snapshot)
     save_component_package_review_state(component_package_state)
@@ -18778,10 +18928,7 @@ def save_specialist_trust_memory(data):
 
 
 def load_json_file(path, fallback):
-    try:
-        return json.loads(path.read_text(encoding='utf-8'))
-    except Exception:
-        return fallback
+    return load_runtime_or_canonical_json(path, fallback)
 
 
 def runtime_retention_config(schema=None):
@@ -18818,7 +18965,7 @@ def load_retention_audit():
 
 
 def save_retention_audit(data, schema=None):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
     cfg = runtime_retention_config(schema)
     data['updated_at'] = now_iso()
     data['entries'] = data.get('entries', [])[-cfg.get('audit', {}).get('entry_limit', 120):]
@@ -19252,7 +19399,7 @@ def load_latest_alias_state():
 
 
 def save_latest_alias_state(data, schema=None):
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
     cfg = runtime_alias_config(schema)
     data['updated_at'] = now_iso()
     data['entries'] = data.get('entries', [])[-cfg.get('audit', {}).get('decision_limit', 120):]
@@ -23291,36 +23438,37 @@ def run_reflect_cycle(changes, prior_reports):
 
 
 def run_once():
-    ensure_field_scaffolds()
-    write_runtime_state(state='scanning', current_cycle=None, current_project=PROJECT_SLUG)
-    changes = changed_files(PROJECT_DIR)
-    build_refresh = refresh_transcriptlab_build_summary_if_needed(changes)
-    write_runtime_state(state='running', current_cycle='sleep', current_project=PROJECT_SLUG, changed_files=len(changes), watch_roots=[str(p) for p in watch_roots()])
-    write_runtime_state(
-        transcriptlab_build_refresh=build_refresh.get('status'),
-        transcriptlab_build_refresh_ran=build_refresh.get('ran', False),
-        transcriptlab_build_summary_path=build_refresh.get('summary_path', str(BUILD_SUMMARY_PATH)),
-        transcriptlab_build_refresh_finished_at=build_refresh.get('finished_at', now_iso()),
-        transcriptlab_build_refresh_error=build_refresh.get('error_text', ''),
-    )
-    paths = []
-    cycle_paths = {}
-    for name in ('sleep', 'dream', 'reality'):
-        try:
-            path = run_cycle(name, changes)
-            paths.append(path)
-            cycle_paths[name] = path
-        except Exception as e:
-            error_path = write_report(f'{name}_error', f'# {name} error\n\n{e}\n')
-            paths.append(error_path)
-            write_runtime_state(state='error', current_cycle=None, current_project=PROJECT_SLUG, last_cycle_status='error', last_error=str(e), last_report_path=str(error_path))
-    reflect_path = run_reflect_cycle(changes, cycle_paths)
-    paths.append(reflect_path)
-    cycle_paths['reflect'] = reflect_path
-    paths.append(run_scorecard_cycle(changes, cycle_paths))
-    paths.append(daily_snapshot())
-    write_runtime_state(state='waiting', current_cycle=None, current_project=PROJECT_SLUG, last_run_finished_at=now_iso(), changed_files=len(changes), last_error='')
-    return paths
+    with project_state_write_target(runtime_state_write_target()):
+        ensure_field_scaffolds()
+        write_runtime_state(state='scanning', current_cycle=None, current_project=PROJECT_SLUG)
+        changes = changed_files(PROJECT_DIR)
+        build_refresh = refresh_transcriptlab_build_summary_if_needed(changes)
+        write_runtime_state(state='running', current_cycle='sleep', current_project=PROJECT_SLUG, changed_files=len(changes), watch_roots=[str(p) for p in watch_roots()])
+        write_runtime_state(
+            transcriptlab_build_refresh=build_refresh.get('status'),
+            transcriptlab_build_refresh_ran=build_refresh.get('ran', False),
+            transcriptlab_build_summary_path=build_refresh.get('summary_path', str(BUILD_SUMMARY_PATH)),
+            transcriptlab_build_refresh_finished_at=build_refresh.get('finished_at', now_iso()),
+            transcriptlab_build_refresh_error=build_refresh.get('error_text', ''),
+        )
+        paths = []
+        cycle_paths = {}
+        for name in ('sleep', 'dream', 'reality'):
+            try:
+                path = run_cycle(name, changes)
+                paths.append(path)
+                cycle_paths[name] = path
+            except Exception as e:
+                error_path = write_report(f'{name}_error', f'# {name} error\n\n{e}\n')
+                paths.append(error_path)
+                write_runtime_state(state='error', current_cycle=None, current_project=PROJECT_SLUG, last_cycle_status='error', last_error=str(e), last_report_path=str(error_path))
+        reflect_path = run_reflect_cycle(changes, cycle_paths)
+        paths.append(reflect_path)
+        cycle_paths['reflect'] = reflect_path
+        paths.append(run_scorecard_cycle(changes, cycle_paths))
+        paths.append(daily_snapshot())
+        write_runtime_state(state='waiting', current_cycle=None, current_project=PROJECT_SLUG, last_run_finished_at=now_iso(), changed_files=len(changes), last_error='')
+        return paths
 
 
 def daemon():
@@ -23344,9 +23492,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--once', action='store_true')
     ap.add_argument('--daemon', action='store_true')
+    ap.add_argument('--publish-canonical-state', action='store_true')
+    ap.add_argument('--dry-run', action='store_true')
     args = ap.parse_args()
     ensure_db()
     ensure_field_scaffolds()
+    if args.publish_canonical_state:
+        summary = publish_canonical_project_state(schema=load_cognition_schema(), dry_run=args.dry_run)
+        print(json.dumps(summary, indent=2))
+        return
     if args.daemon:
         daemon()
     else:

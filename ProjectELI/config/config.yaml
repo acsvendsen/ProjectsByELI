@@ -41,3 +41,7 @@ cycles:
 notifications:
   enabled: true
   min_priority: 8
+state_writes:
+  runtime_mode: branch_safe
+  canonical_publish_mode: explicit_only
+  dashboard_prefer_runtime_review_surfaces: true
