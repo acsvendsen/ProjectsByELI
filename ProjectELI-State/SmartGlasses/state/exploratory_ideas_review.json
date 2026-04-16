@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-16T10:17:12",
-  "ideas_summary": "5 bounded exploratory idea(s) are currently worth watching. They stay visible because cost, parts, review, and runtime pressure create real compromise or hedge paths, but they remain below current direction and below reviewable decisions.",
+  "generated_at": "2026-04-16T10:50:55",
+  "ideas_summary": "4 bounded exploratory idea(s) are currently worth watching. They stay visible because cost, parts, review, and runtime pressure create real compromise or hedge paths, but they remain below current direction and below reviewable decisions.",
   "ideas_being_explored": [
     {
       "idea_id": "stripped_prototype_package",
@@ -103,14 +103,13 @@
         "Favor phone-first runtime and lightweight on-glasses logic over heavier autonomous glasses compute. Do not reopen boundary changes until stronger link evidence appears."
       ],
       "what_blocks_it": [
-        "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
         "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
         "Current suggestions are still useful mainly for prototype learning. No current or cheaper/simpler alternative is good enough yet for the declared target tier, so stay prototype-..."
       ],
       "what_would_raise_it": [
         "real repo change or stronger repo grounding",
         "a new source type such as runtime truth or code-config evidence",
-        "meaningfully stronger architectural pull"
+        "meaningfully lower resistance"
       ],
       "what_would_kill_it": [
         "Runtime truth shows strict phone-first is reliable enough that richer fallback buys little.",
@@ -122,46 +121,6 @@
         "memory_system",
         "pricing_alternatives_review",
         "cost_viability_review"
-      ],
-      "revisable": true
-    },
-    {
-      "idea_id": "subtitle_dominant_hierarchy",
-      "title": "Subtitle-dominant hierarchy with conservative secondary cues",
-      "idea_type": "visual_hierarchy",
-      "origin": "hybrid",
-      "status": "exploratory",
-      "summary": "Keep subtitles dominant while one-line prompts and trust cues stay visibly secondary during live use.",
-      "why_it_might_be_good": "This could protect readability and trust in motion or noise without opening a richer overlay system too early.",
-      "what_is_different_now": "The idea is more inspectable now because subtitle grounding is strong and hardware-aware rendering briefs make hierarchy and display-region comparison concrete enough to review without calling it solved.",
-      "budget_tier_hint": "low",
-      "main_risks": [
-        "Can still become visually noisy or socially awkward if hierarchy is too assertive.",
-        "Can be over-read as solved UI direction when subtitle position is still a live review boundary.",
-        "Tie confidence display, memory reinforcement, and boundary choices to explicit wearer-visible trust rules and consent handling."
-      ],
-      "what_supports_it": [
-        "3 exploratory hardware-aware rendering brief(s) are warranted now because visualization support is recommended, implementation-package review is materially live, and build-orien..."
-      ],
-      "what_blocks_it": [
-        "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
-        "A nearby subtitle-position choice is already review-bound, so hierarchy should not harden silently beside it.",
-        "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent."
-      ],
-      "what_would_raise_it": [
-        "Visual comparison or runtime truth that shows the hierarchy is readable without blowing up discreetness.",
-        "A tighter subtitle-position decision that stops the hierarchy question from drifting with no frame anchor."
-      ],
-      "what_would_kill_it": [
-        "User or runtime evidence shows dominant subtitles create distraction or social awkwardness beyond the current tolerance.",
-        "Display-region constraints show the hierarchy needs more UI complexity than current firmware and trust posture can support."
-      ],
-      "truth_posture": "bounded_exploration",
-      "related_project_fronts": [
-        "subtitle_system",
-        "hardware_aware_rendering_brief_review",
-        "privacy_and_trust",
-        "v1_decision_review"
       ],
       "revisable": true
     },
@@ -186,7 +145,7 @@
       ],
       "what_blocks_it": [
         "Current hardware, packaging, and subsystem pressure already look mismatched to a discreet consumer-tier wearable cost story. Wireless and firmware gaps still add likely hidden c...",
-        "Continue refining subtitle placement rules to ensure they remain usable without becoming distracting",
+        "Ensure that the current V1 frame-touch interaction constraints are strongly enforced and not relaxed for feature expansion.",
         "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
       ],
       "what_would_raise_it": [
@@ -226,7 +185,7 @@
     "Execution boundaries now cap work at `Implementation Package Review` and keep product-shaped continuation constrained by `stop_if_cost_target_matters`.",
     "3 bounded rendering brief(s) now make hierarchy and display-region tradeoffs easier to inspect without treating them as accepted design.",
     "Direction of travel now makes phone-first, touch-first, and prototype-buildability the winning path, which changes how nearby compromise and hedge ideas should be interpreted.",
-    "Pending review fronts now include V1 Default Subtitle Position, so nearby ideas should stay non-authoritative."
+    "Pending review fronts now include V1 Confidence Display Format, V1 Visual Hierarchy Default, so nearby ideas should stay non-authoritative."
   ],
   "what_would_promote_an_idea": [
     "Real repo changes or stronger repo grounding on the held front.",
@@ -257,17 +216,17 @@
     "rendering_support": "hardware_aware_rendering_brief_review"
   },
   "source_generated_at": {
-    "reflect_state": "2026-04-16T10:16:22",
-    "project_direction_review": "2026-04-16T10:17:12",
-    "cost_viability_review": "2026-04-16T10:17:12",
-    "parts_readiness_review": "2026-04-16T10:17:12",
-    "pricing_alternatives_review": "2026-04-16T10:17:12",
-    "execution_boundaries": "2026-04-16T10:17:12",
-    "hardware_aware_rendering_brief_review": "2026-04-16T10:16:22",
-    "v1_decision_review": "2026-04-16T10:16:22",
-    "project_scorecard": "2026-04-16T10:17:12",
+    "reflect_state": "2026-04-16T10:50:10",
+    "project_direction_review": "2026-04-16T10:50:55",
+    "cost_viability_review": "2026-04-16T10:50:55",
+    "parts_readiness_review": "2026-04-16T10:50:55",
+    "pricing_alternatives_review": "2026-04-16T10:50:55",
+    "execution_boundaries": "2026-04-16T10:50:55",
+    "hardware_aware_rendering_brief_review": "2026-04-16T10:50:10",
+    "v1_decision_review": "2026-04-16T10:50:10",
+    "project_scorecard": "2026-04-16T10:50:55",
     "project_expectations": "2026-04-10T09:16:32"
   },
   "revisable": true,
-  "updated_at": "2026-04-16T10:17:12"
+  "updated_at": "2026-04-16T10:50:55"
 }

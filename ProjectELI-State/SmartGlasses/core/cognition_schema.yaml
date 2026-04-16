@@ -290,6 +290,12 @@ control:
     max_summary_rows: 5
     max_do_not_reinvent_signals: 4
     max_differentiation_rows: 4
+  reuse_recommendation_review:
+    enabled: true
+    include_in_execution_resume: true
+    max_rows_per_bucket: 3
+    max_summary_rows: 5
+    max_do_not_reinvent_rows: 4
   project_topology_view:
     enabled: true
     max_nodes: 10

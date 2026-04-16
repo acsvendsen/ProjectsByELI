@@ -1,0 +1,278 @@
+{
+  "generated_at": "2026-04-16T10:28:43",
+  "reuse_recommendation_summary": "ELI now has a bounded recommendation layer for where to reuse, adapt, integrate, source, treat as inspiration only, or deliberately invent. The current posture is clear: stop inventing baseline captions and baseline display-hardware categories, source or integrate where the problem is already solved well enough, and keep true invention focused on trust-vi...",
+  "recommended_reuse_rows": [
+    {
+      "row_id": "reuse_caption_semantics",
+      "label": "Reuse existing caption and speaker-label interaction patterns",
+      "recommendation_type": "reuse",
+      "scope": "caption UX semantics",
+      "why_this_recommendation": "Live captions, translation, and speaker labeling are already solved well enough elsewhere that inventing a brand-new caption grammar is wasted effort right now.",
+      "what_it_is_based_on": "Grounded in XRAI Glass and Mentra Captions as already-solved captioning references, plus the current subtitle-first direction.",
+      "why_not_the_other_paths": "Full invention here would spend effort on weak novelty and would not improve current cost, realism, or parts posture.",
+      "budget_tier_effect": "Pulls cost and implementation risk down for prototype learning.",
+      "trust_or_usability_effect": "Preserves proven usability patterns while leaving room to adapt trust visibility where our posture is stricter.",
+      "fit_for_current_project": "strong_prototype_fit",
+      "what_this_should_reduce": "Novelty theater around caption behavior and avoidable UI reinvention.",
+      "what_this_should_preserve": "Subtitle readability, speaker clarity, and assistive usefulness.",
+      "what_would_change_this_recommendation": "Change this only if current references prove unusable for our trust-visible subtitle posture or if a proposal shows a materially better bounded interaction pattern.",
+      "linked_similar_product_ids": [
+        "xrai_glass",
+        "mentra_captions"
+      ],
+      "linked_proposal_ids": [],
+      "linked_direction_rows": [
+        "touch_first_lightweight_behavior",
+        "subtitle_first_trust_visible_experience"
+      ],
+      "truth_posture": "bounded_recommendation_truth",
+      "revisable": true
+    }
+  ],
+  "recommended_adaptation_rows": [
+    {
+      "row_id": "adapt_discreet_display_baseline",
+      "label": "Adapt the discreet display-glasses baseline instead of pretending the category is uncharted",
+      "recommendation_type": "adapt",
+      "scope": "display placement and everyday-wear baseline",
+      "why_this_recommendation": "A discreet display-glasses baseline already exists, so the current project should adapt what is structurally useful instead of narrating the baseline category as invention.",
+      "what_it_is_based_on": "Grounded in Even Realities G1 plus the current hardware-aware rendering and subtitle-region comparison work.",
+      "why_not_the_other_paths": "Direct copying would ignore our trust, budget, and prototype-vs-product constraints; full reinvention would ignore that the baseline category already exists.",
+      "budget_tier_effect": "Mixed: adaptation contains cost drift better than custom optics, but it does not make the project cheap by default.",
+      "trust_or_usability_effect": "Preserves social acceptability lessons while keeping our trust-visible assistive posture distinct.",
+      "fit_for_current_project": "bounded_current_fit",
+      "what_this_should_reduce": "Overclaiming novelty in the mere existence of normal-looking display glasses.",
+      "what_this_should_preserve": "Useful lessons about discreetness, display placement, and visible-wearability tradeoffs.",
+      "what_would_change_this_recommendation": "Change this if the target posture shifts away from discreet assistive eyewear or if a cheaper simpler display baseline proves materially better for the current tier.",
+      "linked_similar_product_ids": [
+        "even_realities_g1"
+      ],
+      "linked_proposal_ids": [],
+      "linked_direction_rows": [
+        "hardware_boundary_first",
+        "subtitle_first_trust_visible_experience"
+      ],
+      "truth_posture": "bounded_recommendation_truth",
+      "revisable": true
+    }
+  ],
+  "recommended_integration_rows": [
+    {
+      "row_id": "integrate_existing_caption_pipeline",
+      "label": "Integrate an existing phone-linked caption pipeline class before building a custom one",
+      "recommendation_type": "integrate_existing",
+      "scope": "caption delivery and phone-plus-glasses flow",
+      "why_this_recommendation": "The current phone-first runtime direction is better served by integrating an existing caption-stack class than by custom-building the full caption pipeline immediately.",
+      "what_it_is_based_on": "Grounded in XRAI Glass and Mentra Captions as working phone-plus-glasses caption flows, plus the current favored phone-first runtime direction.",
+      "why_not_the_other_paths": "Pure reuse is too weak because trust behavior still needs project-specific shaping; full custom build is too much invention for the current prototype and parts posture.",
+      "budget_tier_effect": "Keeps software and integration scope closer to the intended budget tier than a from-scratch full stack.",
+      "trust_or_usability_effect": "Lets us preserve project-specific trust behavior while avoiding unnecessary caption-pipeline reinvention.",
+      "fit_for_current_project": "strong_prototype_fit",
+      "what_this_should_reduce": "Needless custom transport, caption orchestration, and caption-stack breadth.",
+      "what_this_should_preserve": "Phone-first runtime discipline and bounded assistive behavior.",
+      "what_would_change_this_recommendation": "Change this if phone-first runtime stops winning, or if external caption flows cannot be made to respect the trust and visibility rules we need.",
+      "linked_similar_product_ids": [
+        "xrai_glass",
+        "mentra_captions"
+      ],
+      "linked_proposal_ids": [],
+      "linked_direction_rows": [
+        "phone_first_runtime",
+        "subtitle_first_trust_visible_experience"
+      ],
+      "truth_posture": "bounded_recommendation_truth",
+      "revisable": true
+    }
+  ],
+  "recommended_buy_or_source_rows": [
+    {
+      "row_id": "buy_or_source_display_hardware_class",
+      "label": "Buy or source a lightweight display-hardware class before opening custom optics work",
+      "recommendation_type": "buy_or_source",
+      "scope": "early display hardware and HUD experiments",
+      "why_this_recommendation": "Current parts and pricing posture are still package-level only, so the project should source a lightweight display-hardware class before inventing custom optics or a fully custom display subsystem.",
+      "what_it_is_based_on": "Grounded in Vuzix Z100 as a realistic partial substitute, plus current parts readiness and pricing posture.",
+      "why_not_the_other_paths": "Direct reuse is too literal because the final target is not the same shape; inspiration-only is too weak because the project does need a concrete prototype display path; custom optics now is over-invention.",
+      "budget_tier_effect": "Mixed-tier compromise that contains early cost and integration risk better than custom display hardware.",
+      "trust_or_usability_effect": "Useful for prototype buildability, but still not a discreet consumer-tier answer.",
+      "fit_for_current_project": "prototype_only_useful",
+      "what_this_should_reduce": "Custom optics scope, ambiguous display hardware work, and weakly grounded part invention.",
+      "what_this_should_preserve": "Prototype buildability and faster display-path evidence.",
+      "what_would_change_this_recommendation": "Change this if a materially simpler cheaper sourced display path appears, or if the project gains strong enough component signals to justify opening custom optics as a real invention front.",
+      "linked_similar_product_ids": [
+        "vuzix_z100"
+      ],
+      "linked_proposal_ids": [],
+      "linked_direction_rows": [
+        "hardware_boundary_first",
+        "prototype_buildability_over_product_claim"
+      ],
+      "truth_posture": "bounded_recommendation_truth",
+      "revisable": true
+    }
+  ],
+  "inspiration_only_rows": [
+    {
+      "row_id": "inspiration_ambitious_optics",
+      "label": "Treat ambitious immersive optics as inspiration only",
+      "recommendation_type": "inspiration_only",
+      "scope": "high-ambition optics and integrated compute",
+      "why_this_recommendation": "Immersive AR optics and richer dedicated hardware are useful cautionary references, not current project recommendations.",
+      "what_it_is_based_on": "Grounded in XREAL One Pro and current harsh cost posture.",
+      "why_not_the_other_paths": "Reuse, buy, or adapt would all falsely imply that this ambition fits the current tier and prototype posture.",
+      "budget_tier_effect": "Above the intended budget tier and likely to pull the project upward fast.",
+      "trust_or_usability_effect": "Weak trust and social-fit carryover for the current subtitle-first assistive posture.",
+      "fit_for_current_project": "not_currently_fit",
+      "what_this_should_reduce": "Quiet scope drift toward heavier optics and on-glasses compute.",
+      "what_this_should_preserve": "A clear ceiling on what the current project should not quietly become.",
+      "what_would_change_this_recommendation": "Change this only if the project intentionally shifts toward immersive AR ambition and accepts the cost, bulk, and realism consequences.",
+      "linked_similar_product_ids": [
+        "xreal_one_pro"
+      ],
+      "linked_proposal_ids": [],
+      "linked_direction_rows": [
+        "phone_first_runtime"
+      ],
+      "truth_posture": "bounded_recommendation_truth",
+      "revisable": true
+    },
+    {
+      "row_id": "inspiration_camera_first_ai_glasses",
+      "label": "Treat mainstream camera-first AI glasses as caution, not as the target pattern",
+      "recommendation_type": "inspiration_only",
+      "scope": "mainstream consumer smart-glasses posture",
+      "why_this_recommendation": "Generic consumer AI-glasses behavior already exists, and copying it would weaken trust differentiation instead of strengthening the current path.",
+      "what_it_is_based_on": "Grounded in Ray-Ban Meta and the project\u2019s current trust-visible subtitle-first direction.",
+      "why_not_the_other_paths": "Buying or adapting this posture would import the wrong trust and social assumptions; inventing a copy would just erase differentiation.",
+      "budget_tier_effect": "Medium-tier mainstream reference, but misaligned with the current assistive trust posture.",
+      "trust_or_usability_effect": "High camera/privacy pressure relative to the current wearer-visible assistive goal.",
+      "fit_for_current_project": "caution_only",
+      "what_this_should_reduce": "Drift into undifferentiated camera/audio AI-glasses imitation.",
+      "what_this_should_preserve": "A clear reminder that mainstream smart-glasses posture is not the same as the current project problem.",
+      "what_would_change_this_recommendation": "Change this only if the operator deliberately changes the trust posture and accepts the camera-first implications.",
+      "linked_similar_product_ids": [
+        "ray_ban_meta"
+      ],
+      "linked_proposal_ids": [],
+      "linked_direction_rows": [
+        "subtitle_first_trust_visible_experience"
+      ],
+      "truth_posture": "bounded_recommendation_truth",
+      "revisable": true
+    }
+  ],
+  "true_invention_focus_rows": [
+    {
+      "row_id": "invent_trust_visible_assistive_posture",
+      "label": "Invent the trust-visible subtitle-first assistive posture here",
+      "recommendation_type": "invent_here",
+      "scope": "trust-preserving assistive behavior and visible subtitle rules",
+      "why_this_recommendation": "This is the main area where current external options are not good enough in our trust, visibility, and prototype-discipline shape.",
+      "what_it_is_based_on": "Grounded in the current favored subtitle-first direction, harsh cost realism, and the gap between existing caption/display references and our trust posture.",
+      "why_not_the_other_paths": "Pure reuse would collapse the project into existing caption products; buying or integrating alone would not answer the project\u2019s trust and review discipline questions.",
+      "budget_tier_effect": "Keeps custom effort narrow and avoids expanding invention into every subsystem at once.",
+      "trust_or_usability_effect": "Preserves the real differentiator: trust-visible assistive behavior rather than generic captions-on-glasses novelty.",
+      "fit_for_current_project": "strong_current_focus",
+      "what_this_should_reduce": "Wasteful custom work on already-solved captioning and hardware categories.",
+      "what_this_should_preserve": "The project\u2019s real differentiation and honest review value.",
+      "what_would_change_this_recommendation": "Change this if external solutions start fitting the same trust-visible assistive posture without forcing tier or product-credibility mismatches.",
+      "linked_similar_product_ids": [
+        "xrai_glass",
+        "mentra_captions",
+        "even_realities_g1"
+      ],
+      "linked_proposal_ids": [],
+      "linked_direction_rows": [
+        "subtitle_first_trust_visible_experience",
+        "prototype_buildability_over_product_claim"
+      ],
+      "truth_posture": "bounded_recommendation_truth",
+      "revisable": true
+    },
+    {
+      "row_id": "invent_budget_disciplined_packaging_compromise",
+      "label": "Invent only the budget-disciplined packaging compromise that existing references do not solve",
+      "recommendation_type": "invent_here",
+      "scope": "phone-first discreet prototype packaging compromise",
+      "why_this_recommendation": "Existing references do not solve our exact mix of discreetness pressure, phone-first runtime, medium-tier intent, and prototype honesty.",
+      "what_it_is_based_on": "Grounded in current budget misalignment, parts posture, and the gap between existing references and the current target tier.",
+      "why_not_the_other_paths": "Pure buying or copying would inherit the wrong tier or trust shape; inspiration-only would not create a buildable path.",
+      "budget_tier_effect": "Narrow invention here can pull cost pressure down if it avoids overbuilding the rest of the system.",
+      "trust_or_usability_effect": "Preserves honest prototype buildability without pretending the current package is product-credible.",
+      "fit_for_current_project": "bounded_current_fit",
+      "what_this_should_reduce": "Upward cost drift from reinventing every subsystem simultaneously.",
+      "what_this_should_preserve": "A narrower custom boundary where packaging tradeoffs actually matter.",
+      "what_would_change_this_recommendation": "Change this if stronger part signals or a clearly better sourced package path removes the need for custom packaging compromise work.",
+      "linked_similar_product_ids": [
+        "even_realities_g1",
+        "vuzix_z100"
+      ],
+      "linked_proposal_ids": [],
+      "linked_direction_rows": [
+        "hardware_boundary_first",
+        "phone_first_runtime",
+        "prototype_buildability_over_product_claim"
+      ],
+      "truth_posture": "bounded_recommendation_truth",
+      "revisable": true
+    }
+  ],
+  "do_not_reinvent_recommendations": [
+    "Reuse existing caption and speaker-label interaction patterns instead of inventing a fresh caption grammar.",
+    "Integrate an existing phone-linked caption-stack class before custom-building the full caption pipeline.",
+    "Buy or source a lightweight display-hardware class before opening custom optics work.",
+    "Treat ambitious immersive optics and mainstream camera-first AI glasses as cautionary references, not as current build targets."
+  ],
+  "why_these_recommendations_are_current": [
+    "Similar-products review is now strong enough to convert several novelty claims into reuse, adaptation, integration, or buy-first recommendations.",
+    "Current cost posture remains `stop_if_cost_target_matters` and current budget posture remains `mixed`, so over-invention is now a first-order risk rather than a later refinement.",
+    "Parts posture is still `package_direction_only`, which makes custom optics, custom hardware, and full-stack invention weaker than sourcing or adaptation for several fronts.",
+    "The favored direction is still boundary-first hardware, phone-first runtime, touch-first interaction, and prototype buildability over product narration."
+  ],
+  "what_this_should_change_in_project_judgment": [
+    "Proposal lifecycle can now reject or narrow ideas because reuse, adaptation, or sourcing is better than fresh invention on that front.",
+    "Exploratory ideas should be reframed toward adaptation or integration first when the underlying capability is already solved elsewhere.",
+    "Direction of travel should now read as narrower invention: trust-visible assistive behavior and packaging compromise matter more than reinventing captions or display-hardware categories.",
+    "Build and realization work should bias toward sourced display-path evidence and integrated caption-flow classes before opening custom optics or full custom platform scope."
+  ],
+  "what_this_does_not_change": [
+    "This does not make the project product-credible or remove the current cost mismatch.",
+    "This does not replace direction of travel, proposal lifecycle truth, budget-tier posture, or the current working target. Cost signal remains `stop_if_cost_target_matters`.",
+    "This does not turn buy_or_source recommendations into procurement flow; current parts posture is still `package_direction_only` and pricing remains directional.",
+    "This does not make existing products direct substitutes for the current trust, discreetness, or `discreet_consumer_assistive_wearable` target."
+  ],
+  "prototype_vs_product_reuse_note": "Most current reuse, integration, and buy-or-source recommendations improve prototype learning and buildability only. They do not resolve the project\u2019s consumer-tier budget mismatch or make the current path product-credible by themselves.",
+  "trust_posture": {
+    "surface_role": "bounded_reuse_recommendation_surface",
+    "use_state": "current_truth",
+    "authority_scope": "reuse, adapt, integrate, source, inspiration-only, and invent-here recommendation scope only",
+    "trust_reason": "Use this surface as current recommendation truth for where the project should reuse, adapt, integrate, source, or deliberately invent. It sharpens judgment but does not replace direction of travel, budget posture, cost viability, or milestone truth."
+  },
+  "source_authority": {
+    "current_truth_question": "Given current external references and current project posture, where should the project reuse, adapt, integrate, source, or deliberately invent?",
+    "authoritative_surface": "reuse_recommendation_review",
+    "supporting_surfaces": [
+      "similar_products_review",
+      "project_direction_review",
+      "operator_proposal_review",
+      "exploratory_ideas_review",
+      "budget_tier_review",
+      "cost_viability_review",
+      "parts_readiness_review",
+      "pricing_alternatives_review"
+    ]
+  },
+  "source_generated_at": {
+    "similar_products_review": "2026-04-16T10:28:43",
+    "project_direction_review": "2026-04-16T10:28:43",
+    "operator_proposal_review": "2026-04-16T10:28:43",
+    "exploratory_ideas_review": "2026-04-16T10:28:43",
+    "budget_tier_review": "2026-04-16T10:28:43",
+    "cost_viability_review": "2026-04-16T10:28:43",
+    "parts_readiness_review": "2026-04-16T10:28:43",
+    "pricing_alternatives_review": "2026-04-16T10:28:43",
+    "project_expectations": "2026-04-10T09:16:32"
+  },
+  "revisable": true,
+  "updated_at": "2026-04-16T10:28:43"
+}

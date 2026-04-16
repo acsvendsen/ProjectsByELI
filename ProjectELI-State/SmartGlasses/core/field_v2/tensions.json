@@ -1,14 +1,14 @@
 {
   "field": "tensions",
   "version": "eli_v2_phase1",
-  "updated_at": "2026-04-15T21:31:07",
+  "updated_at": "2026-04-16T10:37:45",
   "items": [
     {
       "id": "privacy_vs_usefulness",
       "label": "Privacy vs usefulness",
       "summary": "Helpful assistive behavior should not quietly slide into invasive capture or retention.",
       "pressure": "high",
-      "score": 0.9359
+      "score": 0.94
     },
     {
       "id": "latency_vs_richness",
@@ -22,7 +22,7 @@
       "label": "Discreet UX vs visual clarity",
       "summary": "Display behavior should remain socially acceptable while still being readable in motion and noise.",
       "pressure": "medium",
-      "score": 0.7735
+      "score": 0.7786
     }
   ]
 }

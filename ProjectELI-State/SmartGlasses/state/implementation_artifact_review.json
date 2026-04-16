@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-16T10:16:22",
+  "generated_at": "2026-04-16T10:50:10",
   "allowed_transition_reasons": [
     "no_longer_qualified",
     "moved_to_hold",
@@ -10,6 +10,93 @@
   ],
   "implementation_artifact_candidates": [
     {
+      "artifact_id": "confidence_object_spec-confidence-display",
+      "label": "V1 Confidence Display Format",
+      "artifact_type": "confidence_object_spec",
+      "artifact_type_label": "Confidence Object Spec",
+      "bounded_framing": "What confidence format should V1 use by default during live subtitle support?",
+      "reason": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is grounded.",
+      "addresses": [
+        "What confidence format should V1 use by default during live subtitle support?",
+        "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Discreet UX vs visual clarity, Latency vs richn..."
+      ],
+      "candidate_directions": [
+        "Label Only",
+        "Label + Reason"
+      ],
+      "open_constraints": [
+        "discreet ux vs visual clarity",
+        "latency vs richness",
+        "core deepening over sprawl"
+      ],
+      "relevant_interfaces": [],
+      "candidate_components": [],
+      "escalation_signals": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully lower resistance"
+      ],
+      "source_kind": "pending_v1_decision",
+      "source_domain": "confidence display",
+      "source_action_id": "confidence-display",
+      "grounding_status": "grounded",
+      "repo_surfaces": [],
+      "pressure_score": 0.409,
+      "review_status": "provisional_review_candidate",
+      "provisional": true,
+      "revisable": true,
+      "rank": 3,
+      "linked_decision_id": "v1_confidence_display_format",
+      "linked_decision_label": "V1 Confidence Display Format",
+      "linked_decision_status": "pending_v1_decision",
+      "linked_hold_active": false,
+      "linked_hold_reason": "",
+      "linked_action_judgment": "kill"
+    },
+    {
+      "artifact_id": "visual_layout_rule-visual-hierarchy",
+      "label": "V1 Visual Hierarchy Default",
+      "artifact_type": "visual_layout_rule",
+      "artifact_type_label": "Visual Layout Rule",
+      "bounded_framing": "What should the default visual hierarchy be for V1 overlays during live conversation?",
+      "reason": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is grounded.",
+      "addresses": [
+        "What should the default visual hierarchy be for V1 overlays during live conversation?",
+        "aligns with Real-time subtitle clarity, Low-friction assistance; meets resistance from Discreet UX vs visual clarity; needs counterweight..."
+      ],
+      "candidate_directions": [
+        "Subtitles Dominate",
+        "Balanced Overlay"
+      ],
+      "open_constraints": [
+        "discreet ux vs visual clarity",
+        "core deepening over sprawl"
+      ],
+      "relevant_interfaces": [],
+      "candidate_components": [],
+      "escalation_signals": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully lower resistance"
+      ],
+      "source_kind": "pending_v1_decision",
+      "source_domain": "visual hierarchy",
+      "source_action_id": "visual-hierarchy",
+      "grounding_status": "grounded",
+      "repo_surfaces": [],
+      "pressure_score": 0.371,
+      "review_status": "provisional_review_candidate",
+      "provisional": true,
+      "revisable": true,
+      "rank": 2,
+      "linked_decision_id": "v1_visual_hierarchy_default",
+      "linked_decision_label": "V1 Visual Hierarchy Default",
+      "linked_decision_status": "pending_v1_decision",
+      "linked_hold_active": false,
+      "linked_hold_reason": "",
+      "linked_action_judgment": "kill"
+    },
+    {
       "artifact_id": "visual_layout_rule-subtitle-placement",
       "label": "V1 Default Subtitle Position",
       "artifact_type": "visual_layout_rule",
@@ -18,7 +105,7 @@
       "reason": "This bounded decision question would benefit from a concrete review artifact instead of another abstract reconsideration. subsystem grounding is grounded.",
       "addresses": [
         "What should the default subtitle position behavior be for V1 live use?",
-        "aligns with Real-time subtitle clarity; also addresses under-attended pressure in Discreet UX vs visual clarity; meets resistance from La..."
+        "aligns with Real-time subtitle clarity; meets resistance from Latency vs richness, Discreet UX vs visual clarity; needs counterweight dis..."
       ],
       "candidate_directions": [
         "Stable Default",
@@ -57,12 +144,12 @@
   ],
   "recently_changed_implementation_artifact_candidates": [
     {
-      "artifact_id": "confidence_object_spec-confidence-display",
-      "label": "V1 Confidence Display Format",
-      "artifact_type": "confidence_object_spec",
-      "artifact_type_label": "Confidence Object Spec",
-      "source_action_id": "confidence-display",
-      "source_domain": "confidence display",
+      "artifact_id": "subsystem_breakdown-memory-cache-policy",
+      "label": "V1 Memory/Cache Default",
+      "artifact_type": "subsystem_breakdown",
+      "artifact_type_label": "Subsystem Breakdown",
+      "source_action_id": "memory-cache-policy",
+      "source_domain": "memory/cache policy",
       "source_kind": "pending_v1_decision",
       "previous_review_status": "provisional_review_candidate",
       "current_review_status": "not_currently_in_review",
@@ -74,37 +161,12 @@
       "linked_decision_status": "",
       "replacement_artifact_id": "",
       "replacement_label": "",
-      "grounding_status": "grounded",
+      "grounding_status": "weakly_grounded",
       "linked_action_judgment": "hold_until_new_grounding",
       "linked_hold_active": true,
       "linked_hold_reason": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
       "revisable": true,
-      "transition_at": "2026-04-16T10:16:22"
-    },
-    {
-      "artifact_id": "visual_layout_rule-visual-hierarchy",
-      "label": "V1 Visual Hierarchy Default",
-      "artifact_type": "visual_layout_rule",
-      "artifact_type_label": "Visual Layout Rule",
-      "source_action_id": "visual-hierarchy",
-      "source_domain": "visual hierarchy",
-      "source_kind": "pending_v1_decision",
-      "previous_review_status": "provisional_review_candidate",
-      "current_review_status": "not_currently_in_review",
-      "transition_reason": "moved_to_hold",
-      "transition_summary": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
-      "current_location": "held_pending_grounding",
-      "linked_decision_id": "",
-      "linked_decision_label": "",
-      "linked_decision_status": "",
-      "replacement_artifact_id": "",
-      "replacement_label": "",
-      "grounding_status": "grounded",
-      "linked_action_judgment": "hold_until_new_grounding",
-      "linked_hold_active": true,
-      "linked_hold_reason": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
-      "revisable": true,
-      "transition_at": "2026-04-15T21:31:07"
+      "transition_at": "2026-04-16T10:37:45"
     },
     {
       "artifact_id": "visual_layout_rule-phone-cloud-boundary",
@@ -125,31 +187,6 @@
       "replacement_artifact_id": "",
       "replacement_label": "",
       "grounding_status": "weakly_grounded",
-      "linked_action_judgment": "hold_until_new_grounding",
-      "linked_hold_active": true,
-      "linked_hold_reason": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
-      "revisable": true,
-      "transition_at": "2026-04-15T21:01:08"
-    },
-    {
-      "artifact_id": "subsystem_breakdown-memory-cache-policy",
-      "label": "Memory/Cache Policy",
-      "artifact_type": "subsystem_breakdown",
-      "artifact_type_label": "Subsystem Breakdown",
-      "source_action_id": "memory-cache-policy",
-      "source_domain": "memory/cache policy",
-      "source_kind": "paused_action_review",
-      "previous_review_status": "provisional_review_candidate",
-      "current_review_status": "not_currently_in_review",
-      "transition_reason": "moved_to_hold",
-      "transition_summary": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
-      "current_location": "held_pending_grounding",
-      "linked_decision_id": "",
-      "linked_decision_label": "",
-      "linked_decision_status": "",
-      "replacement_artifact_id": "",
-      "replacement_label": "",
-      "grounding_status": "limited_evidence",
       "linked_action_judgment": "hold_until_new_grounding",
       "linked_hold_active": true,
       "linked_hold_reason": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
@@ -183,9 +220,9 @@
     }
   ],
   "counts": {
-    "implementation_artifact_candidates": 1,
-    "recently_changed_implementation_artifact_candidates": 5,
-    "linked_to_pending_decision": 1
+    "implementation_artifact_candidates": 3,
+    "recently_changed_implementation_artifact_candidates": 3,
+    "linked_to_pending_decision": 3
   },
-  "updated_at": "2026-04-16T10:16:22"
+  "updated_at": "2026-04-16T10:50:10"
 }

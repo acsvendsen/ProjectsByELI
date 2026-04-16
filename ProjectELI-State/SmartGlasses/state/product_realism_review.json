@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-16T10:17:12",
+  "generated_at": "2026-04-16T10:50:55",
   "realism_bands": [
     "concept_only",
     "credible_concept",
@@ -13,7 +13,7 @@
   "why_this_band": "The project is acting like a serious prototype path, but important subsystem and trust gaps still block product-candidate claims. 4 subsystem lane(s) still need attention. Declared intent remains `functional_prototype` / `exploratory`, so stronger product language would be premature. Current cost posture is `product...",
   "anti_gimmick_strengths": [
     "Fresh subsystem grounding exists across 3 areas, so realism is not being judged from narrative alone.",
-    "The active review front is bounded to 1 grounded V1 decision candidate(s) rather than broad speculative scope.",
+    "The active review front is bounded to 3 grounded V1 decision candidate(s) rather than broad speculative scope.",
     "Implementation artifacts remain provisional review drafts instead of being treated as final design truth.",
     "Meaningful unresolved lanes are explicitly held until new grounding appears, which resists fake progress theater."
   ],
@@ -29,7 +29,7 @@
     "Current cost posture `product_tier_mismatch_risk` blocks a credible `discreet_consumer_assistive_wearable` product-candidate claim even if prototype progress continues.",
     "Current cost posture is `product_tier_mismatch_risk` / `target_tier_mismatch`, so product definition should stay prototype-scoped rather than reading as a `discreet_consumer_assistive_wearable` pro...",
     "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.; Ground firmware readiness in explicit touch-input and display-control behavior inst...",
-    "Implementation-package review can stay live for prototype buildability, but current cost posture `product_tier_mismatch_risk` blocks reading it as a `discreet_consumer_assistive_wearable` implement..."
+    "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
   ],
   "missing_for_real_product_path": [
     "Real-product-path language is explicitly blocked by current economic mismatch; prototype-learning value does not rescue a weak consumer-tier cost story.",
@@ -46,7 +46,7 @@
     "status": "mixed",
     "summary": "Hardware Stack is grounded and on track; Wireless Interface, Firmware is still only limited-evidence",
     "key_strengths": [
-      "The hardware stack remains focused on minimal on-glasses compute and a lightweight design, which aligns with the goal of a discreet consumer assistive wearable."
+      "The project remains focused on minimal hardware requirements and discreet design, aligning with the initial constraints."
     ],
     "key_gaps": [
       "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
@@ -83,7 +83,7 @@
     "summary": "Produce something materially useful enough to justify continued build effort before broader product claims.; Current evidence supports a serious prototype path more than a product claim.; Operator intent is still prototype-oriented rather than commercial.;...",
     "key_strengths": [
       "Fresh subsystem grounding exists across 3 areas, so realism is not being judged from narrative alone.",
-      "The active review front is bounded to 1 grounded V1 decision candidate(s) rather than broad speculative scope."
+      "The active review front is bounded to 3 grounded V1 decision candidate(s) rather than broad speculative scope."
     ],
     "key_gaps": [
       "Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.",
@@ -100,13 +100,13 @@
   ],
   "source_generated_at": {
     "project_expectations": "2026-04-10T09:16:32",
-    "project_scorecard": "2026-04-16T10:17:12",
-    "reflect_state": "2026-04-16T10:16:22",
-    "v1_decision_review": "2026-04-16T10:16:22",
-    "draft_artifact_review": "2026-04-16T10:16:22",
-    "project_milestones": "2026-04-16T10:17:12",
-    "cost_viability_review": "2026-04-16T10:17:12"
+    "project_scorecard": "2026-04-16T10:50:55",
+    "reflect_state": "2026-04-16T10:50:10",
+    "v1_decision_review": "2026-04-16T10:50:10",
+    "draft_artifact_review": "2026-04-16T10:50:10",
+    "project_milestones": "2026-04-16T10:50:55",
+    "cost_viability_review": "2026-04-16T10:50:55"
   },
   "revisable": true,
-  "updated_at": "2026-04-16T10:17:12"
+  "updated_at": "2026-04-16T10:50:55"
 }

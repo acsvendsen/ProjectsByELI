@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-16T10:16:22",
+  "generated_at": "2026-04-16T10:50:10",
   "response_path": "/Users/acs/Development/ProjectsByELI/ProjectELI-State/SmartGlasses/state/v1_decision_human_responses.json",
   "allowed_responses": [
     "accept_for_v1",
@@ -9,6 +9,82 @@
   ],
   "pending_v1_decisions": [
     {
+      "decision_id": "v1_confidence_display_format",
+      "label": "V1 Confidence Display Format",
+      "question": "What confidence format should V1 use by default during live subtitle support?",
+      "scope": "v1_default",
+      "action_id": "confidence-display",
+      "action_title": "Confidence Display",
+      "action_domain": "confidence display",
+      "candidate_status": "pending_v1_decision",
+      "candidate_cycle_state": "new_candidate",
+      "grounding_status": "grounded",
+      "feasibility": "feasible_now",
+      "reason": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit V1 options. promoting it to a decision candidate should reduce repeated abstract re-probing. this does not reopen it as an action even though current action judgment is kill.",
+      "options": [
+        {
+          "id": "label_only",
+          "label": "Label Only"
+        },
+        {
+          "id": "label_plus_reason",
+          "label": "Label + Reason"
+        }
+      ],
+      "selected_choice_id": "label_plus_reason",
+      "selected_choice_label": "Label + Reason",
+      "human_response": "",
+      "human_response_at": "",
+      "human_response_note": "",
+      "human_response_choice_id": "",
+      "human_response_choice_label": "",
+      "revisable": true,
+      "revision_signals": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully lower resistance"
+      ],
+      "confidence": 0.792
+    },
+    {
+      "decision_id": "v1_visual_hierarchy_default",
+      "label": "V1 Visual Hierarchy Default",
+      "question": "What should the default visual hierarchy be for V1 overlays during live conversation?",
+      "scope": "v1_default",
+      "action_id": "visual-hierarchy",
+      "action_title": "Visual Hierarchy",
+      "action_domain": "visual hierarchy",
+      "candidate_status": "pending_v1_decision",
+      "candidate_cycle_state": "new_candidate",
+      "grounding_status": "grounded",
+      "feasibility": "feasible_now",
+      "reason": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit V1 options. promoting it to a decision candidate should reduce repeated abstract re-probing. this does not reopen it as an action even though current action judgment is kill.",
+      "options": [
+        {
+          "id": "subtitles_dominate",
+          "label": "Subtitles Dominate"
+        },
+        {
+          "id": "balanced_overlay",
+          "label": "Balanced Overlay"
+        }
+      ],
+      "selected_choice_id": "subtitles_dominate",
+      "selected_choice_label": "Subtitles Dominate",
+      "human_response": "",
+      "human_response_at": "",
+      "human_response_note": "",
+      "human_response_choice_id": "",
+      "human_response_choice_label": "",
+      "revisable": true,
+      "revision_signals": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully lower resistance"
+      ],
+      "confidence": 0.791
+    },
+    {
       "decision_id": "v1_default_subtitle_position",
       "label": "V1 Default Subtitle Position",
       "question": "What should the default subtitle position behavior be for V1 live use?",
@@ -17,10 +93,10 @@
       "action_title": "Subtitle Placement",
       "action_domain": "subtitle placement",
       "candidate_status": "pending_v1_decision",
-      "candidate_cycle_state": "persistent_candidate",
+      "candidate_cycle_state": "new_candidate",
       "grounding_status": "grounded",
       "feasibility": "feasible_now",
-      "reason": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit V1 options. promoting it to a decision candidate should reduce repeated abstract re-probing. this does not reopen it as an action even though current action judgment is kill. it is already a pending V1 decision candidate, so later cycles should keep the question bounded unless grounding changes.",
+      "reason": "Recurring V1-shaping probe now has enough repeated support to be surfaced as an explicit pending V1 decision. subsystem grounding is grounded. reality currently reads feasible now. the choice is bounded to 2 explicit V1 options. promoting it to a decision candidate should reduce repeated abstract re-probing. this does not reopen it as an action even though current action judgment is kill.",
       "options": [
         {
           "id": "stable_default",
@@ -50,60 +126,6 @@
   ],
   "recently_changed_v1_decisions": [
     {
-      "decision_id": "v1_confidence_display_format",
-      "label": "V1 Confidence Display Format",
-      "action_id": "confidence-display",
-      "action_title": "Confidence Display",
-      "action_domain": "confidence display",
-      "previous_candidate_status": "pending_v1_decision",
-      "current_candidate_status": "held_pending_grounding",
-      "transition_reason": "moved_to_hold",
-      "transition_summary": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
-      "current_location": "held_pending_grounding",
-      "parked_in": "held_pending_grounding",
-      "replacement_decision_id": "",
-      "replacement_label": "",
-      "human_response": "",
-      "human_response_at": "",
-      "human_response_note": "",
-      "human_response_choice_label": "",
-      "revisable": true,
-      "revision_signals": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully stronger architectural pull",
-        "meaningfully lower resistance"
-      ],
-      "transition_at": "2026-04-16T10:16:22"
-    },
-    {
-      "decision_id": "v1_visual_hierarchy_default",
-      "label": "V1 Visual Hierarchy Default",
-      "action_id": "visual-hierarchy",
-      "action_title": "Visual Hierarchy",
-      "action_domain": "visual hierarchy",
-      "previous_candidate_status": "pending_v1_decision",
-      "current_candidate_status": "held_pending_grounding",
-      "transition_reason": "moved_to_hold",
-      "transition_summary": "still meaningful, but not newly actionable yet; repo grounding and field evidence have not materially improved; resurfacing is repeating without better conditions",
-      "current_location": "held_pending_grounding",
-      "parked_in": "held_pending_grounding",
-      "replacement_decision_id": "",
-      "replacement_label": "",
-      "human_response": "",
-      "human_response_at": "",
-      "human_response_note": "",
-      "human_response_choice_label": "",
-      "revisable": true,
-      "revision_signals": [
-        "real repo change or stronger repo grounding",
-        "a new source type such as runtime truth or code-config evidence",
-        "meaningfully stronger architectural pull",
-        "meaningfully lower resistance"
-      ],
-      "transition_at": "2026-04-15T21:31:07"
-    },
-    {
       "decision_id": "v1_memory_cache_default",
       "label": "V1 Memory/Cache Default",
       "action_id": "memory-cache-policy",
@@ -128,19 +150,19 @@
         "meaningfully stronger architectural pull",
         "meaningfully lower resistance"
       ],
-      "transition_at": "2026-04-15T14:56:12"
+      "transition_at": "2026-04-16T10:37:45"
     }
   ],
   "counts": {
-    "pending_v1_decisions": 1,
-    "recently_changed_v1_decisions": 3,
+    "pending_v1_decisions": 3,
+    "recently_changed_v1_decisions": 1,
     "human_responded": 0
   },
   "sync_metadata": {
     "surface": "v1_decision_review",
-    "cycle_id": "20260416T101622",
-    "generated_from_cycle": "20260416T101622",
-    "generated_at": "2026-04-16T10:16:22",
+    "cycle_id": "20260416T105010",
+    "generated_from_cycle": "20260416T105010",
+    "generated_at": "2026-04-16T10:50:10",
     "depends_on": [
       "artifact_emission_readiness",
       "draft_artifact_review",
@@ -149,17 +171,17 @@
     "checked_against": [
       {
         "surface": "artifact_emission_readiness",
-        "generated_at": "2026-04-16T10:16:22",
+        "generated_at": "2026-04-16T10:50:10",
         "comparison_status": "nearby"
       },
       {
         "surface": "draft_artifact_review",
-        "generated_at": "2026-04-16T10:16:22",
+        "generated_at": "2026-04-16T10:50:10",
         "comparison_status": "nearby"
       },
       {
         "surface": "reflect_state",
-        "generated_at": "2026-04-16T10:11:15",
+        "generated_at": "2026-04-16T10:46:05",
         "comparison_status": "linked_surface_older"
       }
     ],
@@ -169,5 +191,5 @@
     "explained_differences": [],
     "trust_reason": "This file is recent enough to use provisionally, but linked review surfaces are not yet close enough in time to treat as one settled comparison set."
   },
-  "updated_at": "2026-04-16T10:16:22"
+  "updated_at": "2026-04-16T10:50:10"
 }

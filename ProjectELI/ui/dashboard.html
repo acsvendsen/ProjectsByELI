@@ -1534,6 +1534,7 @@
           <article class="steering-card wide" id="steeringIdeas"></article>
           <article class="steering-card wide" id="steeringOperatorProposals"></article>
           <article class="steering-card wide" id="steeringSimilarity"></article>
+          <article class="steering-card wide" id="steeringReuse"></article>
           <article class="steering-card wide" id="steeringMilestones"></article>
         </div>
         <div class="topology-panel" id="projectTopologyPanel" style="display:none">
@@ -3027,6 +3028,7 @@
       const ideas = status.exploratory_ideas_review || {};
       const proposals = status.operator_proposal_review || {};
       const similarity = status.similar_products_review || {};
+      const reuse = status.reuse_recommendation_review || {};
       const budget = status.budget_tier_review || {};
       const cost = status.cost_viability_review || {};
       const verification = status.verification_summary || {};
@@ -3050,6 +3052,9 @@
       const proposalTruthOwner = (verification.current_truth_sources || []).find(row =>
         row.source_surface === "operator_proposal_review"
       );
+      const reuseTruthOwner = (verification.current_truth_sources || []).find(row =>
+        row.question === "Reuse / do-not-reinvent recommendations"
+      );
       const ideaTruthOwner = (verification.supporting_context_sources || []).find(row =>
         row.question === "Exploratory ideas being incubated"
       );
@@ -3062,6 +3067,7 @@
       const ideasSection = sections.find(section => section.section_id === "ideas_im_exploring") || {};
       const proposalsSection = sections.find(section => section.section_id === "operator_proposals") || {};
       const similaritySection = sections.find(section => section.section_id === "similar_adjacent_products") || {};
+      const reuseSection = sections.find(section => section.section_id === "reuse_do_not_reinvent") || {};
       const targetTitle = boundaries.current_milestone_target_title || boundaries.target_milestone_title || "";
       const targetWhy = boundaries.why_this_target_now || boundaries.current_boundary_summary || "";
       const targetUnlocks = (boundaries.what_unlocks_if_reviewed || []).slice(0, 2);
@@ -3192,6 +3198,39 @@
                   <div>${truncateText(row.why_it_is_relevant || row.relationship_to_current_project || "", 220)}</div>
                   ${row.why_it_might_reduce_reinvention ? `<div class="footer"><strong>Why it matters:</strong> ${truncateText(row.why_it_might_reduce_reinvention, 220)}</div>` : ``}
                   ${row.what_it_should_not_be_overread_as ? `<div class="footer"><strong>Do not overread:</strong> ${truncateText(row.what_it_should_not_be_overread_as, 220)}</div>` : ``}
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      };
+      const reuseRows = {
+        reuse: (reuse.recommended_reuse_rows || []).slice(0, 2),
+        adapt: (reuse.recommended_adaptation_rows || []).slice(0, 2),
+        integrate: (reuse.recommended_integration_rows || []).slice(0, 2),
+        buy: (reuse.recommended_buy_or_source_rows || []).slice(0, 2),
+        invent: (reuse.true_invention_focus_rows || []).slice(0, 2)
+      };
+      const renderReuseBucket = (title, rows) => {
+        if (!rows.length) return "";
+        return `
+          <div class="steering-group">
+            <div class="steering-group-title">${title}</div>
+            <div class="steering-list">
+              ${rows.map(row => `
+                <div class="steering-row">
+                  <div class="steering-row-head">
+                    <strong>${row.label || "Recommendation"}</strong>
+                    <div class="steering-row-meta">
+                      ${row.recommendation_type ? `<span class="mini-pill ${row.recommendation_type}">${humanizeToken(row.recommendation_type)}</span>` : ``}
+                      ${row.fit_for_current_project ? `<span class="mini-pill ${row.fit_for_current_project}">${humanizeToken(row.fit_for_current_project)}</span>` : ``}
+                      ${row.budget_tier_effect ? `<span class="mini-pill">${truncateText(row.budget_tier_effect, 44)}</span>` : ``}
+                    </div>
+                  </div>
+                  <div>${truncateText(row.why_this_recommendation || row.what_it_is_based_on || "", 220)}</div>
+                  ${row.why_not_the_other_paths ? `<div class="footer"><strong>Why not the other paths:</strong> ${truncateText(row.why_not_the_other_paths, 220)}</div>` : ``}
+                  ${row.what_this_should_reduce ? `<div class="footer"><strong>Should reduce:</strong> ${truncateText(row.what_this_should_reduce, 220)}</div>` : ``}
+                  ${row.what_this_should_preserve ? `<div class="footer"><strong>Should preserve:</strong> ${truncateText(row.what_this_should_preserve, 220)}</div>` : ``}
                 </div>
               `).join("")}
             </div>
@@ -3433,6 +3472,35 @@
         ${(similarity.what_this_does_not_change || []).length ? `<div class="footer"><strong>Does not change:</strong> ${truncateText(similarity.what_this_does_not_change[0], 240)}</div>` : ``}
         ${similarityTruthOwner ? `<div class="footer"><strong>Supporting surface:</strong> ${similarityTruthOwner.source_surface}</div>` : ``}
         ${similaritySection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(similaritySection.purpose, 220)}</div>` : ``}
+      `;
+
+      document.getElementById("steeringReuse").innerHTML = `
+        <div class="verification-heading">${reuseSection.title || "Reuse / Do Not Reinvent"}</div>
+        <div class="mini-pills">
+          ${reuse.trust_posture?.use_state ? `<span class="mini-pill ${reuse.trust_posture.use_state}">${humanizeToken(reuse.trust_posture.use_state)}</span>` : ``}
+          <span class="mini-pill reuse">Reuse</span>
+          <span class="mini-pill adapt">Adapt</span>
+          <span class="mini-pill buy_or_source">Buy / source</span>
+          <span class="mini-pill invent_here">Invent here</span>
+        </div>
+        <div class="steering-copy">${reuse.reuse_recommendation_summary || "No bounded reuse recommendation is available yet."}</div>
+        ${
+          reuseRows.reuse.length || reuseRows.adapt.length || reuseRows.integrate.length || reuseRows.buy.length || reuseRows.invent.length
+            ? `<div class="steering-groups">
+                ${renderReuseBucket("Strongest reuse", reuseRows.reuse)}
+                ${renderReuseBucket("Strongest adaptation", reuseRows.adapt)}
+                ${renderReuseBucket("Integrate / source", [...reuseRows.integrate, ...reuseRows.buy].slice(0, 3))}
+                ${renderReuseBucket("True invention focus", reuseRows.invent)}
+              </div>`
+            : `<div class="steering-empty">No current reuse or invention recommendation is strong enough to surface.</div>`
+        }
+        ${(reuse.do_not_reinvent_recommendations || []).length ? `<div class="footer"><strong>Do not reinvent:</strong> ${truncateText(reuse.do_not_reinvent_recommendations[0], 240)}</div>` : ``}
+        ${(reuse.what_this_should_change_in_project_judgment || []).length ? `<div class="footer"><strong>Judgment impact:</strong> ${truncateText(reuse.what_this_should_change_in_project_judgment[0], 240)}</div>` : ``}
+        ${(reuse.why_these_recommendations_are_current || []).length ? `<div class="footer"><strong>Why now:</strong> ${truncateText(reuse.why_these_recommendations_are_current[0], 240)}</div>` : ``}
+        ${(reuse.what_this_does_not_change || []).length ? `<div class="footer"><strong>Does not change:</strong> ${truncateText(reuse.what_this_does_not_change[0], 240)}</div>` : ``}
+        ${reuse.prototype_vs_product_reuse_note ? `<div class="footer"><strong>Prototype vs product:</strong> ${truncateText(reuse.prototype_vs_product_reuse_note, 240)}</div>` : ``}
+        ${reuseTruthOwner ? `<div class="footer"><strong>Current truth owner:</strong> ${reuseTruthOwner.source_surface}</div>` : ``}
+        ${reuseSection.purpose ? `<div class="footer"><strong>Why this section exists:</strong> ${truncateText(reuseSection.purpose, 220)}</div>` : ``}
       `;
 
       document.getElementById("steeringMilestones").innerHTML = `
