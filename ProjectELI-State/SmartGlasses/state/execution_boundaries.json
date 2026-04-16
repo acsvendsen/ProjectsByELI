@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-16T10:50:55",
+  "generated_at": "2026-04-16T11:18:27",
   "working_mode": "until_operator_decision_needed",
   "target_milestone_id": "implementation_package_review",
   "target_milestone_title": "Implementation Package Review",
@@ -9,13 +9,13 @@
   "review_cadence": "at_next_reviewable_milestone_or_operator_decision",
   "default_stop_conditions": [
     "Pause if another cycle does not add materially new grounding on Wireless Interface, Firmware, Memory System; repeating the same blocker posture is not a valid reason to continue. Package-only parts posture and directional-only pricing are not enough to just...",
-    "Pause when build-facing continuation depends on stale implementation-artifact history instead of fresher current-truth state. Implementation artifact review is close enough to current reflect state to use as bounded supporting context.",
+    "Pause when build-facing continuation depends on stale implementation-artifact history instead of fresher current-truth state. Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history.",
     "Stop product-shaped continuation if the `discreet_consumer_assistive_wearable` target still matters. Cost signal is `stop_if_cost_target_matters` and pricing fit is `no_candidate_currently_credible_for_target_tier`.",
     "Implementation Package Review is already `ready_for_review`; more internal cycling should not be treated as a substitute for review."
   ],
   "pause_conditions": [
     "Pause if another cycle does not add materially new grounding on Wireless Interface, Firmware, Memory System; repeating the same blocker posture is not a valid reason to continue. Package-only parts posture and directional-only pricing are not enough to just...",
-    "Pause when build-facing continuation depends on stale implementation-artifact history instead of fresher current-truth state. Implementation artifact review is close enough to current reflect state to use as bounded supporting context.",
+    "Pause when build-facing continuation depends on stale implementation-artifact history instead of fresher current-truth state. Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history.",
     "Pause when parts readiness stays package-only and pricing stays directional-only without any stronger component signal or subsystem grounding shift.",
     "Pause autonomous continuation when operator review or milestone review is the actual bottleneck rather than new grounding."
   ],
@@ -28,7 +28,7 @@
     "Pending V1 decision(s) now gate progress: V1 Confidence Display Format, V1 Visual Hierarchy Default.",
     "Operator intent tightening is now required before stronger product-shaped continuation is honest under the current cost posture."
   ],
-  "staleness_stop_condition": "Pause when build-facing continuation depends on stale implementation-artifact history instead of fresher current-truth state. Implementation artifact review is close enough to current reflect state to use as bounded supporting context.",
+  "staleness_stop_condition": "Pause when build-facing continuation depends on stale implementation-artifact history instead of fresher current-truth state. Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history.",
   "no_new_grounding_stop_condition": "Pause if another cycle does not add materially new grounding on Wireless Interface, Firmware, Memory System; repeating the same blocker posture is not a valid reason to continue. Package-only parts posture and directional-only pricing are not enough to just...",
   "cost_stop_condition": "Stop product-shaped continuation if the `discreet_consumer_assistive_wearable` target still matters. Cost signal is `stop_if_cost_target_matters` and pricing fit is `no_candidate_currently_credible_for_target_tier`.",
   "current_boundary_summary": "Work only until the next operator-review boundary around Implementation Package Review. Pause when no new grounding appears. Stop product-shaped continuation if the current cost target still matters.",
@@ -88,14 +88,14 @@
     "subsystem_truth": "project_scorecard"
   },
   "source_generated_at": {
-    "project_milestones": "2026-04-16T10:50:55",
-    "cost_viability_review": "2026-04-16T10:50:55",
-    "parts_readiness_review": "2026-04-16T10:50:55",
-    "pricing_alternatives_review": "2026-04-16T10:50:55",
+    "project_milestones": "2026-04-16T11:18:27",
+    "cost_viability_review": "2026-04-16T11:18:27",
+    "parts_readiness_review": "2026-04-16T11:18:27",
+    "pricing_alternatives_review": "2026-04-16T11:18:27",
     "v1_decision_review": "2026-04-16T10:50:10",
-    "project_scorecard": "2026-04-16T10:50:55",
+    "project_scorecard": "2026-04-16T10:55:50",
     "implementation_artifact_review": "2026-04-16T10:50:10"
   },
   "revisable": true,
-  "updated_at": "2026-04-16T10:50:55"
+  "updated_at": "2026-04-16T11:18:27"
 }

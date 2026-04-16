@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-16T10:50:55",
+  "generated_at": "2026-04-16T11:18:27",
   "bom_readiness_bands": [
     "not_warranted",
     "early_subsystem_bom_only",
@@ -33,7 +33,7 @@
     "Firmware later-stage package"
   ],
   "blocked_by_unresolved_choices": [
-    "Implementation artifact review is close enough to current reflect state to use as bounded supporting context.",
+    "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history.",
     "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes.",
     "Ground firmware readiness in explicit touch-input and display-control behavior instead of inferring it from project intent."
   ],
@@ -62,17 +62,17 @@
     "overall_sync_status": "settling",
     "overall_trust_status": "provisional",
     "scorecard_use": "current_truth",
-    "artifact_review_use": "provisional_context"
+    "artifact_review_use": "stale_context"
   },
   "source_generated_at": {
     "project_expectations": "2026-04-10T09:16:32",
-    "project_milestones": "2026-04-16T10:50:10",
-    "product_realism_review": "2026-04-16T10:50:10",
-    "project_scorecard": "2026-04-16T10:50:55",
+    "project_milestones": "2026-04-16T10:50:55",
+    "product_realism_review": "2026-04-16T10:50:55",
+    "project_scorecard": "2026-04-16T10:55:50",
     "implementation_artifact_review": "2026-04-16T10:50:10",
     "artifact_emission_readiness": "2026-04-16T10:50:10",
     "draft_artifact_review": "2026-04-16T10:50:10"
   },
   "revisable": true,
-  "updated_at": "2026-04-16T10:50:55"
+  "updated_at": "2026-04-16T11:18:27"
 }

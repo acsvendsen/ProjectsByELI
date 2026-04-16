@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-16T10:50:55",
+  "generated_at": "2026-04-16T11:18:27",
   "summary": "Current UI planning warrants Project Creation, Project Overview, Review & Decisions, Build & Realization, Subsystems & Workstreams, Extensions & Agents, Verification & Audit. Keep project creation visible while intent remains tentative, keep review surfaces bounded and non-final, let build-oriented pages emerge only...",
   "project_pages": [
     {
@@ -75,6 +75,7 @@
         "exploratory_ideas_review",
         "operator_proposal_review",
         "similar_products_review",
+        "reuse_recommendation_review",
         "project_topology_view",
         "product_realism_review",
         "project_expectations",
@@ -170,6 +171,19 @@
           "hide_when": "Hide when no bounded external comparison is strong enough to improve project judgment."
         },
         {
+          "section_id": "reuse_do_not_reinvent",
+          "title": "Reuse / Do Not Reinvent",
+          "purpose": "Show where the project should reuse, adapt, integrate, source, treat as inspiration only, or deliberately invent instead of flattening everything into custom work.",
+          "driven_by_sources": [
+            "reuse_recommendation_review",
+            "similar_products_review",
+            "project_direction_review",
+            "budget_tier_review"
+          ],
+          "show_when": "Comparison has matured into current reuse, adaptation, sourcing, and invention recommendations.",
+          "hide_when": "Hide when external comparison is still too weak to support bounded reuse or invention guidance."
+        },
+        {
           "section_id": "trust_and_source_authority",
           "title": "Trust & Source Authority",
           "purpose": "Show which source currently owns the truth for this page and what remains supporting context.",
@@ -192,19 +206,6 @@
           ],
           "show_when": "The project now has enough differentiated fronts that an interconnected overview is more honest than a disconnected card-only view.",
           "hide_when": "Hide only if the project is too small or too flat for a topology layer to add legibility."
-        },
-        {
-          "section_id": "execution_boundaries",
-          "title": "Current Working Target",
-          "purpose": "Show the one current milestone target, why it is active now, what it could unlock, what blocks it, and when ELI should escalate instead of continuing.",
-          "driven_by_sources": [
-            "execution_boundaries",
-            "execution_resume",
-            "project_milestones",
-            "cost_viability_review"
-          ],
-          "show_when": "No explicit deadline exists and milestone, cost, or grounding posture is strong enough that execution must be bounded operationally.",
-          "hide_when": "Hide only if the project truly has no meaningful execution boundary to explain."
         }
       ],
       "show_when": "Always show once the project has enough structure for steering and trust posture.",
@@ -622,6 +623,12 @@
       "withhold_when": "No bounded external comparison adds judgment value beyond the current internal review surfaces."
     },
     {
+      "page_id": "project_overview",
+      "section_id": "reuse_do_not_reinvent",
+      "emerge_when": "ELI has enough comparison and current posture truth to recommend where to reuse, adapt, source, integrate, or deliberately invent.",
+      "withhold_when": "External comparison is still too weak or too shallow to justify bounded recommendation rows."
+    },
+    {
       "page_id": "review_and_decisions",
       "section_id": "reviewable_now",
       "emerge_when": "A pending decision, emitted draft, or ready-for-review milestone is materially live.",
@@ -638,12 +645,6 @@
       "section_id": "component_package_readiness",
       "emerge_when": "Component-package readiness is strong enough to support a build-oriented section.",
       "withhold_when": "BOM posture is still `not_warranted` and realization detail would be speculative."
-    },
-    {
-      "page_id": "build_or_realization",
-      "section_id": "parts_readiness",
-      "emerge_when": "The operator needs an explicit answer about whether the current state supports only package placeholders or actual part suggestions.",
-      "withhold_when": "Build posture is too weak for any honest package or part readiness view."
     }
   ],
   "source_surfaces": [
@@ -658,92 +659,92 @@
       "surface_id": "execution_resume",
       "role": "operational_resume",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-16T10:50:55",
+      "generated_at": "2026-04-16T11:18:27",
       "why_it_matters": "Carries the operator-facing current-truth summary, active review front, held lanes, blockers, and next step."
     },
     {
       "surface_id": "project_milestones",
       "role": "milestone_gate",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-16T10:50:55",
+      "generated_at": "2026-04-16T11:18:27",
       "why_it_matters": "Keeps reviewability tied to readiness bands, blockers, and approval state rather than vague progress."
     },
     {
       "surface_id": "product_realism_review",
       "role": "realism_gate",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-16T10:50:55",
+      "generated_at": "2026-04-16T11:18:27",
       "why_it_matters": "Constrains product-language and anti-gimmick posture using grounded realism judgment."
     },
     {
       "surface_id": "cost_viability_review",
       "role": "economic_viability",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-16T10:50:55",
+      "generated_at": "2026-04-16T11:18:27",
       "why_it_matters": "Current hardware, packaging, and subsystem pressure already look mismatched to a discreet consumer-tier wearable cost story. Wireless and firmware gaps still add likely hidden cost pressure. Declared intent remains `f..."
     },
     {
       "surface_id": "budget_tier_review",
       "role": "budget_tier_posture",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-16T10:50:55",
+      "generated_at": "2026-04-16T11:18:27",
       "why_it_matters": "Current budget posture is `mixed` against intended posture `medium`. Boundary-first hardware, phone-first runtime, and stripped prototype packaging keep the learning path closer to low or medium tiers, but current wir..."
     },
     {
       "surface_id": "project_scorecard",
       "role": "subsystem_truth",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-16T10:50:55",
+      "generated_at": "2026-04-16T10:55:50",
       "why_it_matters": "The scorecard is fresh enough to use as current subsystem-readiness context."
     },
     {
       "surface_id": "component_package_review",
       "role": "realization_readiness",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-16T10:50:55",
+      "generated_at": "2026-04-16T11:18:27",
       "why_it_matters": "A concrete part list is still premature, but a bounded subsystem-level BOM frame is now warranted to improve buildability and package thinking without pretending the parts are settled."
     },
     {
       "surface_id": "parts_readiness_review",
       "role": "parts_readiness",
       "trust_use": "provisional_context",
-      "generated_at": "2026-04-16T10:50:55",
+      "generated_at": "2026-04-16T11:18:27",
       "why_it_matters": "Package-level suggestions are warranted now, but no grounded component-shortlist or equivalent implementation artifact justifies stronger part claims yet."
     },
     {
       "surface_id": "execution_boundaries",
       "role": "execution_control",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-16T10:50:55",
+      "generated_at": "2026-04-16T11:18:27",
       "why_it_matters": "Work only until the next operator-review boundary around Implementation Package Review. Pause when no new grounding appears. Stop product-shaped continuation if the current cost target still matters."
     },
     {
       "surface_id": "project_direction_review",
       "role": "direction_of_travel",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-16T10:50:55",
+      "generated_at": "2026-04-16T11:18:27",
       "why_it_matters": "ELI is currently steering SmartGlasses toward a boundary-first, phone-first, touch-first, subtitle-first functional prototype that can be reviewed for prototype buildability while consumer-tier product narration remai..."
+    },
+    {
+      "surface_id": "reuse_recommendation_review",
+      "role": "reuse_vs_invent_recommendation",
+      "trust_use": "current_truth",
+      "generated_at": "2026-04-16T11:18:27",
+      "why_it_matters": "ELI now has a bounded recommendation layer for where to reuse, adapt, integrate, source, treat as inspiration only, or deliberately invent. The current posture is clear: stop inventing baseline captions and baseline d..."
     },
     {
       "surface_id": "exploratory_ideas_review",
       "role": "bounded_exploration",
       "trust_use": "supporting_context",
-      "generated_at": "2026-04-16T10:50:55",
+      "generated_at": "2026-04-16T11:18:27",
       "why_it_matters": "Use this surface to inspect ideas ELI is incubating below current direction, milestones, and accepted implementation posture. It is supporting exploratory context only and cannot silently change project truth."
     },
     {
       "surface_id": "operator_proposal_review",
       "role": "operator_input_under_review",
       "trust_use": "current_truth",
-      "generated_at": "2026-04-16T10:50:55",
+      "generated_at": "2026-04-16T11:18:27",
       "why_it_matters": "Use this surface as the current-truth record of what the operator has proposed, how ELI classified each proposal, and whether it stayed live, was promoted, held, or rejected. It owns proposal lifecycle posture only an..."
-    },
-    {
-      "surface_id": "extension_deployment_review",
-      "role": "operator_control_surface",
-      "trust_use": "current_truth",
-      "generated_at": "2026-04-16T10:50:55",
-      "why_it_matters": "This surface is the canonical operator-control answer to which extension capabilities are active, waiting for opt-in, merely available, or deferred. It still does not imply backend execution exists beyond the state mo..."
     }
   ],
   "operator_goals": [
@@ -758,7 +759,7 @@
     "A flat evolution strip can mean stable, stalled, or simply repeating. Verify with the endpoint labels and held or blocked reasons.",
     "Cautionary or provisional surfaces stay visible for continuity, but they should not override current-truth sources.",
     "Hardware-aware rendering briefs are exploratory visual framing only; do not treat them as accepted design direction or settled implementation truth.",
-    "Tentative expectations must stay visibly tentative; defaults should not read as confirmed operator ambition."
+    "Exploratory ideas are supporting incubation context only; do not read a visible idea row as the current winning path, a live review front, or accepted implementation truth."
   ],
   "page_priority": [
     {
@@ -839,31 +840,32 @@
     "overall_trust_status": "provisional",
     "review_state_summary": "The current review-state files are still settling. Use them provisionally and avoid over-reading cross-surface differences.",
     "scorecard_use": "current_truth",
-    "artifact_review_use": "provisional_context"
+    "artifact_review_use": "stale_context"
   },
   "source_generated_at": {
     "project_expectations": "2026-04-10T09:16:32",
-    "execution_resume": "2026-04-16T10:50:55",
-    "project_direction_review": "2026-04-16T10:50:55",
-    "exploratory_ideas_review": "2026-04-16T10:50:55",
-    "operator_proposal_review": "2026-04-16T10:50:55",
-    "project_topology_view": "2026-04-16T10:50:55",
-    "project_milestones": "2026-04-16T10:50:55",
-    "product_realism_review": "2026-04-16T10:50:55",
-    "cost_viability_review": "2026-04-16T10:50:55",
-    "budget_tier_review": "2026-04-16T10:50:55",
-    "component_package_review": "2026-04-16T10:50:55",
-    "parts_readiness_review": "2026-04-16T10:50:55",
-    "execution_boundaries": "2026-04-16T10:50:55",
-    "pricing_alternatives_review": "2026-04-16T10:50:55",
-    "extensions_capability_review": "2026-04-16T10:50:55",
-    "extension_deployment_review": "2026-04-16T10:50:55",
-    "hardware_aware_rendering_brief_review": "2026-04-16T10:50:55",
-    "verification_summary": "2026-04-16T10:50:55",
-    "project_scorecard": "2026-04-16T10:50:55",
+    "execution_resume": "2026-04-16T11:18:27",
+    "project_direction_review": "2026-04-16T11:18:27",
+    "exploratory_ideas_review": "2026-04-16T11:18:27",
+    "operator_proposal_review": "2026-04-16T11:18:27",
+    "reuse_recommendation_review": "2026-04-16T11:18:27",
+    "project_topology_view": "2026-04-16T11:18:27",
+    "project_milestones": "2026-04-16T11:18:27",
+    "product_realism_review": "2026-04-16T11:18:27",
+    "cost_viability_review": "2026-04-16T11:18:27",
+    "budget_tier_review": "2026-04-16T11:18:27",
+    "component_package_review": "2026-04-16T11:18:27",
+    "parts_readiness_review": "2026-04-16T11:18:27",
+    "execution_boundaries": "2026-04-16T11:18:27",
+    "pricing_alternatives_review": "2026-04-16T11:18:27",
+    "extensions_capability_review": "2026-04-16T11:18:27",
+    "extension_deployment_review": "2026-04-16T11:18:27",
+    "hardware_aware_rendering_brief_review": "2026-04-16T11:18:27",
+    "verification_summary": "2026-04-16T11:18:27",
+    "project_scorecard": "2026-04-16T10:55:50",
     "v1_decision_review": "2026-04-16T10:50:10",
     "draft_artifact_review": "2026-04-16T10:50:10"
   },
   "revisable": true,
-  "updated_at": "2026-04-16T10:50:55"
+  "updated_at": "2026-04-16T11:18:27"
 }

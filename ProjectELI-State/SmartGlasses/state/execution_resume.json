@@ -1,19 +1,20 @@
 {
-  "generated_at": "2026-04-16T10:50:55",
+  "generated_at": "2026-04-16T11:18:27",
   "source_generated_at": {
-    "review_state_consumption": "2026-04-16T10:50:10",
-    "reflect_state": "2026-04-16T10:50:10",
-    "project_scorecard": "2026-04-16T10:50:55",
+    "review_state_consumption": "2026-04-16T11:18:27",
+    "reflect_state": "2026-04-16T10:55:06",
+    "project_scorecard": "2026-04-16T10:55:50",
     "implementation_artifact_review": "2026-04-16T10:50:10",
-    "component_package_review": "2026-04-16T10:50:55",
-    "cost_viability_review": "2026-04-16T10:50:55",
-    "budget_tier_review": "2026-04-16T10:50:55",
-    "execution_boundaries": "2026-04-16T10:50:55",
-    "project_direction_review": "2026-04-16T10:50:55",
-    "exploratory_ideas_review": "2026-04-16T10:50:55",
-    "operator_proposal_review": "2026-04-16T10:50:55",
-    "similar_products_review": "2026-04-16T10:50:55",
-    "extension_deployment_review": "2026-04-16T10:50:55",
+    "component_package_review": "2026-04-16T11:18:27",
+    "cost_viability_review": "2026-04-16T11:18:27",
+    "budget_tier_review": "2026-04-16T11:18:27",
+    "execution_boundaries": "2026-04-16T11:18:27",
+    "project_direction_review": "2026-04-16T11:18:27",
+    "exploratory_ideas_review": "2026-04-16T11:18:27",
+    "operator_proposal_review": "2026-04-16T11:18:27",
+    "similar_products_review": "2026-04-16T11:18:27",
+    "reuse_recommendation_review": "2026-04-16T11:18:27",
+    "extension_deployment_review": "2026-04-16T11:18:27",
     "v1_decision_review": "2026-04-16T10:50:10",
     "artifact_emission_readiness": "2026-04-16T10:50:10",
     "draft_artifact_review": "2026-04-16T10:50:10"
@@ -31,8 +32,8 @@
     "cautionary_surfaces": [],
     "scorecard_use": "current_truth",
     "scorecard_reason": "The scorecard is fresh enough to use as current subsystem-readiness context.",
-    "implementation_artifact_review_use": "provisional_context",
-    "implementation_artifact_review_reason": "Implementation artifact review is close enough to current reflect state to use as bounded supporting context."
+    "implementation_artifact_review_use": "stale_context",
+    "implementation_artifact_review_reason": "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history."
   },
   "project_intent": {
     "summary": "Treat this project as `functional_prototype` with a `credible` quality bar and `exploratory` seriousness. Target tier is `discreet_consumer_assistive_wearable`, intended budget posture is `medium`, and acceptable cost...",
@@ -106,7 +107,7 @@
     "bom_readiness_band": "early_subsystem_bom_only",
     "component_package_kind": "subsystem_bom",
     "summary": "A concrete part list is still premature, but a bounded subsystem-level BOM frame is now warranted to improve buildability and package thinking without pretending the parts are settled.",
-    "top_blocker": "Implementation artifact review is close enough to current reflect state to use as bounded supporting context.",
+    "top_blocker": "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history.",
     "trust_posture": "provisional"
   },
   "cost_viability": {
@@ -185,6 +186,16 @@
     "materially_changes_current_judgment": true,
     "trust_use": "supporting_context"
   },
+  "reuse_recommendations": {
+    "reuse_recommendation_summary": "ELI now has a bounded recommendation layer for where to reuse, adapt, integrate, source, treat as inspiration only, or deliberately invent. The current posture is clear: stop inventing baseline captions and baseline display-hardware categories, source or integrate where the problem is already solved well enough, and keep true invention focused on trust-vi...",
+    "top_do_not_reinvent_recommendation": "Reuse existing caption and speaker-label interaction patterns instead of inventing a fresh caption grammar.",
+    "top_buy_or_source": "Buy or source a lightweight display-hardware class before opening custom optics work",
+    "top_integration": "Integrate an existing phone-linked caption pipeline class before building a custom one",
+    "top_true_invention_focus": "Invent the trust-visible subtitle-first assistive posture here",
+    "over_inventing_risk_visible": true,
+    "prototype_vs_product_reuse_note": "Most current reuse, integration, and buy-or-source recommendations improve prototype learning and buildability only. They do not resolve the project\u2019s consumer-tier budget mismatch or make the current path product-credible by themselves.",
+    "trust_use": "current_truth"
+  },
   "extension_actions": {
     "summary": "0 extension capability row(s) are currently active for this project. 3 are recommended but still waiting for explicit operator opt-in. 2 are merely available, and 1 are deferred or not yet justified. This surface models operator control posture only; it does not imply backend enablement or hidden...",
     "operator_action_needed": true,
@@ -248,6 +259,42 @@
       "source_surface": "reflect_state",
       "judgment": "hold_until_new_grounding",
       "why_held": "aligns with Trustworthy memory support; meets resistance from Privacy vs usefulness, Latency vs richness; needs counterweight discipline on Privacy vs usefulness, Latency vs richness; still meaningful, but not newly a...",
+      "release_on": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ]
+    },
+    {
+      "title": "Visual Hierarchy",
+      "source_surface": "reflect_state",
+      "judgment": "hold_until_new_grounding",
+      "why_held": "aligns with Real-time subtitle clarity, Low-friction assistance; meets resistance from Discreet UX vs visual clarity; needs counterweight discipline on Discreet UX vs visual clarity; still meaningful, but not newly ac...",
+      "release_on": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ]
+    },
+    {
+      "title": "Confidence Display",
+      "source_surface": "reflect_state",
+      "judgment": "hold_until_new_grounding",
+      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Discreet UX vs visual clarity, Latency vs richness; needs counterweight discipline on Latency vs richness, Discreet UX vs visua...",
+      "release_on": [
+        "real repo change or stronger repo grounding",
+        "a new source type such as runtime truth or code-config evidence",
+        "meaningfully stronger architectural pull",
+        "meaningfully lower resistance"
+      ]
+    },
+    {
+      "title": "Phone/Cloud Boundary",
+      "source_surface": "reflect_state",
+      "judgment": "hold_until_new_grounding",
+      "why_held": "aligns with Real-time subtitle clarity, Trustworthy memory support; meets resistance from Latency vs richness, Privacy vs usefulness; needs counterweight discipline on Latency vs richness, Privacy vs usefulness; still...",
       "release_on": [
         "real repo change or stronger repo grounding",
         "a new source type such as runtime truth or code-config evidence",
@@ -322,13 +369,13 @@
   ],
   "resume_notes": [
     "Do not assume this becomes a real product just because the prototype direction is interesting. Current cost posture is weak enough that commercial ambition should pause, stop, or reframe unless cost-sensitive assumptions improve.",
-    "Implementation artifact review is close enough to current reflect state to use as bounded supporting context."
+    "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history."
   ],
   "counts": {
     "active_review_front": 3,
-    "held_lanes": 1,
+    "held_lanes": 4,
     "blocked_lanes": 4,
     "needs_human_review": 3
   },
-  "updated_at": "2026-04-16T10:50:55"
+  "updated_at": "2026-04-16T11:18:27"
 }

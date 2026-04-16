@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-16T10:50:55",
+  "generated_at": "2026-04-16T11:18:27",
   "parts_readiness_bands": [
     "not_ready_for_suggestions",
     "package_direction_only",
@@ -110,7 +110,7 @@
     }
   ],
   "blocked_for_stronger_shortlist": [
-    "Implementation artifact review is close enough to current reflect state to use as bounded supporting context.",
+    "Implementation artifact review is older than current reflect-owned state, so treat it only as supporting history.",
     "No grounded component-shortlist, schematic-direction, interface-map, or subsystem-breakdown artifact currently justifies a stronger BOM package.",
     "Operator expectations have not yet been upgraded from prototype intent to an explicit product-candidate posture.",
     "Current cost posture `product_tier_mismatch_risk` blocks a credible `discreet_consumer_assistive_wearable` product-candidate claim even if prototype progress continues.",
@@ -142,11 +142,11 @@
     "artifact_truth": "implementation_artifact_review"
   },
   "source_generated_at": {
-    "component_package_review": "2026-04-16T10:50:55",
-    "project_scorecard": "2026-04-16T10:50:55",
+    "component_package_review": "2026-04-16T11:18:27",
+    "project_scorecard": "2026-04-16T10:55:50",
     "implementation_artifact_review": "2026-04-16T10:50:10",
-    "reflect_state": "2026-04-16T10:50:10"
+    "reflect_state": "2026-04-16T10:55:06"
   },
   "revisable": true,
-  "updated_at": "2026-04-16T10:50:55"
+  "updated_at": "2026-04-16T11:18:27"
 }

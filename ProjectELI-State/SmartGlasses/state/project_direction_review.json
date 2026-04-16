@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-16T10:50:55",
+  "generated_at": "2026-04-16T11:18:27",
   "current_direction_summary": "ELI is currently steering SmartGlasses toward a boundary-first, phone-first, touch-first, subtitle-first functional prototype that can be reviewed for prototype buildability while consumer-tier product narration remains capped by cost and grounding gaps.",
   "hardware_direction": "Favor a boundary-first hardware stack with minimal on-glasses compute, explicit weight/bulk discipline, and later-stage hardware packages kept deferred.",
   "software_direction": "Favor phone-first runtime and lightweight on-glasses logic over heavier autonomous glasses compute. Do not reopen boundary changes until stronger link evidence appears.",
@@ -18,7 +18,7 @@
         "Current cost posture rewards simpler prototype-scoped hardware over heavier integrated product hardware."
       ],
       "what_weakens_it": [
-        "Ensure that the current V1 frame-touch interaction constraints are strongly enforced and not relaxed for feature expansion.",
+        "Evaluate new sensor data or feedback that may impact hardware requirements.",
         "Capture concrete link-latency or reconnect evidence from the phone-first path before reopening boundary changes."
       ],
       "truth_posture": "current_truth",
@@ -240,16 +240,16 @@
     "review_truth": "v1_decision_review"
   },
   "source_generated_at": {
-    "project_scorecard": "2026-04-16T10:50:55",
-    "execution_boundaries": "2026-04-16T10:50:55",
-    "product_realism_review": "2026-04-16T10:50:55",
-    "cost_viability_review": "2026-04-16T10:50:55",
-    "component_package_review": "2026-04-16T10:50:55",
-    "parts_readiness_review": "2026-04-16T10:50:55",
-    "pricing_alternatives_review": "2026-04-16T10:50:55",
+    "project_scorecard": "2026-04-16T10:55:50",
+    "execution_boundaries": "2026-04-16T11:18:27",
+    "product_realism_review": "2026-04-16T11:18:27",
+    "cost_viability_review": "2026-04-16T11:18:27",
+    "component_package_review": "2026-04-16T11:18:27",
+    "parts_readiness_review": "2026-04-16T11:18:27",
+    "pricing_alternatives_review": "2026-04-16T11:18:27",
     "v1_decision_review": "2026-04-16T10:50:10",
-    "reflect_state": "2026-04-16T10:50:10"
+    "reflect_state": "2026-04-16T10:55:06"
   },
   "revisable": true,
-  "updated_at": "2026-04-16T10:50:55"
+  "updated_at": "2026-04-16T11:18:27"
 }
